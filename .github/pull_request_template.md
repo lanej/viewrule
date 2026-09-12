@@ -1,8 +1,15 @@
 ## Problem and resulting behavior
 
-Describe the interface problem, affected DR IDs, and what this changes.
+Describe the user-visible problem, resulting behavior, and affected DR IDs when relevant.
 
 ## Evidence
 
-Describe the one relevant regression workflow or targeted documentation check.
-State measurement limits and any migration needed. Do not attach private app data.
+List the validation actually performed and its result. Use the existing representative
+regression for behavior changes; use example/link/diff checks for documentation.
+State unavailable validation without implying a pass. Do not attach private app data.
+
+## Limits and compatibility
+
+Describe material measurement limits, changed contracts, or migration needs. Use
+[REVIEW.md](https://github.com/lanej/viewrule/blob/main/REVIEW.md) for the review rubric;
+omit this section if it does not apply.
