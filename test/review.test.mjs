@@ -315,6 +315,7 @@ test(
     const findings = badReport.pages.flatMap((page) => page.findings);
     for (const [id, dr] of [
       ["baseline-readable-text", "DR-007"],
+      ["baseline-content-clipping", "DR-006"],
       ["baseline-header-height", "DR-008"],
       ["baseline-control-size", "DR-007"],
       ["baseline-prose-alignment", "DR-007"],
