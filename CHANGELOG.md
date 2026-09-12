@@ -1,6 +1,18 @@
 # Changelog
 
-## Unreleased
+## 0.2.0 — 2026-09-12
+
+- Ship the original seven dotfiles design preferences as built-in guidance, separate
+  from personal preferences and recorded feedback.
+- Initialize new projects with editable baseline rules; add an analytical preset
+  and `preset --name ...` for selective adoption. Existing project rules are preserved.
+- Add `min-font-size` and `max-text-gap` measurements with DR citations and remediation.
+  Comparison sets may leave `requiredKeys` empty while retaining counts and preservation.
+- Exercise shipped presets with broken, compact, stretched, finite, and missing-evidence
+  fixtures through the single installed workflow. Default density uses text proximity
+  and visible identities, without a viewport occupancy minimum.
+- Update the Claude plugin to use this engine and teach preset calibration. The
+  release uses the exact tested archive and the plugin pins its verified checksum.
 
 - Make coding agents the primary audience in the README and architecture docs.
 - Add the Claude Code plugin 0.1.0 and repository marketplace: setup, design/review,

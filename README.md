@@ -12,7 +12,7 @@ opens the running app in Chromium, checks configured constraints, and reports
 violations with evidence and design-rule citations. Other agents and CI can use
 the same CLI directly.
 
-**Status:** experimental 0.1.0, distributed through
+**Status:** experimental 0.2.0, distributed through
 [GitHub Releases](https://github.com/lanej/viewrule/releases). No npm registry release
 is available yet. Node.js 22+ and npm are required. Linux is exercised in CI;
 macOS and Windows have not been validated.
@@ -48,7 +48,7 @@ its selectors, viewport choices, and thresholds.
 | Layout | Alignment of declared peers, overlap, clipping, component height, and page overflow |
 | Comparison | Required visible item counts and stable identities preserved across viewports |
 | Context and consistency | Visible context, allowed styles or attributes, and consistent declared encodings |
-| Density and legibility | Text or element-box coverage, empty vertical bands, and configured font-size constraints |
+| Density and legibility | Adjacent text distance, minimum text size, and optional text/box coverage or empty-band constraints |
 | Capture and accessibility | Complete detail-tile coverage and automatically detectable axe accessibility findings |
 
 Rule findings report their selector, observed value, expected value, reason, and
@@ -71,8 +71,9 @@ In Claude Code, install the plugin and initialize it in your application's repos
 ```
 
 Setup installs a checksummed engine release and Chromium, then helps configure your
-app. `/viewrule:review` guides design decisions, runs checks, and inspects the rendered
-result. `/viewrule:feedback` records your actual feedback against a specific report.
+app with a baseline or analytical preset. `/viewrule:review` guides design decisions,
+runs checks, and inspects the rendered result. `/viewrule:feedback` records your
+actual feedback against a specific report.
 Claude can also select these skills when relevant. Repairs follow the scope of your
 request, and only human feedback can establish an approved visual reference.
 
@@ -82,14 +83,14 @@ for configuration, existing dotfiles-hook migration, updates, and removal.
 
 ### CLI, other agents, or the demo
 
-Download `viewrule-0.1.0.tgz` and `SHA256SUMS` from the
-[v0.1.0 release](https://github.com/lanej/viewrule/releases/tag/v0.1.0).
+Download `viewrule-0.2.0.tgz` and `SHA256SUMS` from the
+[v0.2.0 release](https://github.com/lanej/viewrule/releases/tag/v0.2.0).
 From that download directory, verify the checksum and install:
 
 ```sh
 # Linux; on macOS use: shasum -a 256 -c SHA256SUMS
 sha256sum -c SHA256SUMS
-npm install --global ./viewrule-0.1.0.tgz
+npm install --global ./viewrule-0.2.0.tgz
 viewrule install-browser
 viewrule --version
 ```
@@ -106,8 +107,9 @@ npm run browser:install
 npm run demo
 ```
 
-The demo prints a local HTML report path for a deliberately broken and corrected
-comparison. It uses illustrative data and does not record human approval.
+The demo prints an HTML gallery for the same broken, compact, stretched, and finite
+comparison fixtures used by the preset regression. It includes desktop and 4K
+reports, uses illustrative data, and does not record human approval.
 
 ### Configure a real application
 
@@ -115,7 +117,8 @@ Start your application's development server, then run these commands in its repo
 
 ```sh
 viewrule init --url http://localhost:3000
-# Edit .ui-review/config.json and .ui-review/rules.json for your application.
+# For an analytical workspace, add --preset analytical to init.
+# Calibrate .ui-review/config.json and its starter rules for your application.
 viewrule check
 ```
 
@@ -124,6 +127,27 @@ that proves the intended data has loaded, and representative browser sizes. Init
 configs include desktop, wide, large, 4K, and mobile viewports; dimensions are **CSS
 pixels**, not the monitor's hardware resolution. Use stable fixture data for comparisons.
 Viewrule does not start the application's server.
+
+### The default opinion
+
+`guidance` includes seven built-in preferences adapted from the original dotfiles:
+lead with the decision, keep comparisons visible, preserve quantitative context,
+align evidence, minimize distracting decoration, retain readable density, and
+review graphical integrity. Personal preferences and actual human feedback refine them.
+
+New projects get editable **baseline** rules: 14px main-content text, clipping
+warnings, and a warning for headers over 160px. **Analytical** adds declared
+comparison identities, eight desktop/twelve large-screen alternatives, nearby
+text values, complete labels, shared context, and aligned metric peers. These are
+calibratable starting constraints; a finite task can require fewer alternatives.
+Neither preset imposes a viewport occupancy score.
+
+Use `viewrule init --preset analytical --url ...` for a new comparison workspace,
+or `viewrule preset --name analytical` to inspect rules for an existing application.
+The [defaults guide](docs/defaults.md) documents exact thresholds, annotations,
+scope, and limitations. Upgrading never replaces an application's rules.
+
+### Calibrate comparison rules
 
 For example, suppose the configured `main` page contains a carrier table. Put this
 array in `.ui-review/rules.json` to require eight complete rows in the initial desktop
@@ -236,11 +260,13 @@ the [lifecycle guide](docs/lifecycle.md) covers release, upgrade, rollback, and 
 
 ## Limits and next work
 
-**Useful density remains an open problem.** Stretching a table can improve box
-coverage while leaving large gaps between related values. Text coverage avoids
-counting those empty boxes, but cannot establish relevance or comparison effort.
-Use coverage with visible comparison identities, legibility constraints, and human
-review. Improving this is the first [roadmap item](https://github.com/lanej/viewrule/blob/main/ROADMAP.md).
+**Useful density still requires judgment.** Box coverage can reward empty stretched
+tables. The analytical preset therefore checks visible identities, readable type,
+and distance between actual text values. Its regression fixtures reject stretching
+alone and accept bounded finite comparisons with surrounding whitespace. These
+checks cannot establish relevance or every source of comparison effort. The
+[fixture corpus](https://github.com/lanej/viewrule/blob/main/test/README.md) states exactly
+what is verified; further work is tracked in the [roadmap](https://github.com/lanej/viewrule/blob/main/ROADMAP.md).
 
 DOM evidence cannot certify chart truth, semantic context, every form of clipping
 or occlusion, or overall design quality. Native-scale captures preserve evidence;
@@ -253,7 +279,9 @@ are reliable enough to avoid optimizing the wrong thing.
 From a source checkout, use `npm ci`, `npm run browser:install`, and `npm test`.
 There is no compilation step. The single representative regression workflow installs
 the packed CLI through an isolated plugin copy, then exercises 4K evidence, feedback,
-repair, and stale-review enforcement. It does not evaluate Claude's visual judgment.
+repair, and stale-review enforcement against the shipped presets. The same workflow
+checks broken, compact, stretched, finite, and missing-annotation cases with specific
+finding assertions. It does not evaluate Claude's visual judgment.
 For documentation-only changes, use targeted link, example, and diff checks instead
 of adding tests or rerunning the browser locally.
 

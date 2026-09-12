@@ -109,6 +109,7 @@ async function main() {
       policy: path.join(engine, "docs/design-rules.md"),
       rules: path.join(engine, "docs/ui-review.md"),
       detection: path.join(engine, "docs/ui-review-enforcement.md"),
+      defaults: path.join(engine, "docs/defaults.md"),
     }));
   } else if (isHook) {
     const result = spawnSync(process.execPath, [launcher, "hook"], { input, encoding: "utf8", timeout: 25000 });

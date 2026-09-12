@@ -41,8 +41,9 @@ npm test
 
 Run the affected detector once after behavioral changes; repeat only after a
 failure or further implementation changes. `npm test` packs and installs the CLI
-through an isolated plugin copy, then exercises one workflow. Extend that detector
-for a demonstrated regression; do not add helper tests, snapshots, or viewport/edge-case matrices.
+through an isolated plugin copy, then exercises one workflow. Keep concrete rejected
+and passing preset fixtures there; assert their specific findings and measurements.
+Do not add helper tests, snapshots, or viewport/edge-case matrices.
 
 For documentation and instruction changes, check links, examples, frontmatter/imports,
 and the diff. Do not add a test suite or run a local browser regression just for prose.

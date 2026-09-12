@@ -31,9 +31,12 @@ matrices, or repeated assertions that mirror implementation. Documentation-only
 changes need link/syntax/diff review, not another browser run. Stop verification
 once the concrete risk is resolved.
 
-The current density assertion verifies its documented geometric proxy; it is not
-an accepted design benchmark. The stretched-table counterexample in the roadmap
-must guide the next substantive detector change.
+The [fixture corpus](test/README.md) asserts specific violations in the shipped
+presets, a clean compact result, rejection of empty stretching, and a clean finite
+comparison with whitespace. Add cases for concrete missing claims; passing examples
+must genuinely pass without weakening the rules merely to fit the fixture.
+These checks establish scoped geometry and identity contracts, not a universal
+information-density benchmark or automated graphical truth.
 
 ## Change checklist
 

@@ -9,6 +9,7 @@ import { inspectPage } from "./checks.mjs";
 import { renderReport, renderDesignPolicy } from "./report.mjs";
 import { captureDetails } from "./capture.mjs";
 import { readDesignPolicy, evaluateDesign } from "./design.mjs";
+import { defaultPreferences } from "./presets.mjs";
 
 export async function runReview(project, globalDir) {
   project = await realpath(project);
@@ -197,6 +198,7 @@ export async function runReview(project, globalDir) {
       }
   }
   const preferences = [
+    ...await defaultPreferences(),
     ...(await readJSON(path.join(globalDir, "preferences.json"), [])),
     ...(await feedbackEntries(globalDir)),
     ...feedback,

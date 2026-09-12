@@ -4,19 +4,20 @@ Priorities are ordered; dates are deliberately unspecified.
 
 ## 1. Useful density on larger viewports
 
-The current prototype catches loss of configured comparisons and some underused
-regions, but box coverage can be improved by stretching empty table space. Its
-passing fixture is therefore not evidence of an effective large-screen layout.
+The analytical preset now combines comparison identities, readable text, and
+adjacent text-distance constraints. Its fixtures reject empty stretching and
+accept bounded finite comparisons with whitespace. Box coverage remains available
+as an explicitly geometric proxy, and is not part of the default preset.
 
 Develop scoped observations for actual text/data marks, simultaneously visible
 comparison identities, and distance between related values. Calibrate them through
 the user's rejected and accepted layouts. Whitespace can support grouping and a
 finite task need not fill the entire screen. Avoid a universal density score.
 
-Acceptance: merely widening an otherwise unchanged table must not count as more
-useful information; shrinking type below the accepted readable size must not help;
-removing a previously visible comparison must still fail. Extend the existing
-representative workflow to capture the actual regression, without a new test matrix.
+Preserve the verified cases: merely widening a table must not pass as improved
+comparison; unreadable type and lost visible identities fail. Extend the same
+workflow with actual application examples for wrapped labels, complex tables,
+charts, and task-specific evidence needs, without a new test matrix.
 
 ## 2. Improve remediation precision
 

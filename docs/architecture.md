@@ -2,7 +2,7 @@
 
 Viewrule is a local Node CLI orchestrating a Chromium browser process. The CLI is
 the supported integration boundary; `src/` modules are internal. There is no daemon,
-database service, model dependency, or general plugin framework in 0.1.
+database service, model dependency, or general plugin framework in 0.2.
 Coding agents are the primary operators; humans supply intent and review judgments.
 The Claude Code plugin is a client of this boundary, using Claude's model to interpret
 rules and evidence while the engine performs deterministic checks.
@@ -45,6 +45,11 @@ and its hash so an old finding can be read against the policy it used.
 
 ## Modules
 
+Built-in opinion lives in `presets/preferences.json`; `src/presets.mjs` loads it for
+guidance and reports. Initialization copies baseline or analytical rules into the
+application's editable rules file. Existing rules are never silently replaced.
+Preset assets are packaged with the engine and included in freshness fingerprints.
+
 The self-contained Claude plugin is discovered through the root marketplace manifest.
 Its Node launcher downloads the exact `engine.json` archive, checks SHA-256 before
 installation, and uses a version/checksum directory outside the plugin cache.
@@ -55,6 +60,7 @@ Plugin cache files are immutable during setup; no parent-repository paths are ne
 
 | Module | Responsibility |
 | --- | --- |
+| `src/presets.mjs`, `presets/` | Built-in guidance and validated editable starter rules |
 | `plugins/claude-code/scripts/viewrule.mjs` | Pinned installation, CLI delegation, documentation paths, missing-engine hook handling |
 | `bin/viewrule.mjs` | Executable, lightweight hook preflight, version, browser installation |
 | `src/cli.mjs` | Command parsing and presentation |

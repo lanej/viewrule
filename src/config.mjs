@@ -80,6 +80,8 @@ const types = {
   "no-clip": {},
   "visible-count": { min: positive },
   "max-height": { max: { type: "number", exclusiveMinimum: 0 } },
+  "min-font-size": { min: { type: "number", exclusiveMinimum: 0 } },
+  "max-text-gap": { items: text, max: { type: "number", minimum: 0 } },
   style: { property: text, allowed: names },
   attribute: { attribute: text, allowed: names },
   consistent: {
@@ -89,7 +91,7 @@ const types = {
   },
   "comparison-set": {
     keyAttribute: text,
-    requiredKeys: names,
+    requiredKeys: { type: "array", uniqueItems: true, items: text },
     minVisibleByViewport: { type: "object", minProperties: 1, additionalProperties: positive },
     preserveFrom: text,
     minFontSize: { type: "number", exclusiveMinimum: 0 },

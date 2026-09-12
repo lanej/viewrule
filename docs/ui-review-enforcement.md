@@ -133,6 +133,20 @@ For DR-004, scope `context` to actual estimated/forecast elements, require their
 visible explanatory labels, and cite `"designRules": ["DR-004"]`. This checks
 the presentation of declared states; data correctness remains unassessed.
 
+## Starter constraints and text geometry
+
+[Built-in preferences and presets](defaults.md) provide an editable starting opinion.
+`init` defaults to baseline rules; `--preset analytical` adds explicit comparison
+annotations and thresholds. Existing application rules are not rewritten on upgrade.
+
+`min-font-size` checks computed CSS text sizes below its selector and cites DR-007.
+`max-text-gap` checks adjacent text-range gaps within declared rows and cites DR-006
+and DR-007. It requires two nonempty text items with a shared reading band, so a
+missing pair or stacked layout cannot masquerade as a passing proximity check.
+The measurement uses actual text bounds rather than cell widths: widening a table
+can increase the measured gap while preserving the same comparison count.
+Neither check establishes semantic relevance or every form of clipping/occlusion.
+
 ## Enforcement and repair
 
 `viewrule check` returns 0 when configured error checks pass, 1 for detected

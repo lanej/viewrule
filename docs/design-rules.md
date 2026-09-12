@@ -11,6 +11,8 @@ for quantitative screens, not quotations or universal rules for every interface.
 This file defines the intended behavior. [Detection and enforcement](ui-review-enforcement.md)
 describes the implemented checks and their limits; listing a rule here does not
 mean the tool checks every part of it. See [UI review](ui-review.md) for setup.
+The [default opinion](defaults.md) translates selected principles into editable
+starter constraints with explicit numbers, scopes, and rejected/passing fixtures.
 
 ## How to apply the rules
 

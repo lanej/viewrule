@@ -8,6 +8,7 @@ const defaults = {
   "visible-count": ["DR-006"], "comparison-set": ["DR-006", "DR-007"],
   context: ["DR-003"], consistent: ["DR-005"],
   "region-density": ["DR-007"], "max-height": ["DR-008"],
+  "min-font-size": ["DR-007"], "max-text-gap": ["DR-006", "DR-007"],
 };
 const advice = {
   align: "Align the declared peers using their shared layout or spacing rules.",
@@ -21,6 +22,8 @@ const advice = {
   "region-density": "Use the available comparison area for useful evidence; check the detail tiles before changing spacing.",
   "max-height": "Reduce excess header or container height while preserving necessary controls and context.",
   style: "Use the project's declared style values on the affected component.",
+  "min-font-size": "Restore readable type, then reflow the content; do not shrink text to fit more items.",
+  "max-text-gap": "Bound the comparison's columns or bring related values closer. Use extra space for useful detail or preserve it as whitespace outside the comparison.",
 };
 export const designIdsFor = (rule) => rule.designRules ?? defaults[rule.type] ??
   (rule.type === "style" ? [/font|line-height/.test(rule.property) ? "DR-007" : /shadow|border|background/.test(rule.property) ? "DR-008" : "DR-005"] : []);

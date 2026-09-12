@@ -19,6 +19,8 @@ jobs:
       - run: npm ci
       - run: node bin/viewrule.mjs install-browser --with-deps
       - run: npm test
+        env:
+          VIEWRULE_VERIFY_PLUGIN_PIN: ${{ contains(github.event.pull_request.title, '[release]') || contains(github.event.head_commit.message, '[release]') }}
       - uses: actions/upload-artifact@v4
         with:
           name: tested-package

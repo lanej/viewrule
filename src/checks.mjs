@@ -18,6 +18,25 @@ export function inspectPage(rules) {
       ? `#${el.id}`
       : el.tagName.toLowerCase() +
         (el.classList.length ? "." + [...el.classList].join(".") : "");
+  const textNodes = (el) => {
+    const nodes = [], walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+    let node;
+    while ((node = walker.nextNode()))
+      if (node.textContent.trim() && visible(node.parentElement)) nodes.push(node);
+    return nodes;
+  };
+  const textBounds = (el) => {
+    const boxes = textNodes(el).flatMap((node) => {
+      const range = document.createRange();
+      range.setStart(node, node.textContent.search(/\S/));
+      range.setEnd(node, node.textContent.trimEnd().length);
+      return [...range.getClientRects()].filter((r) => r.width > 0 && r.height > 0);
+    });
+    return boxes.length ? {
+      left: Math.min(...boxes.map((r) => r.left)), right: Math.max(...boxes.map((r) => r.right)),
+      top: Math.min(...boxes.map((r) => r.top)), bottom: Math.max(...boxes.map((r) => r.bottom)),
+    } : null;
+  };
   const add = (rule, message, el, actual, expected) =>
     findings.push({
       rule: rule.id,
@@ -123,6 +142,35 @@ export function inspectPage(rules) {
         const missing = rule.requiredKeys.filter((key) => !keys.includes(key));
         if (missing.length)
           add(rule, "Critical comparisons are not visible together.", null, missing, rule.requiredKeys);
+      }
+    } else if (rule.type === "min-font-size") {
+      const parents = new Set(els.flatMap((el) => textNodes(el).map((node) => node.parentElement)));
+      if (!parents.size) {
+        evaluations.at(-1).status = "missing";
+        add(rule, "No visible text was available to measure.", els[0], 0, "visible text");
+      }
+      for (const el of parents) {
+        const size = parseFloat(getComputedStyle(el).fontSize);
+        if (size < rule.min) add(rule, "Visible text is below the configured readable type size.", el, size, rule.min);
+      }
+    } else if (rule.type === "max-text-gap") {
+      for (const el of els) {
+        const items = [...el.querySelectorAll(rule.items)].filter(visible)
+          .map((item) => ({ item, box: textBounds(item) })).filter((entry) => entry.box)
+          .sort((a, b) => a.box.left - b.box.left);
+        if (items.length < 2) {
+          add(rule, "Text-distance checks need at least two nonempty text items in each row.", el, items.length, 2);
+          continue;
+        }
+        for (let i = 1; i < items.length; i++) {
+          const a = items[i - 1].box, b = items[i].box;
+          if (Math.min(a.bottom, b.bottom) <= Math.max(a.top, b.top)) {
+            add(rule, "Declared text items do not share a horizontal reading band; scope or reflow the comparison row.", el, "stacked items", "one comparison row");
+            continue;
+          }
+          const gap = Math.max(0, b.left - a.right);
+          if (gap > rule.max) add(rule, `Adjacent text values are ${gap.toFixed(1)}px apart.`, items[i].item, gap, rule.max);
+        }
       }
     } else if (rule.type === "region-density") {
       const regions =

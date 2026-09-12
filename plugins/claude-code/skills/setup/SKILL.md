@@ -14,12 +14,15 @@ application repository; plugin installation does not itself install Node or Chro
 2. Obtain the application's actual development URL and startup command from its
    instructions or current task. Start the app within the task's authorization.
    If `.ui-review/config.json` is absent, run the same launcher with
-   `init --url <actual-url>`. Preserve existing configuration and rules.
+   `init --url <actual-url>` for the baseline, or add `--preset analytical` for a
+   table/comparison workspace. Preserve existing configuration and rules.
 3. Run the launcher with `docs` and read the returned policy and rule-reference paths.
    Configure routes, readiness selectors, source paths, representative CSS viewports,
-   and task-specific expectations. Use stable data and comparison identities.
-   There is no universal density target; DR-006 concerns useful comparison, and
-   DR-007 preserves readable detail at larger viewports.
+   and task-specific expectations. Read the returned defaults documentation path.
+   Adapt the preset's annotations, counts, and thresholds to the task;
+   use `preset --name analytical` to inspect it for selective adoption in existing
+   projects. Use stable data and comparison identities. A finite comparison can
+   keep useful whitespace; do not manufacture content or maximize an occupancy score.
 4. Leave `enforceOnStop` false unless the user has requested completion enforcement.
    When adopting the plugin, remove only a confirmed duplicate Viewrule Stop entry
    from the user's existing hook configuration; preserve unrelated hooks. See the

@@ -6,10 +6,11 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { createServer } from "node:http";
 import { execFile } from "node:child_process";
-import { config, rules, reviewHtml } from "./fixtures.mjs";
+import { config } from "./fixtures.mjs";
+import { analyticalHtml } from "./analytical-fixtures.mjs";
 
 // One user workflow through the installed entrypoint; no helper/edge-case matrix.
-test("Claude plugin installs Viewrule, cites violations, learns feedback, and accepts a repaired comparison", { timeout: 90000 }, async (t) => {
+test("Installed presets reject broken and stretched comparisons, accept compact and finite layouts, and preserve feedback", { timeout: 180000 }, async (t) => {
   const project = await mkdtemp(path.join(tmpdir(), "ui-review-"));
   t.after(() => rm(project, { recursive: true, force: true }));
   const globalDir = path.join(project, "global");
@@ -17,7 +18,7 @@ test("Claude plugin installs Viewrule, cites violations, learns feedback, and ac
   await mkdir(path.join(project, "src"));
   await mkdir(path.join(project, ".ui-review"));
   const source = path.join(project, "src/page.html");
-  await writeFile(source, reviewHtml(true));
+  await writeFile(source, analyticalHtml("broken"));
   assert.ok(process.env.VIEWRULE_TEST_ARCHIVE, "Run npm test to exercise the packed engine");
   const archive = await readFile(process.env.VIEWRULE_TEST_ARCHIVE);
   let corruptDownload = true;
@@ -82,23 +83,31 @@ test("Claude plugin installs Viewrule, cites violations, learns feedback, and ac
   assert.equal(init.code, 0, init.stderr);
   assert.equal(JSON.parse(await readFile(path.join(project, ".ui-review/config.json"))).enforceOnStop, false);
   assert.deepEqual(await hook(), {}, "Setup does not enable enforcement");
+  const initialRules = await readFile(path.join(project, ".ui-review/rules.json"), "utf8");
+  assert.ok(JSON.parse(initialRules).some((rule) => rule.id === "baseline-readable-text"), "Default init supplies executable rules");
+  assert.equal((await cli(["init", "--url", baseURL, "--preset", "analytical"])).code, 2);
+  assert.equal(await readFile(path.join(project, ".ui-review/rules.json"), "utf8"), initialRules, "Init preserves existing rules");
+  await writeFile(path.join(globalDir, "preferences.json"), JSON.stringify(["Keep this project's service labels visible."]));
+  const guidance = JSON.parse((await cli(["guidance"])).stdout);
+  assert.ok(guidance.defaults.some((note) => note.includes("DR-006")), "Built-in opinions are available without personal dotfiles");
+  assert.deepEqual(guidance.preferences, ["Keep this project's service labels visible."]);
+  const starter = await cli(["preset", "--name", "analytical"]);
+  assert.equal(starter.code, 0, starter.stderr);
+  const rules = JSON.parse(starter.stdout).map((rule) => {
+    if (rule.viewports) rule.viewports = rule.viewports.filter((name) => ["desktop", "4k"].includes(name));
+    if (rule.minVisibleByViewport) rule.minVisibleByViewport = { desktop: rule.minVisibleByViewport.desktop, "4k": rule.minVisibleByViewport["4k"] };
+    return rule;
+  });
+  // A local starter rule overrides a same-ID personal default; don't rewrite either.
+  const readable = rules.find((rule) => rule.id === "baseline-readable-text");
+  await writeFile(path.join(globalDir, "rules.json"), JSON.stringify([{ ...readable, min: 18 }]));
   const cfg = {
     ...config(baseURL),
     viewports: [{ name: "desktop", width: 1280, height: 800 }, { name: "4k", width: 3840, height: 2160 }],
     requiredDesignRules: ["DR-001", "DR-003", "DR-006", "DR-007"],
   };
-  const density = {
-    id: "density", type: "region-density", region: "viewport",
-    selector: "tbody", measure: "boxes", minCoverage: 0.1, maxVerticalGap: 1600,
-    severity: "error", reason: "Use the comparison workspace.",
-  };
   await writeFile(path.join(project, ".ui-review/config.json"), JSON.stringify(cfg));
-  await writeFile(path.join(project, ".ui-review/rules.json"), JSON.stringify([...rules, density, {
-    id: "comparison", type: "comparison-set", selector: "tbody tr",
-    keyAttribute: "data-comparison", requiredKeys: ["carrier-1", "carrier-2"],
-    minVisibleByViewport: { desktop: 8, "4k": 12 }, preserveFrom: "desktop", minFontSize: 14,
-    severity: "error", reason: "Keep alternatives visible and use the larger screen for additional carriers.",
-  }, {
+  await writeFile(path.join(project, ".ui-review/rules.json"), JSON.stringify([...rules, {
     id: "period", type: "consistent", selector: "table", keyAttribute: "data-measure",
     properties: [], attributes: ["data-period"], designRules: ["DR-001"],
     severity: "error", reason: "Resizing must preserve the reporting period.",
@@ -111,27 +120,37 @@ test("Claude plugin installs Viewrule, cites violations, learns feedback, and ac
   const wide = badReport.pages.find((page) => page.viewport.name === "4k");
   assert.ok(wide, bad.stdout);
   assert.ok(wide.findings.some((finding) => finding.designRules.includes("DR-001")));
-  assert.ok(wide.findings.some((finding) => finding.message.includes("lost previously visible") && finding.actual.includes("carrier-8")));
+  assert.ok(wide.findings.some((finding) => finding.message.includes("lost previously visible") && finding.actual.includes("carrier-2")));
+  const findings = badReport.pages.flatMap((page) => page.findings);
+  for (const [id, dr] of [
+    ["baseline-readable-text", "DR-007"], ["baseline-header-height", "DR-008"],
+    ["analytical-labels", "DR-006"], ["analytical-context", "DR-003"],
+    ["analytical-metric-alignment", "DR-006"], ["analytical-metric-overlap", "DR-006"],
+  ]) assert.ok(findings.some((f) => f.rule === id && f.designRules.includes(dr)), `${id} must detect its actual fixture defect`);
+  assert.ok(findings.some((f) => f.rule === "baseline-readable-text" && f.actual === 12 && f.expected === 14));
+  assert.ok(findings.some((f) => f.rule === "baseline-header-height" && f.actual === 450 && f.expected === 160));
+  assert.ok(findings.some((f) => f.rule === "analytical-metric-alignment" && f.actual === 20 && f.expected === 2));
   const blocked = await hook();
   assert.equal(blocked.decision, "block");
   assert.match(blocked.reason, /DR-007/);
 
   const note = await cli(["feedback", "--report", badOutput.report,
-    "--decision", "adjust", "--note", "Give the comparison more of the viewport."]);
+    "--decision", "adjust", "--note", "Fixture feedback: keep adjacent comparison values within 150 CSS px while preserving readable type."]);
   assert.equal(note.code, 0, note.stderr);
-  const ruleFile = path.join(project, "density-rule.json");
-  await writeFile(ruleFile, JSON.stringify({ ...density, minCoverage: 0.12 }));
+  const ruleFile = path.join(project, "distance-rule.json");
+  await writeFile(ruleFile, JSON.stringify({ ...rules.find((r) => r.id === "analytical-value-distance"), max: 150 }));
   const learned = await cli(["learn", "--feedback", JSON.parse(note.stdout).id, "--rule", ruleFile]);
   assert.equal(learned.code, 0, learned.stderr);
   const savedRules = JSON.parse(await readFile(path.join(project, ".ui-review/rules.json")));
-  assert.equal(savedRules.find((rule) => rule.id === "density").feedbackId, JSON.parse(note.stdout).id);
+  assert.equal(savedRules.find((rule) => rule.id === "analytical-value-distance").feedbackId, JSON.parse(note.stdout).id);
 
-  await writeFile(source, reviewHtml(false));
+  await writeFile(source, analyticalHtml("compact"));
   const good = await cli(["check"]);
   assert.equal(good.code, 0, good.stderr || good.stdout);
   assert.deepEqual(await hook(), {});
   const output = JSON.parse(good.stdout);
   const report = JSON.parse(await readFile(output.report));
+  assert.deepEqual(report.summary, { errors: 0, warnings: 0 }, "Compact layout must genuinely pass, not merely suppress errors");
   const details = report.pages.find((page) => page.viewport.name === "4k").details;
   assert.equal(details.complete, true);
   const last = details.tiles.at(-1);
@@ -149,6 +168,40 @@ test("Claude plugin installs Viewrule, cites violations, learns feedback, and ac
   assert.equal(await readFile(path.join(project, ".ui-review", approved.reference, "report.json"), "utf8"),
     await readFile(output.report, "utf8"));
 
-  await writeFile(source, reviewHtml(true));
+  await writeFile(source, analyticalHtml("stretched"));
   assert.equal((await hook()).decision, "block", "Source changes invalidate the passing review");
+  const stretched = await cli(["check"]);
+  assert.equal(stretched.code, 1, stretched.stderr);
+  const stretchedReport = JSON.parse(await readFile(JSON.parse(stretched.stdout).report));
+  const stretchedWide = stretchedReport.pages.find((page) => page.viewport.name === "4k");
+  assert.ok(stretchedWide.findings.some((f) => f.rule === "analytical-value-distance" && f.actual > 150 && f.designRules.includes("DR-007")));
+  assert.deepEqual(stretchedReport.pages.find((p) => p.viewport.name === "desktop").findings, []);
+  assert.ok(stretchedWide.findings.every((f) => f.rule === "analytical-value-distance"), "Stretching alone causes the failure");
+  assert.deepEqual(stretchedWide.metrics.comparisons, report.pages.find((p) => p.viewport.name === "4k").metrics.comparisons,
+    "Empty width does not add comparison identities");
+
+  await writeFile(source, analyticalHtml("finite"));
+  const finiteRules = savedRules.map((r) => r.id === "analytical-comparisons" ? {
+    ...r, minVisibleByViewport: { desktop: 4, "4k": 4 },
+    reason: "This finite task has four relevant alternatives; show all four without inventing content.",
+  } : r);
+  await writeFile(path.join(project, ".ui-review/rules.json"), JSON.stringify(finiteRules));
+  const finite = await cli(["check"]);
+  assert.equal(finite.code, 0, finite.stderr || finite.stdout);
+  const finiteReport = JSON.parse(await readFile(JSON.parse(finite.stdout).report));
+  assert.deepEqual(finiteReport.summary, { errors: 0, warnings: 0 }, "Useful surrounding whitespace is allowed");
+  assert.deepEqual(await hook(), {});
+
+  // One missing-evidence case uses one existing viewport; it is not a viewport matrix.
+  await writeFile(source, analyticalHtml("finite").replaceAll('data-viewrule="comparison"', 'data-unmeasured="comparison"'));
+  await writeFile(path.join(project, ".ui-review/config.json"), JSON.stringify({ ...cfg,
+    viewports: cfg.viewports.filter((v) => v.name === "desktop") }));
+  await writeFile(path.join(project, ".ui-review/rules.json"), JSON.stringify(finiteRules.map((r) => ({
+    ...r, ...(r.viewports ? { viewports: ["desktop"] } : {}),
+    ...(r.minVisibleByViewport ? { minVisibleByViewport: { desktop: 4 } } : {}),
+  }))));
+  const unmeasured = await cli(["check"]);
+  assert.equal(unmeasured.code, 1);
+  assert.ok(JSON.parse(unmeasured.stdout).findings.some((f) => f.rule === "analytical-comparisons" && f.actual === 0));
+  t.diagnostic("broken → compact → stretched → finite → missing annotations: expected rules, measurements, and DR citations verified");
 });

@@ -5,6 +5,7 @@ import { readFile, mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { readJSON, validateConfig } from "./config.mjs";
 import { runReview } from "./review.mjs";
+import { defaultPreferences, presetRules } from "./presets.mjs";
 import {
   feedbackEntries,
   recordFeedback,
@@ -15,13 +16,15 @@ import {
 const help = `viewrule — rendered UI checks and a versioned design feedback loop
 
   install-browser [--with-deps]       Install the pinned Chromium browser
-  init --url http://localhost:3000       Create project config (never overwrite)
+  init --url http://localhost:3000 [--preset baseline|analytical]
+                                       Create config and editable starter rules (never overwrite)
+  preset --name baseline|analytical     Print starter rules for review or adaptation
   check                                Capture pages, check rules, write HTML + JSON
   feedback --report PATH --decision approve|adjust --note TEXT [--scope project|global]
                                        Save feedback; approval preserves screenshots
   learn --feedback ID --rule FILE [--scope project|global]
                                        Convert recorded feedback into a JSON rule
-  guidance                             Print design preferences and prior feedback
+  guidance                             Print built-in guidance, personal preferences, and feedback
   hook                                 Claude Stop hook; opt-in per project
 
 Common: --project DIR (default cwd), --help, --version
@@ -44,6 +47,8 @@ try {
         "scope",
         "feedback",
         "rule",
+        "preset",
+        "name",
       ]
         .map((k) => [k, { type: "string" }])
         .concat([["help", { type: "boolean" }]]),
@@ -56,6 +61,7 @@ try {
   else if (positionals.length !== 1)
     throw new Error("Expected one command; use --help.");
   else if (command === "init") {
+    const starter = await presetRules(args.preset ?? "baseline");
     const dir = path.join(project, ".ui-review");
     const config = validateConfig({
       version: 1,
@@ -79,7 +85,7 @@ try {
       { flag: "wx" },
     );
     for (const [name, content] of [
-      ["rules.json", "[]\n"],
+      ["rules.json", JSON.stringify(starter, null, 2) + "\n"],
       [".gitignore", "runs/\nlatest.json\n*.lock\n*.tmp\nauth*.json\n"],
     ]) {
       try {
@@ -89,8 +95,10 @@ try {
       }
     }
     console.log(
-      `Created ${dir}/config.json. Set routes, ready selectors, and rules before reviewing. Stop enforcement is off until enforceOnStop is true.`,
+      `Created ${dir}/config.json with editable ${args.preset ?? "baseline"} starter rules (existing rule files are preserved). Calibrate selectors, counts, and thresholds to the task. Stop enforcement is off until enforceOnStop is true.`,
     );
+  } else if (command === "preset") {
+    console.log(JSON.stringify(await presetRules(args.name ?? "baseline"), null, 2));
   } else if (command === "check") {
     const result = await runReview(project, globalDir);
     console.log(
@@ -138,6 +146,7 @@ try {
     console.log(
       JSON.stringify(
         {
+          defaults: await defaultPreferences(),
           preferences: await readJSON(
             path.join(globalDir, "preferences.json"),
             [],
