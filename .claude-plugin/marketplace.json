@@ -1,0 +1,12 @@
+{
+  "name": "viewrule",
+  "description": "Viewrule design guidance and executable UI checks for Claude Code.",
+  "owner": { "name": "Josh Lane" },
+  "plugins": [
+    {
+      "name": "viewrule",
+      "source": "./plugins/claude-code",
+      "description": "Design guidance and executable UI constraints for coding agents."
+    }
+  ]
+}

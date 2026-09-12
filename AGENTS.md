@@ -9,6 +9,8 @@ changing behavior. For code review, read [REVIEW.md](REVIEW.md).
 
 - Keep the engine, schema, policy, and reports here. Personal defaults belong in
   dotfiles; application selectors, thresholds, and approvals belong in the app.
+- The Claude plugin is a CLI client. Keep its skills concise, use installed engine
+  docs, and bump its manifest version for updates; never install from a Stop hook.
 - Node 22+ and npm are required. Use ES modules and existing dependencies; no
   compilation step or lint script is configured. Keep `src/` modules internal.
 - Browser-side `inspectPage` runs through Playwright evaluation: keep it serializable
@@ -38,9 +40,9 @@ npm test
 ```
 
 Run the affected detector once after behavioral changes; repeat only after a
-failure or further implementation changes. `npm test` packs and installs the CLI,
-then exercises one representative workflow. Extend that detector for a demonstrated
-regression; do not add helper tests, snapshots, or viewport/edge-case matrices.
+failure or further implementation changes. `npm test` packs and installs the CLI
+through an isolated plugin copy, then exercises one workflow. Extend that detector
+for a demonstrated regression; do not add helper tests, snapshots, or viewport/edge-case matrices.
 
 For documentation and instruction changes, check links, examples, frontmatter/imports,
 and the diff. Do not add a test suite or run a local browser regression just for prose.

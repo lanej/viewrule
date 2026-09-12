@@ -16,11 +16,14 @@ Use `VIEWRULE_BROWSER_PATH=/absolute/path/to/chromium` only when the pinned brow
 cannot run in the environment; report that substitution. Supported CI uses the
 browser associated with the pinned Playwright dependency.
 
-`npm test` packages and installs the CLI before running one representative workflow:
+`npm test` packs the CLI and installs it through an isolated copy of the Claude plugin.
+The same representative workflow verifies checksum rejection and hook opt-in, then:
 a comparison loses information and changes its period at 4K; findings cite policy;
 human feedback becomes a rule; the fixture is repaired; detail capture is complete;
 and a subsequent source change invalidates the passing review. The temporary app
 and browser run in the same process environment. Test output is standard Node TAP.
+The copied plugin uses the fixture's archive URL/checksum; production pins are unchanged.
+Claude's skill selection and visual judgment require a real agent session to assess.
 
 Keep one regression detector for this workflow. Extend it when a real regression
 requires stronger evidence; do not add helper tests, pixel snapshots, viewport
