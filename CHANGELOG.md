@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+- Make coding agents the primary audience in the README and architecture docs.
+- Add the Claude Code plugin 0.1.0 and repository marketplace: setup, design/review,
+  human-feedback skills, and an opt-in Stop adapter around the pinned 0.1.0 engine.
+- Verify engine downloads before isolated installation; keep runtime and application
+  state outside the plugin cache. Document hook migration, upgrades, and removal.
+- Extend the existing installed regression workflow through the plugin launcher,
+  including checksum rejection and human-approved reference preservation.
+
 ## 0.1.0 — 2026-09-12
 
 - Extract the UI-review engine from lanej/dotfiles into the standalone Viewrule CLI.

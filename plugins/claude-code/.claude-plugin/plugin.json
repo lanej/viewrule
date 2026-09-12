@@ -1,0 +1,10 @@
+{
+  "name": "viewrule",
+  "version": "0.1.0",
+  "description": "Build and review web UIs with executable design rules, full-resolution evidence, and human feedback.",
+  "author": { "name": "Josh Lane" },
+  "homepage": "https://github.com/lanej/viewrule",
+  "repository": "https://github.com/lanej/viewrule",
+  "license": "MIT",
+  "keywords": ["ui", "design", "layout", "visual-review"]
+}

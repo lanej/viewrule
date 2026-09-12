@@ -3,13 +3,17 @@
 Viewrule is a local Node CLI orchestrating a Chromium browser process. The CLI is
 the supported integration boundary; `src/` modules are internal. There is no daemon,
 database service, model dependency, or general plugin framework in 0.1.
+Coding agents are the primary operators; humans supply intent and review judgments.
+The Claude Code plugin is a client of this boundary, using Claude's model to interpret
+rules and evidence while the engine performs deterministic checks.
 
 ## Ownership
 
 | Location | Owns | Does not own |
 | --- | --- | --- |
 | Viewrule repository | Engine, rule schema, design policy, reports, distribution, regression detector | Personal taste or application code |
-| Dotfiles | Pinned installation, development-checkout override, personal preferences, Claude integration | A second copy of the engine |
+| `plugins/claude-code/` | Setup/review/feedback skills, pinned engine installation, Stop adapter | Measurement logic, model self-approval, application source repair logic |
+| Dotfiles | Installation choices, development-checkout override, personal preferences, optional legacy hook | A second copy of the engine |
 | Application `.ui-review/` | Routes, selectors, viewports, thresholds, recorded feedback, approved references | Global defaults for unrelated applications |
 
 Global configuration defaults to `$XDG_CONFIG_HOME/viewrule`, or `~/.config/viewrule`.
@@ -41,8 +45,17 @@ and its hash so an old finding can be read against the policy it used.
 
 ## Modules
 
+The self-contained Claude plugin is discovered through the root marketplace manifest.
+Its Node launcher downloads the exact `engine.json` archive, checks SHA-256 before
+installation, and uses a version/checksum directory outside the plugin cache.
+Downloads require explicit setup or browser installation. The hook has a preflight for unconfigured
+projects and then delegates freshness checks to the installed engine. The `docs`
+adapter command points skills at the matching installed policy and rule reference.
+Plugin cache files are immutable during setup; no parent-repository paths are needed.
+
 | Module | Responsibility |
 | --- | --- |
+| `plugins/claude-code/scripts/viewrule.mjs` | Pinned installation, CLI delegation, documentation paths, missing-engine hook handling |
 | `bin/viewrule.mjs` | Executable, lightweight hook preflight, version, browser installation |
 | `src/cli.mjs` | Command parsing and presentation |
 | `src/paths.mjs` | User-config location and compatibility environment variables |

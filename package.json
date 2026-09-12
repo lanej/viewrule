@@ -1,7 +1,7 @@
 {
   "name": "viewrule",
   "version": "0.1.0",
-  "description": "Executable design rules for rendered interfaces, with full-resolution evidence and a human feedback loop.",
+  "description": "Design guidance and executable UI constraints for coding agents, with full-resolution evidence and human feedback.",
   "type": "module",
   "license": "MIT",
   "author": "Viewrule contributors",

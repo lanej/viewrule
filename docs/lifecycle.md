@@ -26,6 +26,15 @@ error when its expectation is justified for the task and viewport.
 
 ## Distribution and compatibility
 
+Claude users can install the plugin from this repository's marketplace; see the
+[plugin guide](https://github.com/lanej/viewrule/blob/main/plugins/claude-code/README.md).
+The plugin and engine have separate versions. A plugin release bumps
+`plugins/claude-code/.claude-plugin/plugin.json`; an engine update changes the archive
+URL and checksum in `engine.json` and bumps that plugin version too. Plugin-only
+changes do not require an engine release or a `[release]` commit. Setup never updates
+the pin or replaces a published engine. Dotfiles remains an optional installer and
+personal preference source; adopting the plugin requires removing any duplicate hook.
+
 The source repository and versioned GitHub Release tarballs are the initial
 distribution channels. npm registry publication is a separate future decision.
 The package includes its policy docs and `npm-shrinkwrap.json`, which pins the
@@ -55,8 +64,10 @@ wording is included in the policy hash and old reports retain their policy text.
 1. Update `package.json`, run `npm install --package-lock-only` to refresh the
    existing shrinkwrap, and write `CHANGELOG.md`. Include migration notes when needed.
 2. Review the change through a pull request. `npm test` packs the distribution,
-   installs it into an isolated prefix, and runs the one representative workflow
-   through that installed executable. It leaves the tested tarball in `dist/`.
+   installs it through an isolated copy of the Claude plugin, and runs the one
+   representative workflow through that adapter and installed executable. The copied
+   pin uses the packed archive served by the fixture; production pins stay unchanged.
+   It leaves the tested tarball in `dist/`.
 3. Publish the reviewed version change to `main` with `[release]` in the final
    commit message (for a squash merge, include it in the PR title). Initial source
    publication follows the same contract. Commits without that marker do not release.

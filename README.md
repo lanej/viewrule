@@ -1,12 +1,16 @@
 # <img src="docs/brand/viewrule-logo.png" alt="Viewrule" width="420" height="140">
 
-**Executable design rules for rendered interfaces.**
+**Design guidance and executable UI constraints for coding agents.**
 
-Viewrule is a local command-line tool for people and coding agents building web UIs.
-It opens a running application in Chromium, measures configured layout constraints,
-captures screenshots at full resolution, and reports violations with evidence and
-citations to the underlying design rules. Human feedback can become a scoped rule
-or an approved visual reference for the next iteration.
+Viewrule helps agents build and revise interfaces using explicit design rules,
+browser measurements, and visual evidence. It preserves detail across large
+viewports and turns human feedback into reusable constraints. The agent operates
+the tool and repairs the application; the human supplies intent and judgment.
+
+The Claude Code plugin brings this workflow into UI tasks. Its local CLI engine
+opens the running app in Chromium, checks configured constraints, and reports
+violations with evidence and design-rule citations. Other agents and CI can use
+the same CLI directly.
 
 **Status:** experimental 0.1.0, distributed through
 [GitHub Releases](https://github.com/lanej/viewrule/releases). No npm registry release
@@ -34,7 +38,7 @@ are our interpretations, not quotations, universal thresholds, or an endorsement
 
 Viewrule began in [lanej/dotfiles](https://github.com/lanej/dotfiles/pull/29). A separate
 repository gives the engine its own releases and lets any application or agent use it.
-Dotfiles retains personal preferences and agent integration; each application owns
+Dotfiles retains personal preferences and installation choices; each application owns
 its selectors, viewport choices, and thresholds.
 
 ## What it detects
@@ -55,7 +59,28 @@ for the exact scope and limits of each measurement.
 
 ## How to use it
 
-### Install or try the demo
+### Claude Code
+
+In Claude Code, install the plugin and initialize it in your application's repository:
+
+```text
+/plugin marketplace add lanej/viewrule
+/plugin install viewrule@viewrule
+/reload-plugins
+/viewrule:setup
+```
+
+Setup installs a checksummed engine release and Chromium, then helps configure your
+app. `/viewrule:review` guides design decisions, runs checks, and inspects the rendered
+result. `/viewrule:feedback` records your actual feedback against a specific report.
+Claude can also select these skills when relevant. Repairs follow the scope of your
+request, and only human feedback can establish an approved visual reference.
+
+The plugin includes an opt-in Stop hook; installation leaves enforcement off.
+See the [plugin guide](https://github.com/lanej/viewrule/blob/main/plugins/claude-code/README.md)
+for configuration, existing dotfiles-hook migration, updates, and removal.
+
+### CLI, other agents, or the demo
 
 Download `viewrule-0.1.0.tgz` and `SHA256SUMS` from the
 [v0.1.0 release](https://github.com/lanej/viewrule/releases/tag/v0.1.0).
@@ -173,6 +198,9 @@ Viewrule is a Node.js CLI orchestrating Chromium through Playwright. Ajv validat
 configuration and rules; axe supplies automated accessibility checks. It uses local
 JSON, JSONL, HTML, and PNG files, with no hosted service, database, model API, or
 telemetry. The configured application can make its own browser network requests.
+The Claude plugin packages skills, a release installer, and the existing Stop-hook
+protocol. It invokes the CLI and reads that engine version's docs; it does not copy
+measurement logic. Using the plugin involves Claude's normal model service.
 
 ```mermaid
 flowchart TD
@@ -187,6 +215,7 @@ flowchart TD
 
 | Layer | Implementation and responsibility |
 | --- | --- |
+| Claude integration | `plugins/claude-code/`: task guidance, pinned setup, and Stop-hook adapter; `.claude-plugin/marketplace.json` provides discovery |
 | Entry and configuration | `bin/viewrule.mjs`, `src/cli.mjs`, `src/config.mjs`, `src/paths.mjs`: commands, schema validation, and configuration lookup |
 | Browser evidence | `src/review.mjs`, `src/capture.mjs`, `src/checks.mjs`: fresh contexts, geometry, styles, accessibility, and full-resolution tiles |
 | Design evaluation | `src/design.mjs`: policy loading, cross-viewport comparisons, coverage, citations, and remediation suggestions |
@@ -222,8 +251,9 @@ are reliable enough to avoid optimizing the wrong thing.
 ## Development and review
 
 From a source checkout, use `npm ci`, `npm run browser:install`, and `npm test`.
-There is no compilation step. The single representative regression workflow exercises
-the packed and installed CLI, including 4K evidence, feedback, and stale-review enforcement.
+There is no compilation step. The single representative regression workflow installs
+the packed CLI through an isolated plugin copy, then exercises 4K evidence, feedback,
+repair, and stale-review enforcement. It does not evaluate Claude's visual judgment.
 For documentation-only changes, use targeted link, example, and diff checks instead
 of adding tests or rerunning the browser locally.
 
