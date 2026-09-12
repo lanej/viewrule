@@ -1,0 +1,25 @@
+{
+  "name": "viewrule",
+  "version": "0.1.0",
+  "description": "Executable design rules for rendered interfaces, with full-resolution evidence and a human feedback loop.",
+  "type": "module",
+  "license": "MIT",
+  "author": "Viewrule contributors",
+  "repository": {"type": "git", "url": "git+https://github.com/lanej/viewrule.git"},
+  "bugs": {"url": "https://github.com/lanej/viewrule/issues"},
+  "homepage": "https://github.com/lanej/viewrule#readme",
+  "engines": {"node": ">=22"},
+  "bin": {"viewrule": "bin/viewrule.mjs", "ui-review": "bin/viewrule.mjs"},
+  "files": ["bin/", "src/", "docs/", "npm-shrinkwrap.json", "CHANGELOG.md"],
+  "scripts": {
+    "test": "node scripts/test-package.mjs",
+    "demo": "node demo.mjs",
+    "browser:install": "node bin/viewrule.mjs install-browser"
+  },
+  "keywords": ["ui", "design-rules", "playwright", "layout", "visual-review"],
+  "dependencies": {
+    "@axe-core/playwright": "4.10.2",
+    "ajv": "8.17.1",
+    "playwright": "1.62.1"
+  }
+}

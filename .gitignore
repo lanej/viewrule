@@ -1,0 +1,6 @@
+node_modules/
+dist/
+*.tgz
+.ui-review/runs/
+.ui-review/latest.json
+.DS_Store
