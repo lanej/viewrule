@@ -5,6 +5,9 @@ export const detailDefaults = {
   maxTiles: 64,
 };
 
+/** @param {number} width
+ * @param {number} height
+ * @param {import("./types.js").DetailOptions} [options] */
 export function tilePlan(width, height, options = detailDefaults) {
   const starts = (length, size) => {
     if (length <= size) return [0];
@@ -27,6 +30,10 @@ export function tilePlan(width, height, options = detailDefaults) {
   return tiles;
 }
 
+/** @param {import("playwright").Page} page
+ * @param {string} directory
+ * @param {string} prefix
+ * @param {import("./types.js").DetailOptions} [options] */
 export async function captureDetails(
   page,
   directory,

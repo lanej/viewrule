@@ -1,17 +1,22 @@
-import Ajv from "ajv";
+import { Ajv } from "ajv";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 
 const text = { type: "string", minLength: 1 };
 const names = { type: "array", minItems: 1, uniqueItems: true, items: text };
 const positive = { type: "integer", minimum: 1 };
-const designIds = { type: "array", uniqueItems: true, items: { enum: Array.from({ length: 8 }, (_, i) => `DR-00${i + 1}`) } };
+const designIds = {
+  type: "array",
+  uniqueItems: true,
+  items: { enum: Array.from({ length: 8 }, (_, i) => `DR-00${i + 1}`) },
+};
 const object = (properties, required) => ({
   type: "object",
   additionalProperties: false,
   properties,
   required,
 });
+/** @type {import("ajv").Schema} */
 export const configSchema = object(
   {
     version: { const: 1 },
@@ -80,6 +85,12 @@ const types = {
   "no-clip": {},
   "visible-count": { min: positive },
   "max-height": { max: { type: "number", exclusiveMinimum: 0 } },
+  "min-size": {
+    minWidth: { type: "number", exclusiveMinimum: 0 },
+    minHeight: { type: "number", exclusiveMinimum: 0 },
+  },
+  "min-font-size": { min: { type: "number", exclusiveMinimum: 0 } },
+  "max-text-gap": { items: text, max: { type: "number", minimum: 0 } },
   style: { property: text, allowed: names },
   attribute: { attribute: text, allowed: names },
   consistent: {
@@ -89,8 +100,12 @@ const types = {
   },
   "comparison-set": {
     keyAttribute: text,
-    requiredKeys: names,
-    minVisibleByViewport: { type: "object", minProperties: 1, additionalProperties: positive },
+    requiredKeys: { type: "array", uniqueItems: true, items: text },
+    minVisibleByViewport: {
+      type: "object",
+      minProperties: 1,
+      additionalProperties: positive,
+    },
     preserveFrom: text,
     minFontSize: { type: "number", exclusiveMinimum: 0 },
   },
@@ -115,7 +130,9 @@ export const ruleSchema = {
   ),
 };
 const ajv = new Ajv({ allErrors: true });
+/** @type {import("ajv").ValidateFunction<import("./types.js").ProjectConfig>} */
 const checkConfig = ajv.compile(configSchema);
+/** @type {import("ajv").ValidateFunction<import("./types.js").Rule[]>} */
 const checkRules = ajv.compile({ type: "array", items: ruleSchema });
 function unique(values, label) {
   if (new Set(values).size !== values.length)
@@ -157,12 +174,22 @@ export function validateRules(rules) {
     "rule ID",
   );
   for (const rule of rules)
-    if (rule.type === "consistent" && !rule.properties.length && !rule.attributes.length)
-      throw new Error(`Rule ${rule.id}: choose at least one property or attribute to compare`);
+    if (
+      rule.type === "consistent" &&
+      !rule.properties.length &&
+      !rule.attributes.length
+    )
+      throw new Error(
+        `Rule ${rule.id}: choose at least one property or attribute to compare`,
+      );
     else if (rule.type === "attribute" && !rule.designRules)
-      throw new Error(`Rule ${rule.id}: attribute checks must cite designRules`);
+      throw new Error(
+        `Rule ${rule.id}: attribute checks must cite designRules`,
+      );
   return rules;
 }
+/** @param {import("./types.js").Rule[]} global
+ * @param {import("./types.js").Rule[]} local */
 export function mergeRules(global, local) {
   validateRules(global);
   validateRules(local);
@@ -185,9 +212,15 @@ export async function loadProject(project, globalDir) {
     await readJSON(path.join(globalDir, "rules.json"), []),
     local,
   );
-  // Global rules may target page/viewport names used by other projects.
-  // Local scope typos should still fail loudly.
-  for (const r of local) {
+  validateRuleScopes(local, config);
+  return { config, rules };
+}
+
+// Global rules may target other projects. Validate local scopes before writing them.
+/** @param {import("./types.js").Rule[]} rules
+ * @param {import("./types.js").ProjectConfig} config */
+export function validateRuleScopes(rules, config) {
+  for (const r of rules) {
     for (const n of r.pages ?? [])
       if (!config.pages.some((p) => p.name === n))
         throw new Error(`Rule ${r.id}: unknown page ${n}`);
@@ -195,16 +228,21 @@ export async function loadProject(project, globalDir) {
       if (!config.viewports.some((v) => v.name === n))
         throw new Error(`Rule ${r.id}: unknown viewport ${n}`);
     if (r.type === "comparison-set") {
-      const active = config.viewports.filter((v) => !r.viewports || r.viewports.includes(v.name));
+      const active = config.viewports.filter(
+        (v) => !r.viewports || r.viewports.includes(v.name),
+      );
       if (!active.some((v) => v.name === r.preserveFrom))
-        throw new Error(`Rule ${r.id}: preserveFrom must name an active viewport`);
+        throw new Error(
+          `Rule ${r.id}: preserveFrom must name an active viewport`,
+        );
       for (const name of Object.keys(r.minVisibleByViewport))
         if (!active.some((v) => v.name === name))
-          throw new Error(`Rule ${r.id}: count targets an inactive viewport ${name}`);
+          throw new Error(
+            `Rule ${r.id}: count targets an inactive viewport ${name}`,
+          );
       for (const v of active)
         if (!r.minVisibleByViewport[v.name])
           throw new Error(`Rule ${r.id}: missing visible count for ${v.name}`);
     }
   }
-  return { config, rules };
 }

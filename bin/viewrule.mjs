@@ -11,11 +11,17 @@ if (args.length === 1 && args[0] === "hook") {
     let input = "";
     for await (const chunk of process.stdin) input += chunk;
     const payload = JSON.parse(input);
-    if (!payload || typeof payload !== "object") throw new Error("Expected a hook payload object");
+    if (!payload || typeof payload !== "object")
+      throw new Error("Expected a hook payload object");
     let config;
     if (payload.cwd && !payload.stop_hook_active) {
       try {
-        config = JSON.parse(await readFile(path.join(payload.cwd, ".ui-review/config.json"), "utf8"));
+        config = JSON.parse(
+          await readFile(
+            path.join(payload.cwd, ".ui-review/config.json"),
+            "utf8",
+          ),
+        );
       } catch (err) {
         if (err.code !== "ENOENT") throw err;
       }
@@ -24,21 +30,41 @@ if (args.length === 1 && args[0] === "hook") {
     else {
       const { hookDecision } = await import("../src/state.mjs");
       const { globalConfigDir } = await import("../src/paths.mjs");
-      console.log(JSON.stringify(await hookDecision(payload, globalConfigDir())));
+      console.log(
+        JSON.stringify(await hookDecision(payload, globalConfigDir())),
+      );
     }
   } catch (err) {
-    console.log(JSON.stringify({decision: "block", reason: `Viewrule could not verify this project: ${err.message}. Check installation and run viewrule check.`}));
+    console.log(
+      JSON.stringify({
+        decision: "block",
+        reason: `Viewrule could not verify this project: ${err.message}. Check installation and run viewrule check.`,
+      }),
+    );
   }
 } else if (args.length === 1 && args[0] === "--version") {
-  console.log(JSON.parse(await readFile(new URL("../package.json", import.meta.url), "utf8")).version);
+  console.log(
+    JSON.parse(
+      await readFile(new URL("../package.json", import.meta.url), "utf8"),
+    ).version,
+  );
 } else if (args[0] === "install-browser") {
   if (args.slice(1).some((arg) => arg !== "--with-deps") || args.length > 2) {
     console.error("Usage: viewrule install-browser [--with-deps]");
     process.exitCode = 2;
   } else {
     try {
-      const cli = path.join(path.dirname(createRequire(import.meta.url).resolve("playwright/package.json")), "cli.js");
-      const result = spawnSync(process.execPath, [cli, "install", ...args.slice(1), "chromium"], {stdio: "inherit"});
+      const cli = path.join(
+        path.dirname(
+          createRequire(import.meta.url).resolve("playwright/package.json"),
+        ),
+        "cli.js",
+      );
+      const result = spawnSync(
+        process.execPath,
+        [cli, "install", ...args.slice(1), "chromium"],
+        { stdio: "inherit" },
+      );
       if (result.error) throw result.error;
       process.exitCode = result.status ?? 2;
     } catch (err) {

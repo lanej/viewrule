@@ -3,16 +3,21 @@ import AxeBuilder from "@axe-core/playwright";
 import { mkdir, writeFile, realpath, copyFile } from "node:fs/promises";
 import { randomUUID } from "node:crypto";
 import path from "node:path";
-import { loadProject, readJSON } from "./config.mjs";
+import { readJSON } from "./config.mjs";
+import { readContract } from "./contract.mjs";
 import { fingerprint, writeJSON, feedbackEntries } from "./state.mjs";
 import { inspectPage } from "./checks.mjs";
 import { renderReport, renderDesignPolicy } from "./report.mjs";
 import { captureDetails } from "./capture.mjs";
 import { readDesignPolicy, evaluateDesign } from "./design.mjs";
+import { defaultPreferences } from "./presets.mjs";
 
+/** @param {string} project
+ * @param {string} globalDir */
 export async function runReview(project, globalDir) {
   project = await realpath(project);
-  const { config, rules } = await loadProject(project, globalDir);
+  const contract = await readContract(project, globalDir);
+  const { config, rules } = contract;
   const before = await fingerprint(project, config, globalDir);
   const id =
     new Date().toISOString().replace(/[:.]/g, "-") +
@@ -23,13 +28,18 @@ export async function runReview(project, globalDir) {
   await writeJSON(path.join(project, ".ui-review/latest.json"), {
     status: "running",
     fingerprint: before,
+    ...(contract.previousReportFile
+      ? { reportFile: contract.previousReportFile }
+      : {}),
   });
+  /** @type {import("./types.js").ReviewReport} */
   const report = {
     version: 1,
     id,
     project,
     createdAt: new Date().toISOString(),
     fingerprint: before,
+    contract,
     status: "fail",
     summary: { errors: 0, warnings: 0 },
     pages: [],
@@ -38,11 +48,15 @@ export async function runReview(project, globalDir) {
   let browser;
   try {
     browser = await chromium.launch({
-      executablePath: process.env.VIEWRULE_BROWSER_PATH || process.env.UI_REVIEW_BROWSER_PATH || undefined,
+      executablePath:
+        process.env.VIEWRULE_BROWSER_PATH ||
+        process.env.UI_REVIEW_BROWSER_PATH ||
+        undefined,
     });
     for (const pageConfig of config.pages)
       for (const viewport of config.viewports) {
         const url = new URL(pageConfig.path, config.baseURL).href;
+        /** @type {import("./types.js").PageResult} */
         const result = {
           name: pageConfig.name,
           url,
@@ -197,13 +211,17 @@ export async function runReview(project, globalDir) {
       }
   }
   const preferences = [
+    ...(await defaultPreferences()),
     ...(await readJSON(path.join(globalDir, "preferences.json"), [])),
     ...(await feedbackEntries(globalDir)),
     ...feedback,
   ];
   const reportFile = path.join(dir, "report.json");
   await writeJSON(reportFile, report);
-  await writeFile(path.join(dir, "design-rules.html"), renderDesignPolicy(report.designPolicy));
+  await writeFile(
+    path.join(dir, "design-rules.html"),
+    renderDesignPolicy(report.designPolicy),
+  );
   await writeFile(
     path.join(dir, "index.html"),
     renderReport(report, preferences, reference),
@@ -212,9 +230,16 @@ export async function runReview(project, globalDir) {
     status: report.status,
     fingerprint: before,
     reportFile,
-    blockingFindings: report.pages.flatMap((page) => page.findings
-      .filter((f) => f.severity === "error")
-      .map((f) => `${f.designRules.join(", ") || f.rule} · ${page.name}/${page.viewport.name}: ${f.message}`)).slice(0, 5),
+    blockingFindings: report.pages
+      .flatMap((page) =>
+        page.findings
+          .filter((f) => f.severity === "error")
+          .map(
+            (f) =>
+              `${f.designRules.join(", ") || f.rule} · ${page.name}/${page.viewport.name}: ${f.message}`,
+          ),
+      )
+      .slice(0, 5),
   });
   return { report, reportFile };
 }

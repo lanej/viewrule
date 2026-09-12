@@ -21,11 +21,20 @@ In Claude Code:
 Setup installs the checksummed engine release in `engine.json` and its Playwright
 Chromium browser. It then helps configure your running application. Installing the
 plugin alone makes no engine or browser download, and does not enable enforcement.
+Version 0.2.0 uses the 0.2.0 engine with built-in guidance and editable presets.
+The default baseline checks readable text and flags clipping/oversized headers;
+the analytical preset adds comparison counts, labels, context, proximity, and alignment.
+The expanded defaults add control-size and prose warnings plus declared numeric alignment.
+The `contract` command exposes the actual boundaries before design; reports retain
+snapshots and show rule/configuration changes. `docs` also returns the authoring guide.
+Setup chooses the relevant starting point and calibrates it to the task. Existing
+project rules remain unchanged. The launcher's `docs` output includes the defaults guide.
 
 | Skill | Use |
 | --- | --- |
 | `/viewrule:setup` | Install the engine/browser and configure the application's routes, viewports, and expectations |
 | `/viewrule:review` | Apply design rules before UI work; measure and inspect the result; repair within the requested scope |
+| `/viewrule:add-rule` | Read the active contract, author a scoped rule, preview/add it, and establish accepted/rejected evidence |
 | `/viewrule:feedback` | Record your feedback against a specific report and translate measurable expectations into scoped rules |
 
 Skills are available for Claude to select when relevant; explicit invocation is also
@@ -83,7 +92,8 @@ browser; `setup --with-deps` includes Linux system dependencies and may need ele
 
 `npm test` in the repository packs the current engine, copies the plugin in isolation,
 and substitutes that test archive's URL/checksum in the copied pin. The one workflow
-exercises installation, findings, feedback, repair, and stale-result enforcement.
+exercises installation, shipped presets, rejected and passing layouts, feedback,
+repair, and stale-result enforcement.
 This verifies executable behavior, not Claude's skill selection or visual judgment.
 Use `claude plugin validate ./plugins/claude-code` and
 `claude plugin validate .` to check plugin and marketplace manifests.

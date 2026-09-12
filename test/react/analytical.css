@@ -1,0 +1,147 @@
+body {
+  margin: 24px;
+  color: #142c27;
+  background: white;
+  font:
+    14px Arial,
+    sans-serif;
+}
+header {
+  height: 96px;
+}
+.metrics {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 20px;
+}
+.metric {
+  box-sizing: border-box;
+  width: 220px;
+  padding: 8px;
+  border-bottom: 1px solid #ccc;
+}
+.metric h2 {
+  font-size: 18px;
+}
+.metric p {
+  margin: 8px 0;
+}
+table {
+  border-collapse: collapse;
+  table-layout: fixed;
+  width: 440px;
+  max-width: 100%;
+}
+caption {
+  text-align: left;
+  margin-bottom: 12px;
+  line-height: 1.4;
+}
+th,
+td {
+  padding: 8px 12px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+th:first-child {
+  width: 140px;
+}
+th:nth-child(n + 2),
+td:nth-child(n + 2) {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+tbody tr:nth-child(n + 9) {
+  display: none;
+}
+@media (min-width: 2000px) {
+  tbody tr:nth-child(n + 9) {
+    display: table-row;
+  }
+  [data-state="stretched"] table {
+    width: 100%;
+  }
+  [data-state="broken"] tbody tr:nth-child(2) {
+    display: none;
+  }
+}
+[data-state="broken"] caption {
+  display: none;
+}
+[data-state="broken"] header {
+  height: 450px;
+}
+[data-state="broken"] .metric:nth-child(2) {
+  position: relative;
+  top: 20px;
+  left: -100px;
+}
+[data-state="broken"] td {
+  font-size: 12px;
+}
+[data-state="broken"] [data-viewrule="label"] {
+  display: block;
+  width: 48px;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  height: 36px;
+}
+select,
+button {
+  font: inherit;
+  color: inherit;
+  background: white;
+  border: 1px solid #789088;
+  min-height: 32px;
+}
+.download {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+}
+.workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 24px;
+}
+.context {
+  max-width: 300px;
+}
+.context h2 {
+  font-size: 18px;
+}
+.context p {
+  line-height: 1.5;
+}
+.context svg {
+  display: block;
+  width: 280px;
+  font:
+    14px Arial,
+    sans-serif;
+}
+[data-state="sidebar"] .workspace {
+  grid-template-columns: 440px 300px;
+  align-items: start;
+}
+[data-state="sidebar"] table {
+  width: 440px;
+}
+[data-state="broken"] .download {
+  min-height: 0;
+  width: 18px;
+  height: 18px;
+}
+[data-state="broken"] [data-viewrule-number] {
+  text-align: left;
+}
+[data-state="broken"] [data-viewrule="prose"] p {
+  text-align: justify;
+}

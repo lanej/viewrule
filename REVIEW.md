@@ -40,6 +40,8 @@ become an automatic source edit or a rule change made only to satisfy the checke
 
 ## Proportionate validation
 
+For code changes, inspect the formatter, lint, and static-analysis CI results.
+Type checking is incremental; it does not replace runtime validation or this review.
 For a behavioral change, inspect the existing installed-CLI regression and whether
 it exposes the specific risk. If a real regression needs stronger coverage, improve
 that workflow. Do not demand helper tests, snapshots, or a viewport matrix for each

@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Design rules</title>
+    <style>
+      body {
+        font: 16px/1.6 system-ui;
+        margin: 32px auto;
+        padding: 0 20px;
+        max-width: 850px;
+        color: #172d27;
+      }
+      section {
+        margin: 40px 0;
+      }
+      code {
+        overflow-wrap: anywhere;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Design rules used by this review</h1>
+    <p><a href="index.html">Back to review</a> · {{document}}</p>
+    <p>Snapshot SHA-256: <code>{{sha256}}</code></p>
+    {{#rules}}
+    <section id="{{id}}">
+      <h2>{{id}} — {{title}}</h2>
+      {{! bodyHtml is escaped in report.mjs before adding paragraph/emphasis
+      markup. }}
+      <p>{{{bodyHtml}}}</p>
+    </section>
+    {{/rules}}
+  </body>
+</html>

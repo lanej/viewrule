@@ -3,7 +3,9 @@
 ## Application review
 
 1. **Initialize:** `viewrule init --url ...` creates `.ui-review` schema version 1
-   with Stop enforcement off. Pick representative state and calibrated rules.
+   with Stop enforcement off and editable baseline rules. `--preset analytical`
+   starts a declared comparison workspace. Pick representative state and calibrate
+   the starting thresholds; existing project rules remain unchanged.
 2. **Measure:** start the app, run `viewrule check`, and inspect the HTML report.
    Exit `0` permits warnings, `1` reports failed checks/captures, and `2` reports
    usage or configuration errors. `latest.json` remains non-passing after interruption.
@@ -41,7 +43,7 @@ The package includes its policy docs and `npm-shrinkwrap.json`, which pins the
 installed dependency tree. It contains no personal settings or review screenshots.
 
 `viewrule` is canonical. The `ui-review` command, `.ui-review` project directory,
-`UI_REVIEW_GLOBAL_DIR`, and `UI_REVIEW_BROWSER_PATH` remain supported in 0.1.
+`UI_REVIEW_GLOBAL_DIR`, and `UI_REVIEW_BROWSER_PATH` remain supported in 0.2.
 New environment names are `VIEWRULE_CONFIG_DIR` and `VIEWRULE_BROWSER_PATH` and
 take precedence. The directory retains its old name to avoid unnecessary migration.
 
@@ -68,6 +70,11 @@ wording is included in the policy hash and old reports retain their policy text.
    representative workflow through that adapter and installed executable. The copied
    pin uses the packed archive served by the fixture; production pins stay unchanged.
    It leaves the tested tarball in `dist/`.
+   If updating the plugin in the same release, set its `engine.json` URL/version and
+   SHA-256 from the final archive and bump its manifest version. The plugin is not
+   part of the npm archive, so updating that pin does not change the archive digest.
+   `[release]` PRs and commits verify a matching-version pin against the packed archive;
+   ordinary source/doc changes can still target the previously published engine.
 3. Publish the reviewed version change to `main` with `[release]` in the final
    commit message (for a squash merge, include it in the PR title). Initial source
    publication follows the same contract. Commits without that marker do not release.
@@ -76,6 +83,10 @@ wording is included in the policy hash and old reports retain their policy text.
    which downloads the same artifact, creates SHA-256 checksums, and publishes a
    GitHub prerelease with tag `v<package-version>` targeting the tested commit.
    The release job does not repack or rerun the regression workflow.
+   Wait for the Release job to finish before installing a plugin that targets that
+   new archive. During the merge-to-release interval, setup fails explicitly if
+   the asset is not available; rerun it after publication. It never falls back to
+   an unpinned version.
 5. Update the dotfiles pin in a separate review: version, archive URL, and checksum.
    App projects can adopt on their own schedule. Do not use an unversioned latest URL.
 

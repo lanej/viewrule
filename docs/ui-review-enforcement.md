@@ -5,6 +5,11 @@ checks configured, observable conditions and cites the relevant rule IDs in its
 HTML report, JSON output, and Stop-hook findings. Each run preserves a local
 design-rule reference and its source hash so the cited text stays with the report.
 
+Before selecting a layout, use `contract` to read the effective merged boundaries.
+The [authoring workflow](rule-authoring.md) previews scoped additions and makes
+constraint changes visible in reports. [Research notes](design-principles.md) explain
+why controls/prose use warnings and numeric alignment uses explicit annotations.
+
 ## Coverage and evidence
 
 | Design rule | Available detection | What still needs judgment or integration |
@@ -132,6 +137,20 @@ An `attribute` rule can require a declared bar baseline:
 For DR-004, scope `context` to actual estimated/forecast elements, require their
 visible explanatory labels, and cite `"designRules": ["DR-004"]`. This checks
 the presentation of declared states; data correctness remains unassessed.
+
+## Starter constraints and text geometry
+
+[Built-in preferences and presets](defaults.md) provide an editable starting opinion.
+`init` defaults to baseline rules; `--preset analytical` adds explicit comparison
+annotations and thresholds. Existing application rules are not rewritten on upgrade.
+
+`min-font-size` checks computed CSS text sizes below its selector and cites DR-007.
+`max-text-gap` checks adjacent text-range gaps within declared rows and cites DR-006
+and DR-007. It requires two nonempty text items with a shared reading band, so a
+missing pair or stacked layout cannot masquerade as a passing proximity check.
+The measurement uses actual text bounds rather than cell widths: widening a table
+can increase the measured gap while preserving the same comparison count.
+Neither check establishes semantic relevance or every form of clipping/occlusion.
 
 ## Enforcement and repair
 

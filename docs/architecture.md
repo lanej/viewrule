@@ -2,7 +2,7 @@
 
 Viewrule is a local Node CLI orchestrating a Chromium browser process. The CLI is
 the supported integration boundary; `src/` modules are internal. There is no daemon,
-database service, model dependency, or general plugin framework in 0.1.
+database service, model dependency, or general plugin framework in 0.2.
 Coding agents are the primary operators; humans supply intent and review judgments.
 The Claude Code plugin is a client of this boundary, using Claude's model to interpret
 rules and evidence while the engine performs deterministic checks.
@@ -45,6 +45,11 @@ and its hash so an old finding can be read against the policy it used.
 
 ## Modules
 
+Built-in opinion lives in `presets/preferences.json`; `src/presets.mjs` loads it for
+guidance and reports. Initialization copies baseline or analytical rules into the
+application's editable rules file. Existing rules are never silently replaced.
+Preset assets are packaged with the engine and included in freshness fingerprints.
+
 The self-contained Claude plugin is discovered through the root marketplace manifest.
 Its Node launcher downloads the exact `engine.json` archive, checks SHA-256 before
 installation, and uses a version/checksum directory outside the plugin cache.
@@ -55,17 +60,26 @@ Plugin cache files are immutable during setup; no parent-repository paths are ne
 
 | Module | Responsibility |
 | --- | --- |
+| `src/presets.mjs`, `presets/` | Built-in guidance and validated editable starter rules |
 | `plugins/claude-code/scripts/viewrule.mjs` | Pinned installation, CLI delegation, documentation paths, missing-engine hook handling |
 | `bin/viewrule.mjs` | Executable, lightweight hook preflight, version, browser installation |
 | `src/cli.mjs` | Command parsing and presentation |
 | `src/paths.mjs` | User-config location and compatibility environment variables |
+| `src/contract.mjs` | Effective pre-design boundaries, canonical hashes, snapshots, and report-to-report changes |
 | `src/config.mjs` | Ajv validation, project loading, defaults, rule merging |
 | `src/review.mjs` | Browser lifecycle and review orchestration |
 | `src/capture.mjs` | Native-scale tile planning, capture, and coverage accounting |
 | `src/checks.mjs` | Browser-side DOM geometry and style observations |
 | `src/design.mjs` | Design policy loading, cross-viewport rules, citations, suggestions |
-| `src/report.mjs` | Escaped local HTML reports and policy pages |
+| `src/report.mjs`, `src/templates/` | Report view models and escaped Mustache HTML reports/policy pages |
+| `src/types.d.ts` | Internal contracts for JavaScript static analysis; no emitted code |
 | `src/state.mjs` | Fingerprints, atomic state writes, feedback, learning, Stop decisions |
+
+Report markup lives in packaged HTML templates. Mustache escapes interpolated values;
+the policy body alone uses pre-escaped text with fixed paragraph/emphasis tags.
+Template contents and paths participate in freshness fingerprints. The fixture HTML shell lives in `test/templates/`; React components and CSS live
+in `test/react/` and are bundled for the temporary fixture app. React/esbuild are
+development dependencies only. The demo uses the same fixtures.
 
 Rule definitions are data, not executable user JavaScript. Adding a measurement
 means extending its schema, observation/evaluation, policy mapping, and docs in one

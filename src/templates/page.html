@@ -1,0 +1,132 @@
+<section>
+  <h2>
+    {{name}} · {{viewport.name}} ({{viewport.width}} × {{viewport.height}})
+  </h2>
+  <small>{{url}}</small>
+  {{#hasDesignCoverage}}
+  <details>
+    <summary>Design-rule coverage · {{unassessedCount}} unassessed</summary>
+    <p>
+      Checks cover configured parts of each requirement. Unassessed rules are
+      not passes. Human review is still needed for meaning and graphical truth.
+    </p>
+    <table>
+      <thead>
+        <tr>
+          <th>Design rule</th>
+          <th>Evidence status</th>
+          <th>Executed checks</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#designCoverage}}
+        <tr>
+          <td><a href="{{href}}">{{id}} — {{title}}</a></td>
+          <td>{{status}}</td>
+          <td>{{checkNames}}</td>
+        </tr>
+        {{/designCoverage}}
+      </tbody>
+    </table>
+  </details>
+  {{/hasDesignCoverage}}
+  <div class="compare">
+    {{#screenshot}}
+    <figure>
+      <figcaption>Current</figcaption>
+      <a href="{{screenshot}}"
+        ><img src="{{screenshot}}" alt="Current {{name}}"
+      /></a>
+    </figure>
+    {{/screenshot}} {{#approved}}
+    <figure>
+      <figcaption>Approved reference · {{note}}</figcaption>
+      <a href="reference/{{screenshot}}"
+        ><img src="reference/{{screenshot}}" alt="Approved {{name}}"
+      /></a>
+    </figure>
+    {{/approved}}
+  </div>
+  {{#details}}
+  <details>
+    <summary>
+      Full-resolution details · {{capturedTiles}}/{{expectedTiles}} tiles ·
+      {{#complete}}complete{{/complete}}{{^complete}}INCOMPLETE{{/complete}}
+    </summary>
+    <p>
+      Open each tile at original size to judge text, spacing, and clipping.
+      Coordinates are CSS pixels from the page origin; adjacent tiles overlap.
+    </p>
+    {{#tiles}}
+    <figure class="tile">
+      <figcaption>
+        x={{x}}, y={{y}} · {{width}} × {{height}} ·
+        <a href="{{file}}">Open original</a>
+      </figcaption>
+      <img
+        style="width:{{width}}px"
+        src="{{file}}"
+        alt="Detail at {{x}}, {{y}}"
+        loading="lazy"
+      />
+    </figure>
+    {{/tiles}}
+  </details>
+  {{/details}} {{#hasDensity}}
+  <table>
+    <caption>
+      Region density · measured before any screenshot scaling
+    </caption>
+    <thead>
+      <tr>
+        <th>Region / method</th>
+        <th>Coverage</th>
+        <th>Elements / 100k px²</th>
+        <th>Largest vertical gap</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#density}}
+      <tr>
+        <td><code>{{region}}</code> / {{measure}}</td>
+        <td>{{coveragePercent}}%</td>
+        <td>{{elementRate}}</td>
+        <td>{{verticalGap}}px</td>
+      </tr>
+      {{/density}}
+    </tbody>
+  </table>
+  {{/hasDensity}} {{#hasFindings}}
+  <table>
+    <thead>
+      <tr>
+        <th>Severity / rule</th>
+        <th>Finding and next action</th>
+        <th>Evidence</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#findings}}
+      <tr>
+        <td class="{{severity}}">
+          {{severity}}<br /><code>{{rule}}</code><br />
+          {{#citations}}<a href="design-rules.html#{{id}}">{{id}}</a
+          >{{separator}}{{/citations}}
+        </td>
+        <td>
+          {{message}}<br /><small>{{reason}}</small>
+          <p>{{suggestion}}</p>
+        </td>
+        <td>
+          <code>{{selector}}</code><br />{{evidence}}<br /><small
+            >{{evidenceKind}}</small
+          >
+        </td>
+      </tr>
+      {{/findings}}
+    </tbody>
+  </table>
+  {{/hasFindings}} {{^hasFindings}}
+  <p class="pass">No automated findings.</p>
+  {{/hasFindings}}
+</section>

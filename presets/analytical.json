@@ -1,0 +1,81 @@
+[
+  {
+    "id": "analytical-comparisons",
+    "type": "comparison-set",
+    "selector": "[data-viewrule=comparison] [data-viewrule-key]",
+    "keyAttribute": "data-viewrule-key",
+    "requiredKeys": [],
+    "minVisibleByViewport": {
+      "desktop": 8,
+      "wide": 8,
+      "large": 12,
+      "4k": 12
+    },
+    "preserveFrom": "desktop",
+    "minFontSize": 14,
+    "viewports": ["desktop", "wide", "large", "4k"],
+    "severity": "error",
+    "reason": "Start with eight desktop alternatives and twelve on larger analytical screens, preserving desktop identities. Calibrate counts and critical identities to the actual task.",
+    "designRules": ["DR-006", "DR-007"]
+  },
+  {
+    "id": "analytical-context",
+    "type": "context",
+    "selector": "[data-viewrule=comparison]",
+    "required": ["[data-viewrule=context]"],
+    "severity": "error",
+    "reason": "Keep a visible shared caption with the measure, units, period, and scope. Presence alone cannot verify its meaning.",
+    "designRules": ["DR-003"]
+  },
+  {
+    "id": "analytical-labels",
+    "type": "no-clip",
+    "selector": "[data-viewrule=comparison] [data-viewrule=label]",
+    "severity": "error",
+    "reason": "Show the full labels needed to identify alternatives.",
+    "designRules": ["DR-006", "DR-007"]
+  },
+  {
+    "id": "analytical-value-distance",
+    "type": "max-text-gap",
+    "selector": "[data-viewrule=comparison] [data-viewrule-key]",
+    "items": "[data-viewrule=cell]",
+    "max": 160,
+    "viewports": ["desktop", "wide", "large", "4k"],
+    "severity": "error",
+    "reason": "Start with at most 160 CSS px of horizontal space between adjacent text values in a comparison row. Widening empty cells does not add evidence.",
+    "designRules": ["DR-006", "DR-007"]
+  },
+  {
+    "id": "analytical-metric-alignment",
+    "type": "align",
+    "selector": "[data-viewrule=metric]",
+    "edge": "top",
+    "tolerance": 2,
+    "optional": true,
+    "severity": "error",
+    "reason": "Align the tops of the declared metric peers within 2 CSS px. Scope separate groups or stacked mobile layouts separately.",
+    "viewports": ["desktop", "wide", "large", "4k"],
+    "designRules": ["DR-006"]
+  },
+  {
+    "id": "analytical-metric-overlap",
+    "type": "no-overlap",
+    "selector": "[data-viewrule=metric]",
+    "optional": true,
+    "severity": "error",
+    "reason": "Keep declared metric peers from obscuring one another.",
+    "designRules": ["DR-006"]
+  },
+  {
+    "id": "analytical-numeric-alignment",
+    "type": "style",
+    "selector": "[data-viewrule=comparison] [data-viewrule-number]",
+    "property": "text-align",
+    "allowed": ["right", "end"],
+    "optional": true,
+    "severity": "error",
+    "reason": "Align declared numeric amounts and their headers to a common reading edge. Use consistent precision and tabular digits where supported; identifiers and specialized decimal layouts need their own scope.",
+    "designRules": ["DR-006"]
+  }
+]

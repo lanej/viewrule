@@ -6,11 +6,28 @@ the two. A new arbitrary score is not enough.
 
 ## Development
 
+Use Node 22.13 or newer for development tooling; CI uses the current Node 22 release.
+
 ```sh
 npm ci
+npm run format
+npm run check
 npm run browser:install
 npm test
 ```
+
+`npm run format` applies Prettier; `npm run format:check` reports formatting drift.
+`npm run lint` runs ESLint with zero warnings, and `npm run analyze` runs TypeScript's
+`checkJs`/`noEmit` analysis over the engine, launcher, plugin adapter, demo, and tests.
+`npm run check` runs all three and gates CI before the browser workflow. Analysis
+uses inference and internal JSDoc contracts; it is incremental (`strict: false`),
+so untyped JSON and parameters still limit coverage. Ajv validates runtime inputs.
+No compilation or generated JS is needed.
+
+Keep substantial markup in the Mustache HTML templates: `src/templates/` for installed
+reports, `test/templates/` for fixtures and the demo gallery. Mustache escapes values
+by default; the policy's formatted body escapes text before adding fixed tags. Keep
+fixture React logic in `test/react/Comparison.jsx`, so it receives code checks.
 
 Use `VIEWRULE_BROWSER_PATH=/absolute/path/to/chromium` only when the pinned browser
 cannot run in the environment; report that substitution. Supported CI uses the
@@ -31,9 +48,12 @@ matrices, or repeated assertions that mirror implementation. Documentation-only
 changes need link/syntax/diff review, not another browser run. Stop verification
 once the concrete risk is resolved.
 
-The current density assertion verifies its documented geometric proxy; it is not
-an accepted design benchmark. The stretched-table counterexample in the roadmap
-must guide the next substantive detector change.
+The [fixture corpus](test/README.md) asserts specific violations in the shipped
+presets, two clean React compositions under the same contract, rejection of empty stretching, and a clean finite
+comparison with whitespace. Add cases for concrete missing claims; passing examples
+must genuinely pass without weakening the rules merely to fit the fixture.
+These checks establish scoped geometry and identity contracts, not a universal
+information-density benchmark or automated graphical truth.
 
 ## Change checklist
 

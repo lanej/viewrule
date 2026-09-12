@@ -1,6 +1,31 @@
 # Changelog
 
-## Unreleased
+## 0.2.0 — 2026-09-12
+
+- Expose the active design contract before implementation; snapshot it in reports and
+  show changed rules/configuration separately from application repairs.
+- Add the Claude rule-authoring skill plus `schema` and `add-rule --dry-run`/`add-rule`;
+  validate project scopes and prevent additions from overwriting existing boundaries.
+- Add sourced control-size/prose warnings and scoped numeric-alignment defaults.
+- Use a React fixture with two distinct accepted compositions under the same contract;
+  verify rule authoring, measurements, and visible contract changes in one workflow.
+
+- Move report, policy, fixture, and demo markup into readable Mustache HTML templates;
+  preserve escaping, approved references, and template-aware freshness checks.
+- Add Prettier formatting, ESLint, and incremental TypeScript JavaScript analysis as
+  local commands and CI gates, with internal schema/report/capture contracts.
+
+- Ship the original seven dotfiles design preferences as built-in guidance, separate
+  from personal preferences and recorded feedback.
+- Initialize new projects with editable baseline rules; add an analytical preset
+  and `preset --name ...` for selective adoption. Existing project rules are preserved.
+- Add `min-font-size` and `max-text-gap` measurements with DR citations and remediation.
+  Comparison sets may leave `requiredKeys` empty while retaining counts and preservation.
+- Exercise shipped presets with broken, compact, stretched, finite, and missing-evidence
+  fixtures through the single installed workflow. Default density uses text proximity
+  and visible identities, without a viewport occupancy minimum.
+- Update the Claude plugin to use this engine and teach preset calibration. The
+  release uses the exact tested archive and the plugin pins its verified checksum.
 
 - Make coding agents the primary audience in the README and architecture docs.
 - Add the Claude Code plugin 0.1.0 and repository marketplace: setup, design/review,

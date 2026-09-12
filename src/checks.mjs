@@ -1,9 +1,13 @@
 // Runs inside the page. Selectors and thresholds come from validated configuration.
 // Hidden responsive variants don't count. Group checks apply only to declared peers.
+/** @param {import("./types.js").Rule[]} rules */
 export function inspectPage(rules) {
+  /** @type {import("./types.js").Finding[]} */
   const findings = [];
   const density = [];
-  const comparisons = [], consistency = [], evaluations = [];
+  const comparisons = [],
+    consistency = [],
+    evaluations = [];
   const rect = (el) => el.getBoundingClientRect();
   const visible = (el) => {
     const r = rect(el);
@@ -18,6 +22,33 @@ export function inspectPage(rules) {
       ? `#${el.id}`
       : el.tagName.toLowerCase() +
         (el.classList.length ? "." + [...el.classList].join(".") : "");
+  const textNodes = (el) => {
+    const nodes = [],
+      walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+    let node;
+    while ((node = walker.nextNode()))
+      if (node.textContent.trim() && visible(node.parentElement))
+        nodes.push(node);
+    return nodes;
+  };
+  const textBounds = (el) => {
+    const boxes = textNodes(el).flatMap((node) => {
+      const range = document.createRange();
+      range.setStart(node, node.textContent.search(/\S/));
+      range.setEnd(node, node.textContent.trimEnd().length);
+      return [...range.getClientRects()].filter(
+        (r) => r.width > 0 && r.height > 0,
+      );
+    });
+    return boxes.length
+      ? {
+          left: Math.min(...boxes.map((r) => r.left)),
+          right: Math.max(...boxes.map((r) => r.right)),
+          top: Math.min(...boxes.map((r) => r.top)),
+          bottom: Math.max(...boxes.map((r) => r.bottom)),
+        }
+      : null;
+  };
   const add = (rule, message, el, actual, expected) =>
     findings.push({
       rule: rule.id,
@@ -64,7 +95,11 @@ export function inspectPage(rules) {
   for (const rule of rules) {
     const els = [...document.querySelectorAll(rule.selector)].filter(visible);
     evaluated++;
-    evaluations.push({ rule: rule.id, matched: els.length, status: els.length ? "checked" : rule.optional ? "skipped" : "missing" });
+    evaluations.push({
+      rule: rule.id,
+      matched: els.length,
+      status: els.length ? "checked" : rule.optional ? "skipped" : "missing",
+    });
     if (!els.length) {
       if (!rule.optional)
         add(
@@ -81,26 +116,59 @@ export function inspectPage(rules) {
       for (const el of els) {
         const key = el.getAttribute(rule.keyAttribute)?.trim();
         if (!key) {
-          add(rule, `Missing stable identity: ${rule.keyAttribute}.`, el, null, "nonempty identity");
+          add(
+            rule,
+            `Missing stable identity: ${rule.keyAttribute}.`,
+            el,
+            null,
+            "nonempty identity",
+          );
           continue;
         }
         if (rule.type === "consistent") {
           const values = {};
           for (const property of rule.properties)
-            values[`css:${property}`] = getComputedStyle(el).getPropertyValue(property).trim();
+            values[`css:${property}`] = getComputedStyle(el)
+              .getPropertyValue(property)
+              .trim();
           for (const attribute of rule.attributes)
-            values[`attr:${attribute}`] = el.getAttribute(attribute)?.trim() ?? "";
+            values[`attr:${attribute}`] =
+              el.getAttribute(attribute)?.trim() ?? "";
           if (Object.values(values).some((value) => !value))
-            add(rule, `Incomplete comparison metadata for ${key}.`, el, values, "nonempty declared properties and attributes");
+            add(
+              rule,
+              `Incomplete comparison metadata for ${key}.`,
+              el,
+              values,
+              "nonempty declared properties and attributes",
+            );
           items.push({ key, values });
         } else {
           const r = rect(el);
-          let fits = r.top >= 0 && r.left >= 0 && r.bottom <= innerHeight && r.right <= width;
-          for (let ancestor = el.parentElement; fits && ancestor; ancestor = ancestor.parentElement) {
-            const style = getComputedStyle(ancestor), a = rect(ancestor);
-            const left = a.left + ancestor.clientLeft, top = a.top + ancestor.clientTop;
-            if (style.overflowX !== "visible" && (r.left < left - 1 || r.right > left + ancestor.clientWidth + 1)) fits = false;
-            if (style.overflowY !== "visible" && (r.top < top - 1 || r.bottom > top + ancestor.clientHeight + 1)) fits = false;
+          let fits =
+            r.top >= 0 &&
+            r.left >= 0 &&
+            r.bottom <= innerHeight &&
+            r.right <= width;
+          for (
+            let ancestor = el.parentElement;
+            fits && ancestor;
+            ancestor = ancestor.parentElement
+          ) {
+            const style = getComputedStyle(ancestor),
+              a = rect(ancestor);
+            const left = a.left + ancestor.clientLeft,
+              top = a.top + ancestor.clientTop;
+            if (
+              style.overflowX !== "visible" &&
+              (r.left < left - 1 || r.right > left + ancestor.clientWidth + 1)
+            )
+              fits = false;
+            if (
+              style.overflowY !== "visible" &&
+              (r.top < top - 1 || r.bottom > top + ancestor.clientHeight + 1)
+            )
+              fits = false;
           }
           if (fits) {
             items.push(key);
@@ -108,21 +176,107 @@ export function inspectPage(rules) {
             const sizes = [];
             let textNode;
             while ((textNode = walker.nextNode()))
-              if (textNode.textContent.trim() && visible(textNode.parentElement))
-                sizes.push(parseFloat(getComputedStyle(textNode.parentElement).fontSize));
-            const size = sizes.length ? Math.min(...sizes) : parseFloat(getComputedStyle(el).fontSize);
+              if (
+                textNode.textContent.trim() &&
+                visible(textNode.parentElement)
+              )
+                sizes.push(
+                  parseFloat(getComputedStyle(textNode.parentElement).fontSize),
+                );
+            const size = sizes.length
+              ? Math.min(...sizes)
+              : parseFloat(getComputedStyle(el).fontSize);
             if (size < rule.minFontSize)
-              add(rule, `${key} is below the configured readable type size.`, el, size, rule.minFontSize);
+              add(
+                rule,
+                `${key} is below the configured readable type size.`,
+                el,
+                size,
+                rule.minFontSize,
+              );
           }
         }
       }
-      if (rule.type === "consistent") consistency.push({ rule: rule.id, items });
+      if (rule.type === "consistent")
+        consistency.push({ rule: rule.id, items });
       else {
         const keys = [...new Set(items)];
         comparisons.push({ rule: rule.id, keys });
         const missing = rule.requiredKeys.filter((key) => !keys.includes(key));
         if (missing.length)
-          add(rule, "Critical comparisons are not visible together.", null, missing, rule.requiredKeys);
+          add(
+            rule,
+            "Critical comparisons are not visible together.",
+            null,
+            missing,
+            rule.requiredKeys,
+          );
+      }
+    } else if (rule.type === "min-font-size") {
+      const parents = new Set(
+        els.flatMap((el) => textNodes(el).map((node) => node.parentElement)),
+      );
+      if (!parents.size) {
+        evaluations.at(-1).status = "missing";
+        add(
+          rule,
+          "No visible text was available to measure.",
+          els[0],
+          0,
+          "visible text",
+        );
+      }
+      for (const el of parents) {
+        const size = parseFloat(getComputedStyle(el).fontSize);
+        if (size < rule.min)
+          add(
+            rule,
+            "Visible text is below the configured readable type size.",
+            el,
+            size,
+            rule.min,
+          );
+      }
+    } else if (rule.type === "max-text-gap") {
+      for (const el of els) {
+        const items = [...el.querySelectorAll(rule.items)]
+          .filter(visible)
+          .map((item) => ({ item, box: textBounds(item) }))
+          .filter((entry) => entry.box)
+          .sort((a, b) => a.box.left - b.box.left);
+        if (items.length < 2) {
+          add(
+            rule,
+            "Text-distance checks need at least two nonempty text items in each row.",
+            el,
+            items.length,
+            2,
+          );
+          continue;
+        }
+        for (let i = 1; i < items.length; i++) {
+          const a = items[i - 1].box,
+            b = items[i].box;
+          if (Math.min(a.bottom, b.bottom) <= Math.max(a.top, b.top)) {
+            add(
+              rule,
+              "Declared text items do not share a horizontal reading band; scope or reflow the comparison row.",
+              el,
+              "stacked items",
+              "one comparison row",
+            );
+            continue;
+          }
+          const gap = Math.max(0, b.left - a.right);
+          if (gap > rule.max)
+            add(
+              rule,
+              `Adjacent text values are ${gap.toFixed(1)}px apart.`,
+              items[i].item,
+              gap,
+              rule.max,
+            );
+        }
       }
     } else if (rule.type === "region-density") {
       const regions =
@@ -313,6 +467,17 @@ export function inspectPage(rules) {
         }
     } else
       for (const el of els) {
+        if (rule.type === "min-size") {
+          const { width, height } = rect(el);
+          if (width < rule.minWidth || height < rule.minHeight)
+            add(
+              rule,
+              "Control bounds are below the configured minimum size.",
+              el,
+              { width, height },
+              { width: rule.minWidth, height: rule.minHeight },
+            );
+        }
         if (rule.type === "max-height" && rect(el).height > rule.max)
           add(
             rule,
@@ -337,7 +502,13 @@ export function inspectPage(rules) {
         if (rule.type === "attribute") {
           const value = el.getAttribute(rule.attribute);
           if (!rule.allowed.includes(value))
-            add(rule, `Unapproved or missing ${rule.attribute}.`, el, value, rule.allowed);
+            add(
+              rule,
+              `Unapproved or missing ${rule.attribute}.`,
+              el,
+              value,
+              rule.allowed,
+            );
         }
         if (rule.type === "context")
           for (const selector of rule.required) {
