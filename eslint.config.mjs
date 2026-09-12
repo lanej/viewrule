@@ -4,9 +4,12 @@ import globals from "globals";
 export default [
   { ignores: ["node_modules/**", "dist/**", ".ui-review/**"] },
   {
-    files: ["**/*.mjs"],
+    files: ["**/*.mjs", "**/*.jsx"],
     ...js.configs.recommended,
-    languageOptions: { globals: globals.node },
+    languageOptions: {
+      globals: globals.node,
+      parserOptions: { ecmaFeatures: { jsx: true } },
+    },
     rules: {
       ...js.configs.recommended.rules,
       eqeqeq: ["error", "always", { null: "ignore" }],
@@ -21,7 +24,7 @@ export default [
   {
     // These modules contain functions serialized into Playwright's browser context.
     files: [
-      "test/templates/*.mjs",
+      "test/react/*.jsx",
       "src/checks.mjs",
       "src/capture.mjs",
       "src/review.mjs",

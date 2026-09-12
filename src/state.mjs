@@ -13,7 +13,13 @@ import {
 } from "node:fs/promises";
 import { spawnSync } from "node:child_process";
 import path from "node:path";
-import { readJSON, loadProject, validateRules } from "./config.mjs";
+import {
+  readJSON,
+  loadProject,
+  validateRules,
+  validateConfig,
+  validateRuleScopes,
+} from "./config.mjs";
 import { policyPath } from "./design.mjs";
 
 export async function writeJSON(file, value) {
@@ -103,6 +109,7 @@ export async function fingerprint(project, config, globalDir) {
     "cli.mjs",
     "report.mjs",
     "presets.mjs",
+    "contract.mjs",
     "../presets/preferences.json",
     "../presets/baseline.json",
     "../presets/analytical.json",
@@ -199,6 +206,65 @@ export async function recordFeedback(
   }
   return entry;
 }
+/** Additions cannot silently replace an existing local or inherited rule.
+ * @param {string} project
+ * @param {string} globalDir
+ * @param {import("./types.js").Rule} rule
+ * @param {boolean} [dryRun] */
+export async function addRule(project, globalDir, rule, dryRun = false) {
+  validateRules([rule]);
+  if (rule.feedbackId)
+    throw new Error("Use learn to attach recorded feedback provenance");
+  const { config, rules } = await loadProject(project, globalDir);
+  validateRuleScopes([rule], config);
+  if (rules.some((existing) => existing.id === rule.id))
+    throw new Error(
+      `Rule ${rule.id} already exists; add-rule never replaces a boundary`,
+    );
+  if (dryRun) return { applied: false, added: rule };
+  await writeRule(project, globalDir, rule, "project", false);
+  return { applied: true, added: rule };
+}
+
+async function writeRule(project, globalDir, rule, scope, replace) {
+  const dir = scope === "global" ? globalDir : path.join(project, ".ui-review");
+  const file = path.join(dir, "rules.json");
+  const lock = await open(file + ".lock", "wx").catch((err) => {
+    throw new Error(
+      `Cannot lock rules for editing (${err.code}); another writer may be active.`,
+      { cause: err },
+    );
+  });
+  try {
+    const existing = validateRules(await readJSON(file, []));
+    if (scope === "project") {
+      const config = validateConfig(
+        await readJSON(path.join(project, ".ui-review/config.json")),
+      );
+      // Validate the proposed result so a requested revision can repair an invalid old scope.
+      validateRuleScopes(
+        [...existing.filter((entry) => entry.id !== rule.id), rule],
+        config,
+      );
+      const inherited = validateRules(
+        await readJSON(path.join(globalDir, "rules.json"), []),
+      );
+      if (
+        !replace &&
+        [...existing, ...inherited].some((entry) => entry.id === rule.id)
+      )
+        throw new Error(
+          `Rule ${rule.id} already exists; add-rule never replaces a boundary`,
+        );
+    }
+    const next = [...existing.filter((entry) => entry.id !== rule.id), rule];
+    await writeJSON(file, next);
+  } finally {
+    await lock.close();
+    await unlink(file + ".lock");
+  }
+}
+
 export async function learnRule(project, globalDir, feedbackId, rule, scope) {
   if (!["project", "global"].includes(scope))
     throw new Error("Scope must be project or global.");
@@ -212,20 +278,7 @@ export async function learnRule(project, globalDir, feedbackId, rule, scope) {
     );
   const learned = { ...rule, feedbackId };
   validateRules([learned]);
-  const file = path.join(dir, "rules.json");
-  const lock = await open(file + ".lock", "wx").catch((err) => {
-    throw new Error(
-      `Cannot lock rules for editing (${err.code}); another writer may be active.`,
-    );
-  });
-  try {
-    const existing = validateRules(await readJSON(file, []));
-    const next = [...existing.filter((r) => r.id !== learned.id), learned];
-    await writeJSON(file, next);
-  } finally {
-    await lock.close();
-    await unlink(file + ".lock");
-  }
+  await writeRule(project, globalDir, learned, scope, true);
   return learned;
 }
 export async function hookDecision(payload, globalDir) {

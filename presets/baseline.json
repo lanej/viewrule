@@ -26,5 +26,27 @@
     "severity": "warning",
     "reason": "Review headers taller than 160 CSS px so framing and controls leave space for the primary task.",
     "designRules": ["DR-008"]
+  },
+  {
+    "id": "baseline-control-size",
+    "type": "min-size",
+    "selector": "main button, main [role=button], main select, main input:not([type=hidden]):not([type=checkbox]):not([type=radio])",
+    "minWidth": 24,
+    "minHeight": 24,
+    "optional": true,
+    "severity": "warning",
+    "reason": "Keep controls usable as density increases. Bounds under 24 CSS px need review; this does not implement WCAG target geometry or its spacing, equivalent-control, inline, native, and essential exceptions.",
+    "designRules": ["DR-007"]
+  },
+  {
+    "id": "baseline-prose-alignment",
+    "type": "style",
+    "selector": "main [data-viewrule=prose] p",
+    "property": "text-align",
+    "allowed": ["left", "right", "start", "end", "center", "match-parent"],
+    "optional": true,
+    "severity": "warning",
+    "reason": "Avoid fully justified prose and its uneven word spacing. This is a scoped default, not a WCAG 1.4.8 conformance test.",
+    "designRules": ["DR-007"]
   }
 ]

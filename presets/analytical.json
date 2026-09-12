@@ -5,7 +5,12 @@
     "selector": "[data-viewrule=comparison] [data-viewrule-key]",
     "keyAttribute": "data-viewrule-key",
     "requiredKeys": [],
-    "minVisibleByViewport": { "desktop": 8, "wide": 8, "large": 12, "4k": 12 },
+    "minVisibleByViewport": {
+      "desktop": 8,
+      "wide": 8,
+      "large": 12,
+      "4k": 12
+    },
     "preserveFrom": "desktop",
     "minFontSize": 14,
     "viewports": ["desktop", "wide", "large", "4k"],
@@ -60,6 +65,17 @@
     "optional": true,
     "severity": "error",
     "reason": "Keep declared metric peers from obscuring one another.",
+    "designRules": ["DR-006"]
+  },
+  {
+    "id": "analytical-numeric-alignment",
+    "type": "style",
+    "selector": "[data-viewrule=comparison] [data-viewrule-number]",
+    "property": "text-align",
+    "allowed": ["right", "end"],
+    "optional": true,
+    "severity": "error",
+    "reason": "Align declared numeric amounts and their headers to a common reading edge. Use consistent precision and tabular digits where supported; identifiers and specialized decimal layouts need their own scope.",
     "designRules": ["DR-006"]
   }
 ]

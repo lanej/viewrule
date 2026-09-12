@@ -65,6 +65,7 @@ Plugin cache files are immutable during setup; no parent-repository paths are ne
 | `bin/viewrule.mjs` | Executable, lightweight hook preflight, version, browser installation |
 | `src/cli.mjs` | Command parsing and presentation |
 | `src/paths.mjs` | User-config location and compatibility environment variables |
+| `src/contract.mjs` | Effective pre-design boundaries, canonical hashes, snapshots, and report-to-report changes |
 | `src/config.mjs` | Ajv validation, project loading, defaults, rule merging |
 | `src/review.mjs` | Browser lifecycle and review orchestration |
 | `src/capture.mjs` | Native-scale tile planning, capture, and coverage accounting |
@@ -76,8 +77,9 @@ Plugin cache files are immutable during setup; no parent-repository paths are ne
 
 Report markup lives in packaged HTML templates. Mustache escapes interpolated values;
 the policy body alone uses pre-escaped text with fixed paragraph/emphasis tags.
-Template contents and paths participate in freshness fingerprints. Fixture markup and
-browser logic live under `test/templates/`; the demo uses the same fixtures.
+Template contents and paths participate in freshness fingerprints. The fixture HTML shell lives in `test/templates/`; React components and CSS live
+in `test/react/` and are bundled for the temporary fixture app. React/esbuild are
+development dependencies only. The demo uses the same fixtures.
 
 Rule definitions are data, not executable user JavaScript. Adding a measurement
 means extending its schema, observation/evaluation, policy mapping, and docs in one

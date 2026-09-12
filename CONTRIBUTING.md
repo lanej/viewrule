@@ -27,7 +27,7 @@ No compilation or generated JS is needed.
 Keep substantial markup in the Mustache HTML templates: `src/templates/` for installed
 reports, `test/templates/` for fixtures and the demo gallery. Mustache escapes values
 by default; the policy's formatted body escapes text before adding fixed tags. Keep
-fixture browser logic in `test/templates/analytical.mjs`, so it receives code checks.
+fixture React logic in `test/react/Comparison.jsx`, so it receives code checks.
 
 Use `VIEWRULE_BROWSER_PATH=/absolute/path/to/chromium` only when the pinned browser
 cannot run in the environment; report that substitution. Supported CI uses the
@@ -49,7 +49,7 @@ changes need link/syntax/diff review, not another browser run. Stop verification
 once the concrete risk is resolved.
 
 The [fixture corpus](test/README.md) asserts specific violations in the shipped
-presets, a clean compact result, rejection of empty stretching, and a clean finite
+presets, two clean React compositions under the same contract, rejection of empty stretching, and a clean finite
 comparison with whitespace. Add cases for concrete missing claims; passing examples
 must genuinely pass without weakening the rules merely to fit the fixture.
 These checks establish scoped geometry and identity contracts, not a universal

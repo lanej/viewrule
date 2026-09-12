@@ -85,6 +85,10 @@ const types = {
   "no-clip": {},
   "visible-count": { min: positive },
   "max-height": { max: { type: "number", exclusiveMinimum: 0 } },
+  "min-size": {
+    minWidth: { type: "number", exclusiveMinimum: 0 },
+    minHeight: { type: "number", exclusiveMinimum: 0 },
+  },
   "min-font-size": { min: { type: "number", exclusiveMinimum: 0 } },
   "max-text-gap": { items: text, max: { type: "number", minimum: 0 } },
   style: { property: text, allowed: names },
@@ -208,9 +212,15 @@ export async function loadProject(project, globalDir) {
     await readJSON(path.join(globalDir, "rules.json"), []),
     local,
   );
-  // Global rules may target page/viewport names used by other projects.
-  // Local scope typos should still fail loudly.
-  for (const r of local) {
+  validateRuleScopes(local, config);
+  return { config, rules };
+}
+
+// Global rules may target other projects. Validate local scopes before writing them.
+/** @param {import("./types.js").Rule[]} rules
+ * @param {import("./types.js").ProjectConfig} config */
+export function validateRuleScopes(rules, config) {
+  for (const r of rules) {
     for (const n of r.pages ?? [])
       if (!config.pages.some((p) => p.name === n))
         throw new Error(`Rule ${r.id}: unknown page ${n}`);
@@ -235,5 +245,4 @@ export async function loadProject(project, globalDir) {
           throw new Error(`Rule ${r.id}: missing visible count for ${v.name}`);
     }
   }
-  return { config, rules };
 }

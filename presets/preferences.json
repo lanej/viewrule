@@ -5,5 +5,8 @@
   "Use space for useful information; justify oversized headers, nested cards, and repeated decorative labels. (DR-008)",
   "Calibrate density to the page's task and viewport. Preserve readable type, interaction affordances, and useful whitespace; do not maximize a density score. (DR-006, DR-007)",
   "Keep chart scales, missing values, and uncertainty honest. Review these visually and against chart configuration; DOM geometry cannot establish graphical integrity. (DR-001, DR-002, DR-004, DR-005)",
-  "Treat these as Tufte-inspired design guidance, not quotations or universal layout requirements. Honor project design systems and explicit user feedback."
+  "Treat these as Tufte-inspired design guidance, not quotations or universal layout requirements. Honor project design systems and explicit user feedback.",
+  "Keep controls usable as density increases; start with at least 24 by 24 CSS px for ordinary controls and review actual target geometry and exceptions. (DR-007)",
+  "Use bounded reading widths and natural word spacing for prose. Avoid fully justified paragraphs; adapt reading measure to the language and task. (DR-007)",
+  "Align numeric amounts and headers consistently; use suitable precision and tabular digits to support scanning. Distinguish identifiers from amounts. (DR-006)"
 ]

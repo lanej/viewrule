@@ -16,6 +16,7 @@ const defaults = {
   consistent: ["DR-005"],
   "region-density": ["DR-007"],
   "max-height": ["DR-008"],
+  "min-size": ["DR-007"],
   "min-font-size": ["DR-007"],
   "max-text-gap": ["DR-006", "DR-007"],
 };
@@ -38,6 +39,8 @@ const advice = {
     "Use the available comparison area for useful evidence; check the detail tiles before changing spacing.",
   "max-height":
     "Reduce excess header or container height while preserving necessary controls and context.",
+  "min-size":
+    "Increase the control’s usable area while preserving readable text and separation. Review hit geometry and valid exceptions before treating the warning as an accessibility failure.",
   style: "Use the project's declared style values on the affected component.",
   "min-font-size":
     "Restore readable type, then reflow the content; do not shrink text to fit more items.",

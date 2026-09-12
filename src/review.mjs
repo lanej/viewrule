@@ -3,7 +3,8 @@ import AxeBuilder from "@axe-core/playwright";
 import { mkdir, writeFile, realpath, copyFile } from "node:fs/promises";
 import { randomUUID } from "node:crypto";
 import path from "node:path";
-import { loadProject, readJSON } from "./config.mjs";
+import { readJSON } from "./config.mjs";
+import { readContract } from "./contract.mjs";
 import { fingerprint, writeJSON, feedbackEntries } from "./state.mjs";
 import { inspectPage } from "./checks.mjs";
 import { renderReport, renderDesignPolicy } from "./report.mjs";
@@ -15,7 +16,8 @@ import { defaultPreferences } from "./presets.mjs";
  * @param {string} globalDir */
 export async function runReview(project, globalDir) {
   project = await realpath(project);
-  const { config, rules } = await loadProject(project, globalDir);
+  const contract = await readContract(project, globalDir);
+  const { config, rules } = contract;
   const before = await fingerprint(project, config, globalDir);
   const id =
     new Date().toISOString().replace(/[:.]/g, "-") +
@@ -26,6 +28,9 @@ export async function runReview(project, globalDir) {
   await writeJSON(path.join(project, ".ui-review/latest.json"), {
     status: "running",
     fingerprint: before,
+    ...(contract.previousReportFile
+      ? { reportFile: contract.previousReportFile }
+      : {}),
   });
   /** @type {import("./types.js").ReviewReport} */
   const report = {
@@ -34,6 +39,7 @@ export async function runReview(project, globalDir) {
     project,
     createdAt: new Date().toISOString(),
     fingerprint: before,
+    contract,
     status: "fail",
     summary: { errors: 0, warnings: 0 },
     pages: [],

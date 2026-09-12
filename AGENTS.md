@@ -19,6 +19,9 @@ changing behavior. For code review, read [REVIEW.md](REVIEW.md).
   and independent of Node APIs and module closures.
 - Prefer small changes to the relevant layer. Do not add a hosted service, database,
   model dependency, plugin framework, or automatic source repair without a request.
+- Use `contract` before UI decisions and `/viewrule:add-rule` for authored boundaries.
+  Keep rule/configuration changes visible separately from application repairs.
+  React and esbuild belong to development fixtures, not the production engine.
 
 ## Measurement and evidence
 

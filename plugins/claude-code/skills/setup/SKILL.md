@@ -23,7 +23,8 @@ application repository; plugin installation does not itself install Node or Chro
    use `preset --name analytical` to inspect it for selective adoption in existing
    projects. Use stable data and comparison identities. A finite comparison can
    keep useful whitespace; do not manufacture content or maximize an occupancy score.
-4. Leave `enforceOnStop` false unless the user has requested completion enforcement.
+4. Run `contract` and summarize the effective boundaries before UI implementation.
+   Use `/viewrule:add-rule` for requested new constraints. Leave `enforceOnStop` false unless the user has requested completion enforcement.
    When adopting the plugin, remove only a confirmed duplicate Viewrule Stop entry
    from the user's existing hook configuration; preserve unrelated hooks. See the
    `${CLAUDE_PLUGIN_ROOT}/README.md` for dotfiles preference configuration and migration.

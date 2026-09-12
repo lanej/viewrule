@@ -98,7 +98,54 @@
         do not certify that a chart renders its data faithfully. Inspect the
         detail images and review unassessed requirements.
       </p>
-      {{#hasPreferences}}
+      {{#hasContract}}
+      <details>
+        <summary>Design contract and changes</summary>
+        <p>
+          Contract SHA-256: <code>{{contract.hash}}</code>. This identifies the
+          configured boundaries, not overall design quality.
+        </p>
+        {{#contractBaselineAvailable}}
+        <p>
+          Compared with report {{contract.previousReportId}}. Constraint changes
+          are separate from application repairs.
+        </p>
+        {{/contractBaselineAvailable}} {{^contractBaselineAvailable}}
+        <p>
+          No prior contract is available for comparison
+          ({{contract.comparison}}).
+        </p>
+        {{/contractBaselineAvailable}} {{#hasContractChanges}}
+        <table>
+          <thead>
+            <tr>
+              <th>Rule / change</th>
+              <th>Before</th>
+              <th>After</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#contractChanges}}
+            <tr>
+              <td>{{id}} · {{kind}}</td>
+              <td><code>{{beforeJSON}}</code></td>
+              <td><code>{{afterJSON}}</code></td>
+            </tr>
+            {{/contractChanges}}
+          </tbody>
+        </table>
+        {{/hasContractChanges}} {{#configurationChangeJSON}}
+        <p>Configuration changed:</p>
+        <pre>{{configurationChangeJSON}}</pre>
+        {{/configurationChangeJSON}} {{#contract.policyChanged}}
+        <p>The design-policy document changed.</p>
+        {{/contract.policyChanged}}
+        <p>
+          The JSON report contains the full effective configuration and rule
+          snapshot. A passing run does not approve a change to these boundaries.
+        </p>
+      </details>
+      {{/hasContract}} {{#hasPreferences}}
       <details open>
         <summary>Design guidance and prior feedback</summary>
         <ul>

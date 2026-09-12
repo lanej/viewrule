@@ -19,6 +19,7 @@ viewrule install-browser
 cd ~/src/my-app
 viewrule init --url http://localhost:3000
 # Edit .ui-review/config.json and .ui-review/rules.json; start your app normally.
+viewrule contract
 viewrule check
 ```
 
@@ -40,6 +41,18 @@ its rule, selector, observed value, expected value, and rationale. JSON also rec
 the evaluated rule IDs and axe checks requiring manual review. Exit codes:
 `0` = no errors (warnings allowed), `1` = failed checks/capture, `2` = bad setup or
 configuration. Missing/hidden required selectors and invalid rules fail explicitly.
+
+## Author rules and inspect the contract
+
+`viewrule contract` prints effective merged boundaries before implementation without
+opening a browser. `viewrule schema --type <type>` prints the installed type schema.
+`viewrule add-rule --rule <file> --dry-run` previews a new project rule; omit
+`--dry-run` to add it without replacing an existing local or global ID. Use actual
+report feedback with `learn` for revisions. See [rule authoring](rule-authoring.md).
+
+Reports include `contract.hash`, the full config/rule snapshot, and differences
+from the previous completed report: added/removed/modified rules, configuration,
+and policy changes. These differences describe changes; they do not approve them.
 
 ## Project configuration
 
@@ -82,6 +95,7 @@ optional components, not required evidence.
 
 | Type | Extra fields | Meaning |
 | --- | --- | --- |
+| `min-size` | `minWidth`, `minHeight` | Minimum visible element bounds in CSS px; not a complete hit-target/accessibility test |
 | `align` | `edge`, `tolerance` | Maximum spread of left/right/top/bottom edges, in CSS pixels; select one peer group |
 | `no-overlap` | — | Declared peers must not overlap; ancestor/descendant pairs are excluded |
 | `no-clip` | — | Element's own hidden/clip overflow must not truncate content; does not inspect ancestor clipping |

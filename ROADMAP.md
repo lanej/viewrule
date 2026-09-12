@@ -19,6 +19,12 @@ comparison; unreadable type and lost visible identities fail. Extend the same
 workflow with actual application examples for wrapped labels, complex tables,
 charts, and task-specific evidence needs, without a new test matrix.
 
+The React fixture now includes controls, summary metrics, comparison data, a trend,
+and explanatory prose. Compact and sidebar compositions share an identical contract.
+Rule-authoring commands/skill and contract snapshots make boundary changes explicit.
+The next calibration should use real application feedback, including wrapping and
+specialized chart evidence, rather than expanding unverified generic thresholds.
+
 ## 2. Improve remediation precision
 
 Show measurements grouped by affected comparison and explain likely causes such as

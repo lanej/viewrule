@@ -6,6 +6,7 @@ import Mustache from "mustache";
 import {
   analyticalHtml,
   analyticalScript,
+  analyticalCSS,
 } from "./test/analytical-fixtures.mjs";
 import { presetRules } from "./src/presets.mjs";
 import { runReview } from "./src/review.mjs";
@@ -15,10 +16,16 @@ const project = await mkdtemp(path.join(tmpdir(), "viewrule-preset-demo-"));
 await mkdir(path.join(project, ".ui-review"));
 await mkdir(path.join(project, "src"));
 let state = "broken";
-const server = createServer((req, res) => {
+await writeFile(path.join(project, "src/analytical.js"), analyticalScript);
+await writeFile(path.join(project, "src/analytical.css"), analyticalCSS);
+const server = createServer(async (req, res) => {
+  if (req.url === "/analytical.css") {
+    res.setHeader("Content-Type", "text/css");
+    return res.end(await readFile(path.join(project, "src/analytical.css")));
+  }
   if (req.url === "/analytical.js") {
     res.setHeader("Content-Type", "text/javascript");
-    return res.end(analyticalScript);
+    return res.end(await readFile(path.join(project, "src/analytical.js")));
   }
   res.setHeader("Content-Type", "text/html");
   res.end(analyticalHtml(state));
@@ -62,6 +69,11 @@ const cases = [
     "compact",
     "pass",
     "A bounded comparison preserves readable values and reveals more alternatives at 4K.",
+  ],
+  [
+    "sidebar",
+    "pass",
+    "A table with a neighboring trend/explanation panel passes under the identical contract.",
   ],
   [
     "stretched",

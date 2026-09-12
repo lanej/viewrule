@@ -3,7 +3,8 @@ import { globalConfigDir } from "./paths.mjs";
 import { parseArgs } from "node:util";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { readJSON, validateConfig } from "./config.mjs";
+import { readJSON, validateConfig, ruleSchema } from "./config.mjs";
+import { readContract } from "./contract.mjs";
 import { runReview } from "./review.mjs";
 import { defaultPreferences, presetRules } from "./presets.mjs";
 import {
@@ -11,6 +12,7 @@ import {
   recordFeedback,
   learnRule,
   hookDecision,
+  addRule,
 } from "./state.mjs";
 
 const help = `viewrule — rendered UI checks and a versioned design feedback loop
@@ -19,6 +21,9 @@ const help = `viewrule — rendered UI checks and a versioned design feedback lo
   init --url http://localhost:3000 [--preset baseline|analytical]
                                        Create config and editable starter rules (never overwrite)
   preset --name baseline|analytical     Print starter rules for review or adaptation
+  contract                             Print effective constraints and changes since the previous report
+  schema [--type TYPE]                  Print the installed rule schema for authoring
+  add-rule --rule FILE [--dry-run]      Validate and add a project rule; never replace an existing ID
   check                                Capture pages, check rules, write HTML + JSON
   feedback --report PATH --decision approve|adjust --note TEXT [--scope project|global]
                                        Save feedback; approval preserves screenshots
@@ -48,6 +53,8 @@ try {
       rule: { type: "string" },
       preset: { type: "string" },
       name: { type: "string" },
+      type: { type: "string" },
+      "dry-run": { type: "boolean" },
       help: { type: "boolean" },
     },
   });
@@ -98,12 +105,50 @@ try {
     console.log(
       JSON.stringify(await presetRules(args.name ?? "baseline"), null, 2),
     );
+  } else if (command === "contract") {
+    console.log(
+      JSON.stringify(await readContract(project, globalDir), null, 2),
+    );
+  } else if (command === "schema") {
+    const schema = args.type
+      ? ruleSchema.oneOf.find(
+          (entry) => entry.properties.type.const === args.type,
+        )
+      : ruleSchema;
+    if (!schema) throw new Error(`Unknown rule type: ${args.type}`);
+    console.log(JSON.stringify(schema, null, 2));
+  } else if (command === "add-rule") {
+    if (!args.rule) throw new Error("--rule is required");
+    if (args.scope && args.scope !== "project")
+      throw new Error(
+        "add-rule writes project rules; use feedback/learn for shared preferences",
+      );
+    console.log(
+      JSON.stringify(
+        await addRule(
+          project,
+          globalDir,
+          await readJSON(path.resolve(project, args.rule)),
+          args["dry-run"] ?? false,
+        ),
+        null,
+        2,
+      ),
+    );
   } else if (command === "check") {
     const result = await runReview(project, globalDir);
     console.log(
       JSON.stringify({
         status: result.report.status,
         ...result.report.summary,
+        contract: {
+          hash: result.report.contract.hash,
+          comparison: result.report.contract.comparison,
+          previousReportId: result.report.contract.previousReportId,
+          changes: result.report.contract.changes,
+          configurationChange: result.report.contract.configurationChange,
+          policyChanged: result.report.contract.policyChanged,
+        },
         report: result.reportFile,
         html: path.join(path.dirname(result.reportFile), "index.html"),
         designRules: path.join(

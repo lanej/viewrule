@@ -182,6 +182,7 @@ async function main() {
         rules: path.join(engine, "docs/ui-review.md"),
         detection: path.join(engine, "docs/ui-review-enforcement.md"),
         defaults: path.join(engine, "docs/defaults.md"),
+        authoring: path.join(engine, "docs/rule-authoring.md"),
       }),
     );
   } else if (isHook) {

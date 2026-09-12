@@ -32,6 +32,7 @@ export interface Rule {
     | "no-clip"
     | "visible-count"
     | "max-height"
+    | "min-size"
     | "min-font-size"
     | "max-text-gap"
     | "style"
@@ -52,6 +53,8 @@ export interface Rule {
   tolerance?: number;
   min?: number;
   max?: number;
+  minWidth?: number;
+  minHeight?: number;
   items?: string;
   property?: string;
   attribute?: string;
@@ -114,6 +117,7 @@ export interface ReviewReport {
   summary: { errors: number; warnings: number };
   pages: PageResult[];
   designPolicy: DesignPolicy;
+  contract: Awaited<ReturnType<typeof import("./contract.mjs").readContract>>;
 }
 export interface Reference {
   report: ReviewReport;

@@ -7,10 +7,13 @@ Run from the application repository. Use this launcher for all Viewrule commands
 `node "${CLAUDE_PLUGIN_ROOT}/scripts/viewrule.mjs" <command>`.
 If the engine or project is unconfigured, follow `/viewrule:setup` within the task's scope.
 
-Before making UI decisions, run `guidance` and `docs`. Read the policy at the returned
+Before making UI decisions, run `contract`, `guidance`, and `docs`. Read the policy at the returned
 path, relevant measurement definitions, project rules, and applicable approved
 references. Identify what the user needs to compare or decide. Cite DR IDs when
 translating that task into constraints; use stable selectors and CSS-pixel viewports.
+Summarize the task, critical comparisons, blocking boundaries, warnings, and qualitative
+choices before choosing the layout. Use `/viewrule:add-rule` for requested new boundaries.
+The contract shows effective merged rules and any changes since the previous report.
 
 After implementation, with the intended app state running:
 
@@ -20,7 +23,8 @@ After implementation, with the intended app state running:
    Inspect representative text and comparison regions at each configured viewport,
    including the largest. Follow `details.tiles[].file` relative to the report folder.
    If an image tool resizes a tile or cannot inspect it, disclose that limitation.
-3. For each material finding, connect the rule ID and DR citation to the page,
+3. Review `contract.changes` and configuration/policy changes separately from app
+   repairs. A passing run does not approve a changed boundary. For each material finding, connect the rule ID and DR citation to the page,
    viewport, selector, observed value, expected value, and suggested correction.
    Distinguish measurements from visual judgment and unassessed requirements.
 4. When repairs are within the user's task, change the application and rerun after

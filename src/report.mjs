@@ -75,6 +75,18 @@ export function renderReport(report, preferences, reference) {
     {
       ...report,
       captureCount: report.pages.length,
+      hasContract: Boolean(report.contract),
+      contractBaselineAvailable: report.contract?.comparison === "available",
+      contractChanges: report.contract?.changes.map((change) => ({
+        ...change,
+        beforeJSON: JSON.stringify(change.before),
+        afterJSON: JSON.stringify(change.after),
+      })),
+      hasContractChanges: Boolean(report.contract?.changes.length),
+      configurationChangeJSON: report.contract?.configurationChange
+        ? JSON.stringify(report.contract.configurationChange)
+        : "",
+
       hasPreferences: preferences.length > 0,
       preferences: preferences.map((entry) =>
         typeof entry === "string" ? entry : entry.note,

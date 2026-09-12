@@ -2,6 +2,14 @@
 
 ## 0.2.0 — 2026-09-12
 
+- Expose the active design contract before implementation; snapshot it in reports and
+  show changed rules/configuration separately from application repairs.
+- Add the Claude rule-authoring skill plus `schema` and `add-rule --dry-run`/`add-rule`;
+  validate project scopes and prevent additions from overwriting existing boundaries.
+- Add sourced control-size/prose warnings and scoped numeric-alignment defaults.
+- Use a React fixture with two distinct accepted compositions under the same contract;
+  verify rule authoring, measurements, and visible contract changes in one workflow.
+
 - Move report, policy, fixture, and demo markup into readable Mustache HTML templates;
   preserve escaping, approved references, and template-aware freshness checks.
 - Add Prettier formatting, ESLint, and incremental TypeScript JavaScript analysis as

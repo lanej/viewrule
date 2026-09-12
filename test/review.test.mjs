@@ -15,11 +15,15 @@ import path from "node:path";
 import { createServer } from "node:http";
 import { execFile } from "node:child_process";
 import { config } from "./fixtures.mjs";
-import { analyticalHtml, analyticalScript } from "./analytical-fixtures.mjs";
+import {
+  analyticalHtml,
+  analyticalScript,
+  analyticalCSS,
+} from "./analytical-fixtures.mjs";
 
 // One user workflow through the installed entrypoint; no helper/edge-case matrix.
 test(
-  "Installed presets reject broken and stretched comparisons, accept compact and finite layouts, and preserve feedback",
+  "Installed presets reject broken and stretched comparisons, accept distinct React layouts under one contract, and preserve feedback",
   { timeout: 180000 },
   async (t) => {
     const project = await mkdtemp(path.join(tmpdir(), "ui-review-"));
@@ -30,6 +34,8 @@ test(
     await mkdir(path.join(project, ".ui-review"));
     const source = path.join(project, "src/page.html");
     await writeFile(source, analyticalHtml("broken"));
+    await writeFile(path.join(project, "src/analytical.js"), analyticalScript);
+    await writeFile(path.join(project, "src/analytical.css"), analyticalCSS);
     assert.ok(
       process.env.VIEWRULE_TEST_ARCHIVE,
       "Run npm test to exercise the packed engine",
@@ -43,9 +49,15 @@ test(
           corruptDownload ? Buffer.from("corrupt download") : archive,
         );
       }
+      if (req.url === "/analytical.css") {
+        res.setHeader("Content-Type", "text/css");
+        return res.end(
+          await readFile(path.join(project, "src/analytical.css")),
+        );
+      }
       if (req.url === "/analytical.js") {
         res.setHeader("Content-Type", "text/javascript");
-        return res.end(analyticalScript);
+        return res.end(await readFile(path.join(project, "src/analytical.js")));
       }
       res.setHeader("Content-Type", "text/html");
       res.end(await readFile(source));
@@ -222,28 +234,72 @@ test(
       path.join(project, ".ui-review/config.json"),
       JSON.stringify(cfg),
     );
-    await writeFile(
-      path.join(project, ".ui-review/rules.json"),
-      JSON.stringify([
-        ...rules,
-        {
-          id: "period",
-          type: "consistent",
-          selector: "table",
-          keyAttribute: "data-measure",
-          properties: [],
-          attributes: ["data-period"],
-          designRules: ["DR-001"],
-          severity: "error",
-          reason: "Resizing must preserve the reporting period.",
-        },
-      ]),
+    const rulesPath = path.join(project, ".ui-review/rules.json");
+    await writeFile(rulesPath, JSON.stringify(rules));
+    const periodRule = {
+      id: "period",
+      type: "consistent",
+      selector: "table",
+      keyAttribute: "data-measure",
+      properties: [],
+      attributes: ["data-period"],
+      designRules: ["DR-001"],
+      severity: "error",
+      reason: "Resizing must preserve the reporting period.",
+      pages: ["comparison"],
+    };
+    const proposal = path.join(project, "period-rule.json");
+    await writeFile(proposal, JSON.stringify(periodRule));
+    const schema = await cli(["schema", "--type", "consistent"]);
+    assert.equal(schema.code, 0, schema.stderr);
+    assert.ok(JSON.parse(schema.stdout).required.includes("keyAttribute"));
+    const beforeAdd = await readFile(rulesPath, "utf8");
+    const preview = await cli(["add-rule", "--rule", proposal, "--dry-run"]);
+    assert.equal(preview.code, 0, preview.stderr);
+    assert.equal(JSON.parse(preview.stdout).applied, false);
+    assert.equal(
+      await readFile(rulesPath, "utf8"),
+      beforeAdd,
+      "Preview does not change boundaries",
     );
+    await writeFile(
+      proposal,
+      JSON.stringify({ ...periodRule, pages: ["typo"] }),
+    );
+    assert.equal(
+      (await cli(["add-rule", "--rule", proposal])).code,
+      2,
+      "Invalid local scope is rejected before writing",
+    );
+    assert.equal(await readFile(rulesPath, "utf8"), beforeAdd);
+    await writeFile(proposal, JSON.stringify(periodRule));
+    const added = await cli(["add-rule", "--rule", proposal]);
+    assert.equal(added.code, 0, added.stderr);
+    const afterAdd = await readFile(rulesPath, "utf8");
+    assert.equal(
+      (await cli(["add-rule", "--rule", proposal])).code,
+      2,
+      "Adding cannot replace a boundary",
+    );
+    assert.equal(await readFile(rulesPath, "utf8"), afterAdd);
+    const beforeDesign = JSON.parse((await cli(["contract"])).stdout);
+    assert.equal(beforeDesign.comparison, "initial");
+    assert.equal(
+      beforeDesign.rules.find((rule) => rule.id === "baseline-readable-text")
+        .min,
+      14,
+    );
+    assert.deepEqual(beforeDesign.config.viewports, cfg.viewports);
 
     const bad = await cli(["check"]);
     assert.equal(bad.code, 1, bad.stderr);
     const badOutput = JSON.parse(bad.stdout);
     const badReport = JSON.parse(await readFile(badOutput.report, "utf8"));
+    assert.equal(
+      badReport.contract.hash,
+      beforeDesign.hash,
+      "The pre-design contract is the contract actually evaluated",
+    );
     const wide = badReport.pages.find((page) => page.viewport.name === "4k");
     assert.ok(wide, bad.stdout);
     assert.ok(
@@ -260,6 +316,9 @@ test(
     for (const [id, dr] of [
       ["baseline-readable-text", "DR-007"],
       ["baseline-header-height", "DR-008"],
+      ["baseline-control-size", "DR-007"],
+      ["baseline-prose-alignment", "DR-007"],
+      ["analytical-numeric-alignment", "DR-006"],
       ["analytical-labels", "DR-006"],
       ["analytical-context", "DR-003"],
       ["analytical-metric-alignment", "DR-006"],
@@ -291,6 +350,22 @@ test(
           f.rule === "analytical-metric-alignment" &&
           f.actual === 20 &&
           f.expected === 2,
+      ),
+    );
+    const tinyControl = findings.find(
+      (finding) => finding.rule === "baseline-control-size",
+    );
+    assert.deepEqual(tinyControl.actual, { width: 18, height: 18 });
+    assert.deepEqual(tinyControl.expected, { width: 24, height: 24 });
+    assert.equal(tinyControl.severity, "warning");
+    assert.ok(
+      findings.some(
+        (f) => f.rule === "baseline-prose-alignment" && f.actual === "justify",
+      ),
+    );
+    assert.ok(
+      findings.some(
+        (f) => f.rule === "analytical-numeric-alignment" && f.actual === "left",
       ),
     );
     const blocked = await hook();
@@ -343,6 +418,13 @@ test(
       { errors: 0, warnings: 0 },
       "Compact layout must genuinely pass, not merely suppress errors",
     );
+    const changedDistance = report.contract.changes.find(
+      (change) => change.id === "analytical-value-distance",
+    );
+    assert.equal(changedDistance.kind, "modified");
+    assert.equal(changedDistance.before.max, 160);
+    assert.equal(changedDistance.after.max, 150);
+    assert.equal(report.contract.configurationChange, null);
     const details = report.pages.find(
       (page) => page.viewport.name === "4k",
     ).details;
@@ -355,6 +437,8 @@ test(
     assert.deepEqual([png.readUInt32BE(16), png.readUInt32BE(20)], [1024, 800]);
     const reportHtml = await readFile(output.html, "utf8");
     assert.match(reportHtml, /capture-1-detail-/);
+    assert.match(reportHtml, /&quot;max&quot;:160/);
+    assert.match(reportHtml, /&quot;max&quot;:150/);
     assert.match(reportHtml, /&lt;b&gt;literal markup/);
     assert.doesNotMatch(reportHtml, /<b>literal markup/);
     assert.equal(
@@ -387,6 +471,24 @@ test(
         "utf8",
       ),
       await readFile(output.report, "utf8"),
+    );
+
+    await writeFile(source, analyticalHtml("sidebar"));
+    const alternate = await cli(["check"]);
+    assert.equal(alternate.code, 0, alternate.stderr || alternate.stdout);
+    const alternateReport = JSON.parse(
+      await readFile(JSON.parse(alternate.stdout).report, "utf8"),
+    );
+    assert.deepEqual(alternateReport.summary, { errors: 0, warnings: 0 });
+    assert.equal(
+      alternateReport.contract.hash,
+      report.contract.hash,
+      "Different accepted React compositions use the identical contract",
+    );
+    assert.deepEqual(alternateReport.contract.changes, []);
+    assert.deepEqual(
+      alternateReport.pages.map((page) => page.metrics.comparisons),
+      report.pages.map((page) => page.metrics.comparisons),
     );
 
     await writeFile(source, analyticalHtml("stretched"));
@@ -457,6 +559,13 @@ test(
       "Useful surrounding whitespace is allowed",
     );
     assert.deepEqual(await hook(), {});
+    assert.equal(
+      finiteReport.contract.changes.find(
+        (change) => change.id === "analytical-comparisons",
+      ).after.minVisibleByViewport.desktop,
+      4,
+      "A finite-task exception remains visible as a changed boundary",
+    );
 
     const installedTemplate = path.join(
       JSON.parse(setup.stdout).engine,
@@ -475,13 +584,7 @@ test(
     await writeFile(installedTemplate, originalTemplate);
 
     // One missing-evidence case uses one existing viewport; it is not a viewport matrix.
-    await writeFile(
-      source,
-      analyticalHtml("finite").replaceAll(
-        'data-viewrule="comparison"',
-        'data-unmeasured="comparison"',
-      ),
-    );
+    await writeFile(source, analyticalHtml("finite", "missing"));
     await writeFile(
       path.join(project, ".ui-review/config.json"),
       JSON.stringify({
@@ -509,7 +612,7 @@ test(
       ),
     );
     t.diagnostic(
-      "broken → compact → stretched → finite → missing annotations: expected rules, measurements, and DR citations verified",
+      "broken → compact → sidebar (same contract) → stretched → finite → missing annotations: expected rules, measurements, and DR citations verified",
     );
   },
 );

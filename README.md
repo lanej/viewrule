@@ -2,8 +2,8 @@
 
 **Design guidance and executable UI constraints for coding agents.**
 
-Viewrule helps agents build and revise interfaces using explicit design rules,
-browser measurements, and visual evidence. It preserves detail across large
+Viewrule gives agents explicit design boundaries before they choose a layout,
+then checks the rendered result with browser measurements and visual evidence. It preserves detail across large
 viewports and turns human feedback into reusable constraints. The agent operates
 the tool and repairs the application; the human supplies intent and judgment.
 
@@ -41,11 +41,24 @@ repository gives the engine its own releases and lets any application or agent u
 Dotfiles retains personal preferences and installation choices; each application owns
 its selectors, viewport choices, and thresholds.
 
+## Define boundaries before building
+
+Run `viewrule contract` to inspect effective rules and configuration before changing
+a React or other web application. The agent identifies the task and required
+comparisons, applies those boundaries, then measures the rendered result. Different
+compositions can satisfy the same contract. The React fixtures demonstrate that
+with compact and sidebar layouts at desktop and 4K.
+
+Use `/viewrule:add-rule` in Claude Code, or `schema` and `add-rule --rule <file>
+--dry-run` through the CLI, to author a scoped addition. Reports preserve contract
+snapshots and distinguish constraint changes from application repairs. See
+[rule authoring](docs/rule-authoring.md) and [research behind the defaults](docs/design-principles.md).
+
 ## What it detects
 
 | Concern | Evidence Viewrule checks |
 | --- | --- |
-| Layout | Alignment of declared peers, overlap, clipping, component height, and page overflow |
+| Layout | Alignment of declared peers, overlap, clipping, component height, control bounds, and page overflow |
 | Comparison | Required visible item counts and stable identities preserved across viewports |
 | Context and consistency | Visible context, allowed styles or attributes, and consistent declared encodings |
 | Density and legibility | Adjacent text distance, minimum text size, and optional text/box coverage or empty-band constraints |
@@ -283,7 +296,7 @@ JSDoc contracts and `strict: false`; runtime inputs still require Ajv validation
 There is no compilation step. Use `npm run browser:install` and `npm test` for the browser workflow. The single representative regression workflow installs
 the packed CLI through an isolated plugin copy, then exercises 4K evidence, feedback,
 repair, and stale-review enforcement against the shipped presets. The same workflow
-checks broken, compact, stretched, finite, and missing-annotation cases with specific
+checks broken, compact, sidebar, stretched, finite, and missing-annotation cases with specific
 finding assertions. It does not evaluate Claude's visual judgment.
 For documentation-only changes, use targeted link, example, and diff checks instead
 of adding tests or rerunning the browser locally.

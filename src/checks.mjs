@@ -467,6 +467,17 @@ export function inspectPage(rules) {
         }
     } else
       for (const el of els) {
+        if (rule.type === "min-size") {
+          const { width, height } = rect(el);
+          if (width < rule.minWidth || height < rule.minHeight)
+            add(
+              rule,
+              "Control bounds are below the configured minimum size.",
+              el,
+              { width, height },
+              { width: rule.minWidth, height: rule.minHeight },
+            );
+        }
         if (rule.type === "max-height" && rect(el).height > rule.max)
           add(
             rule,

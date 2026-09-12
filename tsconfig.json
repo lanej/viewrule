@@ -9,7 +9,8 @@
     "lib": ["ES2023", "DOM", "DOM.Iterable"],
     "types": ["node"],
     "forceConsistentCasingInFileNames": true,
-    "strict": false
+    "strict": false,
+    "jsx": "react-jsx"
   },
   "include": [
     "*.mjs",
@@ -17,7 +18,8 @@
     "src/**/*.mjs",
     "scripts/**/*.mjs",
     "test/**/*.mjs",
-    "plugins/**/*.mjs"
+    "plugins/**/*.mjs",
+    "test/**/*.jsx"
   ],
   "exclude": ["node_modules", "dist"]
 }

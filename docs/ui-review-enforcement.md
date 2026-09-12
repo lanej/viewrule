@@ -5,6 +5,11 @@ checks configured, observable conditions and cites the relevant rule IDs in its
 HTML report, JSON output, and Stop-hook findings. Each run preserves a local
 design-rule reference and its source hash so the cited text stays with the report.
 
+Before selecting a layout, use `contract` to read the effective merged boundaries.
+The [authoring workflow](rule-authoring.md) previews scoped additions and makes
+constraint changes visible in reports. [Research notes](design-principles.md) explain
+why controls/prose use warnings and numeric alignment uses explicit annotations.
+
 ## Coverage and evidence
 
 | Design rule | Available detection | What still needs judgment or integration |

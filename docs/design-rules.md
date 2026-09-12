@@ -110,7 +110,9 @@ another tab or a previous scroll position.
 
 **Application:** A carrier-selection view might require cost, delivery window,
 and reliability for the selected alternatives together. Secondary detail may be
-expandable. Small screens may use an explicit selection or comparison mode;
+expandable. Align numeric amounts and their headers consistently, with suitable
+precision and tabular digits where supported; identifiers need not follow numeric
+amount formatting. Small screens may use an explicit selection or comparison mode;
 the reduced view must keep the identity and context of each alternative clear.
 
 ## DR-007 — Larger screens expose useful detail and preserve legibility
@@ -128,7 +130,9 @@ inspection. Stretching containers alone does not demonstrate that improvement.
 Repeated values, larger cards, and decorative marks do not count as additional
 evidence. A larger carrier table might expose volume and service breakdowns while
 keeping cost and reliability visible. Do not increase density by shrinking text
-below the project's readable type scale.
+below the project's readable type scale. Preserve usable controls as density changes.
+For prose, use bounded reading widths and natural word spacing; avoid fully justified
+paragraphs. The default control-size and prose checks are scoped review warnings.
 
 **Exception:** A finite comparison or focused task may already show all useful
 evidence. Retain useful whitespace and bounded reading widths in that case;
@@ -163,6 +167,10 @@ rule IDs so future detection and enforcement can refer to the same requirements.
 Appearance approval alone does not establish numerical or graphical accuracy.
 
 ## Sources
+
+The [research notes](design-principles.md) explain the scope and limits of additional
+W3C and U.S. Web Design System guidance; these additions are not attributed to Tufte.
+
 
 - Edward Tufte, [The Visual Display of Quantitative Information](https://www.edwardtufte.com/book/the-visual-display-of-quantitative-information/): graphical integrity, data-ink, high-resolution displays, and small multiples.
 - Edward Tufte, [Baseline for amount scale](https://www.edwardtufte.com/notebook/baseline-for-amount-scale/): why time-series axes need not always include zero.

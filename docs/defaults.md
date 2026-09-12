@@ -1,10 +1,12 @@
 # Default design opinion
 
-Viewrule starts with the seven preferences originally used in `lanej/dotfiles`:
+Viewrule retains the seven preferences originally used in `lanej/dotfiles`:
 lead with the decision, preserve comparisons, supply quantitative context, align
 related evidence, keep decoration subordinate, preserve readable density, and
 review graphical integrity. The shipped text lives in `presets/preferences.json`.
-`viewrule guidance` always includes it under `defaults`; personal `preferences`
+Three additions cover usable controls, prose presentation, and numeric scanning;
+[research and source limits](design-principles.md) explain the choices.
+`viewrule guidance` always includes the shipped guidance under `defaults`; personal `preferences`
 and recorded feedback remain separate. Reports display both. Explicit user intent
 and project design systems take precedence over this starting guidance.
 
@@ -28,6 +30,9 @@ their selectors, pages, viewport names, and thresholds before relying on them.
 | Baseline | Visible text beneath `main` is at least 14 CSS px | Error; `baseline-readable-text` / DR-007 |
 | Baseline | Review own-element clipping of semantic text and declared labels | Warning; `baseline-content-clipping` / DR-006, DR-007 |
 | Baseline | Review page headers over 160 CSS px tall | Warning; `baseline-header-height` / DR-008 |
+| Baseline | Review ordinary control bounds below 24×24 CSS px | Warning; `baseline-control-size` / DR-007 |
+| Baseline | Review fully justified paragraphs inside declared prose | Warning; `baseline-prose-alignment` / DR-007 |
+| Analytical | Declared numeric amounts and headers align right/end | Error; `analytical-numeric-alignment` / DR-006 |
 | Analytical | Eight distinct alternatives at desktop/wide, twelve at large/4K; preserve desktop identities and 14px text | Error; `analytical-comparisons` / DR-006, DR-007 |
 | Analytical | Visible nonempty shared comparison context | Error; `analytical-context` / DR-003 |
 | Analytical | Essential comparison labels are not clipped by their own element | Error; `analytical-labels` / DR-006, DR-007 |
@@ -77,7 +82,24 @@ checks target desktop/wide/large/4K by default. Mobile retains baseline, label, 
 and overlap checks; define its comparison mode explicitly when needed. Renaming or
 removing a configured viewport requires adapting the copied rules too.
 
+Declare `data-viewrule-number` on numeric amount cells and their headers to enforce
+numeric alignment. Do not mark carrier IDs, dates, or text as numeric amounts simply
+because they contain digits. Put `data-viewrule="prose"` on long-form text regions.
+These two additions are optional when those elements are absent; absence establishes
+no evidence for their checks. The ordinary-control selector includes buttons, button
+roles, selects, and inputs except hidden inputs, checkboxes, and radios. Links and
+checkbox/radio label-target geometry need a deliberate project rule and inspection.
+
 ## Measurement limits and evidence
+
+`min-size` compares each visible element's axis-aligned `getBoundingClientRect()`
+width and height with `minWidth`/`minHeight` in CSS px. It is not hit testing: rounded,
+rotated, clipped, obscured, or disconnected clickable regions may have different usable
+areas. The baseline is a warning and does not implement WCAG 2.5.8's exceptions.
+Prose alignment inspects computed CSS `text-align`, not actual word spacing or line
+length. Numeric alignment checks the same property; it does not verify precision,
+locale-aware formatting, or support for tabular digits.
+
 
 `min-font-size` measures computed CSS size on visible DOM text parents beneath its
 selector. It does not establish apparent size after transforms, readability at a
@@ -94,7 +116,7 @@ Context presence cannot verify the accuracy of units, periods, or underlying dat
 
 The [fixture corpus](https://github.com/lanej/viewrule/blob/main/test/README.md)
 specifies rejected and accepted layouts. The single installed workflow asserts
-specific findings and DR citations, a clean compact layout, failure from empty
+specific findings and DR citations, two distinct React compositions under an identical contract, failure from empty
 stretching alone, and a clean finite comparison with surrounding whitespace.
 It also checks missing annotations, actual feedback provenance, and freshness.
 This is evidence for those contracts; it is not a claim that the full Tufte policy
