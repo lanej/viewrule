@@ -128,11 +128,11 @@ button {
     sans-serif;
 }
 [data-state="sidebar"] .workspace {
-  grid-template-columns: 460px 300px;
+  grid-template-columns: 440px 300px;
   align-items: start;
 }
 [data-state="sidebar"] table {
-  width: 460px;
+  width: 440px;
 }
 [data-state="broken"] .download {
   min-height: 0;

@@ -11,7 +11,7 @@ These are specified test expectations using illustrative data, not user approval
 | --- | --- | --- |
 | `broken` | 18×18px export control; justified prose; left-aligned numeric amounts; 450px header; metric peers offset and overlapping; 12px table text; clipped carrier labels; hidden caption; wide viewport drops carrier 2 and changes the period | Specific control/prose/numeric findings plus header, alignment, overlap, type, label, context, identity-preservation, and period findings with the expected DR citations; Stop blocks |
 | `compact` | 440px comparison width, 14px data text, complete caption and labels; eight desktop rows and twelve at 4K | Fresh pass, zero warnings, preserved comparison identities, complete original-size 4K detail tiles |
-| `sidebar` | 460px table beside a trend and explanation panel, with the same comparisons and exact rules as compact | Zero errors/warnings and an identical contract hash; a different composition is permitted |
+| `sidebar` | 440px table beside a trend and explanation panel, with the same comparisons and exact rules as compact | Zero errors/warnings and an identical contract hash; a different composition is permitted |
 | `stretched` | Same text and rows as compact; table alone expands to the full 4K width | Fails the text-distance rule at 4K while identity counts remain unchanged; desktop still passes |
 | `finite` | Four relevant alternatives in a bounded comparison; a scoped four-item count for this finite task | Passes at desktop and 4K despite substantial surrounding whitespace |
 
