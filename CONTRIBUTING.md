@@ -34,6 +34,12 @@ must guide the next substantive detector change.
 
 ## Change checklist
 
+Use [REVIEW.md](REVIEW.md) for the shared review rubric. [AGENTS.md](AGENTS.md)
+defines coding-agent instructions, imported by `CLAUDE.md`. The project Claude
+`code-reviewer` agent can inspect a supplied diff with file-reading tools; GitHub
+Copilot receives the concise instructions in `.github/copilot-instructions.md`.
+These files guide requested reviews; they do not configure automatic reviewers.
+
 - Keep measurements scoped and report actual/expected values with actionable selectors.
 - Update the schema, policy mapping, manual, and changelog together when behavior changes.
 - Preserve explicit unassessed coverage; do not turn missing evidence into a pass.

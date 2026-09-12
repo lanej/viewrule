@@ -1,6 +1,6 @@
 # Architecture
 
-Viewrule is a local Node CLI with a browser worker in the same process. The CLI is
+Viewrule is a local Node CLI orchestrating a Chromium browser process. The CLI is
 the supported integration boundary; `src/` modules are internal. There is no daemon,
 database service, model dependency, or general plugin framework in 0.1.
 

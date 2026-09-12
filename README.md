@@ -2,103 +2,235 @@
 
 **Executable design rules for rendered interfaces.**
 
-Viewrule helps people and coding agents check whether a UI preserves the information
-needed for a task. It measures a running page with Playwright, cites the relevant
-design rule, captures full-resolution evidence, and remembers human feedback.
+Viewrule is a local command-line tool for people and coding agents building web UIs.
+It opens a running application in Chromium, measures configured layout constraints,
+captures screenshots at full resolution, and reports violations with evidence and
+citations to the underlying design rules. Human feedback can become a scoped rule
+or an approved visual reference for the next iteration.
 
-It began as a tool in [lanej/dotfiles](https://github.com/lanej/dotfiles/pull/29).
-The engine now belongs here; personal preferences and agent hooks belong in dotfiles;
-application-specific selectors and thresholds belong in each application.
+**Status:** experimental 0.1.0, distributed through
+[GitHub Releases](https://github.com/lanej/viewrule/releases). No npm registry release
+is available yet. Node.js 22+ and npm are required. Linux is exercised in CI;
+macOS and Windows have not been validated.
 
-**Status:** experimental 0.1.0. Source and versioned packages are available through
-[GitHub Releases](https://github.com/lanej/viewrule/releases).
-There is no npm registry release to install with `npx viewrule` yet.
+## Why it exists
 
-## What it checks
+A UI can look polished while making a decision harder: too few alternatives fit on
+screen, related values sit far apart, chart context disappears, or a larger window
+adds empty space while hiding useful detail. Telling a coding agent to “make it
+better” leaves those expectations implicit and makes the next revision unpredictable.
 
-- Alignment, overlap, clipping, required context, visible item counts, declared
-  styles and metadata, and consistency across viewports.
-- Whether a larger viewport loses previously visible comparisons or hides required
-  identities; readable type and minimum item counts are configured per task.
-- Text or element-box coverage within a chosen region, with explicit measurement limits.
-- Horizontal page overflow, automated accessibility findings, and complete detail capture.
+Visual assessment also loses fidelity when a large screenshot is shrunk to fit an
+agent's image input or a review window. An overview can show composition while
+concealing small labels, clipping, and alignment errors. Viewrule retains native-scale
+detail tiles alongside the overview so those details can be inspected.
 
-Each finding includes a selector, observation, expectation, rationale, suggested
-remediation, and citations such as **DR-007: preserve useful detail on larger screens**.
-Unassessed design rules remain unassessed. A pass means the configured checks passed.
+The goal is to turn an expectation such as **“show eight complete carrier rows on
+desktop”** into a repeatable check, while keeping judgment with the person using the
+interface. The [design policy](docs/design-rules.md), DR-001 through DR-008, is inspired
+by Edward Tufte's *The Visual Display of Quantitative Information*: enable comparison,
+preserve context and truthful encodings, and spend space on useful evidence. These
+are our interpretations, not quotations, universal thresholds, or an endorsement.
 
-The [eight design rules](docs/design-rules.md) are our interpretation inspired by
-Edward Tufte's *The Visual Display of Quantitative Information*. They are not
-quotations, universal density thresholds, or an endorsement by Tufte.
+Viewrule began in [lanej/dotfiles](https://github.com/lanej/dotfiles/pull/29). A separate
+repository gives the engine its own releases and lets any application or agent use it.
+Dotfiles retains personal preferences and agent integration; each application owns
+its selectors, viewport choices, and thresholds.
 
-## Try the source
+## What it detects
 
-Requires Node.js 22+ and npm. Linux is exercised in CI; macOS is an intended target
-but has not yet been validated. Windows support is not established.
+| Concern | Evidence Viewrule checks |
+| --- | --- |
+| Layout | Alignment of declared peers, overlap, clipping, component height, and page overflow |
+| Comparison | Required visible item counts and stable identities preserved across viewports |
+| Context and consistency | Visible context, allowed styles or attributes, and consistent declared encodings |
+| Density and legibility | Text or element-box coverage, empty vertical bands, and configured font-size constraints |
+| Capture and accessibility | Complete detail-tile coverage and automatically detectable axe accessibility findings |
 
-From this checkout or an extracted source archive:
+Rule findings report their selector, observed value, expected value, reason, and
+applicable DR IDs. Setup and capture errors report the failed operation. Reports
+separate executed checks from unassessed design requirements; a pass means the
+configured error checks passed. See the [detection manual](docs/ui-review-enforcement.md)
+for the exact scope and limits of each measurement.
+
+## How to use it
+
+### Install or try the demo
+
+Download `viewrule-0.1.0.tgz` and `SHA256SUMS` from the
+[v0.1.0 release](https://github.com/lanej/viewrule/releases/tag/v0.1.0).
+From that download directory, verify the checksum and install:
 
 ```sh
+# Linux; on macOS use: shasum -a 256 -c SHA256SUMS
+sha256sum -c SHA256SUMS
+npm install --global ./viewrule-0.1.0.tgz
+viewrule install-browser
+viewrule --version
+```
+
+Browser installation is explicit. For Linux CI system dependencies, use
+`viewrule install-browser --with-deps`. To inspect a sample without configuring an app,
+run the demo from a source checkout:
+
+```sh
+git clone https://github.com/lanej/viewrule.git
+cd viewrule
 npm ci
 npm run browser:install
 npm run demo
 ```
 
-The demo prints a local HTML report path for a broken and corrected comparison.
-To install the standalone CLI from the checkout:
+The demo prints a local HTML report path for a deliberately broken and corrected
+comparison. It uses illustrative data and does not record human approval.
+
+### Configure a real application
+
+Start your application's development server, then run these commands in its repository:
 
 ```sh
-npm pack
-npm install --global ./viewrule-0.1.0.tgz
-viewrule --version
-viewrule install-browser
-cd /path/to/your/app
 viewrule init --url http://localhost:3000
-# Start your app; edit .ui-review/config.json and .ui-review/rules.json.
+# Edit .ui-review/config.json and .ui-review/rules.json for your application.
 viewrule check
 ```
 
-`init` creates a configuration without overwriting one. The `.ui-review` directory
-and `ui-review` command alias remain compatible with the dotfiles prototype.
-Browser installation is explicit; no install script downloads one automatically.
-Use `viewrule install-browser --with-deps` for Linux CI system dependencies.
+`init` does not overwrite existing configuration. Choose routes, a readiness selector
+that proves the intended data has loaded, and representative browser sizes. Initial
+configs include desktop, wide, large, 4K, and mobile viewports; dimensions are **CSS
+pixels**, not the monitor's hardware resolution. Use stable fixture data for comparisons.
+Viewrule does not start the application's server.
 
-## Review and teach
+For example, suppose the configured `main` page contains a carrier table. Put this
+array in `.ui-review/rules.json` to require eight complete rows in the initial desktop
+viewport; adapt the selector and minimum to the actual task:
 
-1. Define the task, representative data, routes, readiness selectors, and viewports.
-2. Add a few scoped rules from the [manual](docs/ui-review.md). Defaults do not
-   invent a universal density target or infer which components should align.
-3. Run `viewrule check`. Read the findings and inspect the affected detail tiles
-   at original size. A scaled-down 4K overview cannot establish label legibility.
-4. Record the user's feedback with `viewrule feedback`. Turn measurable feedback
-   into a scoped JSON rule with `viewrule learn`; retain subjective feedback as prose.
-5. Repair the app and rerun. Human approval preserves the exact reference images;
-   it never clears automated failures.
+```json
+[
+  {
+    "id": "carrier-rows-visible",
+    "type": "visible-count",
+    "selector": "[data-testid=carrier-table] tbody tr",
+    "min": 8,
+    "pages": ["main"],
+    "viewports": ["desktop"],
+    "severity": "error",
+    "reason": "Compare eight carriers together without scrolling.",
+    "designRules": ["DR-006"]
+  }
+]
+```
 
-The CLI suggests remediation but **does not edit application code**. Agents may
-propose changes and verify them through the same loop. Automatic repair is deferred
-until measurements are reliable enough to avoid optimizing the wrong thing.
+The example applies only to desktop. Use `comparison-set` for explicit cross-viewport
+identity preservation and minimum counts; see the [rule reference](docs/ui-review.md).
+An empty custom-rule list still checks overflow, accessibility when enabled, and
+capture integrity. It does not establish that the application's design policy is covered.
 
-## The density limit
+### Inspect, adjust, and learn
 
-The current box-coverage check can be satisfied by stretching a table while leaving
-large gaps between related values. Text coverage avoids counting empty table boxes,
-but still cannot establish useful information density. Pair coverage with visible
-comparison identities, legibility, and visual review. Improving this is the first
-[roadmap](ROADMAP.md) item; it is not a solved capability in this release.
+`viewrule check` prints JSON containing findings and paths to the HTML and JSON reports.
+Open the HTML overview for composition and the affected detail tiles at original size
+for labels, spacing, and clipping. Tiles default to 1024×800 with overlap; incomplete
+capture coverage fails the check. The program cannot establish that a person or agent
+actually inspected every relevant tile.
 
-## Documentation
+Record feedback against the exact report the person reviewed:
 
-| Document | Purpose |
+```sh
+viewrule feedback --report .ui-review/runs/RUN/report.json \
+  --decision adjust --note 'Show eight complete carrier rows on desktop.'
+# Save the single rule object above, without the array, to rule.json.
+viewrule learn --feedback FEEDBACK_ID --rule rule.json
+# Repair the application and capture a fresh report.
+viewrule check
+viewrule feedback --report .ui-review/runs/NEW_RUN/report.json \
+  --decision approve --note 'This comparison layout works.'
+```
+
+Replace `RUN`, `NEW_RUN`, and `FEEDBACK_ID` with the actual run paths and returned ID.
+`learn` validates supplied rule JSON and links it to recorded feedback; it does not
+infer thresholds from prose. Subjective feedback remains guidance, available through
+`viewrule guidance`. Approval preserves the exact report and screenshots, and never
+clears automated failures. Default to project scope; use `--scope global` only for
+preferences explicitly intended to apply across projects.
+
+### Enforce a result
+
+| Result | Exit code |
 | --- | --- |
-| [Design rules](docs/design-rules.md) | Stable DR-001–DR-008 requirements |
-| [Detection and enforcement](docs/ui-review-enforcement.md) | Rule mapping, measurements, confidence, and limits |
-| [CLI and configuration](docs/ui-review.md) | Rule fields, feedback, capture, and exit codes |
-| [Architecture](docs/architecture.md) | Boundaries, modules, data flow, and state |
-| [Lifecycle](docs/lifecycle.md) | Review, learning, versioning, release, upgrade, and rollback |
-| [Integrations](docs/integrations.md) | Dotfiles, Claude, other agents, and application CI |
-| [Contributing](CONTRIBUTING.md) | Development and the single regression workflow |
-| [Security](SECURITY.md) | Trust boundaries and reporting |
+| Configured error checks pass; warnings may remain | `0` |
+| A check or capture fails | `1` |
+| Usage or configuration is invalid | `2` |
 
-MIT licensed. No hosted service, account, model API key, or telemetry is required.
-The browser loads your configured application, which can make its own network requests.
+Run the CLI in application CI for a required gate. The optional Claude Stop hook
+requires a current passing result when the application sets `enforceOnStop: true`;
+initial configs leave it off. It checks source/rule freshness without launching a
+browser. Its continuation guard prevents loops, so it is an iteration aid rather
+than a substitute for a required CI check. See [integrations](docs/integrations.md).
+
+## How it is architected
+
+Viewrule is a Node.js CLI orchestrating Chromium through Playwright. Ajv validates
+configuration and rules; axe supplies automated accessibility checks. It uses local
+JSON, JSONL, HTML, and PNG files, with no hosted service, database, model API, or
+telemetry. The configured application can make its own browser network requests.
+
+```mermaid
+flowchart TD
+  A["CLI and scoped rules"] --> B["Validate, merge, and fingerprint"]
+  B --> C["Capture and measure page / viewport"]
+  C --> D["Compare evidence and cite DR IDs"]
+  D --> E["HTML, JSON, and capture files"]
+  E --> F["Human review and feedback"]
+  F --> G["Validate a supplied rule"]
+  G --> B
+```
+
+| Layer | Implementation and responsibility |
+| --- | --- |
+| Entry and configuration | `bin/viewrule.mjs`, `src/cli.mjs`, `src/config.mjs`, `src/paths.mjs`: commands, schema validation, and configuration lookup |
+| Browser evidence | `src/review.mjs`, `src/capture.mjs`, `src/checks.mjs`: fresh contexts, geometry, styles, accessibility, and full-resolution tiles |
+| Design evaluation | `src/design.mjs`: policy loading, cross-viewport comparisons, coverage, citations, and remediation suggestions |
+| Reports and state | `src/report.mjs`, `src/state.mjs`: rendered reports, fingerprints, feedback provenance, approved references, and Stop decisions |
+
+A check fingerprints scoped source and rules before and after capture; changes during
+the run fail it. Each page/viewport gets a fresh browser context. Observations are
+compared across viewports, then reported against a snapshot of the design policy.
+The CLI is the supported integration boundary; internal modules are not a library API.
+
+Application configuration, rules, feedback, and approved references live under
+`.ui-review/`; run output and `latest.json` are disposable. Global rules and preferences
+default to `$XDG_CONFIG_HOME/viewrule` or `~/.config/viewrule`, overridden by
+`VIEWRULE_CONFIG_DIR`. Project rules override global rules by ID. The `ui-review`
+command alias and legacy environment variables remain supported. The
+[architecture guide](docs/architecture.md) details ownership, storage, and trust boundaries;
+the [lifecycle guide](docs/lifecycle.md) covers release, upgrade, rollback, and removal.
+
+## Limits and next work
+
+**Useful density remains an open problem.** Stretching a table can improve box
+coverage while leaving large gaps between related values. Text coverage avoids
+counting those empty boxes, but cannot establish relevance or comparison effort.
+Use coverage with visible comparison identities, legibility constraints, and human
+review. Improving this is the first [roadmap item](https://github.com/lanej/viewrule/blob/main/ROADMAP.md).
+
+DOM evidence cannot certify chart truth, semantic context, every form of clipping
+or occlusion, or overall design quality. Native-scale captures preserve evidence;
+they do not replace inspection. The CLI offers remediation suggestions and does
+not edit application code. Automatic repair is deferred until its measurements
+are reliable enough to avoid optimizing the wrong thing.
+
+## Development and review
+
+From a source checkout, use `npm ci`, `npm run browser:install`, and `npm test`.
+There is no compilation step. The single representative regression workflow exercises
+the packed and installed CLI, including 4K evidence, feedback, and stale-review enforcement.
+For documentation-only changes, use targeted link, example, and diff checks instead
+of adding tests or rerunning the browser locally.
+
+[CONTRIBUTING.md](https://github.com/lanej/viewrule/blob/main/CONTRIBUTING.md) covers changes and validation.
+[AGENTS.md](https://github.com/lanej/viewrule/blob/main/AGENTS.md) defines shared coding-agent instructions;
+`CLAUDE.md` imports them. [REVIEW.md](https://github.com/lanej/viewrule/blob/main/REVIEW.md)
+is the shared review rubric, used by the project Claude reviewer and summarized in
+GitHub Copilot instructions. Reviewer guidance does not enable automatic reviews or
+configure branch protection. See [SECURITY.md](https://github.com/lanej/viewrule/blob/main/SECURITY.md)
+for artifact privacy and reporting. MIT licensed.
