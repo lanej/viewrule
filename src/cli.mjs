@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { globalConfigDir } from "./paths.mjs";
 import { parseArgs } from "node:util";
-import { readFile, mkdir, writeFile } from "node:fs/promises";
+import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { readJSON, validateConfig } from "./config.mjs";
 import { runReview } from "./review.mjs";
@@ -37,22 +37,19 @@ See docs/ui-review.md for rule types and CI use.
 try {
   const { values: args, positionals } = parseArgs({
     allowPositionals: true,
-    options: Object.fromEntries(
-      [
-        "url",
-        "project",
-        "report",
-        "decision",
-        "note",
-        "scope",
-        "feedback",
-        "rule",
-        "preset",
-        "name",
-      ]
-        .map((k) => [k, { type: "string" }])
-        .concat([["help", { type: "boolean" }]]),
-    ),
+    options: {
+      url: { type: "string" },
+      project: { type: "string" },
+      report: { type: "string" },
+      decision: { type: "string" },
+      note: { type: "string" },
+      scope: { type: "string" },
+      feedback: { type: "string" },
+      rule: { type: "string" },
+      preset: { type: "string" },
+      name: { type: "string" },
+      help: { type: "boolean" },
+    },
   });
   const command = positionals[0];
   const project = path.resolve(args.project ?? process.cwd());
@@ -98,7 +95,9 @@ try {
       `Created ${dir}/config.json with editable ${args.preset ?? "baseline"} starter rules (existing rule files are preserved). Calibrate selectors, counts, and thresholds to the task. Stop enforcement is off until enforceOnStop is true.`,
     );
   } else if (command === "preset") {
-    console.log(JSON.stringify(await presetRules(args.name ?? "baseline"), null, 2));
+    console.log(
+      JSON.stringify(await presetRules(args.name ?? "baseline"), null, 2),
+    );
   } else if (command === "check") {
     const result = await runReview(project, globalDir);
     console.log(
@@ -107,10 +106,17 @@ try {
         ...result.report.summary,
         report: result.reportFile,
         html: path.join(path.dirname(result.reportFile), "index.html"),
-        designRules: path.join(path.dirname(result.reportFile), "design-rules.html"),
-        findings: result.report.pages.flatMap((page) => page.findings.map((finding) => ({
-          page: page.name, viewport: page.viewport.name, ...finding,
-        }))),
+        designRules: path.join(
+          path.dirname(result.reportFile),
+          "design-rules.html",
+        ),
+        findings: result.report.pages.flatMap((page) =>
+          page.findings.map((finding) => ({
+            page: page.name,
+            viewport: page.viewport.name,
+            ...finding,
+          })),
+        ),
       }),
     );
     process.exitCode = result.report.status === "pass" ? 0 : 1;

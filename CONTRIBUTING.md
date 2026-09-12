@@ -6,11 +6,28 @@ the two. A new arbitrary score is not enough.
 
 ## Development
 
+Use Node 22.13 or newer for development tooling; CI uses the current Node 22 release.
+
 ```sh
 npm ci
+npm run format
+npm run check
 npm run browser:install
 npm test
 ```
+
+`npm run format` applies Prettier; `npm run format:check` reports formatting drift.
+`npm run lint` runs ESLint with zero warnings, and `npm run analyze` runs TypeScript's
+`checkJs`/`noEmit` analysis over the engine, launcher, plugin adapter, demo, and tests.
+`npm run check` runs all three and gates CI before the browser workflow. Analysis
+uses inference and internal JSDoc contracts; it is incremental (`strict: false`),
+so untyped JSON and parameters still limit coverage. Ajv validates runtime inputs.
+No compilation or generated JS is needed.
+
+Keep substantial markup in the Mustache HTML templates: `src/templates/` for installed
+reports, `test/templates/` for fixtures and the demo gallery. Mustache escapes values
+by default; the policy's formatted body escapes text before adding fixed tags. Keep
+fixture browser logic in `test/templates/analytical.mjs`, so it receives code checks.
 
 Use `VIEWRULE_BROWSER_PATH=/absolute/path/to/chromium` only when the pinned browser
 cannot run in the environment; report that substitution. Supported CI uses the

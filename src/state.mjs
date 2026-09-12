@@ -111,6 +111,14 @@ export async function fingerprint(project, config, globalDir) {
     "../npm-shrinkwrap.json",
   ])
     hash.update(await readFile(path.join(import.meta.dirname, file)));
+  for (const file of (
+    await walk(path.join(import.meta.dirname, "templates"))
+  ).sort()) {
+    hash.update(`templates/${file}\0`);
+    hash.update(
+      await readFile(path.join(import.meta.dirname, "templates", file)),
+    );
+  }
   hash.update(await readFile(policyPath));
   return hash.digest("hex");
 }

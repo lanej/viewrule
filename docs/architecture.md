@@ -70,8 +70,14 @@ Plugin cache files are immutable during setup; no parent-repository paths are ne
 | `src/capture.mjs` | Native-scale tile planning, capture, and coverage accounting |
 | `src/checks.mjs` | Browser-side DOM geometry and style observations |
 | `src/design.mjs` | Design policy loading, cross-viewport rules, citations, suggestions |
-| `src/report.mjs` | Escaped local HTML reports and policy pages |
+| `src/report.mjs`, `src/templates/` | Report view models and escaped Mustache HTML reports/policy pages |
+| `src/types.d.ts` | Internal contracts for JavaScript static analysis; no emitted code |
 | `src/state.mjs` | Fingerprints, atomic state writes, feedback, learning, Stop decisions |
+
+Report markup lives in packaged HTML templates. Mustache escapes interpolated values;
+the policy body alone uses pre-escaped text with fixed paragraph/emphasis tags.
+Template contents and paths participate in freshness fingerprints. Fixture markup and
+browser logic live under `test/templates/`; the demo uses the same fixtures.
 
 Rule definitions are data, not executable user JavaScript. Adding a measurement
 means extending its schema, observation/evaluation, policy mapping, and docs in one

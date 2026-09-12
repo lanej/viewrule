@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Viewrule preset examples</title>
+    <style>
+      body {
+        font: 16px/1.5 system-ui;
+        color: #172d27;
+        margin: 24px;
+      }
+      main {
+        max-width: 1440px;
+        margin: auto;
+      }
+      section {
+        border-top: 1px solid #ccd6d0;
+        padding: 16px 0;
+      }
+      .shots {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 440px), 1fr));
+        gap: 24px;
+      }
+      img {
+        width: 100%;
+        border: 1px solid #ccd6d0;
+      }
+      figure {
+        margin: 0;
+      }
+      a {
+        color: #165b41;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Viewrule's default opinion</h1>
+      <p>
+        Illustrative carrier data and specified fixture expectations, not
+        human-approved designs. Preview the composition here; open reports for
+        original-size detail.
+      </p>
+      {{#cases}}
+      <section>
+        <h2>{{name}} · {{report.status}}</h2>
+        <p>{{description}}</p>
+        <p>
+          {{report.summary.errors}} errors · {{report.summary.warnings}}
+          warnings ·
+          <a href="{{directory}}/index.html"
+            >Inspect findings and native-scale tiles</a
+          >
+        </p>
+        <div class="shots">
+          {{#report.pages}}
+          <figure>
+            <figcaption>
+              {{viewport.name}} · {{viewport.width}} × {{viewport.height}}
+            </figcaption>
+            <a href="{{directory}}/{{screenshot}}"
+              ><img
+                alt="{{name}} comparison at {{viewport.name}}"
+                src="{{directory}}/{{screenshot}}"
+            /></a>
+          </figure>
+          {{/report.pages}}
+        </div>
+      </section>
+      {{/cases}}
+    </main>
+  </body>
+</html>

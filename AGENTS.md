@@ -11,8 +11,10 @@ changing behavior. For code review, read [REVIEW.md](REVIEW.md).
   dotfiles; application selectors, thresholds, and approvals belong in the app.
 - The Claude plugin is a CLI client. Keep its skills concise, use installed engine
   docs, and bump its manifest version for updates; never install from a Stop hook.
-- Node 22+ and npm are required. Use ES modules and existing dependencies; no
-  compilation step or lint script is configured. Keep `src/` modules internal.
+- The engine requires Node 22+ and npm; development tooling needs Node 22.13+.
+  Use ES modules and pinned dependencies; no
+  compilation step is required. Run the formatter, linter, and static checks below.
+  Keep `src/` modules internal.
 - Browser-side `inspectPage` runs through Playwright evaluation: keep it serializable
   and independent of Node APIs and module closures.
 - Prefer small changes to the relevant layer. Do not add a hosted service, database,
@@ -35,9 +37,18 @@ changing behavior. For code review, read [REVIEW.md](REVIEW.md).
 
 ```sh
 npm ci
+npm run format
+npm run check
 npm run browser:install
 npm test
 ```
+
+`npm run format` applies Prettier to code, HTML, JSON, and YAML. `npm run check`
+checks formatting, ESLint, and TypeScript `checkJs` without emitting code. Keep
+JSDoc/internal contracts aligned with runtime schemas; do not silence findings with
+blanket exclusions or `@ts-nocheck`. JavaScript checking is incremental, not strict.
+Keep substantial HTML in templates; use escaped Mustache values for report content.
+The policy renderer's fixed markup is the sole escaped-before-formatting exception.
 
 Run the affected detector once after behavioral changes; repeat only after a
 failure or further implementation changes. `npm test` packs and installs the CLI

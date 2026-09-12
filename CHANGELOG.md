@@ -2,6 +2,11 @@
 
 ## 0.2.0 — 2026-09-12
 
+- Move report, policy, fixture, and demo markup into readable Mustache HTML templates;
+  preserve escaping, approved references, and template-aware freshness checks.
+- Add Prettier formatting, ESLint, and incremental TypeScript JavaScript analysis as
+  local commands and CI gates, with internal schema/report/capture contracts.
+
 - Ship the original seven dotfiles design preferences as built-in guidance, separate
   from personal preferences and recorded feedback.
 - Initialize new projects with editable baseline rules; add an analytical preset

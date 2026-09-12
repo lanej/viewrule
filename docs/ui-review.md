@@ -247,6 +247,8 @@ one representative CLI regression workflow on Linux.
 
 ```sh
 npm ci
+npm run format
+npm run check
 npm run browser:install
 npm test
 ```

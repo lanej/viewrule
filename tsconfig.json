@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "checkJs": true,
+    "noEmit": true,
+    "target": "ES2023",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "types": ["node"],
+    "forceConsistentCasingInFileNames": true,
+    "strict": false
+  },
+  "include": [
+    "*.mjs",
+    "bin/**/*.mjs",
+    "src/**/*.mjs",
+    "scripts/**/*.mjs",
+    "test/**/*.mjs",
+    "plugins/**/*.mjs"
+  ],
+  "exclude": ["node_modules", "dist"]
+}

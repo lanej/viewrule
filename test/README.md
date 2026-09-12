@@ -1,7 +1,9 @@
 # Regression fixtures
 
 `npm test` installs the packed CLI through the isolated Claude plugin and runs one
-workflow over the actual browser-rendered fixtures in `analytical-fixtures.mjs`.
+workflow over the actual browser-rendered HTML in `templates/analytical.html`,
+with fixture data supplied by `analytical-fixtures.mjs` and browser logic in
+`templates/analytical.mjs`.
 These are specified test expectations using illustrative data, not user approvals.
 
 | State | Intentional condition | Required result |
@@ -27,7 +29,9 @@ Installation checksum rejection, default guidance and personal overrides, config
 preservation, hook opt-in, report/reference preservation, and stale-result enforcement
 are exercised within this workflow. It does not assess chart truth, image-only content,
 model skill selection, or visual taste. `npm run demo` presents the same four layouts
-and their reports for human inspection; `fixtures.mjs` retains legacy fixture exports.
+and their reports for human inspection using `templates/gallery.html`.
+`fixtures.mjs` supplies the shared project configuration. The same workflow verifies
+escaped report text, approved-image links, and template-change freshness.
 
 Keep cases tied to concrete claims. Extend this workflow for a demonstrated omission;
 do not create a browser, viewport, or per-helper test matrix.

@@ -243,7 +243,7 @@ flowchart TD
 | Entry and configuration | `bin/viewrule.mjs`, `src/cli.mjs`, `src/config.mjs`, `src/paths.mjs`: commands, schema validation, and configuration lookup |
 | Browser evidence | `src/review.mjs`, `src/capture.mjs`, `src/checks.mjs`: fresh contexts, geometry, styles, accessibility, and full-resolution tiles |
 | Design evaluation | `src/design.mjs`: policy loading, cross-viewport comparisons, coverage, citations, and remediation suggestions |
-| Reports and state | `src/report.mjs`, `src/state.mjs`: rendered reports, fingerprints, feedback provenance, approved references, and Stop decisions |
+| Reports and state | `src/report.mjs`, `src/templates/`, `src/state.mjs`: rendered reports, fingerprints, feedback provenance, approved references, and Stop decisions |
 
 A check fingerprints scoped source and rules before and after capture; changes during
 the run fail it. Each page/viewport gets a fresh browser context. Observations are
@@ -276,8 +276,11 @@ are reliable enough to avoid optimizing the wrong thing.
 
 ## Development and review
 
-From a source checkout, use `npm ci`, `npm run browser:install`, and `npm test`.
-There is no compilation step. The single representative regression workflow installs
+From a source checkout, run `npm ci`, then `npm run format` to apply Prettier and
+`npm run check` to verify formatting, ESLint, and TypeScript JavaScript analysis.
+CI runs these before the browser regression. Static checking is incremental, with
+JSDoc contracts and `strict: false`; runtime inputs still require Ajv validation.
+There is no compilation step. Use `npm run browser:install` and `npm test` for the browser workflow. The single representative regression workflow installs
 the packed CLI through an isolated plugin copy, then exercises 4K evidence, feedback,
 repair, and stale-review enforcement against the shipped presets. The same workflow
 checks broken, compact, stretched, finite, and missing-annotation cases with specific
