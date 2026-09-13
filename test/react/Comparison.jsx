@@ -69,7 +69,9 @@ function Comparison() {
     <div data-state={state}>
       <header data-viewrule="page-header">
         <h1>Carrier comparison</h1>
-        <p>Choose a service by price and reliability.</p>
+        <p id="comparison-guidance">
+          Choose a service by price and reliability.
+        </p>
       </header>
       <main>
         <form className="toolbar" onSubmit={(event) => event.preventDefault()}>
