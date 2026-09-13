@@ -4,7 +4,7 @@ import globals from "globals";
 export default [
   { ignores: ["node_modules/**", "dist/**", ".ui-review/**"] },
   {
-    files: ["**/*.mjs", "**/*.jsx", "docs/examples/*.js"],
+    files: ["**/*.mjs", "**/*.jsx", "docs/examples/*.js", "docs/app/*.js"],
     ...js.configs.recommended,
     languageOptions: {
       globals: globals.node,
@@ -26,6 +26,7 @@ export default [
     files: [
       "test/react/*.jsx",
       "docs/examples/*.js",
+      "docs/app/*.js",
       "src/checks.mjs",
       "src/capture.mjs",
       "src/review.mjs",

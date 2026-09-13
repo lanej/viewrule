@@ -1,0 +1,466 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="An interactive parcel operations mock application demonstrating Viewrule's design principles together."
+    />
+    <title>Parcel desk — Viewrule design reference</title>
+    <link rel="stylesheet" href="app.css" />
+    <script type="module" src="app.js"></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#workspace">Skip to workspace</a>
+    <header class="demo-bar">
+      <a class="wordmark" href="../">Viewrule <span>Design reference</span></a>
+      <span id="mode-label">Reference layout · fictional data</span>
+      <div class="demo-actions">
+        <a href="../examples/">Individual examples</a>
+        <button
+          id="lab-toggle"
+          type="button"
+          aria-expanded="false"
+          aria-controls="design-lab"
+        >
+          Design lab
+        </button>
+        <label class="theme-label"
+          ><span class="sr-only">Theme</span>
+          <select id="theme">
+            <option value="system">System</option>
+            <option value="light">Light</option>
+            <option value="dark">Dark</option>
+          </select></label
+        >
+      </div>
+    </header>
+    <section
+      id="design-lab"
+      class="design-lab"
+      aria-labelledby="lab-heading"
+      hidden
+    >
+      <div class="section-heading">
+        <div>
+          <h2 id="lab-heading">Keep the task. Change the design.</h2>
+          <p>
+            Toggle a deliberate defect, then close this panel to inspect its
+            effect. Data, filters, selection, and open drawers stay intact.
+          </p>
+        </div>
+        <button type="button" id="reset-design">Restore reference</button>
+      </div>
+      <div id="defect-controls" class="defect-grid"></div>
+      <p class="lab-note">
+        These switches illustrate design boundaries. They do not run Viewrule or
+        certify a pass.
+        <a
+          href="https://github.com/lanej/viewrule/blob/main/docs/mock-application.md"
+          >Read the rule mapping and run the actual checks.</a
+        >
+      </p>
+    </section>
+    <div id="application" class="application">
+      <aside id="sidebar" class="sidebar">
+        <div class="product-name">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+            aria-hidden="true"
+          >
+            <path
+              d="m12 2 9 5v10l-9 5-9-5V7zM3 7l9 5 9-5M12 12v10M7.5 4.5l9 5v5"
+            /></svg
+          ><strong>Parcel desk</strong>
+        </div>
+        <p class="sidebar-label">West coast operations</p>
+        <nav aria-label="Main navigation">
+          <button type="button" data-page="overview" aria-current="page">
+            <span>Overview</span><span aria-hidden="true">↗</span>
+          </button>
+          <button type="button" data-page="shipments">Shipments</button>
+          <button type="button" data-page="carriers">Carrier comparison</button>
+        </nav>
+        <p class="sidebar-label">Shipment views</p>
+        <div class="saved-views" role="group" aria-label="Shipment views">
+          <button type="button" data-view="all" aria-pressed="true">
+            All shipments <span data-count="all"></span>
+          </button>
+          <button type="button" data-view="attention" aria-pressed="false">
+            Needs attention <span data-count="attention"></span>
+          </button>
+          <button type="button" data-view="transit" aria-pressed="false">
+            In transit <span data-count="transit"></span>
+          </button>
+          <button type="button" data-view="delivered" aria-pressed="false">
+            Delivered <span data-count="delivered"></span>
+          </button>
+        </div>
+        <div class="sidebar-footer">
+          <strong>Oakland dispatch</strong>
+          <p>Sep 13, 2026 · 08:40 PDT</p>
+          <span>Fictional network snapshot</span
+          ><a href="https://github.com/lanej/viewrule">Source on GitHub ↗</a>
+        </div>
+      </aside>
+      <main id="workspace" class="workspace" tabindex="-1">
+        <header class="workspace-heading">
+          <button
+            id="nav-toggle"
+            class="icon-button"
+            type="button"
+            aria-label="Close navigation"
+            aria-expanded="true"
+            aria-controls="sidebar"
+          >
+            <svg
+              viewBox="0 0 20 20"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              aria-hidden="true"
+            >
+              <path d="M3 5h14M3 10h14M3 15h14" />
+            </svg>
+          </button>
+          <div>
+            <p class="eyebrow">Operations / Pacific network</p>
+            <h1 id="page-heading">Operations overview</h1>
+          </div>
+          <span class="snapshot">Snapshot · Sep 13, 08:40 PDT</span>
+        </header>
+        <section class="metrics" aria-label="Network snapshot">
+          <div>
+            <span>Shipments in this snapshot</span
+            ><strong data-count="all"></strong
+            ><small>Departing Oakland · 4 customers</small>
+          </div>
+          <div>
+            <span>In transit</span><strong data-count="transit"></strong
+            ><small>Moving through the network</small>
+          </div>
+          <div>
+            <span>Needs attention</span><strong data-count="attention"></strong
+            ><small>Open shipment exceptions</small>
+          </div>
+          <div>
+            <span>Delivered</span><strong data-count="delivered"></strong
+            ><small>Delivery confirmed in this snapshot</small>
+          </div>
+        </section>
+        <section
+          id="performance"
+          class="performance"
+          aria-labelledby="performance-heading"
+        >
+          <div class="section-heading">
+            <h2 id="performance-heading">Carrier performance</h2>
+            <span class="secondary">Regional sample · separate from queue</span>
+          </div>
+          <p class="chart-context secondary">
+            On-time deliveries (%) · Sep 7–13, 2026 · 100 completed parcels per
+            carrier per observed day · Fictional data.
+          </p>
+          <div id="carrier-charts" class="carrier-charts"></div>
+          <p class="chart-footnote secondary">
+            — No observation · Striped bar: estimate, not an observed result.
+            All reference bars share a 0–100% scale.
+          </p>
+        </section>
+        <div class="task-grid">
+          <section
+            id="queue-section"
+            class="queue-section"
+            aria-labelledby="queue-heading"
+          >
+            <div class="section-heading">
+              <h2 id="queue-heading">Shipment queue</h2>
+              <span
+                id="result-count"
+                class="secondary"
+                aria-live="polite"
+              ></span>
+            </div>
+            <div class="filters">
+              <label class="search-label"
+                ><span class="sr-only">Search shipments</span
+                ><input
+                  type="search"
+                  id="search"
+                  placeholder="Search ID, destination, customer…"
+              /></label>
+              <label
+                ><span class="sr-only">Filter by status</span
+                ><select id="status-filter">
+                  <option value="all">All statuses</option>
+                  <option value="attention">Needs attention</option>
+                  <option value="transit">In transit</option>
+                  <option value="delivered">Delivered</option>
+                </select></label
+              >
+              <label
+                ><span class="sr-only">Sort shipments</span
+                ><select id="sort">
+                  <option value="id">Shipment ID</option>
+                  <option value="destination">Destination A–Z</option>
+                </select></label
+              >
+              <button id="clear-filters" type="button">Clear</button>
+            </div>
+            <div class="queue-labels" aria-hidden="true">
+              <span>Shipment / destination</span><span>Carrier</span
+              ><span>Status / delivery</span><span></span>
+            </div>
+            <ul id="shipment-list" class="shipment-list"></ul>
+            <div id="empty-state" class="empty-state" hidden>
+              <h3>No matching shipments</h3>
+              <p>
+                Try another ID, destination, or customer, or clear the filters.
+              </p>
+            </div>
+            <p class="queue-footnote secondary">
+              Delivery dates are estimates unless marked delivered. All times
+              are Pacific time.
+            </p>
+          </section>
+          <section
+            id="parcel-section"
+            class="parcel-section"
+            aria-labelledby="parcel-heading"
+            aria-live="polite"
+          >
+            <div class="section-heading">
+              <div>
+                <span class="eyebrow">Selected parcel</span>
+                <h2 id="parcel-heading">EP 1042</h2>
+              </div>
+              <span id="parcel-status" class="status-badge"></span>
+            </div>
+            <p id="parcel-route" class="parcel-route"></p>
+            <div class="detail-tabs" role="tablist" aria-label="Parcel details">
+              <button
+                type="button"
+                role="tab"
+                id="tab-overview"
+                data-tab="overview"
+                aria-controls="panel-overview"
+                aria-selected="true"
+              >
+                Overview
+              </button>
+              <button
+                type="button"
+                role="tab"
+                id="tab-events"
+                data-tab="events"
+                aria-controls="panel-events"
+                aria-selected="false"
+                tabindex="-1"
+              >
+                Delivery events
+              </button>
+              <button
+                type="button"
+                role="tab"
+                id="tab-charges"
+                data-tab="charges"
+                aria-controls="panel-charges"
+                aria-selected="false"
+                tabindex="-1"
+              >
+                Charges
+              </button>
+            </div>
+            <div
+              id="panel-overview"
+              role="tabpanel"
+              aria-labelledby="tab-overview"
+            >
+              <ol class="journey" aria-label="Shipment journey">
+                <li>Picked up</li>
+                <li>In transit</li>
+                <li>Delivered</li>
+              </ol>
+              <dl class="parcel-facts">
+                <div>
+                  <dt>Customer</dt>
+                  <dd data-parcel="customer"></dd>
+                </div>
+                <div>
+                  <dt>Expected / actual delivery</dt>
+                  <dd data-parcel="eta"></dd>
+                </div>
+                <div>
+                  <dt>Latest facility</dt>
+                  <dd data-parcel="facility"></dd>
+                </div>
+                <div>
+                  <dt>Parcel</dt>
+                  <dd>1.2 lb · 10 × 6 × 4 in</dd>
+                </div>
+              </dl>
+              <p id="parcel-note" class="parcel-note"></p>
+            </div>
+            <div
+              id="panel-events"
+              role="tabpanel"
+              aria-labelledby="tab-events"
+              hidden
+            >
+              <h3>Scan history</h3>
+              <ol id="event-list" class="event-list"></ol>
+              <p class="secondary">
+                Reported scans · Pacific time · No inferred intermediate
+                locations.
+              </p>
+            </div>
+            <div
+              id="panel-charges"
+              role="tabpanel"
+              aria-labelledby="tab-charges"
+              hidden
+            >
+              <table class="charges">
+                <caption>
+                  Illustrative charges · USD
+                </caption>
+                <tbody>
+                  <tr>
+                    <th scope="row">Postage</th>
+                    <td id="postage"></td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Insurance</th>
+                    <td>0.80</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Total</th>
+                    <td id="charge-total"></td>
+                  </tr>
+                </tbody>
+              </table>
+              <p class="secondary">
+                Fictional invoice. These amounts do not represent an actual
+                carrier offer.
+              </p>
+            </div>
+          </section>
+          <section
+            id="quotes-section"
+            class="quotes-section"
+            aria-labelledby="quotes-heading"
+          >
+            <div class="section-heading">
+              <h2 id="quotes-heading">Compare carrier options</h2>
+            </div>
+            <p id="quote-context" class="secondary"></p>
+            <table class="quotes">
+              <caption>
+                Illustrative USD quotes · 1.2 lb parcel · Sep 13, 2026
+              </caption>
+              <thead>
+                <tr>
+                  <th scope="col">Carrier / service</th>
+                  <th scope="col">Window</th>
+                  <th scope="col" class="quote-amount">USD</th>
+                </tr>
+              </thead>
+              <tbody id="quote-list"></tbody>
+            </table>
+            <p class="secondary">
+              Same parcel, destination, and currency. Service windows are
+              estimates. Compare all three options before deciding.
+            </p>
+          </section>
+        </div>
+      </main>
+    </div>
+    <noscript
+      ><p>
+        This interactive mock requires JavaScript.
+        <a
+          href="https://github.com/lanej/viewrule/blob/main/docs/design-examples.md"
+          >Read the illustrated examples.</a
+        >
+      </p></noscript
+    >
+    <template id="shipment-template"
+      ><li class="shipment-item">
+        <div class="shipment-row">
+          <button class="select-parcel" type="button" aria-pressed="false">
+            <strong data-field="id"></strong
+            ><span class="secondary" data-field="destination"></span></button
+          ><span class="carrier-name" data-field="carrier"></span>
+          <div class="shipment-state">
+            <span class="status-badge" data-field="status"></span
+            ><span class="secondary" data-field="eta"></span>
+          </div>
+          <button
+            class="expand-parcel icon-button"
+            type="button"
+            aria-expanded="false"
+          >
+            <svg
+              viewBox="0 0 20 20"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              aria-hidden="true"
+            >
+              <path d="m5 8 5 5 5-5" />
+            </svg>
+          </button>
+        </div>
+        <div class="shipment-disclosure" hidden>
+          <strong data-field="customer"></strong>
+          <p data-field="scan"></p>
+        </div></li
+    ></template>
+    <template id="chart-template"
+      ><figure
+        class="carrier-chart"
+        data-measure="on-time-percent"
+        data-baseline="0"
+        data-maximum="100"
+      >
+        <figcaption>
+          <strong class="carrier-title"></strong
+          ><span class="chart-domain secondary"></span>
+        </figcaption>
+        <div class="plot">
+          <div class="axis" aria-hidden="true">
+            <span class="axis-max">100</span><span class="axis-mid">50</span
+            ><span class="axis-min">0</span>
+          </div>
+          <ol class="bars"></ol>
+        </div></figure
+    ></template>
+    <template id="bar-template"
+      ><li>
+        <span class="bar-value"></span
+        ><span class="bar-track" aria-hidden="true"
+          ><span class="bar"></span></span
+        ><span class="bar-day"></span
+        ><span class="sr-only bar-description"></span></li
+    ></template>
+    <template id="quote-template"
+      ><tr>
+        <th scope="row">
+          <span class="carrier-name"></span
+          ><span class="secondary quote-service"></span>
+        </th>
+        <td class="quote-window"></td>
+        <td class="quote-amount"></td></tr
+    ></template>
+    <template id="defect-template"
+      ><label class="defect-option"
+        ><input type="checkbox" /><span
+          ><strong></strong><span class="defect-rule"></span
+          ><span class="defect-description"></span><small></small></span></label
+    ></template>
+  </body>
+</html>

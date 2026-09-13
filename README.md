@@ -41,6 +41,12 @@ explanations and an offline interactive gallery covering drawers, text and diagr
 tabs, menus, numeric alignment, and comparison spacing, plus full hamburger and
 sidebar workspaces with filters, a shipment queue, and selected parcel details.
 
+The [complete mock application](docs/mock-application.md) combines those elements
+with charts, a searchable shipment queue, carrier comparisons, and a Design lab
+for deliberate violations. [Open the Pages site](https://lanej.github.io/viewrule/)
+or run `npm run site:preview` from a checkout. Deployment is tracked by the `pages`
+job in the repository's existing CI workflow.
+
 Viewrule began in [lanej/dotfiles](https://github.com/lanej/dotfiles/pull/29). A separate
 repository gives the engine its own releases and lets any application or agent use it.
 Dotfiles retains personal preferences and installation choices; each application owns

@@ -1,5 +1,8 @@
 # Good and bad examples
 
+For a complete connected workflow, see [the mock application](mock-application.md):
+navigation, charts, search, filters, drawers, tabs, and carrier comparisons together.
+
 Each pair keeps the content and task constant and changes one design property.
 “Good” means that property satisfies the stated expectation; it does not approve
 the entire interface or establish that every Viewrule check passes.
