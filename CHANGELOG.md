@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.3.1 — 2026-09-13
+
+- Fix required `vertical-order` groups accepting partially hidden content. Every
+  selected element in a required group must now be visible; optional groups retain
+  their documented absence/visibility behavior. This may reject previously passing
+  rules whose required groups included hidden responsive variants; scope those
+  selectors deliberately instead of hiding required reading content.
+- Extend the installed regression with a hidden paragraph and a hidden optional
+  visual. Refresh the Claude plugin's verified engine pin.
+
 ## 0.3.0 — 2026-09-13
 
 - Add `reading-column` and `vertical-order` rules to replace application-owned

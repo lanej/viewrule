@@ -58,7 +58,10 @@ must also agree: visually rearranging an incorrect document does not pass.
 Repeated elements, ancestor/descendant pairs, and overlapping selector groups fail.
 Choose peer groups, not wrappers mixed with their children.
 
-A missing or hidden required group fails. Optional groups may be absent, but a
+A missing required group or any hidden match within a required group fails. This
+prevents one visible paragraph from concealing the loss of another. Scope required
+selectors to content that must remain visible; put responsive alternatives in an
+optional group. Optional groups may be absent or hidden, but a
 scope with no visible order evidence fails. A single group such as `:scope > p`
 checks sequential paragraphs. Required text alignment and a single prose column
 use existing `style` rules (`text-align`, `column-count`); they are separate from

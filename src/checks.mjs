@@ -149,9 +149,8 @@ export function inspectPage(rules) {
       for (const el of els) {
         const ordered = [];
         for (const group of rule.groups) {
-          const matches = [...el.querySelectorAll(group.selector)].filter(
-            visible,
-          );
+          const selected = [...el.querySelectorAll(group.selector)];
+          const matches = selected.filter(visible);
           if (!matches.length && !group.optional)
             add(
               rule,
@@ -159,6 +158,18 @@ export function inspectPage(rules) {
               el,
               group.selector,
               "at least one visible match",
+            );
+          if (!group.optional && matches.length < selected.length)
+            add(
+              rule,
+              "Required reading-order content is hidden.",
+              el,
+              {
+                selector: group.selector,
+                selected: selected.length,
+                visible: matches.length,
+              },
+              { visible: selected.length },
             );
           ordered.push(...matches);
         }

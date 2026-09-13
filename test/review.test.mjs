@@ -841,6 +841,7 @@ test(
       "visual-first": "reading-order",
       "dom-order": "reading-order",
       missing: "reading-order",
+      "hidden-paragraph": "paragraph-order",
       "paragraph-order": "paragraph-order",
       right: "prose-alignment",
       columns: "prose-columns",
@@ -851,6 +852,12 @@ test(
       enforceOnStop: false,
       pages: [
         { name: "good", path: "/reading/good", ready: "main" },
+        {
+          name: "hidden-optional",
+          path: "/reading/hidden-optional",
+          ready: "main",
+          viewports: ["desktop"],
+        },
         ...Object.keys(cases).map((name) => ({
           name,
           path: `/reading/${name}`,
