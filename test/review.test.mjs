@@ -313,6 +313,16 @@ test(
       ),
     );
     const findings = badReport.pages.flatMap((page) => page.findings);
+    for (const page of badReport.pages)
+      assert.ok(
+        page.findings.some(
+          (finding) =>
+            finding.rule === "axe:color-contrast" &&
+            finding.selector === "#comparison-guidance" &&
+            finding.severity === "error",
+        ),
+        `Low-contrast guidance must produce a blocking contrast finding at ${page.viewport.name}`,
+      );
     for (const [id, dr] of [
       ["baseline-readable-text", "DR-007"],
       ["baseline-content-clipping", "DR-006"],

@@ -24,6 +24,10 @@ A scoped period-consistency rule additionally checks the existing metadata contr
 It checks expected finding IDs, measurements, and citations, rather than accepting
 any failure. Passing cases must have no errors or warnings. Missing comparison
 annotations are also exercised and must fail, rather than silently dropping coverage.
+The broken header guidance uses 14px text in `#aaa` on `#fff` (about 2.32:1,
+below the 4.5:1 AA minimum). Both captured viewports must report a blocking
+`axe:color-contrast` finding on that element. Accepted layouts restore the inherited
+dark text and must remain clean; axe supplies the detector, without a custom rule.
 The feedback portion learns a stricter text-distance limit from fixture feedback,
 then checks the corrected layout; the same rule is retained for the stretched case.
 

@@ -71,6 +71,10 @@ tbody tr:nth-child(n + 9) {
 [data-state="broken"] header {
   height: 450px;
 }
+[data-state="broken"] #comparison-guidance {
+  color: #aaa;
+  background: #fff;
+}
 [data-state="broken"] .metric:nth-child(2) {
   position: relative;
   top: 20px;
