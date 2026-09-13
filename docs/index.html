@@ -8,23 +8,265 @@
       content="Viewrule: design boundaries and rendered UI checks for coding agents. Explore the interactive reference application and design examples."
     />
     <title>Viewrule — Design in practice</title>
-    <link rel="stylesheet" href="app/app.css" />
     <style>
+      /* Mock-application palette, without its component styles. */
+      :root {
+        color-scheme: light dark;
+        --paper: light-dark(#fff, #17241f);
+        --canvas: light-dark(#f7f9f7, #111b16);
+        --ink: light-dark(#172e28, #edf5f1);
+        --secondary: light-dark(#4d6458, #b7cabe);
+        --line: light-dark(#d4dfd7, #42584a);
+        --soft: light-dark(#eef4ef, #25382c);
+        --brand: light-dark(#24583d, #aad2b8);
+        --warning: light-dark(#8a4b20, #e7b18c);
+        font:
+          14px/1.5 system-ui,
+          sans-serif;
+        color: var(--ink);
+        background: var(--canvas);
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+      }
       main {
-        max-width: 780px;
-        margin: 10vh auto;
+        max-width: 1080px;
+        margin: 4vh auto;
         padding: 24px;
       }
+      a {
+        color: var(--brand);
+        text-underline-offset: 3px;
+      }
+      a:focus-visible {
+        outline: 2px solid var(--brand);
+        outline-offset: 3px;
+      }
+      .wordmark {
+        font-size: 18px;
+        font-weight: 600;
+        text-decoration: none;
+      }
       h1 {
-        font-size: 40px;
-        margin: 24px 0 16px;
+        font-size: clamp(28px, 4vw, 40px);
+        font-weight: 550;
+        letter-spacing: -0.025em;
+        margin: 20px 0 12px;
+      }
+      h2,
+      h3,
+      strong {
+        font-weight: 550;
       }
       p {
         margin: 16px 0;
         max-width: 65ch;
       }
+      .secondary {
+        color: var(--secondary);
+      }
+      .viewrule-model {
+        margin: 28px 0;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--paper);
+        overflow: hidden;
+      }
+      .model-heading {
+        padding: 20px 24px;
+        border-bottom: 1px solid var(--line);
+      }
+      .model-heading h2 {
+        margin: 4px 0 0;
+        font-size: 22px;
+        letter-spacing: -0.02em;
+      }
+      .model-heading p:last-child {
+        margin: 8px 0 0;
+        max-width: 72ch;
+        color: var(--secondary);
+      }
+      .model-kicker,
+      .model-timing,
+      .model-capability-label {
+        color: var(--secondary);
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+      .model-kicker {
+        margin: 0;
+      }
+      .model-grid {
+        display: grid;
+        grid-template-columns:
+          minmax(130px, 0.8fr) 28px minmax(220px, 1.25fr) 28px
+          minmax(150px, 0.9fr);
+        gap: 16px 10px;
+        align-items: stretch;
+        padding: 24px;
+      }
+      .model-step,
+      .model-capability,
+      .model-result {
+        display: flex;
+        min-width: 0;
+        flex-direction: column;
+        justify-content: center;
+        padding: 16px;
+        border: 1px solid var(--line);
+        border-radius: 5px;
+      }
+      .model-step,
+      .model-result {
+        background: var(--canvas);
+      }
+      .model-capability {
+        border-left: 4px solid var(--brand);
+        background: var(--soft);
+      }
+      .model-step strong,
+      .model-capability strong,
+      .model-result strong {
+        margin-top: 4px;
+        font-size: 15px;
+      }
+      .model-step span:last-child,
+      .model-capability span:last-child,
+      .model-result span {
+        margin-top: 4px;
+        color: var(--secondary);
+      }
+      .model-arrow {
+        display: grid;
+        place-items: center;
+        color: var(--brand);
+        font-size: 22px;
+        font-weight: 600;
+      }
+      .viewrule-model figcaption {
+        padding: 16px 24px;
+        border-top: 1px solid var(--line);
+        color: var(--secondary);
+      }
+      .viewrule-model figcaption strong {
+        color: var(--ink);
+      }
+      .design-proof {
+        margin: 28px 0;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--paper);
+      }
+      .proof-heading {
+        padding: 18px 24px;
+        border-bottom: 1px solid var(--line);
+      }
+      .proof-heading h2 {
+        margin: 0 0 4px;
+        font-size: 18px;
+      }
+      .proof-heading p {
+        margin: 0;
+        color: var(--secondary);
+      }
+      .proof-comparison {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .proof-panel {
+        min-width: 0;
+        padding: 20px 24px;
+      }
+      .proof-panel + .proof-panel {
+        border-left: 1px solid var(--line);
+      }
+      .proof-panel h3 {
+        margin: 0 0 20px;
+        font-size: 15px;
+        color: var(--brand);
+      }
+      .proof-before h3 {
+        color: var(--warning);
+      }
+      .proof-row + .proof-row {
+        margin-top: 16px;
+      }
+      .proof-label {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 16px;
+        min-height: 42px;
+      }
+      .proof-name {
+        min-width: 0;
+        overflow-wrap: anywhere;
+      }
+      .proof-before .proof-name {
+        max-width: 20ch;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+      }
+      .proof-value,
+      .proof-scale {
+        font-variant-numeric: tabular-nums;
+      }
+      .proof-track {
+        height: 14px;
+        background: var(--soft);
+        border-left: 1px solid var(--secondary);
+      }
+      .proof-bar {
+        display: block;
+        height: 100%;
+        background: var(--brand);
+      }
+      .proof-before .proof-bar {
+        width: 96%;
+        background: var(--warning);
+      }
+      .proof-after .proof-north .proof-bar {
+        width: 60%;
+      }
+      .proof-after .proof-south .proof-bar {
+        width: 90%;
+      }
+      .proof-scale {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 4px;
+        color: var(--secondary);
+      }
+      .proof-notes {
+        display: grid;
+        gap: 6px;
+        margin: 20px 0 0;
+        padding: 14px 0 0;
+        border-top: 1px solid var(--line);
+        list-style: none;
+      }
+      .proof-notes li {
+        display: flex;
+        align-items: baseline;
+        gap: 8px;
+      }
+      .proof-marker {
+        color: var(--secondary);
+        font-variant-numeric: tabular-nums;
+      }
+      .design-proof figcaption {
+        padding: 14px 24px;
+        border-top: 1px solid var(--line);
+        color: var(--secondary);
+      }
       .entries {
-        margin: 32px 0;
+        margin: 28px 0;
         display: grid;
         gap: 16px;
       }
@@ -36,6 +278,9 @@
         background: var(--paper);
         text-decoration: none;
       }
+      .entries a:hover {
+        border-color: var(--brand);
+      }
       .entries span {
         display: block;
         margin-top: 6px;
@@ -44,17 +289,213 @@
       footer {
         margin-top: 40px;
       }
+      @media (max-width: 700px) {
+        main {
+          margin: 12px auto;
+          padding: 20px;
+        }
+        .proof-comparison {
+          grid-template-columns: minmax(0, 1fr);
+        }
+        .proof-panel + .proof-panel {
+          border-left: 0;
+          border-top: 1px solid var(--line);
+        }
+        .proof-heading,
+        .proof-panel,
+        .design-proof figcaption {
+          padding: 16px;
+        }
+        .model-heading,
+        .model-grid {
+          padding: 20px;
+        }
+        .model-grid {
+          grid-template-columns: minmax(0, 1fr);
+          gap: 10px;
+        }
+        .model-arrow {
+          height: 20px;
+          transform: rotate(90deg);
+        }
+        .model-second-path {
+          margin-top: 14px;
+          border-top-width: 3px;
+        }
+      }
     </style>
   </head>
   <body>
     <main>
       <a class="wordmark" href="https://github.com/lanej/viewrule">Viewrule</a>
-      <h1>Design rules, working together.</h1>
+      <h1>Design guidance and executable review.</h1>
       <p>
-        Explicit design boundaries for coding agents. Explore a complete parcel
-        operations console, change its presentation, and see what each
-        constraint protects.
+        Viewrule gives coding agents design guidance before implementation, then
+        checks rendered interfaces against explicit boundaries and returns cited
+        findings. People make the final judgment.
       </p>
+      <figure
+        class="viewrule-model"
+        aria-labelledby="model-title"
+        aria-describedby="model-context"
+      >
+        <div class="model-heading">
+          <p class="model-kicker">How Viewrule works</p>
+          <h2 id="model-title">
+            One set of design rules, used before and after implementation.
+          </h2>
+          <p id="model-context">
+            The guide shapes the interface; the checker measures what the
+            browser actually rendered.
+          </p>
+        </div>
+        <div class="model-grid">
+          <div class="model-step">
+            <span class="model-timing">Before code</span>
+            <strong>Design intent</strong>
+            <span>Task · content · constraints</span>
+          </div>
+          <span class="model-arrow" aria-hidden="true">→</span>
+          <div class="model-capability">
+            <span class="model-capability-label">Viewrule · Guide</span>
+            <strong>Consult design guidance</strong>
+            <span>Rules · examples · evidence</span>
+          </div>
+          <span class="model-arrow" aria-hidden="true">→</span>
+          <div class="model-result">
+            <strong>Better first draft</strong>
+            <span>Patterns chosen with reasons</span>
+          </div>
+
+          <div class="model-step model-second-path">
+            <span class="model-timing">After render</span>
+            <strong>Rendered interface</strong>
+            <span>Page · component · state</span>
+          </div>
+          <span class="model-arrow" aria-hidden="true">→</span>
+          <div class="model-capability">
+            <span class="model-capability-label">Viewrule · Check</span>
+            <strong>Measure explicit boundaries</strong>
+            <span>Browser measurements · configured rules</span>
+          </div>
+          <span class="model-arrow" aria-hidden="true">→</span>
+          <div class="model-result">
+            <strong>Cited findings</strong>
+            <span>What failed · why · repair guidance</span>
+          </div>
+        </div>
+        <figcaption>
+          <strong>Human judgment remains the control point.</strong> An author
+          or agent repairs the interface; a person approves the result.
+        </figcaption>
+      </figure>
+      <figure class="design-proof" aria-labelledby="proof-title">
+        <div class="proof-heading">
+          <h2 id="proof-title">Same data. Different picture.</h2>
+          <p>Parcels processed · One example day · Two fictional facilities</p>
+        </div>
+        <div class="proof-comparison">
+          <section
+            class="proof-panel proof-before"
+            aria-labelledby="before-title"
+          >
+            <h3 id="before-title">Before · Boundaries left implicit</h3>
+            <!-- Intentional defects; source labels and values stay identical. -->
+            <div class="proof-row proof-north">
+              <div class="proof-label">
+                <span class="proof-name"
+                  >Oakland distribution center — North</span
+                >
+                <strong class="proof-value">240</strong>
+              </div>
+              <div class="proof-track" aria-hidden="true">
+                <span class="proof-bar"></span>
+              </div>
+              <div class="proof-scale">
+                <span>0</span><span>250 parcels</span>
+              </div>
+            </div>
+            <div class="proof-row proof-south">
+              <div class="proof-label">
+                <span class="proof-name"
+                  >Oakland distribution center — South</span
+                >
+                <strong class="proof-value">360</strong>
+              </div>
+              <div class="proof-track" aria-hidden="true">
+                <span class="proof-bar"></span>
+              </div>
+              <div class="proof-scale">
+                <span>0</span><span>375 parcels</span>
+              </div>
+            </div>
+            <ul class="proof-notes">
+              <li>
+                <span class="proof-marker">01</span>Clipping hides which
+                facility is which.
+              </li>
+              <li>
+                <span class="proof-marker">02</span>Separate scales make unequal
+                volumes look equal.
+              </li>
+            </ul>
+          </section>
+          <section
+            class="proof-panel proof-after"
+            aria-labelledby="after-title"
+          >
+            <h3 id="after-title">After · Two boundaries applied</h3>
+            <div class="proof-row proof-north">
+              <div class="proof-label">
+                <span class="proof-name"
+                  >Oakland distribution center — North</span
+                >
+                <strong class="proof-value">240</strong>
+              </div>
+              <div class="proof-track" aria-hidden="true">
+                <span class="proof-bar"></span>
+              </div>
+              <div class="proof-scale">
+                <span>0</span><span>400 parcels</span>
+              </div>
+            </div>
+            <div class="proof-row proof-south">
+              <div class="proof-label">
+                <span class="proof-name"
+                  >Oakland distribution center — South</span
+                >
+                <strong class="proof-value">360</strong>
+              </div>
+              <div class="proof-track" aria-hidden="true">
+                <span class="proof-bar"></span>
+              </div>
+              <div class="proof-scale">
+                <span>0</span><span>400 parcels</span>
+              </div>
+            </div>
+            <ul class="proof-notes">
+              <li>
+                <span class="proof-marker">01</span>
+                <a
+                  href="https://github.com/lanej/viewrule/blob/main/docs/design-rules.md#dr-006--related-evidence-stays-visible-together"
+                  >Keep the complete identity · DR-006</a
+                >
+              </li>
+              <li>
+                <span class="proof-marker">02</span>
+                <a
+                  href="https://github.com/lanej/viewrule/blob/main/docs/design-rules.md#dr-001--comparable-charts-use-comparable-scales"
+                  >Use a shared comparison scale · DR-001</a
+                >
+              </li>
+            </ul>
+          </section>
+        </div>
+        <figcaption>
+          Illustration, not a live scan. Viewrule checks configured boundaries;
+          the author or agent makes the repair.
+        </figcaption>
+      </figure>
       <div class="entries">
         <a href="app/"
           ><strong>Open the mock application →</strong
