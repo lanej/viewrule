@@ -44,6 +44,94 @@
       footer {
         margin-top: 40px;
       }
+      .viewrule-model {
+        margin: 28px 0 32px;
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        background: var(--paper);
+        overflow: hidden;
+      }
+      .model-heading {
+        padding: 24px;
+        border-bottom: 1px solid var(--line);
+      }
+      .model-heading h2 {
+        margin-top: 4px;
+        font-size: 24px;
+        letter-spacing: -0.02em;
+      }
+      .model-heading p:last-child {
+        margin: 8px 0 0;
+        max-width: 72ch;
+        color: var(--secondary);
+      }
+      .model-kicker,
+      .model-timing,
+      .model-capability-label {
+        color: var(--secondary);
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+      .model-kicker {
+        margin: 0;
+      }
+      .model-grid {
+        display: grid;
+        grid-template-columns:
+          minmax(130px, 0.8fr) 28px minmax(220px, 1.25fr) 28px
+          minmax(150px, 0.9fr);
+        gap: 16px 10px;
+        align-items: stretch;
+        padding: 24px;
+      }
+      .model-step,
+      .model-capability,
+      .model-result {
+        display: flex;
+        min-width: 0;
+        flex-direction: column;
+        justify-content: center;
+        padding: 16px;
+        border: 1px solid var(--line);
+        border-radius: 5px;
+      }
+      .model-step,
+      .model-result {
+        background: var(--canvas);
+      }
+      .model-capability {
+        border-left: 4px solid var(--brand);
+        background: var(--soft);
+      }
+      .model-step strong,
+      .model-capability strong,
+      .model-result strong {
+        margin-top: 4px;
+        font-size: 15px;
+      }
+      .model-step span:last-child,
+      .model-capability span:last-child,
+      .model-result span {
+        margin-top: 4px;
+        color: var(--secondary);
+      }
+      .model-arrow {
+        display: grid;
+        place-items: center;
+        color: var(--brand);
+        font-size: 22px;
+        font-weight: 600;
+      }
+      .viewrule-model figcaption {
+        padding: 16px 24px;
+        border-top: 1px solid var(--line);
+        color: var(--secondary);
+      }
+      .viewrule-model figcaption strong {
+        color: var(--ink);
+      }
       .scale-demo {
         margin: 28px 0 32px;
         padding: 24px;
@@ -134,6 +222,22 @@
         .scale-demo {
           padding: 20px;
         }
+        .model-heading,
+        .model-grid {
+          padding: 20px;
+        }
+        .model-grid {
+          grid-template-columns: minmax(0, 1fr);
+          gap: 10px;
+        }
+        .model-arrow {
+          height: 20px;
+          transform: rotate(90deg);
+        }
+        .model-second-path {
+          margin-top: 14px;
+          border-top-width: 3px;
+        }
         .scale-panels {
           grid-template-columns: minmax(0, 1fr);
           gap: 24px;
@@ -149,12 +253,67 @@
   <body>
     <main>
       <a class="wordmark" href="https://github.com/lanej/viewrule">Viewrule</a>
-      <h1>Design rules, working together.</h1>
+      <h1>Design guidance and executable review.</h1>
       <p>
-        Explicit design boundaries for coding agents. Explore a complete parcel
-        operations console, change its presentation, and see what each
-        constraint protects.
+        Viewrule gives coding agents design guidance before implementation, then
+        checks rendered interfaces against explicit boundaries and returns cited
+        findings. People make the final judgment.
       </p>
+      <figure
+        class="viewrule-model"
+        aria-labelledby="model-title"
+        aria-describedby="model-context"
+      >
+        <div class="model-heading">
+          <p class="model-kicker">How Viewrule works</p>
+          <h2 id="model-title">
+            One set of design rules, used before and after implementation.
+          </h2>
+          <p id="model-context">
+            The guide shapes the interface; the checker measures what the
+            browser actually rendered.
+          </p>
+        </div>
+        <div class="model-grid">
+          <div class="model-step">
+            <span class="model-timing">Before code</span>
+            <strong>Design intent</strong>
+            <span>Task · content · constraints</span>
+          </div>
+          <span class="model-arrow" aria-hidden="true">→</span>
+          <div class="model-capability">
+            <span class="model-capability-label">Viewrule · Guide</span>
+            <strong>Consult design guidance</strong>
+            <span>Rules · examples · evidence</span>
+          </div>
+          <span class="model-arrow" aria-hidden="true">→</span>
+          <div class="model-result">
+            <strong>Better first draft</strong>
+            <span>Patterns chosen with reasons</span>
+          </div>
+
+          <div class="model-step model-second-path">
+            <span class="model-timing">After render</span>
+            <strong>Rendered interface</strong>
+            <span>Page · component · state</span>
+          </div>
+          <span class="model-arrow" aria-hidden="true">→</span>
+          <div class="model-capability">
+            <span class="model-capability-label">Viewrule · Check</span>
+            <strong>Measure explicit boundaries</strong>
+            <span>Browser measurements · configured rules</span>
+          </div>
+          <span class="model-arrow" aria-hidden="true">→</span>
+          <div class="model-result">
+            <strong>Cited findings</strong>
+            <span>What failed · why · repair guidance</span>
+          </div>
+        </div>
+        <figcaption>
+          <strong>Human judgment remains the control point.</strong> An author
+          or agent repairs the interface; a person approves the result.
+        </figcaption>
+      </figure>
       <figure
         class="scale-demo"
         aria-labelledby="scale-title"
