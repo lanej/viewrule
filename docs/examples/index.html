@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Design rule examples — Viewrule</title>
+    <link rel="stylesheet" href="gallery.css" />
+    <script src="gallery.js" defer></script>
+  </head>
+  <body>
+    <header class="gallery-heading">
+      <a href="../design-examples.md">Viewrule / Design rule examples</a>
+      <h1>Good and bad, one constraint at a time</h1>
+      <p>
+        Choose an example. Drawers, tabs, and menus stay synchronized so both
+        sides show the same content and state.
+      </p>
+    </header>
+    <main id="viewrule-examples">
+      <div class="vr-picker">
+        <label class="form-label" for="vr-pattern"
+          >Example
+          <select id="vr-pattern" class="form-select">
+            <option value="drawers">Expandable list · framing</option>
+            <option value="diagram">Text + diagram · contrast</option>
+            <option value="tabs">Tab bar · complete labels</option>
+            <option value="menu">Hamburger menu · target size</option>
+            <option value="numbers">Comparison table · alignment</option>
+            <option value="spacing">Comparison table · spacing</option>
+          </select>
+        </label>
+        <div>
+          <h2 id="vr-rule">Bounded framing · DR-008</h2>
+          <span id="vr-check" class="text-small"
+            >Project rule · drawer header ≤ 56px</span
+          >
+        </div>
+      </div>
+      <div class="vr-pair">
+        <section
+          class="vr-example"
+          data-quality="good"
+          aria-label="Good example"
+        >
+          <div class="vr-label">
+            <strong>Good</strong><span class="vr-measure"></span>
+          </div>
+          <div class="vr-scene"></div>
+        </section>
+        <section class="vr-example" data-quality="bad" aria-label="Bad example">
+          <div class="vr-label">
+            <strong>Bad</strong><span class="vr-measure"></span>
+          </div>
+          <div class="vr-scene"></div>
+        </section>
+      </div>
+      <div id="vr-observation" class="text-small" aria-live="polite"></div>
+
+      <template id="vr-drawers">
+        <div class="vr-sample-heading">
+          <strong>Shipments</strong><span>3 parcels</span>
+        </div>
+        <div class="vr-drawers">
+          <section class="vr-drawer">
+            <button type="button" class="vr-disclosure" aria-expanded="false">
+              <span
+                ><b>EP 1042</b
+                ><span class="vr-destination">Oakland → Seattle</span></span
+              ><span class="vr-status">In transit</span
+              ><svg
+                viewBox="0 0 16 16"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+                aria-hidden="true"
+              >
+                <path d="m4 6 4 4 4-4" />
+              </svg>
+            </button>
+            <div class="vr-drawer-body" hidden>
+              Ground service · Expected Sep 15<br />Last scan: Portland, Sep 13
+              at 08:40
+            </div>
+          </section>
+          <section class="vr-drawer">
+            <button type="button" class="vr-disclosure" aria-expanded="false">
+              <span
+                ><b>EP 1043</b
+                ><span class="vr-destination">Oakland → Denver</span></span
+              ><span class="vr-status">Picked up</span
+              ><svg
+                viewBox="0 0 16 16"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+                aria-hidden="true"
+              >
+                <path d="m4 6 4 4 4-4" />
+              </svg>
+            </button>
+            <div class="vr-drawer-body" hidden>
+              Ground service · Expected Sep 16<br />Last scan: Oakland, Sep 13
+              at 07:20
+            </div>
+          </section>
+          <section class="vr-drawer">
+            <button type="button" class="vr-disclosure" aria-expanded="false">
+              <span
+                ><b>EP 1044</b
+                ><span class="vr-destination">Oakland → Austin</span></span
+              ><span class="vr-status">Delivered</span
+              ><svg
+                viewBox="0 0 16 16"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+                aria-hidden="true"
+              >
+                <path d="m4 6 4 4 4-4" />
+              </svg>
+            </button>
+            <div class="vr-drawer-body" hidden>
+              Express service · Delivered Sep 12<br />Delivered to reception at
+              14:10
+            </div>
+          </section>
+        </div>
+      </template>
+      <template id="vr-diagram">
+        <div class="vr-sample-heading">
+          <strong>Parcel journey</strong><span>EP 1042</span>
+        </div>
+        <ol
+          class="vr-journey"
+          aria-label="Picked up, currently in transit, then delivered"
+        >
+          <li><span class="vr-checkpoint">1</span><span>Picked up</span></li>
+          <li aria-current="step">
+            <span class="vr-checkpoint">2</span><span>In transit</span>
+          </li>
+          <li><span class="vr-checkpoint">3</span><span>Delivered</span></li>
+        </ol>
+        <p class="vr-prose">
+          Your parcel is moving through the carrier network. The next scan will
+          appear when it reaches a new facility.
+        </p>
+        <div class="vr-small-line">Updated Sep 13, 08:40 · Example data</div>
+      </template>
+      <template id="vr-tabs">
+        <div class="vr-sample-heading"><strong>Shipment EP 1042</strong></div>
+        <div class="vr-tabs" role="tablist" aria-label="Shipment details">
+          <button type="button" role="tab" aria-selected="true">
+            Overview
+          </button>
+          <button type="button" role="tab" aria-selected="false">
+            Delivery events
+          </button>
+          <button type="button" role="tab" aria-selected="false">
+            Charges
+          </button>
+        </div>
+        <div class="vr-tab-content" role="tabpanel">
+          <strong>In transit</strong>
+          <p>Oakland → Seattle<br />Ground service · Expected Sep 15</p>
+        </div>
+      </template>
+      <template id="vr-menu">
+        <div class="vr-app-header">
+          <strong>Parcel desk</strong
+          ><button
+            class="vr-menu-trigger"
+            type="button"
+            aria-label="Open navigation"
+            aria-expanded="false"
+          >
+            <svg
+              viewBox="0 0 16 16"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              aria-hidden="true"
+            >
+              <path d="M2 4h12M2 8h12M2 12h12" />
+            </svg>
+          </button>
+        </div>
+        <nav class="vr-menu-panel" aria-label="Parcel desk navigation" hidden>
+          <button type="button" aria-current="page">Shipments</button
+          ><button type="button">Billing</button
+          ><button type="button">Settings</button>
+        </nav>
+        <div class="vr-menu-content">
+          <strong>Shipments</strong>
+          <p>3 parcels moving through your network.</p>
+        </div>
+      </template>
+      <template id="vr-numbers">
+        <div class="vr-sample-heading"><strong>Carrier comparison</strong></div>
+        <table class="vr-numbers">
+          <caption>
+            Ground · USD / parcel · Example quotes
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col">Carrier</th>
+              <th scope="col">Cost</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row">Aster</th>
+              <td>5.40</td>
+            </tr>
+            <tr>
+              <th scope="row">Beacon</th>
+              <td>12.80</td>
+            </tr>
+            <tr>
+              <th scope="row">Cedar</th>
+              <td>105.25</td>
+            </tr>
+            <tr>
+              <th scope="row">Delta</th>
+              <td>8.60</td>
+            </tr>
+          </tbody>
+        </table>
+      </template>
+      <template id="vr-spacing">
+        <div class="vr-sample-heading"><strong>Carrier comparison</strong></div>
+        <table class="vr-spacing">
+          <caption>
+            Ground · USD / parcel · Example quotes
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col">Carrier</th>
+              <th scope="col">Cost</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row">Aster</th>
+              <td>5.40</td>
+            </tr>
+            <tr>
+              <th scope="row">Beacon</th>
+              <td>12.80</td>
+            </tr>
+            <tr>
+              <th scope="row">Cedar</th>
+              <td>105.25</td>
+            </tr>
+            <tr>
+              <th scope="row">Delta</th>
+              <td>8.60</td>
+            </tr>
+          </tbody>
+        </table>
+      </template>
+    </main>
+    <footer class="gallery-notes">
+      <p>
+        Measurements describe these examples in CSS pixels at their current
+        size. They are not Viewrule reports. The 56px drawer limit is a
+        project-specific example; the contrast ratio covers solid colors only.
+      </p>
+      <p>
+        These deliberate defects illustrate the selected rule. A good example is
+        not approval of an entire UI.
+        <a href="../design-examples.md">Read the rule mappings and scope.</a>
+      </p>
+    </footer>
+    <noscript
+      ><p>
+        JavaScript is required for the interactive comparisons.
+        <a href="../design-examples.md"
+          >Read the illustrated documentation instead.</a
+        >
+      </p></noscript
+    >
+  </body>
+</html>
