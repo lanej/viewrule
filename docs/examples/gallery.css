@@ -323,6 +323,245 @@ p {
 #viewrule-examples #vr-observation {
   margin-top: 12px;
 }
+/* Full workspaces keep their native text size; compare them vertically. */
+#viewrule-examples .vr-pair.vr-complex {
+  grid-template-columns: minmax(0, 1fr);
+}
+#viewrule-examples .vr-complex .vr-scene {
+  padding: 0;
+}
+#viewrule-examples .vr-work-topbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  min-height: 64px;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--vr-line);
+}
+#viewrule-examples .vr-work-topbar > span {
+  margin-left: auto;
+  color: var(--vr-secondary);
+}
+#viewrule-examples .vr-work-toggle {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--vr-line);
+  border-radius: 4px;
+}
+#viewrule-examples .vr-work-body {
+  position: relative;
+  display: grid;
+  grid-template-columns: 176px minmax(0, 1fr);
+}
+#viewrule-examples .vr-work-body.vr-nav-closed,
+#viewrule-examples [data-quality="bad"] .vr-work-hamburger .vr-work-body {
+  grid-template-columns: minmax(0, 1fr);
+}
+#viewrule-examples .vr-work-nav {
+  padding: 16px 12px;
+  background: var(--vr-soft);
+  border-right: 1px solid var(--vr-line);
+}
+#viewrule-examples .vr-work-nav button {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 44px;
+  padding: 8px;
+  text-align: left;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+}
+#viewrule-examples .vr-work-nav button[aria-pressed="true"] {
+  color: var(--vr-paper);
+  background: var(--vr-brand);
+}
+#viewrule-examples .vr-work-eyebrow,
+#viewrule-examples .vr-work-small {
+  color: var(--vr-secondary);
+}
+#viewrule-examples .vr-work-eyebrow {
+  margin: 0 0 12px;
+}
+#viewrule-examples .vr-work-nav-note {
+  border-top: 1px solid var(--vr-line);
+  margin-top: 28px;
+  padding-top: 16px;
+  color: var(--vr-secondary);
+}
+#viewrule-examples .vr-work-nav-note p {
+  margin: 8px 0;
+}
+#viewrule-examples [data-quality="bad"] .vr-work-hamburger .vr-work-nav {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 176px;
+  z-index: 1;
+  box-shadow: 6px 0 12px #0002;
+}
+#viewrule-examples .vr-work-main {
+  min-width: 0;
+  padding: 0 16px 20px;
+}
+#viewrule-examples .vr-work-banner {
+  display: flex;
+  align-items: center;
+  min-height: 80px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--vr-line);
+}
+#viewrule-examples .vr-work-banner h3 {
+  font-size: 18px;
+  font-weight: 500;
+  margin: 0;
+}
+#viewrule-examples .vr-work-banner p {
+  color: var(--vr-secondary);
+  margin: 4px 0 0;
+}
+#viewrule-examples [data-quality="bad"] .vr-work-sidebar .vr-work-banner {
+  min-height: 180px;
+}
+#viewrule-examples .vr-work-toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 12px 0 16px;
+}
+#viewrule-examples .vr-work-toolbar button {
+  min-height: 44px;
+  border: 1px solid var(--vr-line);
+  border-radius: 4px;
+  padding: 8px 10px;
+}
+#viewrule-examples .vr-work-toolbar button[aria-pressed="true"] {
+  background: var(--vr-soft);
+  border-color: var(--vr-brand);
+}
+#viewrule-examples .vr-work-count {
+  margin-left: auto;
+  color: var(--vr-secondary);
+}
+#viewrule-examples .vr-work-columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 20px;
+}
+#viewrule-examples .vr-work-columns h4 {
+  font-size: 16px;
+  font-weight: 500;
+  margin: 0 0 12px;
+}
+#viewrule-examples .vr-work-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+#viewrule-examples .vr-work-select {
+  display: grid;
+  gap: 4px;
+  width: 100%;
+  min-height: 90px;
+  padding: 12px;
+  border: 1px solid transparent;
+  border-bottom-color: var(--vr-line);
+  text-align: left;
+}
+#viewrule-examples .vr-work-select > span:first-child {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 4px 8px;
+}
+#viewrule-examples .vr-work-select[aria-pressed="true"] {
+  background: var(--vr-soft);
+  border-color: var(--vr-brand);
+  border-radius: 4px;
+}
+#viewrule-examples .vr-work-status {
+  color: var(--vr-brand);
+}
+#viewrule-examples .vr-work-detail {
+  padding-left: 16px;
+  border-left: 1px solid var(--vr-line);
+}
+#viewrule-examples .vr-work-detail h4 {
+  margin: 4px 0;
+}
+#viewrule-examples .vr-work-detail p {
+  margin: 8px 0;
+}
+#viewrule-examples .vr-work-detail dl {
+  display: grid;
+  gap: 12px;
+  margin: 20px 0;
+}
+#viewrule-examples .vr-work-detail dt {
+  color: var(--vr-secondary);
+}
+#viewrule-examples .vr-work-detail dd {
+  margin: 0;
+}
+#viewrule-examples .vr-work-detail h5 {
+  font-size: 14px;
+  font-weight: 500;
+  margin: 20px 0 8px;
+}
+#viewrule-examples .vr-work-timeline {
+  list-style: none;
+  margin: 0 0 16px 6px;
+  padding: 0 0 0 18px;
+  border-left: 1px solid var(--vr-line);
+}
+#viewrule-examples .vr-work-timeline li {
+  position: relative;
+  padding: 5px 0;
+  color: var(--vr-secondary);
+}
+#viewrule-examples .vr-work-timeline li::before {
+  content: "";
+  position: absolute;
+  width: 9px;
+  height: 9px;
+  left: -23px;
+  top: 11px;
+  border: 1px solid var(--vr-brand);
+  background: var(--vr-paper);
+  border-radius: 50%;
+}
+#viewrule-examples .vr-work-timeline li[aria-current="step"] {
+  color: var(--vr-ink);
+  font-weight: 500;
+}
+#viewrule-examples .vr-work-timeline li[aria-current="step"]::before {
+  background: var(--vr-brand);
+}
+#viewrule-examples .vr-work-note {
+  border-top: 1px solid var(--vr-line);
+  padding-top: 12px;
+}
+@media (max-width: 759px) {
+  #viewrule-examples .vr-work-body,
+  #viewrule-examples .vr-work-columns {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  #viewrule-examples .vr-work-nav {
+    border-right: 0;
+    border-bottom: 1px solid var(--vr-line);
+  }
+  #viewrule-examples .vr-work-detail {
+    padding: 16px 0 0;
+    border-left: 0;
+    border-top: 1px solid var(--vr-line);
+  }
+}
 @media (max-width: 680px) {
   body {
     padding: 16px;

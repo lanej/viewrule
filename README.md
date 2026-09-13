@@ -38,7 +38,8 @@ are our interpretations, not quotations, universal thresholds, or an endorsement
 
 See [good and bad design examples](docs/design-examples.md) for illustrated rule
 explanations and an offline interactive gallery covering drawers, text and diagrams,
-tabs, menus, numeric alignment, and comparison spacing.
+tabs, menus, numeric alignment, and comparison spacing, plus full hamburger and
+sidebar workspaces with filters, a shipment queue, and selected parcel details.
 
 Viewrule began in [lanej/dotfiles](https://github.com/lanej/dotfiles/pull/29). A separate
 repository gives the engine its own releases and lets any application or agent use it.

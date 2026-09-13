@@ -12,8 +12,9 @@
       <a href="../design-examples.md">Viewrule / Design rule examples</a>
       <h1>Good and bad, one constraint at a time</h1>
       <p>
-        Choose an example. Drawers, tabs, and menus stay synchronized so both
-        sides show the same content and state.
+        Choose a component or a full workspace. Navigation, filters, and
+        selected details stay synchronized so both versions show the same
+        content and state.
       </p>
     </header>
     <main id="viewrule-examples">
@@ -25,6 +26,10 @@
             <option value="diagram">Text + diagram · contrast</option>
             <option value="tabs">Tab bar · complete labels</option>
             <option value="menu">Hamburger menu · target size</option>
+            <option value="hamburger">
+              Hamburger workspace · unobstructed context
+            </option>
+            <option value="sidebar">Sidebar workspace · bounded framing</option>
             <option value="numbers">Comparison table · alignment</option>
             <option value="spacing">Comparison table · spacing</option>
           </select>
@@ -258,12 +263,152 @@
           </tbody>
         </table>
       </template>
+      <template id="vr-hamburger">
+        <div class="vr-work-app vr-work-hamburger">
+          <header class="vr-work-topbar">
+            <button
+              type="button"
+              class="vr-work-toggle"
+              aria-expanded="true"
+              aria-label="Close workspace navigation"
+            >
+              <svg
+                viewBox="0 0 16 16"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+                aria-hidden="true"
+              >
+                <path d="M2 4h12M2 8h12M2 12h12" />
+              </svg>
+            </button>
+            <strong>Parcel desk</strong><span>Operations / West coast</span>
+          </header>
+          <div class="vr-work-body">
+            <aside class="vr-work-nav" data-work-part="navigation"></aside>
+            <div class="vr-work-main" data-work-part="workspace"></div>
+          </div>
+        </div>
+      </template>
+      <template id="vr-sidebar">
+        <div class="vr-work-app vr-work-sidebar">
+          <header class="vr-work-topbar">
+            <strong>Parcel desk</strong><span>Operations / West coast</span>
+          </header>
+          <div class="vr-work-body">
+            <aside class="vr-work-nav" data-work-part="navigation"></aside>
+            <div class="vr-work-main" data-work-part="workspace"></div>
+          </div>
+        </div>
+      </template>
+      <template id="vr-work-navigation">
+        <nav aria-label="Shipment views">
+          <p class="vr-work-eyebrow">Workspace</p>
+          <button type="button" data-work-filter="all" aria-pressed="true">
+            All shipments <span>4</span>
+          </button>
+          <button
+            type="button"
+            data-work-filter="attention"
+            aria-pressed="false"
+          >
+            Needs attention <span>1</span>
+          </button>
+          <button type="button" data-work-filter="transit" aria-pressed="false">
+            In transit <span>2</span>
+          </button>
+          <button
+            type="button"
+            data-work-filter="delivered"
+            aria-pressed="false"
+          >
+            Delivered <span>1</span>
+          </button>
+        </nav>
+        <div class="vr-work-nav-note">
+          <strong>West coast team</strong>
+          <p>4 parcels · Updated 08:40<br />Sep 13, 2026 · Pacific time</p>
+          <span>Fictional shipment data</span>
+        </div>
+      </template>
+      <template id="vr-work-content">
+        <header class="vr-work-banner">
+          <div>
+            <h3>Shipment workspace</h3>
+            <p>Review the queue and the selected parcel together.</p>
+          </div>
+        </header>
+        <div class="vr-work-toolbar">
+          <span>Show</span>
+          <button type="button" data-work-filter="all" aria-pressed="true">
+            All shipments
+          </button>
+          <button
+            type="button"
+            data-work-filter="attention"
+            aria-pressed="false"
+          >
+            Needs attention
+          </button>
+          <span class="vr-work-count" aria-live="polite">4 parcels</span>
+        </div>
+        <div class="vr-work-columns">
+          <section class="vr-work-queue" aria-label="Shipment queue">
+            <h4>Shipment queue</h4>
+            <ul class="vr-work-list"></ul>
+          </section>
+          <section
+            class="vr-work-detail"
+            aria-label="Selected parcel"
+            aria-live="polite"
+          >
+            <span class="vr-work-eyebrow">Selected parcel</span>
+            <h4 data-work-value="id"></h4>
+            <p data-work-value="route"></p>
+            <span class="vr-work-status" data-work-value="status"></span>
+            <dl>
+              <div>
+                <dt>Expected delivery</dt>
+                <dd data-work-value="eta"></dd>
+              </div>
+              <div>
+                <dt>Service</dt>
+                <dd>Ground · Aster</dd>
+              </div>
+              <div>
+                <dt>Latest scan · Pacific time</dt>
+                <dd data-work-value="scan"></dd>
+              </div>
+            </dl>
+            <h5>Parcel journey</h5>
+            <ol class="vr-work-timeline" aria-label="Parcel journey">
+              <li>Picked up</li>
+              <li>In transit</li>
+              <li>Delivered</li>
+            </ol>
+            <p class="vr-work-note" data-work-value="note"></p>
+          </section>
+        </div>
+      </template>
+      <template id="vr-work-row">
+        <li>
+          <button type="button" class="vr-work-select" aria-pressed="false">
+            <span
+              ><strong data-work-value="id"></strong
+              ><span class="vr-work-status" data-work-value="status"></span
+            ></span>
+            <span data-work-value="route"></span>
+            <span class="vr-work-small" data-work-value="eta"></span>
+          </button>
+        </li>
+      </template>
     </main>
     <footer class="gallery-notes">
       <p>
         Measurements describe these examples in CSS pixels at their current
-        size. They are not Viewrule reports. The 56px drawer limit is a
-        project-specific example; the contrast ratio covers solid colors only.
+        size. They are not Viewrule reports. The 56px drawer and 104px desktop
+        banner limits are project-specific examples; the contrast ratio covers
+        solid colors only.
       </p>
       <p>
         These deliberate defects illustrate the selected rule. A good example is

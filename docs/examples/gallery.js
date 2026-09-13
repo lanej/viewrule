@@ -25,6 +25,14 @@
       "Usable controls · DR-007",
       "Baseline warning · bounds below 24 × 24px",
     ],
+    hamburger: [
+      "Navigation keeps task context visible · DR-006",
+      "Project rule · no overlap between open navigation and workspace",
+    ],
+    sidebar: [
+      "Framing leaves room for work · DR-008",
+      "Project rule · workspace banner ≤ 104px at desktop widths (≥ 760px)",
+    ],
     numbers: [
       "Aligned amounts · DR-006",
       "Analytical preset · right/end alignment on declared amounts",
@@ -53,6 +61,160 @@
     "Your next statement closes Sep 30.",
     "Manage shipment notifications and preferences.",
   ];
+  const shipments = [
+    {
+      id: "EP 1042",
+      route: "Oakland → Seattle",
+      status: "In transit",
+      filter: "transit",
+      eta: "Sep 15, 2026",
+      scan: "Portland · Sep 13 at 08:40",
+      step: 1,
+      note: "On schedule. Next stop: Seattle delivery facility.",
+    },
+    {
+      id: "EP 1043",
+      route: "Oakland → Denver",
+      status: "Address issue",
+      filter: "attention",
+      eta: "Sep 16, 2026 · At risk",
+      scan: "Oakland · Sep 13 at 07:55",
+      step: 0,
+      note: "Apartment number missing. Confirm the address before dispatch.",
+    },
+    {
+      id: "EP 1044",
+      route: "Oakland → Austin",
+      status: "Delivered",
+      filter: "delivered",
+      eta: "Sep 13, 2026 · Delivered",
+      scan: "Austin · Sep 13 at 07:12",
+      step: 2,
+      note: "Delivered to the receiving desk. No action needed.",
+    },
+    {
+      id: "EP 1045",
+      route: "Oakland → Portland",
+      status: "In transit",
+      filter: "transit",
+      eta: "Sep 14, 2026",
+      scan: "Eugene · Sep 13 at 08:15",
+      step: 1,
+      note: "On schedule. Expected at the Portland facility this afternoon.",
+    },
+  ];
+  let workspaceOpen = true;
+  let workspaceFilter = "all";
+  let shipmentId = shipments[0].id;
+  function cloneTemplate(id) {
+    return /** @type {DocumentFragment} */ (
+      /** @type {HTMLTemplateElement} */ (
+        root.querySelector(`#${id}`)
+      ).content.cloneNode(true)
+    );
+  }
+  function fillShipment(element, shipment) {
+    element.querySelectorAll("[data-work-value]").forEach((value) => {
+      value.textContent = shipment[value.getAttribute("data-work-value")];
+    });
+  }
+  function syncWorkspace() {
+    const filtered = shipments.filter(
+      (shipment) =>
+        workspaceFilter === "all" || shipment.filter === workspaceFilter,
+    );
+    if (!filtered.some((shipment) => shipment.id === shipmentId))
+      shipmentId = filtered[0].id;
+    const selected = filtered.find((shipment) => shipment.id === shipmentId);
+    scenes.forEach((scene) => {
+      const app = scene.querySelector(".vr-work-app");
+      if (!app) return;
+      const trigger = app.querySelector(".vr-work-toggle");
+      if (trigger) {
+        trigger.setAttribute("aria-expanded", String(workspaceOpen));
+        trigger.setAttribute(
+          "aria-label",
+          workspaceOpen
+            ? "Close workspace navigation"
+            : "Open workspace navigation",
+        );
+        /** @type {HTMLElement} */ (app.querySelector(".vr-work-nav")).hidden =
+          !workspaceOpen;
+        app
+          .querySelector(".vr-work-body")
+          .classList.toggle("vr-nav-closed", !workspaceOpen);
+      }
+      app.querySelectorAll("[data-work-filter]").forEach((button) => {
+        button.setAttribute(
+          "aria-pressed",
+          String(button.getAttribute("data-work-filter") === workspaceFilter),
+        );
+      });
+      app.querySelector(".vr-work-count").textContent =
+        `${filtered.length} ${filtered.length === 1 ? "parcel" : "parcels"}`;
+      app.querySelectorAll(".vr-work-list li").forEach((row, i) => {
+        /** @type {HTMLElement} */ (row).hidden = !filtered.includes(
+          shipments[i],
+        );
+        row
+          .querySelector("button")
+          .setAttribute("aria-pressed", String(shipments[i].id === shipmentId));
+      });
+      const detail = app.querySelector(".vr-work-detail");
+      fillShipment(detail, selected);
+      detail.querySelectorAll(".vr-work-timeline li").forEach((step, i) => {
+        if (i === selected.step) step.setAttribute("aria-current", "step");
+        else step.removeAttribute("aria-current");
+      });
+    });
+    requestAnimationFrame(measure);
+  }
+  function bindWorkspace(scene, side) {
+    const app = scene.querySelector(".vr-work-app");
+    if (!app) return;
+    const nav = app.querySelector(".vr-work-nav");
+    nav.append(cloneTemplate("vr-work-navigation"));
+    nav.id = `vr-work-nav-${side}`;
+    nav
+      .querySelector("nav")
+      .setAttribute(
+        "aria-label",
+        `${side === 0 ? "Good" : "Bad"} example shipment views`,
+      );
+    app.querySelector(".vr-work-main").append(cloneTemplate("vr-work-content"));
+    const list = app.querySelector(".vr-work-list");
+    shipments.forEach((shipment) => {
+      const row = cloneTemplate("vr-work-row");
+      fillShipment(row, shipment);
+      row.querySelector("button").addEventListener("click", () => {
+        shipmentId = shipment.id;
+        syncWorkspace();
+      });
+      list.append(row);
+    });
+    app.querySelectorAll("[data-work-filter]").forEach((button) =>
+      button.addEventListener("click", () => {
+        workspaceFilter = button.getAttribute("data-work-filter");
+        syncWorkspace();
+      }),
+    );
+    const trigger = /** @type {HTMLButtonElement} */ (
+      app.querySelector(".vr-work-toggle")
+    );
+    if (!trigger) return;
+    trigger.setAttribute("aria-controls", nav.id);
+    trigger.addEventListener("click", () => {
+      workspaceOpen = !workspaceOpen;
+      syncWorkspace();
+    });
+    scene.onkeydown = (event) => {
+      if (event.key === "Escape" && workspaceOpen) {
+        workspaceOpen = false;
+        syncWorkspace();
+        trigger.focus();
+      }
+    };
+  }
   function syncDrawers() {
     scenes.forEach((scene) =>
       scene.querySelectorAll(".vr-drawer").forEach((el, i) => {
@@ -170,6 +332,31 @@
             : "Amounts left aligned";
       if (key === "spacing")
         label = `${Math.round(textGap(scene.querySelector("tbody tr")))}px text gap`;
+      if (key === "hamburger") {
+        const nav = scene.querySelector(".vr-work-nav").getBoundingClientRect();
+        const work = scene
+          .querySelector(".vr-work-main")
+          .getBoundingClientRect();
+        const width = Math.max(
+          0,
+          Math.min(nav.right, work.right) - Math.max(nav.left, work.left),
+        );
+        const height = Math.max(
+          0,
+          Math.min(nav.bottom, work.bottom) - Math.max(nav.top, work.top),
+        );
+        label = !workspaceOpen
+          ? "Navigation closed · open it to compare"
+          : width > 1 && height > 1
+            ? `${Math.round(width)}px wide overlap`
+            : "No overlap · context visible";
+      }
+      if (key === "sidebar") {
+        const height = Math.round(
+          scene.querySelector(".vr-work-banner").getBoundingClientRect().height,
+        );
+        label = `${height}px workspace banner${innerWidth < 760 ? " · desktop limit not applied" : " / 104px limit"}`;
+      }
       scene.parentElement.querySelector(".vr-measure").textContent = label;
     });
     root.querySelector("#vr-observation").textContent = {
@@ -179,12 +366,19 @@
       menu: "Same navigation · linked menu controls",
       numbers: "Same quotes and precision · alignment changes only",
       spacing: "Same quotes · bounded width preserves proximity",
+      hamburger:
+        "Task: choose a shipment view while retaining the queue and parcel context. Toggle navigation, filter, or select a parcel in either example. Overlay navigation can suit other tasks; this project requires these regions to remain visible together.",
+      sidebar:
+        "Same sidebar, filters, queue, and parcel detail. Extra banner padding pushes the same evidence down without adding information. The 104px desktop limit is a project choice; use the real application's supported viewport sizes when assessing it.",
     }[key];
   }
   function render() {
     const key = picker.value;
     root.querySelector("#vr-rule").textContent = descriptions[key][0];
     root.querySelector("#vr-check").textContent = descriptions[key][1];
+    root
+      .querySelector(".vr-pair")
+      .classList.toggle("vr-complex", key === "hamburger" || key === "sidebar");
     scenes.forEach((scene, side) => {
       scene.onkeydown = null;
       scene.replaceChildren(
@@ -192,6 +386,7 @@
           root.querySelector(`#vr-${key}`)
         ).content.cloneNode(true),
       );
+      bindWorkspace(scene, side);
       scene.querySelectorAll(".vr-disclosure").forEach((button, i) => {
         const body = button.nextElementSibling;
         body.id = `vr-drawer-${side}-${i}`;
@@ -264,6 +459,7 @@
     syncDrawers();
     syncTabs();
     syncMenu();
+    syncWorkspace();
     requestAnimationFrame(measure);
   }
   function selectHash() {
