@@ -43,7 +43,7 @@ The package includes its policy docs and `npm-shrinkwrap.json`, which pins the
 installed dependency tree. It contains no personal settings or review screenshots.
 
 `viewrule` is canonical. The `ui-review` command, `.ui-review` project directory,
-`UI_REVIEW_GLOBAL_DIR`, and `UI_REVIEW_BROWSER_PATH` remain supported in 0.2.
+`UI_REVIEW_GLOBAL_DIR`, and `UI_REVIEW_BROWSER_PATH` remain supported in 0.3.
 New environment names are `VIEWRULE_CONFIG_DIR` and `VIEWRULE_BROWSER_PATH` and
 take precedence. The directory retains its old name to avoid unnecessary migration.
 

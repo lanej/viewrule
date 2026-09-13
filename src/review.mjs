@@ -55,6 +55,11 @@ export async function runReview(project, globalDir) {
     });
     for (const pageConfig of config.pages)
       for (const viewport of config.viewports) {
+        if (
+          pageConfig.viewports &&
+          !pageConfig.viewports.includes(viewport.name)
+        )
+          continue;
         const url = new URL(pageConfig.path, config.baseURL).href;
         /** @type {import("./types.js").PageResult} */
         const result = {
@@ -77,6 +82,8 @@ export async function runReview(project, globalDir) {
               : undefined,
           });
           const page = await context.newPage();
+          if (pageConfig.media)
+            await page.emulateMedia({ media: pageConfig.media });
           page.setDefaultTimeout(config.timeoutMs ?? 15000);
           const response = await page.goto(url, { waitUntil: "load" });
           if (response && !response.ok())
@@ -90,6 +97,10 @@ export async function runReview(project, globalDir) {
             .first()
             .waitFor({ state: "visible" });
           await page.evaluate(() => document.fonts.ready);
+          if (pageConfig.textScale)
+            await page.evaluate((scale) => {
+              document.documentElement.style.fontSize = `${scale * 100}%`;
+            }, pageConfig.textScale);
           await page.addStyleTag({
             content:
               "*,*::before,*::after{animation:none!important;transition:none!important;caret-color:transparent!important}",

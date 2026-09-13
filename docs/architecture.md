@@ -2,7 +2,7 @@
 
 Viewrule is a local Node CLI orchestrating a Chromium browser process. The CLI is
 the supported integration boundary; `src/` modules are internal. There is no daemon,
-database service, model dependency, or general plugin framework in 0.2.
+database service, model dependency, or general plugin framework in 0.3.
 Coding agents are the primary operators; humans supply intent and review judgments.
 The Claude Code plugin is a client of this boundary, using Claude's model to interpret
 rules and evidence while the engine performs deterministic checks.

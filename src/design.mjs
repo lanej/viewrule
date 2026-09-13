@@ -7,6 +7,8 @@ export const policyPath = path.resolve(
   "../docs/design-rules.md",
 );
 const defaults = {
+  "reading-column": ["DR-006", "DR-007"],
+  "vertical-order": ["DR-006", "DR-007"],
   align: ["DR-006"],
   "no-overlap": ["DR-006"],
   "no-clip": ["DR-006", "DR-007"],
@@ -21,6 +23,10 @@ const defaults = {
   "max-text-gap": ["DR-006", "DR-007"],
 };
 const advice = {
+  "reading-column":
+    "Center the declared content within its container and restore its bounded reading measure. Preserve readable type and use responsive gutters below the cap.",
+  "vertical-order":
+    "Restore the declared DOM and top-to-bottom order. Reflow supporting visuals after the prose and remove overlapping or multi-column positioning.",
   align: "Align the declared peers using their shared layout or spacing rules.",
   "no-overlap": "Reflow the affected peers so their content remains readable.",
   "no-clip":

@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.3.0 — 2026-09-13
+
+- Add `reading-column` and `vertical-order` rules to replace application-owned
+  essay geometry detectors, preserving centered measure and DOM/visual reading order.
+- Add per-page viewport scopes, print media, and enlarged root text captures.
+  Existing configuration remains valid; new rules are opt-in.
+- Migrate readable and deliberately broken essay fixtures into the existing
+  installed-CLI regression, with measured findings at phone, desktop, and 4K sizes.
+- Publish the interactive mock application and expanded design examples on Pages.
+- Update the Claude plugin's engine pin to this tested release.
+
 ## 0.2.0 — 2026-09-12
 
 - Expose the active design contract before implementation; snapshot it in reports and

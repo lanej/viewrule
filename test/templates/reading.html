@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Reading-column fixture</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font:
+          1rem/1.6 system-ui,
+          sans-serif;
+        color: #17231c;
+        background: #fff;
+      }
+      main {
+        width: min(1240px, calc(100% - 32px));
+        margin: auto;
+        --copy: 640px;
+      }
+      h1 {
+        font-size: 1.6rem;
+      }
+      .chapter,
+      .heading,
+      .copy,
+      .visuals,
+      .notes,
+      .footer {
+        width: min(100%, var(--copy));
+        margin-inline: auto;
+      }
+      .chapter {
+        display: flex;
+        flex-direction: column;
+      }
+      .copy {
+        column-count: 1;
+      }
+      .copy p {
+        width: 100%;
+        text-align: left;
+      }
+      .visuals {
+        margin-block: 16px;
+      }
+      .wide main {
+        --copy: 720px;
+      }
+      .off-center .copy {
+        transform: translateX(24px);
+      }
+      .narrow .copy p {
+        width: 80%;
+      }
+      .columns .copy {
+        column-count: 2;
+      }
+      .right .copy p {
+        text-align: right;
+      }
+      .visual-first .visuals {
+        order: -1;
+      }
+      .missing .copy {
+        display: none;
+      }
+      .paragraph-order .copy {
+        display: flex;
+        flex-direction: column-reverse;
+      }
+      @media print {
+        .print-broken main {
+          --copy: 720px;
+        }
+      }
+    </style>
+  </head>
+  <body class="{{variant}}">
+    <main>
+      <h1>Keep the argument readable</h1>
+      <section class="chapter">
+        <header class="heading"><h2>A shared reading column</h2></header>
+        <div class="copy">
+          <p>
+            A wide screen leaves space around a bounded column. The text stays
+            readable without filling every available pixel.
+          </p>
+          <p>
+            Supporting evidence follows the argument in both the document and
+            the visible layout.
+          </p>
+        </div>
+        <figure class="visuals">
+          <figcaption>Intent → action → observation → adjustment</figcaption>
+        </figure>
+      </section>
+      <aside class="notes">Source notes remain on the same measure.</aside>
+      <footer class="footer">The reading column ends here.</footer>
+    </main>
+    <script>
+      if (document.body.classList.contains("dom-order")) {
+        const copy = document.querySelector(".copy");
+        const visuals = document.querySelector(".visuals");
+        copy.before(visuals);
+        copy.style.order = "1";
+        visuals.style.order = "2";
+      }
+    </script>
+  </body>
+</html>

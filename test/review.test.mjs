@@ -45,6 +45,21 @@ test(
     let corruptDownload = true;
     const server = createServer(async (req, res) => {
       const pathname = new URL(req.url, "http://localhost").pathname;
+      if (pathname.startsWith("/reading/")) {
+        const variant = pathname.split("/")[2];
+        res.setHeader("Content-Type", "text/html");
+        return res.end(
+          (
+            await readFile(
+              new URL("./templates/reading.html", import.meta.url),
+              "utf8",
+            )
+          ).replace(
+            "{{variant}}",
+            /^[a-z-]+$/.test(variant) ? variant : "good",
+          ),
+        );
+      }
       if (pathname.startsWith("/app/") && mockDirectory) {
         const file = pathname === "/app/" ? "index.html" : pathname.slice(5);
         if (!["index.html", "app.js", "app.css", "data.js"].includes(file)) {
@@ -762,6 +777,180 @@ test(
     } finally {
       await browser.close();
     }
+    // The migrated essay detector uses generic rules through the installed CLI.
+    env.VIEWRULE_CONFIG_DIR = path.join(project, "reading-global");
+    const readingRules = [
+      {
+        id: "reading-measure",
+        type: "reading-column",
+        selector:
+          ".chapter, .heading, .copy, .copy > p, .visuals, .notes, .footer",
+        container: "main",
+        maxWidth: 640,
+        tolerance: 2,
+      },
+      {
+        id: "reading-order",
+        type: "vertical-order",
+        selector: ".chapter",
+        groups: [
+          { selector: ".heading", optional: false },
+          { selector: ".copy", optional: false },
+          { selector: ".visuals", optional: true },
+        ],
+        tolerance: 2,
+      },
+      {
+        id: "paragraph-order",
+        type: "vertical-order",
+        selector: ".copy",
+        groups: [{ selector: ":scope > p", optional: false }],
+        tolerance: 2,
+        optional: true,
+      },
+      {
+        id: "prose-alignment",
+        type: "style",
+        selector: ".copy p",
+        property: "text-align",
+        allowed: ["left"],
+        optional: true,
+      },
+      {
+        id: "prose-columns",
+        type: "style",
+        selector: ".copy",
+        property: "column-count",
+        allowed: ["1", "auto"],
+        optional: true,
+      },
+    ].map((rule) => ({
+      severity: "error",
+      reason: "Preserve the scoped reading contract.",
+      designRules: ["DR-006", "DR-007"],
+      ...rule,
+    }));
+    await writeFile(
+      path.join(project, ".ui-review/rules.json"),
+      JSON.stringify(readingRules),
+    );
+    const cases = {
+      wide: "reading-measure",
+      "off-center": "reading-measure",
+      narrow: "reading-measure",
+      "visual-first": "reading-order",
+      "dom-order": "reading-order",
+      missing: "reading-order",
+      "paragraph-order": "paragraph-order",
+      right: "prose-alignment",
+      columns: "prose-columns",
+    };
+    const readingConfig = {
+      ...config(baseURL),
+      accessibility: false,
+      enforceOnStop: false,
+      pages: [
+        { name: "good", path: "/reading/good", ready: "main" },
+        ...Object.keys(cases).map((name) => ({
+          name,
+          path: `/reading/${name}`,
+          ready: "main",
+          viewports: ["desktop"],
+        })),
+        {
+          name: "print",
+          path: "/reading/good",
+          ready: "main",
+          media: "print",
+          viewports: ["desktop"],
+        },
+        {
+          name: "enlarged",
+          path: "/reading/good",
+          ready: "main",
+          textScale: 2,
+          viewports: ["desktop"],
+        },
+        {
+          name: "print-broken",
+          path: "/reading/print-broken",
+          ready: "main",
+          media: "print",
+          viewports: ["desktop"],
+        },
+      ],
+      viewports: [
+        { name: "desktop", width: 1440, height: 900 },
+        { name: "mobile", width: 320, height: 480 },
+        { name: "4k", width: 3840, height: 2160 },
+      ],
+    };
+    await writeFile(
+      path.join(project, ".ui-review/config.json"),
+      JSON.stringify(readingConfig),
+    );
+    const reading = await cli(["check"]);
+    assert.equal(reading.code, 1, reading.stderr || reading.stdout);
+    const readingReport = JSON.parse(
+      await readFile(JSON.parse(reading.stdout).report, "utf8"),
+    );
+    assert.equal(
+      readingReport.pages.length,
+      readingConfig.pages.length + 2,
+      "Page viewport scopes must be respected",
+    );
+    for (const page of readingReport.pages) {
+      const expected =
+        page.name === "print-broken" ? "reading-measure" : cases[page.name];
+      if (!expected)
+        assert.deepEqual(
+          page.findings,
+          [],
+          `${page.name}/${page.viewport.name} should preserve reading layout`,
+        );
+      else
+        assert.ok(
+          page.findings.some(
+            (f) =>
+              f.rule === expected &&
+              f.designRules.includes("DR-006") &&
+              f.actual !== undefined &&
+              f.expected !== undefined,
+          ),
+          `${page.name} must expose ${expected} with cited measurements`,
+        );
+      assert.equal(page.details.complete, true);
+    }
+    // Changing the declared measure alone fails; matching document and CSS succeeds.
+    readingConfig.pages = [
+      { name: "contract-change", path: "/reading/good", ready: "main" },
+      { name: "matching-change", path: "/reading/wide", ready: "main" },
+    ];
+    readingConfig.viewports = [{ name: "desktop", width: 1440, height: 900 }];
+    readingRules[0].maxWidth = 720;
+    await writeFile(
+      path.join(project, ".ui-review/config.json"),
+      JSON.stringify(readingConfig),
+    );
+    await writeFile(
+      path.join(project, ".ui-review/rules.json"),
+      JSON.stringify(readingRules),
+    );
+    const revisedReading = await cli(["check"]);
+    assert.equal(
+      revisedReading.code,
+      1,
+      revisedReading.stderr || revisedReading.stdout,
+    );
+    const revisedReport = JSON.parse(
+      await readFile(JSON.parse(revisedReading.stdout).report, "utf8"),
+    );
+    assert.ok(
+      revisedReport.pages[0].findings.some(
+        (f) => f.rule === "reading-measure" && f.expected.width === 720,
+      ),
+    );
+    assert.deepEqual(revisedReport.pages[1].findings, []);
     t.diagnostic(
       "broken → compact → sidebar (same contract) → stretched → finite → missing annotations: expected rules, measurements, and DR citations verified",
     );
