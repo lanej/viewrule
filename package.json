@@ -31,6 +31,8 @@
   "scripts": {
     "test": "node scripts/test-package.mjs",
     "demo": "node demo.mjs",
+    "site:build": "node scripts/site.mjs",
+    "site:preview": "node scripts/site.mjs --serve",
     "browser:install": "node bin/viewrule.mjs install-browser",
     "lint": "eslint . --max-warnings 0",
     "analyze": "tsc --project tsconfig.json",

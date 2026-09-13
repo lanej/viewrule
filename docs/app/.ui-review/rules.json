@@ -1,0 +1,89 @@
+[
+  {
+    "id": "app-navigation-context",
+    "type": "no-overlap",
+    "selector": "#sidebar, #workspace",
+    "severity": "error",
+    "reason": "Keep navigation and the current task available together."
+  },
+  {
+    "id": "app-bounded-framing",
+    "type": "max-height",
+    "selector": ".workspace-heading",
+    "max": 112,
+    "severity": "error",
+    "reason": "The workspace heading must leave room for the queue and selected parcel."
+  },
+  {
+    "id": "app-complete-tabs",
+    "type": "no-clip",
+    "selector": "[role=tab]",
+    "severity": "error",
+    "reason": "Keep each detail destination identifiable."
+  },
+  {
+    "id": "app-control-bounds",
+    "type": "min-size",
+    "selector": "#application button, #application select, #application input",
+    "minWidth": 24,
+    "minHeight": 24,
+    "severity": "warning",
+    "reason": "Preserve usable controls at native size."
+  },
+  {
+    "id": "app-amount-alignment",
+    "type": "style",
+    "selector": ".quote-amount",
+    "property": "text-align",
+    "allowed": [
+      "right",
+      "end"
+    ],
+    "severity": "error",
+    "reason": "Align comparable quote amounts on a common edge.",
+    "designRules": [
+      "DR-006"
+    ]
+  },
+  {
+    "id": "app-chart-context",
+    "type": "context",
+    "selector": "#performance",
+    "required": [
+      ".chart-context"
+    ],
+    "severity": "error",
+    "reason": "Keep the chart units, period, denominator, and source visible."
+  },
+  {
+    "id": "app-zero-baseline",
+    "type": "attribute",
+    "selector": ".carrier-chart",
+    "attribute": "data-baseline",
+    "allowed": [
+      "0"
+    ],
+    "designRules": [
+      "DR-002"
+    ],
+    "severity": "error",
+    "reason": "The renderer must declare a zero baseline for these ordinary bars; inspect the actual bars as well."
+  },
+  {
+    "id": "app-shared-scale",
+    "type": "consistent",
+    "selector": ".carrier-chart",
+    "keyAttribute": "data-measure",
+    "properties": [],
+    "attributes": [
+      "data-baseline",
+      "data-maximum"
+    ],
+    "severity": "error",
+    "reason": "Compare on-time rates with a shared domain across carriers and viewport sizes.",
+    "designRules": [
+      "DR-001",
+      "DR-005"
+    ]
+  }
+]

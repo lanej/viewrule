@@ -19,7 +19,9 @@
     "scripts/**/*.mjs",
     "test/**/*.mjs",
     "plugins/**/*.mjs",
-    "test/**/*.jsx"
+    "test/**/*.jsx",
+    "docs/examples/*.js",
+    "docs/app/*.js"
   ],
   "exclude": ["node_modules", "dist"]
 }

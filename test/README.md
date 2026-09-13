@@ -1,5 +1,9 @@
 # Regression fixtures
 
+The same installed workflow also exercises the [complete mock application](../docs/mock-application.md):
+it accepts the reference, rejects specific deliberate rule violations, then walks
+through filtering, selection, drawers, tabs, URL restoration, and an empty search.
+
 `npm test` installs the packed CLI through the isolated Claude plugin and runs one
 workflow over the client-rendered React app in `react/Comparison.jsx`, with styles
 in `react/analytical.css` and an HTML shell in `templates/analytical.html`.

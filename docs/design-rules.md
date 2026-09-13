@@ -14,6 +14,10 @@ mean the tool checks every part of it. See [UI review](ui-review.md) for setup.
 The [default opinion](defaults.md) translates selected principles into editable
 starter constraints with explicit numbers, scopes, and rejected/passing fixtures.
 
+The [illustrated examples](design-examples.md) pair good and bad versions of common
+components, link each difference to its rule, and identify the available detector
+or project-specific constraint. An offline interactive gallery accompanies them.
+
 ## How to apply the rules
 
 - **Must** defines a requirement when the stated condition applies.

@@ -14,6 +14,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { createServer } from "node:http";
 import { execFile } from "node:child_process";
+import { chromium } from "playwright";
 import { config } from "./fixtures.mjs";
 import {
   analyticalHtml,
@@ -43,6 +44,23 @@ test(
     const archive = await readFile(process.env.VIEWRULE_TEST_ARCHIVE);
     let corruptDownload = true;
     const server = createServer(async (req, res) => {
+      const pathname = new URL(req.url, "http://localhost").pathname;
+      if (pathname.startsWith("/app/") && mockDirectory) {
+        const file = pathname === "/app/" ? "index.html" : pathname.slice(5);
+        if (!["index.html", "app.js", "app.css", "data.js"].includes(file)) {
+          res.writeHead(404);
+          return res.end();
+        }
+        res.setHeader(
+          "Content-Type",
+          file.endsWith(".js")
+            ? "text/javascript"
+            : file.endsWith(".css")
+              ? "text/css"
+              : "text/html",
+        );
+        return res.end(await readFile(path.join(mockDirectory, file)));
+      }
       if (req.url === "/engine.tgz") {
         res.setHeader("Content-Type", "application/octet-stream");
         return res.end(
@@ -622,6 +640,128 @@ test(
         (f) => f.rule === "analytical-comparisons" && f.actual === 0,
       ),
     );
+    // One integrated mock-app scenario extends this same installed workflow.
+    // Earlier scenarios install a personal 18px preference. Keep it intact;
+    // this separate example uses a fresh user's configuration and its own contract.
+    env.VIEWRULE_CONFIG_DIR = path.join(project, "mock-global");
+    await mkdir(env.VIEWRULE_CONFIG_DIR);
+    const mockDirectory = path.join(
+      JSON.parse(setup.stdout).engine,
+      "docs/app",
+    );
+    const appConfig = JSON.parse(
+      await readFile(
+        path.join(mockDirectory, ".ui-review/config.json"),
+        "utf8",
+      ),
+    );
+    const appRules = JSON.parse(
+      await readFile(path.join(mockDirectory, ".ui-review/rules.json"), "utf8"),
+    );
+    appConfig.baseURL = baseURL;
+    appConfig.sourcePaths = ["src"];
+    appConfig.viewports = appConfig.viewports.filter(
+      (v) => v.name === "desktop",
+    );
+    await writeFile(
+      path.join(project, ".ui-review/config.json"),
+      JSON.stringify(appConfig),
+    );
+    await writeFile(
+      path.join(project, ".ui-review/rules.json"),
+      JSON.stringify(appRules),
+    );
+    const referenceApp = await cli(["check"]);
+    assert.equal(
+      referenceApp.code,
+      0,
+      referenceApp.stderr ||
+        JSON.stringify(JSON.parse(referenceApp.stdout).findings?.slice(0, 3)),
+    );
+    appConfig.pages[0].path =
+      "/app/?defects=framing,tabs,contrast,scales,context,alignment";
+    await writeFile(
+      path.join(project, ".ui-review/config.json"),
+      JSON.stringify(appConfig),
+    );
+    const defectiveApp = await cli(["check"]);
+    assert.equal(
+      defectiveApp.code,
+      1,
+      defectiveApp.stderr || defectiveApp.stdout,
+    );
+    const appFindings = JSON.parse(defectiveApp.stdout).findings;
+    for (const id of [
+      "app-bounded-framing",
+      "app-complete-tabs",
+      "app-zero-baseline",
+      "app-shared-scale",
+      "app-chart-context",
+      "app-amount-alignment",
+      "axe:color-contrast",
+    ])
+      assert.ok(
+        appFindings.some((f) => f.rule === id),
+        `Mock app should expose ${id}`,
+      );
+    const browser = await chromium.launch({
+      executablePath:
+        process.env.VIEWRULE_BROWSER_PATH ||
+        process.env.UI_REVIEW_BROWSER_PATH ||
+        undefined,
+    });
+    try {
+      const page = await browser.newPage({
+        viewport: { width: 1440, height: 1000 },
+      });
+      const pageErrors = [];
+      page.on("pageerror", (error) => pageErrors.push(error.message));
+      await page.goto(`${baseURL}/app/`);
+      await page.waitForSelector("#application[data-ready]");
+      await page.locator('[data-view="attention"]').click();
+      assert.equal(await page.locator(".shipment-row").count(), 3);
+      await page.locator(".select-parcel").nth(1).click();
+      assert.equal(
+        await page.locator("#parcel-heading").textContent(),
+        "EP 1047",
+      );
+      await page.locator(".expand-parcel").nth(1).click();
+      await page.locator("#tab-events").click();
+      assert.match(
+        await page.locator("#event-list").textContent(),
+        /Bakersfield/,
+      );
+      await page.locator("#lab-toggle").click();
+      await page.locator('.defect-option input[value="framing"]').check();
+      assert.equal(
+        await page.locator("#parcel-heading").textContent(),
+        "EP 1047",
+      );
+      assert.equal(
+        await page.locator(".shipment-disclosure:visible").count(),
+        1,
+      );
+      await page.reload();
+      await page.waitForSelector("#application[data-ready]");
+      assert.equal(
+        await page.locator("#parcel-heading").textContent(),
+        "EP 1047",
+      );
+      assert.equal(
+        await page.locator(".shipment-disclosure:visible").count(),
+        1,
+      );
+      await page.locator("#lab-toggle").click();
+      await page.locator("#reset-design").click();
+      await page.keyboard.press("Escape");
+      await page.locator("#search").fill("no matching parcel");
+      assert.equal(await page.locator("#empty-state").isVisible(), true);
+      await page.locator("#clear-filters").click();
+      assert.equal(await page.locator(".shipment-row").count(), 12);
+      assert.deepEqual(pageErrors, []);
+    } finally {
+      await browser.close();
+    }
     t.diagnostic(
       "broken → compact → sidebar (same contract) → stretched → finite → missing annotations: expected rules, measurements, and DR citations verified",
     );

@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "baseURL": "http://127.0.0.1:4173",
+  "enforceOnStop": false,
+  "sourcePaths": ["."],
+  "accessibility": true,
+  "pages": [{ "name": "reference", "path": "/app/", "ready": "#application[data-ready]" }],
+  "viewports": [
+    { "name": "desktop", "width": 1440, "height": 1000 },
+    { "name": "4k", "width": 3840, "height": 2160 }
+  ]
+}
