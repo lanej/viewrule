@@ -18,10 +18,6 @@ jobs:
           cache: npm
           cache-dependency-path: npm-shrinkwrap.json
       - run: npm ci
-      - name: Temporary landing-page formatter diagnostic
-        run: |
-          npx prettier docs/index.html > /tmp/landing.formatted.html
-          diff -u docs/index.html /tmp/landing.formatted.html || true
       - run: npm run check
       - run: node bin/viewrule.mjs install-browser --with-deps
       - run: npm test
