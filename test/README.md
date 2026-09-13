@@ -49,3 +49,8 @@ reported separately. These are executable-contract tests, not claims of agent be
 
 Keep cases tied to concrete claims. Extend this workflow for a demonstrated omission;
 do not create a browser, viewport, or per-helper test matrix.
+
+The same workflow also exercises `templates/reading.html`: bounded columns,
+DOM/visual reading order, paragraph flow, alignment and columns, plus print,
+enlarged root text, and contract/CSS mismatches. These cases replace the former
+lanej.io essay detector regression; there is no separate reading-layout suite.

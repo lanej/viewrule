@@ -111,7 +111,100 @@ export function inspectPage(rules) {
         );
       continue;
     }
-    if (rule.type === "comparison-set" || rule.type === "consistent") {
+    if (rule.type === "reading-column") {
+      for (const el of els) {
+        const container = el.parentElement?.closest(rule.container);
+        if (!container || !visible(container)) {
+          add(
+            rule,
+            "Reading column needs a visible containing ancestor.",
+            el,
+            null,
+            rule.container,
+          );
+          continue;
+        }
+        const bounds = rect(container),
+          box = rect(el);
+        const expectedWidth = Math.min(bounds.width, rule.maxWidth);
+        const offset =
+          box.left + box.width / 2 - (bounds.left + bounds.width / 2);
+        if (
+          Math.abs(box.width - expectedWidth) > rule.tolerance ||
+          Math.abs(offset) > rule.tolerance
+        )
+          add(
+            rule,
+            "Content must fill the centered, bounded reading column.",
+            el,
+            { width: box.width, centerOffset: offset },
+            {
+              width: expectedWidth,
+              centerOffset: 0,
+              tolerance: rule.tolerance,
+            },
+          );
+      }
+    } else if (rule.type === "vertical-order") {
+      for (const el of els) {
+        const ordered = [];
+        for (const group of rule.groups) {
+          const matches = [...el.querySelectorAll(group.selector)].filter(
+            visible,
+          );
+          if (!matches.length && !group.optional)
+            add(
+              rule,
+              "Required reading-order group has no visible matches.",
+              el,
+              group.selector,
+              "at least one visible match",
+            );
+          ordered.push(...matches);
+        }
+        if (!ordered.length) {
+          add(
+            rule,
+            "Reading order has no visible evidence.",
+            el,
+            0,
+            "at least one visible group",
+          );
+          continue;
+        }
+        for (let i = 1; i < ordered.length; i++) {
+          const previous = ordered[i - 1],
+            current = ordered[i];
+          const previousBox = rect(previous),
+            currentBox = rect(current);
+          const domOrder =
+            previous !== current &&
+            !previous.contains(current) &&
+            !current.contains(previous) &&
+            !!(
+              previous.compareDocumentPosition(current) &
+              Node.DOCUMENT_POSITION_FOLLOWING
+            );
+          if (!domOrder || previousBox.bottom > currentBox.top + rule.tolerance)
+            add(
+              rule,
+              "Declared groups must follow DOM and top-to-bottom reading order.",
+              current,
+              {
+                previous: describe(previous),
+                previousBottom: previousBox.bottom,
+                top: currentBox.top,
+                domOrder,
+              },
+              {
+                after: describe(previous),
+                minTop: previousBox.bottom - rule.tolerance,
+                domOrder: true,
+              },
+            );
+        }
+      }
+    } else if (rule.type === "comparison-set" || rule.type === "consistent") {
       const items = [];
       for (const el of els) {
         const key = el.getAttribute(rule.keyAttribute)?.trim();

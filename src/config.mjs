@@ -39,11 +39,17 @@ export const configSchema = object(
     pages: {
       type: "array",
       minItems: 1,
-      items: object({ name: text, path: text, ready: text }, [
-        "name",
-        "path",
-        "ready",
-      ]),
+      items: object(
+        {
+          name: text,
+          path: text,
+          ready: text,
+          media: { enum: ["screen", "print"] },
+          textScale: { type: "number", minimum: 1, maximum: 4 },
+          viewports: names,
+        },
+        ["name", "path", "ready"],
+      ),
     },
     viewports: {
       type: "array",
@@ -77,6 +83,22 @@ const common = {
   designRules: { ...designIds, minItems: 1 },
 };
 const types = {
+  "reading-column": {
+    container: text,
+    maxWidth: { type: "number", exclusiveMinimum: 0 },
+    tolerance: { type: "number", minimum: 0, maximum: 4 },
+  },
+  "vertical-order": {
+    groups: {
+      type: "array",
+      minItems: 1,
+      items: object({ selector: text, optional: { type: "boolean" } }, [
+        "selector",
+        "optional",
+      ]),
+    },
+    tolerance: { type: "number", minimum: 0, maximum: 4 },
+  },
   align: {
     edge: { enum: ["left", "right", "top", "bottom"] },
     tolerance: { type: "number", minimum: 0 },
@@ -159,6 +181,9 @@ export function validateConfig(config) {
   for (const p of config.pages) {
     if (new URL(p.path, url).origin !== url.origin)
       throw new Error("Page paths must stay on baseURL origin");
+    for (const name of p.viewports ?? [])
+      if (!config.viewports.some((v) => v.name === name))
+        throw new Error(`Page ${p.name}: unknown viewport ${name}`);
   }
   for (const p of config.sourcePaths) {
     if (path.isAbsolute(p) || p.split(/[\\/]/).includes(".."))

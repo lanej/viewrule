@@ -21,12 +21,21 @@ export interface ProjectConfig {
   storageState?: string;
   timeoutMs?: number;
   detailCapture?: DetailOptions;
-  pages: { name: string; path: string; ready: string }[];
+  pages: {
+    name: string;
+    path: string;
+    ready: string;
+    media?: "screen" | "print";
+    textScale?: number;
+    viewports?: string[];
+  }[];
   viewports: Viewport[];
 }
 export interface Rule {
   id: string;
   type:
+    | "reading-column"
+    | "vertical-order"
     | "align"
     | "no-overlap"
     | "no-clip"
@@ -71,6 +80,9 @@ export interface Rule {
   measure?: "boxes" | "text";
   minCoverage?: number;
   maxVerticalGap?: number;
+  container?: string;
+  maxWidth?: number;
+  groups?: { selector: string; optional: boolean }[];
 }
 export interface Finding {
   rule: string;
