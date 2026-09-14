@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.4.0 — 2026-09-14
 
 - Add stable DR-009–DR-016 for state honesty, continuity, action clarity,
   proportional recovery, task emphasis, input access, content resilience, and
@@ -9,7 +9,17 @@
   all sixteen requirements in contracts, reports, and required-design coverage.
 - Add paired interactive examples with one machine-readable catalog, primary
   sources, alternatives, exceptions, and explicit automation limits.
+- Give all sixteen rules memorable “Rule of …” names, preserving their IDs,
+  full requirements, source paths, and existing policy-index anchors.
+- Embed interactive good/bad examples on every canonical rule page; remove broken
+  relative gallery links and retain the optional cross-rule galleries.
+- Explain the guidance and review model with an annotated landing-page comparison.
+- Refresh the Claude plugin to the verified 0.4.0 engine archive.
 
+Migration: existing configuration and rule IDs remain valid. Updated policy text
+changes the policy hash; rerun review to refresh evidence. Existing reports retain
+their original policy snapshot. New behavioral and review requirements do not
+become automated guarantees.
 
 ## 0.3.1 — 2026-09-13
 
