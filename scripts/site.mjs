@@ -41,22 +41,34 @@ await writeFile(
   ),
 );
 
+/** @param {string} value */
 const escapeHtml = (value) =>
   value
     .replaceAll("&", "&amp;")
     .replaceAll("<", "&lt;")
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;");
+
+/** @param {string} value */
 const markdownInline = (value) =>
   escapeHtml(value)
-    .replaceAll(/\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g, '<a href="$2">$1</a>')
+    .replaceAll(
+      /\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g,
+      '<a href="$2">$1</a>',
+    )
     .replaceAll(/`([^`]+)`/g, "<code>$1</code>")
     .replaceAll(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+
+/** @param {string} body */
 const sectionsFrom = (body) => {
+  /** @type {{ label: string; text: string }[]} */
   const sections = [];
+  /** @type {{ label: string; text: string } | null} */
   let current = null;
   for (const paragraph of body.split(/\n\n+/)) {
-    const match = paragraph.match(/^\*\*(Requirement|Default|Why|Application|Exception|Review):\*\*\s*([\s\S]*)$/);
+    const match = paragraph.match(
+      /^\*\*(Requirement|Default|Why|Application|Exception|Review):\*\*\s*([\s\S]*)$/,
+    );
     if (match) {
       current = { label: match[1], text: match[2].replaceAll("\n", " ") };
       sections.push(current);
@@ -67,6 +79,7 @@ const sectionsFrom = (body) => {
   return sections;
 };
 
+/** @type {Record<string, { good: string; bad: string; interactive?: string }>} */
 const ruleExamples = {
   "DR-001": {
     good: "Two carrier charts use the same 0–400 parcel scale, so 240 and 360 remain visibly different.",
@@ -164,15 +177,18 @@ for (const rule of policy.rules) {
         `<section><h2>${label}</h2><p>${markdownInline(text)}</p></section>`,
     )
     .join("\n");
-  const interactive = example?.interactive
+  const interactive = example.interactive
     ? `<p class="example-link"><a href="${example.interactive}">Open the interactive example →</a></p>`
     : "";
-  const prior = Number(rule.id.slice(3)) > 1
-    ? `../dr-${String(Number(rule.id.slice(3)) - 1).padStart(3, "0")}/`
-    : null;
-  const next = Number(rule.id.slice(3)) < policy.rules.length
-    ? `../dr-${String(Number(rule.id.slice(3)) + 1).padStart(3, "0")}/`
-    : null;
+  const sequence = Number(rule.id.slice(3));
+  const prior =
+    sequence > 1
+      ? `../dr-${String(sequence - 1).padStart(3, "0")}/`
+      : null;
+  const next =
+    sequence < policy.rules.length
+      ? `../dr-${String(sequence + 1).padStart(3, "0")}/`
+      : null;
   await writeFile(
     path.join(directory, "index.html"),
     `<!doctype html>
