@@ -1,11 +1,14 @@
 import { readFile } from "node:fs/promises";
 import { createHash } from "node:crypto";
 import path from "node:path";
-import { designRuleEnforcement, designRuleIds } from "./policy-ids.mjs";
+import { designRuleRegistry } from "./policy-ids.mjs";
 
-export const policyPath = path.resolve(
+export const policyDirectory = path.resolve(
   import.meta.dirname,
-  "../docs/design-rules.md",
+  "../docs/design-rules",
+);
+export const policyPaths = Object.freeze(
+  designRuleRegistry.map(({ file }) => path.join(policyDirectory, file)),
 );
 const defaults = {
   "reading-column": ["DR-006", "DR-007"],
@@ -68,30 +71,35 @@ export const designIdsFor = (rule) =>
     : []);
 
 export async function readDesignPolicy() {
-  const source = await readFile(policyPath, "utf8");
-  const rules = [
-    ...source.matchAll(
-      /^## (DR-\d{3}) — (.+)\n([\s\S]*?)(?=^## |$(?![\s\S]))/gm,
-    ),
-  ].map(([, id, title, body]) => ({
-    id,
-    title,
-    enforcement: designRuleEnforcement[id],
-    body: body.trim(),
-    href: `design-rules.html#${id}`,
-  }));
-  const ids = rules.map((rule) => rule.id);
-  if (
-    ids.length !== designRuleIds.length ||
-    new Set(ids).size !== ids.length ||
-    designRuleIds.some((id) => !ids.includes(id))
-  )
-    throw new Error(
-      "Design-rule document must contain each registered ID exactly once",
-    );
+  const hash = createHash("sha256");
+  const rules = [];
+  for (const entry of designRuleRegistry) {
+    const file = path.join(policyDirectory, entry.file);
+    const source = await readFile(file, "utf8");
+    const match = source.match(/^# (DR-\d{3}) — (.+)\n\n([\s\S]+)$/);
+    if (!match)
+      throw new Error(
+        `Design-rule file ${entry.file} must start with '# ${entry.id} — <title>' and contain policy text`,
+      );
+    const [, id, title, body] = match;
+    if (id !== entry.id)
+      throw new Error(
+        `Design-rule file ${entry.file} declares ${id}; expected ${entry.id}`,
+      );
+    hash.update(`${entry.file}\0`);
+    hash.update(source);
+    rules.push({
+      id,
+      title,
+      enforcement: entry.enforcement,
+      source: `docs/design-rules/${entry.file}`,
+      body: body.trim(),
+      href: `design-rules.html#${id}`,
+    });
+  }
   return {
-    document: "docs/design-rules.md",
-    sha256: createHash("sha256").update(source).digest("hex"),
+    document: "docs/design-rules/",
+    sha256: hash.digest("hex"),
     rules,
   };
 }

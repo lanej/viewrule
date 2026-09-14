@@ -20,7 +20,7 @@ import {
   validateConfig,
   validateRuleScopes,
 } from "./config.mjs";
-import { policyPath } from "./design.mjs";
+import { policyPaths } from "./design.mjs";
 
 export async function writeJSON(file, value) {
   await mkdir(path.dirname(file), { recursive: true });
@@ -126,7 +126,10 @@ export async function fingerprint(project, config, globalDir) {
       await readFile(path.join(import.meta.dirname, "templates", file)),
     );
   }
-  hash.update(await readFile(policyPath));
+  for (const file of policyPaths) {
+    hash.update(file + "\0");
+    hash.update(await readFile(file));
+  }
   return hash.digest("hex");
 }
 export async function feedbackEntries(dir) {
