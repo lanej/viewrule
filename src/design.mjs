@@ -1,7 +1,7 @@
 import { readFile } from "node:fs/promises";
 import { createHash } from "node:crypto";
 import path from "node:path";
-import { designRuleIds } from "./policy-ids.mjs";
+import { designRuleEnforcement, designRuleIds } from "./policy-ids.mjs";
 
 export const policyPath = path.resolve(
   import.meta.dirname,
@@ -76,6 +76,7 @@ export async function readDesignPolicy() {
   ].map(([, id, title, body]) => ({
     id,
     title,
+    enforcement: designRuleEnforcement[id],
     body: body.trim(),
     href: `design-rules.html#${id}`,
   }));
@@ -210,7 +211,7 @@ export function evaluateDesign(report, rules, config) {
           : "DOM/capture";
     }
     page.designCoverage = report.designPolicy.rules.map(
-      ({ id, title, href }) => {
+      ({ id, title, href, enforcement }) => {
         const assigned = rules.filter(
           (rule) => active(rule, page) && designIdsFor(rule).includes(id),
         );
@@ -243,6 +244,7 @@ export function evaluateDesign(report, rules, config) {
           id,
           title,
           href,
+          enforcement,
           status,
           checks: observed.map((rule) => rule.id),
         };
