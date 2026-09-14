@@ -1,4 +1,6 @@
-# DR-011 — Controls communicate their action and scope
+# DR-011 — Rule of Clear Action
+
+**Principle:** Controls communicate their action and scope.
 
 **Requirement:** Essential controls must have discoverable interaction cues and
 names that communicate what they do. Consequential actions must make their scope

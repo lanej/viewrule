@@ -1,0 +1,38 @@
+#evidence-examples .bar-track {
+  width: 100%;
+  background: light-dark(#dfe7e2, #304739);
+  border-left: 1px solid currentColor;
+}
+#evidence-examples .bar {
+  height: 1.5rem;
+  background: #4679bd;
+}
+#evidence-examples .quantity {
+  font-size: 2.5rem;
+}
+.carrier-list {
+  list-style: none;
+  padding: 0;
+}
+.carrier-list li {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 1rem 0;
+}
+#evidence-examples .layout-demo {
+  font-size: 1rem;
+}
+#evidence-examples #bad .layout-demo[data-large="true"] p {
+  padding-block: 2rem;
+}
+#evidence-examples #bad .shipment-frame {
+  border: 6px double #8a9d91;
+  padding: 1rem;
+  box-shadow: 0 5px 12px #0003;
+}
+#evidence-examples #bad .shipment-frame h4 {
+  padding: 2rem 0.5rem;
+  border: 4px solid #8a9d91;
+  text-align: center;
+}

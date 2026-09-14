@@ -1,4 +1,6 @@
-# DR-004 — Missing and estimated values remain distinguishable
+# DR-004 — Rule of Uncertainty
+
+**Principle:** Missing and estimated values remain distinguishable.
 
 **Requirement:** Missing, unavailable, and suppressed values must remain distinct
 from observed zero. Forecasts, estimates, and measured values must be visibly

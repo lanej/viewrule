@@ -1,4 +1,6 @@
-# DR-014 — Essential interactions do not require a pointer
+# DR-014 — Rule of Access
+
+**Principle:** Essential interactions do not require a pointer.
 
 **Requirement:** Essential information and actions must be available through the
 supported input methods, including keyboard operation where applicable. Preserve

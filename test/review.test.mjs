@@ -45,6 +45,32 @@ test(
     let corruptDownload = true;
     const server = createServer(async (req, res) => {
       const pathname = new URL(req.url, "http://localhost").pathname;
+      // Exercise deployment below a project prefix, including relative assets.
+      if (pathname.startsWith("/viewrule/")) {
+        const siteRoot = path.resolve(import.meta.dirname, "../dist/site");
+        const file = path.resolve(
+          siteRoot,
+          pathname.slice("/viewrule/".length),
+          ...(pathname.endsWith("/") ? ["index.html"] : []),
+        );
+        try {
+          assert.ok(file.startsWith(siteRoot + path.sep));
+          const content = await readFile(file);
+          res.setHeader(
+            "Content-Type",
+            {
+              ".html": "text/html",
+              ".js": "text/javascript",
+              ".css": "text/css",
+              ".json": "application/json",
+            }[path.extname(file)] || "application/octet-stream",
+          );
+          return res.end(content);
+        } catch {
+          res.writeHead(404);
+          return res.end();
+        }
+      }
       if (pathname.startsWith("/examples/") && exampleDirectory) {
         const file = pathname.slice("/examples/".length);
         if (
@@ -915,7 +941,69 @@ test(
       assert.equal(await page.locator(".shipment-row").count(), 12);
       assert.deepEqual(pageErrors, []);
 
-      // One connected gallery walkthrough, with one positive/negative boundary
+      // The optional gallery still loads the shared implementation.
+      await page.goto(`${baseURL}/examples/behavior.html?rule=DR-010`);
+      await page.waitForSelector(
+        '#behavior-examples[data-ready][data-rule="DR-010"]',
+      );
+      await page.locator("#rule-picker").selectOption("DR-009");
+      assert.equal(
+        await page.locator('#good [data-role="count"]').textContent(),
+        "12",
+      );
+
+      // Every canonical rule owns its examples and resolves links under /viewrule/.
+      for (let number = 1; number <= 16; number++) {
+        const id = `DR-${String(number).padStart(3, "0")}`;
+        const url = `${baseURL}/viewrule/rules/${id.toLowerCase()}/`;
+        await page.goto(url);
+        await page.waitForSelector(`[data-ready][data-rule="${id}"]`);
+        const links = await page
+          .locator("a[href], link[href], script[src]")
+          .evaluateAll((elements) =>
+            elements.map(
+              (el) => el.getAttribute("href") || el.getAttribute("src"),
+            ),
+          );
+        for (const link of links) {
+          const target = new URL(link, url);
+          if (target.origin !== new URL(baseURL).origin) continue;
+          assert.ok(
+            !target.pathname.startsWith("/viewrule/examples/"),
+            `${id} depends on the gallery: ${link}`,
+          );
+          assert.ok(
+            (await page.request.get(target.href)).ok(),
+            `${id} has a broken link: ${link}`,
+          );
+        }
+        assert.equal(await page.locator("#good .sample").count(), 1);
+        assert.equal(await page.locator("#bad .sample").count(), 1);
+        if (number <= 8) {
+          const before = await page.locator("#good .sample").innerHTML();
+          await page.locator("#evidence-toggle").click();
+          assert.notEqual(
+            await page.locator("#good .sample").innerHTML(),
+            before,
+            `${id} control must change the example`,
+          );
+          await page.locator("#evidence-toggle").click();
+          assert.equal(
+            await page.locator("#good .sample").innerHTML(),
+            before,
+            `${id} must restore its starting comparison`,
+          );
+        } else {
+          assert.equal(await page.locator("#rule-picker").isVisible(), false);
+          assert.equal(
+            page.url(),
+            url,
+            "An embedded example must not change the rule URL",
+          );
+        }
+      }
+
+      // One connected inline walkthrough, with one positive/negative boundary
       // for each new concern; not a new test suite or universal UI detector.
       await page.setViewportSize({ width: 1200, height: 1000 });
       await page.emulateMedia({ colorScheme: "light" });
@@ -923,7 +1011,7 @@ test(
       await mkdir(evidenceDirectory, { recursive: true });
       const captures = [];
       const choose = async (id) => {
-        await page.goto(`${baseURL}/examples/behavior.html?rule=${id}`);
+        await page.goto(`${baseURL}/viewrule/rules/${id.toLowerCase()}/`);
         await page.waitForSelector(
           `#behavior-examples[data-ready][data-rule="${id}"]`,
         );
@@ -1055,7 +1143,8 @@ test(
       await page.keyboard.press("Tab");
       assert.equal(
         await page
-          .locator("#policy-link")
+          .locator("#sources a")
+          .first()
           .evaluate((el) => el === el.ownerDocument.activeElement),
         true,
         "The bad pointer-only trigger is absent from real Tab traversal",
@@ -1106,7 +1195,7 @@ test(
         JSON.stringify(
           {
             browser: browser.version(),
-            source: "installed npm package",
+            source: "generated canonical rule pages",
             captures,
           },
           null,

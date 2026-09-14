@@ -1,4 +1,6 @@
-# DR-009 — System status reflects the available evidence
+# DR-009 — Rule of State Honesty
+
+**Principle:** System status reflects the available evidence.
 
 **Requirement:** Loading, empty, filtered-out, unavailable, stale, pending, and
 completed states must remain distinguishable when they call for different user

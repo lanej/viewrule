@@ -1,4 +1,6 @@
-# DR-008 — Decoration earns its space and visual weight
+# DR-008 — Rule of Restraint
+
+**Principle:** Decoration earns its space and visual weight.
 
 **Default:** Remove redundant frames, nested cards, repeated labels, ornamental
 icons, and effects that compete with the evidence. Gridlines and separators

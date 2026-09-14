@@ -8,6 +8,10 @@ import path from "node:path";
 const dir = await mkdtemp(path.join(tmpdir(), "viewrule-package-"));
 const root = path.resolve(import.meta.dirname, "..");
 try {
+  execFileSync(process.execPath, ["scripts/site.mjs"], {
+    cwd: root,
+    stdio: "inherit",
+  });
   const [packed] = JSON.parse(
     execFileSync("npm", ["pack", "--json", "--pack-destination", dir], {
       cwd: root,

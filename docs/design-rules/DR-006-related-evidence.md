@@ -1,4 +1,6 @@
-# DR-006 — Related evidence stays visible together
+# DR-006 — Rule of Proximity
+
+**Principle:** Related evidence stays visible together.
 
 **Requirement:** For each task, identify the critical comparison set. At its
 supported analytical desktop sizes, the screen must show that set together in

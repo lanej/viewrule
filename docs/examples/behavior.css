@@ -1,5 +1,8 @@
-body {
+body.behavior-gallery {
   max-width: 1200px;
+}
+[hidden] {
+  display: none !important;
 }
 .example-controls {
   display: flex;
@@ -185,7 +188,7 @@ dialog::backdrop {
   background: #3182bd;
 }
 @media (max-width: 700px) {
-  body {
+  body.behavior-gallery {
     padding: 1rem;
   }
   .behavior-pair {

@@ -1,4 +1,6 @@
-# DR-003 — Quantities carry the context needed to interpret them
+# DR-003 — Rule of Context
+
+**Principle:** Quantities carry the context needed to interpret them.
 
 **Requirement:** A quantitative claim must identify its measure, units, applicable
 period, and population or scope. Rates must identify their denominator;
