@@ -30,5 +30,7 @@ export const designRuleIds = Object.freeze(
 );
 
 export const designRuleEnforcement = Object.freeze(
-  Object.fromEntries(designRuleRegistry.map(({ id, enforcement }) => [id, enforcement])),
+  Object.fromEntries(
+    designRuleRegistry.map(({ id, enforcement }) => [id, enforcement]),
+  ),
 );
