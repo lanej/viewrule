@@ -4,7 +4,7 @@ Viewrule's design policy is defined by the individual files in [`docs/design-rul
 
 DR-001–DR-008 apply ideas from Edward Tufte's *The Visual Display of Quantitative Information* and later writing. DR-009–DR-016 add task-scoped interaction and resilience requirements with their own cited sources. These are our interpretations, not quotations, endorsements, or universal prescriptions for every interface.
 
-[Detection and enforcement](ui-review-enforcement.md) describes the implemented checks and their limits. [UI review](ui-review.md) covers setup. The [illustrated examples](design-examples.md) pair good and bad versions of common components, and the generated `/rules/` site provides one page per design rule.
+[Detection and enforcement](ui-review-enforcement.md) describes the implemented checks and their limits. [UI review](ui-review.md) covers setup. The [illustrated examples](design-examples.md) pair good and bad versions of common components, and the generated `/rules/` site provides one canonical page per design rule, with interactive good/bad examples embedded beside the requirement and verification guidance. The `/examples/` gallery is optional browsing; rule pages do not depend on it.
 
 ## How to apply the rules
 

@@ -13,7 +13,9 @@ const largerText = /** @type {HTMLInputElement} */ (
 const find = (element, role) => element.querySelector(`[data-role="${role}"]`);
 
 async function start() {
-  const response = await fetch("behavior-catalog.json");
+  const response = await fetch(
+    new URL("behavior-catalog.json", import.meta.url),
+  );
   if (!response.ok) throw new Error(`Catalog HTTP ${response.status}`);
   const catalog = await response.json();
   for (const rule of catalog.rules) {
@@ -22,7 +24,8 @@ async function start() {
     option.textContent = `${rule.id} · ${rule.title}`;
     picker.append(option);
   }
-  const requested = new URL(location.href).searchParams.get("rule");
+  const requested =
+    root.dataset.fixedRule || new URL(location.href).searchParams.get("rule");
   picker.value = catalog.rules.some((rule) => rule.id === requested)
     ? requested
     : "DR-009";
@@ -44,8 +47,10 @@ async function start() {
       document.getElementById("policy-link")
     );
     // Retain the source-checkout or deployment-rewritten policy URL.
-    policyLink.hash = rule.policyAnchor;
-    policyLink.textContent = `Read ${rule.id} in the design policy`;
+    if (policyLink) {
+      policyLink.hash = rule.policyAnchor;
+      policyLink.textContent = `Read ${rule.id} in the design policy`;
+    }
     const sources = document.querySelector("#sources");
     sources.replaceChildren();
     for (const source of rule.sources) {
@@ -74,7 +79,7 @@ async function start() {
     }
     const url = new URL(location.href);
     url.searchParams.set("rule", rule.id);
-    history.replaceState(null, "", url);
+    if (!root.dataset.fixedRule) history.replaceState(null, "", url);
     root.dataset.ready = "true";
   }
 
