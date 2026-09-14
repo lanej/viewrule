@@ -1,0 +1,114 @@
+{
+  "browser": "151.0.7922.34",
+  "source": "installed npm package",
+  "captures": [
+    {
+      "id": "DR-009",
+      "state": "failed-refresh",
+      "file": "dr-009-failed-refresh.png",
+      "viewport": {
+        "width": 1200,
+        "height": 1000
+      },
+      "colorScheme": "light",
+      "deviceScaleFactor": 1,
+      "fullPage": true
+    },
+    {
+      "id": "DR-010",
+      "state": "returned",
+      "file": "dr-010-returned.png",
+      "viewport": {
+        "width": 1200,
+        "height": 1000
+      },
+      "colorScheme": "light",
+      "deviceScaleFactor": 1,
+      "fullPage": true
+    },
+    {
+      "id": "DR-011",
+      "state": "initial",
+      "file": "dr-011-initial.png",
+      "viewport": {
+        "width": 1200,
+        "height": 1000
+      },
+      "colorScheme": "light",
+      "deviceScaleFactor": 1,
+      "fullPage": true
+    },
+    {
+      "id": "DR-012",
+      "state": "rejected",
+      "file": "dr-012-rejected.png",
+      "viewport": {
+        "width": 1200,
+        "height": 1000
+      },
+      "colorScheme": "light",
+      "deviceScaleFactor": 1,
+      "fullPage": true
+    },
+    {
+      "id": "DR-013",
+      "state": "initial",
+      "file": "dr-013-initial.png",
+      "viewport": {
+        "width": 1200,
+        "height": 1000
+      },
+      "colorScheme": "light",
+      "deviceScaleFactor": 1,
+      "fullPage": true
+    },
+    {
+      "id": "DR-014",
+      "state": "keyboard-open",
+      "file": "dr-014-keyboard-open.png",
+      "viewport": {
+        "width": 1200,
+        "height": 1000
+      },
+      "colorScheme": "light",
+      "deviceScaleFactor": 1,
+      "fullPage": true
+    },
+    {
+      "id": "DR-015",
+      "state": "enlarged",
+      "file": "dr-015-enlarged.png",
+      "viewport": {
+        "width": 1200,
+        "height": 1000
+      },
+      "colorScheme": "light",
+      "deviceScaleFactor": 1,
+      "fullPage": true
+    },
+    {
+      "id": "DR-015",
+      "state": "mobile-enlarged",
+      "file": "dr-015-mobile-enlarged.png",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "colorScheme": "light",
+      "deviceScaleFactor": 1,
+      "fullPage": true
+    },
+    {
+      "id": "DR-016",
+      "state": "initial",
+      "file": "dr-016-initial.png",
+      "viewport": {
+        "width": 1200,
+        "height": 1000
+      },
+      "colorScheme": "light",
+      "deviceScaleFactor": 1,
+      "fullPage": true
+    }
+  ]
+}

@@ -22,11 +22,26 @@ why controls/prose use warnings and numeric alignment uses explicit annotations.
 | [DR-006](design-rules.md#dr-006--related-evidence-stays-visible-together) — Simultaneous comparison | `comparison-set`, alignment, overlap, clipping, and visible-count checks. | Decide which alternatives and relationships matter; geometry alone cannot select the task. |
 | [DR-007](design-rules.md#dr-007--larger-screens-expose-useful-detail-and-preserve-legibility) — Larger screens | `comparison-set` preserves identities, requires configured counts and readable type, plus density and full-resolution capture checks. | Useful additional information and comfortable reading still require visual review. |
 | [DR-008](design-rules.md#dr-008--decoration-earns-its-space-and-visual-weight) — Decoration | Scoped `max-height` and `style` checks can limit headers, shadows, borders, and other known sources of clutter. | Whether a boundary, label, or control earns its place is a design judgment; start these checks as warnings. |
+| [DR-009](design-rules.md#dr-009--system-status-reflects-the-available-evidence) — State honesty | Scoped `context` checks can require visible state, as-of, and refresh labels in controlled fixture states. | Truth against server responses, completion, freshness, and status announcements need integration and interaction review. |
+| [DR-010](design-rules.md#dr-010--interactions-preserve-the-working-context) — Continuity | Existing attribute checks can inspect a declared final selection; they do not run journeys. | Compare real identity, filters, entered values, focus, and position before and after interaction. |
+| [DR-011](design-rules.md#dr-011--controls-communicate-their-action-and-scope) — Action clarity | `context` can require visible scope; axe checks some name/role failures. | Understandability, signifiers, disabled explanations, and actual consequences require review. |
+| [DR-012](design-rules.md#dr-012--safeguards-match-consequences-and-preserve-work) — Safeguards and recovery | `context` can require persistent error and review information in a fixture state. | Verify retained input, correction, retry, real reversal, and proportional safeguards through the application. |
+| [DR-013](design-rules.md#dr-013--visual-emphasis-follows-the-tasks-priority) — Task emphasis | Explicit project `style` checks can flag known token deviations. | Task importance and attention order remain judgment; no universal hierarchy score is implemented. |
+| [DR-014](design-rules.md#dr-014--essential-interactions-do-not-require-a-pointer) — Input access | Existing axe checks report their actual static findings. | Real keyboard traversal, activation, dismissal, focus, touch, and screen-reader behavior require interaction review. |
+| [DR-015](design-rules.md#dr-015--layout-survives-content-variation-and-text-adaptation) — Content resilience | Existing clipping, overlap, font-size, and overflow checks run against difficult fixtures and configured `textScale`. | Truncation's effect on meaning, full zoom, spacing preferences, and unsupported locales remain unassessed. |
+| [DR-016](design-rules.md#dr-016--color-scales-match-the-structure-of-the-data) — Semantic color scales | Explicit `style`, `attribute`, and `consistent` checks can inspect a known renderer contract. | Variable structure, a meaningful center, actual color mapping, and useful redundant labels need review. |
 
-Each page/viewport lists all eight IDs as `checks-passed`, `findings`, or
+Each page/viewport lists all sixteen IDs as `checks-passed`, `findings`, or
 `unassessed`. `checks-passed` means the configured conditions passed; it does not
 certify the complete requirement. Optional selectors with no visible matches
 remain unassessed. An unavailable capture cannot establish coverage.
+
+The [behavior examples](examples/behavior.html) and their machine-readable
+[catalog](examples/behavior-catalog.json) distinguish fixture assertions from native
+engine checks. No new default heuristic, interaction runner, or subjective score is
+added for DR-009–DR-016. New IDs are supported by the schema, policy, reports,
+`requiredDesignRules`, and explicit rule citations; unrelated checks do not gain
+those citations automatically.
 
 ## Project requirements
 

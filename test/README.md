@@ -54,3 +54,19 @@ The same workflow also exercises `templates/reading.html`: bounded columns,
 DOM/visual reading order, paragraph flow, alignment and columns, plus print,
 enlarged root text, and contract/CSS mismatches. These cases replace the former
 lanej.io essay detector regression; there is no separate reading-layout suite.
+
+
+The paired [interaction and resilience gallery](../docs/examples/behavior.html)
+adds DR-009–DR-016 to this same installed workflow. Its native checks reject two
+missing freshness labels and two clipped service names with exact DR citations;
+the good panels have no corresponding findings. Requiring DR-016 without an
+executed check produces an explicit coverage failure rather than a semantic pass.
+The schema accepts the sixteen registered IDs and rejects unknown DR-017.
+
+The fixture walkthrough exercises refresh/completion states, detail-return identity
+and focus, publication scope, rejection without losing input, review/cancel/undo,
+and real Tab/Enter/Escape disclosure. One enlarged-text mobile example checks
+page overflow. Screenshots are original review evidence, not snapshot assertions;
+`dist/behavior-evidence/captures.json` records browser, viewport, scale, and state.
+These examples verify their own declared interactions, not a generic engine
+journey runner, backend truth, visual hierarchy, or color semantics.

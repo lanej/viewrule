@@ -31,10 +31,11 @@ detail tiles alongside the overview so those details can be inspected.
 
 The goal is to turn an expectation such as **“show eight complete carrier rows on
 desktop”** into a repeatable check, while keeping judgment with the person using the
-interface. The [design policy](docs/design-rules.md), DR-001 through DR-008, is inspired
-by Edward Tufte's *The Visual Display of Quantitative Information*: enable comparison,
-preserve context and truthful encodings, and spend space on useful evidence. These
-are our interpretations, not quotations, universal thresholds, or an endorsement.
+interface. The [design policy](docs/design-rules.md) includes DR-001 through DR-016.
+The first eight draw on Tufte's work on comparison and graphical integrity; the
+next eight address state, continuity, action clarity, recovery, hierarchy, input
+access, content resilience, and semantic color. Each states its scope and limits.
+These are our interpretations, not quotations, universal thresholds, or endorsements.
 
 See [good and bad design examples](docs/design-examples.md) for illustrated rule
 explanations and an offline interactive gallery covering drawers, text and diagrams,
@@ -64,6 +65,10 @@ Use `/viewrule:add-rule` in Claude Code, or `schema` and `add-rule --rule <file>
 --dry-run` through the CLI, to author a scoped addition. Reports preserve contract
 snapshots and distinguish constraint changes from application repairs. See
 [rule authoring](docs/rule-authoring.md) and [research behind the defaults](docs/design-principles.md).
+
+See the [new rule examples](docs/examples/behavior.html) for paired good/bad
+interaction and resilience demonstrations, shared synthetic data, cited rationales,
+and explicit native-check versus application-review coverage.
 
 ## What it detects
 

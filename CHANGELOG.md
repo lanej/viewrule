@@ -1,5 +1,16 @@
 # Changelog
 
+## Unreleased
+
+- Add stable DR-009–DR-016 for state honesty, continuity, action clarity,
+  proportional recovery, task emphasis, input access, content resilience, and
+  semantic color scales. Preserve existing IDs and default citations.
+- Share the registered ID set between schema validation and policy loading; expose
+  all sixteen requirements in contracts, reports, and required-design coverage.
+- Add paired interactive examples with one machine-readable catalog, primary
+  sources, alternatives, exceptions, and explicit automation limits.
+
+
 ## 0.3.1 — 2026-09-13
 
 - Fix required `vertical-order` groups accepting partially hidden content. Every

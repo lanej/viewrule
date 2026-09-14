@@ -131,7 +131,7 @@ are specified; populate it for a named critical set. All active count targets st
 need configuration. Neither text size nor text distance proves visual readability
 or semantic relevance; see [measurement limits](defaults.md#measurement-limits-and-evidence).
 
-Checks cite `DR-001` through `DR-008` using their type's default mapping or an
+Checks cite `DR-001` through `DR-016` using their type's default mapping or an
 explicit `designRules` array. `attribute` requires an explicit citation. Optional
 `requiredDesignRules` in project config makes missing executed evidence for the
 listed IDs an error in each configured page/viewport. This is a coverage

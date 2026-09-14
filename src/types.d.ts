@@ -115,6 +115,7 @@ export interface PageResult {
     id: string;
     title: string;
     href: string;
+    enforcement: "automated" | "behavioral" | "review";
     status: string;
     checks: string[];
   }[];
