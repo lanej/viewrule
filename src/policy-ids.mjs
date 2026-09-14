@@ -1,36 +1,24 @@
-// Stable policy identities and enforcement modes, shared by runtime validation
-// and the policy reader. Append new IDs; never renumber an existing requirement.
-//
-// `enforcement` names the strongest mechanism Viewrule expects for the complete
-// rule: automated = native observable checks can gate it, behavioral = an
-// application journey/assertion is required, review = semantic/design judgment
-// remains the deciding evidence. Partial native checks may still support a
-// behavioral or review rule.
+// Stable policy identities, source files, and enforcement modes. Append new IDs;
+// never renumber an existing requirement. The filename is part of the human-facing
+// policy identity: rule ID plus a short, durable label.
 export const designRuleRegistry = Object.freeze([
-  { id: "DR-001", enforcement: "automated" },
-  { id: "DR-002", enforcement: "automated" },
-  { id: "DR-003", enforcement: "automated" },
-  { id: "DR-004", enforcement: "automated" },
-  { id: "DR-005", enforcement: "automated" },
-  { id: "DR-006", enforcement: "automated" },
-  { id: "DR-007", enforcement: "automated" },
-  { id: "DR-008", enforcement: "review" },
-  { id: "DR-009", enforcement: "behavioral" },
-  { id: "DR-010", enforcement: "behavioral" },
-  { id: "DR-011", enforcement: "review" },
-  { id: "DR-012", enforcement: "behavioral" },
-  { id: "DR-013", enforcement: "review" },
-  { id: "DR-014", enforcement: "behavioral" },
-  { id: "DR-015", enforcement: "automated" },
-  { id: "DR-016", enforcement: "review" },
+  { id: "DR-001", file: "DR-001-comparable-scales.md", enforcement: "automated" },
+  { id: "DR-002", file: "DR-002-proportional-magnitude.md", enforcement: "automated" },
+  { id: "DR-003", file: "DR-003-quantity-context.md", enforcement: "automated" },
+  { id: "DR-004", file: "DR-004-missing-estimated-values.md", enforcement: "automated" },
+  { id: "DR-005", file: "DR-005-consistent-meanings.md", enforcement: "automated" },
+  { id: "DR-006", file: "DR-006-related-evidence.md", enforcement: "automated" },
+  { id: "DR-007", file: "DR-007-responsive-detail.md", enforcement: "automated" },
+  { id: "DR-008", file: "DR-008-earned-decoration.md", enforcement: "review" },
+  { id: "DR-009", file: "DR-009-state-honesty.md", enforcement: "behavioral" },
+  { id: "DR-010", file: "DR-010-context-continuity.md", enforcement: "behavioral" },
+  { id: "DR-011", file: "DR-011-action-scope.md", enforcement: "review" },
+  { id: "DR-012", file: "DR-012-recovery-safeguards.md", enforcement: "behavioral" },
+  { id: "DR-013", file: "DR-013-task-emphasis.md", enforcement: "review" },
+  { id: "DR-014", file: "DR-014-keyboard-access.md", enforcement: "behavioral" },
+  { id: "DR-015", file: "DR-015-content-resilience.md", enforcement: "automated" },
+  { id: "DR-016", file: "DR-016-semantic-color.md", enforcement: "review" },
 ]);
 
-export const designRuleIds = Object.freeze(
-  designRuleRegistry.map(({ id }) => id),
-);
-
-export const designRuleEnforcement = Object.freeze(
-  Object.fromEntries(
-    designRuleRegistry.map(({ id, enforcement }) => [id, enforcement]),
-  ),
-);
+export const designRuleIds = Object.freeze(designRuleRegistry.map(({ id }) => id));
+export const designRuleEnforcement = Object.freeze(Object.fromEntries(designRuleRegistry.map(({ id, enforcement }) => [id, enforcement])));
