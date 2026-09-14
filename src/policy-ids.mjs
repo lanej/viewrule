@@ -12,7 +12,11 @@ export const designRuleRegistry = Object.freeze([
     file: "DR-002-proportional-magnitude.md",
     enforcement: "automated",
   },
-  { id: "DR-003", file: "DR-003-quantity-context.md", enforcement: "automated" },
+  {
+    id: "DR-003",
+    file: "DR-003-quantity-context.md",
+    enforcement: "automated",
+  },
   {
     id: "DR-004",
     file: "DR-004-missing-estimated-values.md",
@@ -23,26 +27,46 @@ export const designRuleRegistry = Object.freeze([
     file: "DR-005-consistent-meanings.md",
     enforcement: "automated",
   },
-  { id: "DR-006", file: "DR-006-related-evidence.md", enforcement: "automated" },
+  {
+    id: "DR-006",
+    file: "DR-006-related-evidence.md",
+    enforcement: "automated",
+  },
   {
     id: "DR-007",
     file: "DR-007-responsive-detail.md",
     enforcement: "automated",
   },
-  { id: "DR-008", file: "DR-008-earned-decoration.md", enforcement: "review" },
-  { id: "DR-009", file: "DR-009-state-honesty.md", enforcement: "behavioral" },
+  {
+    id: "DR-008",
+    file: "DR-008-earned-decoration.md",
+    enforcement: "review",
+  },
+  {
+    id: "DR-009",
+    file: "DR-009-state-honesty.md",
+    enforcement: "behavioral",
+  },
   {
     id: "DR-010",
     file: "DR-010-context-continuity.md",
     enforcement: "behavioral",
   },
-  { id: "DR-011", file: "DR-011-action-scope.md", enforcement: "review" },
+  {
+    id: "DR-011",
+    file: "DR-011-action-scope.md",
+    enforcement: "review",
+  },
   {
     id: "DR-012",
     file: "DR-012-recovery-safeguards.md",
     enforcement: "behavioral",
   },
-  { id: "DR-013", file: "DR-013-task-emphasis.md", enforcement: "review" },
+  {
+    id: "DR-013",
+    file: "DR-013-task-emphasis.md",
+    enforcement: "review",
+  },
   {
     id: "DR-014",
     file: "DR-014-keyboard-access.md",
@@ -53,7 +77,11 @@ export const designRuleRegistry = Object.freeze([
     file: "DR-015-content-resilience.md",
     enforcement: "automated",
   },
-  { id: "DR-016", file: "DR-016-semantic-color.md", enforcement: "review" },
+  {
+    id: "DR-016",
+    file: "DR-016-semantic-color.md",
+    enforcement: "review",
+  },
 ]);
 
 export const designRuleIds = Object.freeze(
