@@ -52,10 +52,7 @@ const escapeHtml = (value) =>
 /** @param {string} value */
 const markdownInline = (value) =>
   escapeHtml(value)
-    .replaceAll(
-      /\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g,
-      '<a href="$2">$1</a>',
-    )
+    .replaceAll(/\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g, '<a href="$2">$1</a>')
     .replaceAll(/`([^`]+)`/g, "<code>$1</code>")
     .replaceAll(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
 
@@ -182,9 +179,7 @@ for (const rule of policy.rules) {
     : "";
   const sequence = Number(rule.id.slice(3));
   const prior =
-    sequence > 1
-      ? `../dr-${String(sequence - 1).padStart(3, "0")}/`
-      : null;
+    sequence > 1 ? `../dr-${String(sequence - 1).padStart(3, "0")}/` : null;
   const next =
     sequence < policy.rules.length
       ? `../dr-${String(sequence + 1).padStart(3, "0")}/`
