@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Interaction and resilience — Viewrule</title>
+    <link rel="stylesheet" href="gallery.css" />
+    <link rel="stylesheet" href="behavior.css" />
+    <script src="behavior.js" type="module"></script>
+  </head>
+  <body>
+    <header class="gallery-heading">
+      <a href="index.html">Viewrule / Design examples</a>
+      <h1>Same task. Different behavior.</h1>
+      <p>DR-009–DR-016 · State, interaction, and resilience.</p>
+      <p class="gallery-notes">
+        Original synthetic fixtures. Good and bad describe the stated task, not
+        a measured engine verdict. No actions affect real shipments or rates.
+      </p>
+    </header>
+    <main id="behavior-examples">
+      <div class="example-controls">
+        <label
+          >Design rule
+          <select id="rule-picker"></select
+        ></label>
+        <label id="state-control" hidden
+          >Shared response fixture
+          <select id="state-picker">
+            <option value="failed">Refresh failed</option>
+            <option value="loading">Loading</option>
+            <option value="loaded">Loaded</option>
+            <option value="empty">Observed empty</option>
+            <option value="filtered">Filtered out</option>
+            <option value="submitting">Submitting</option>
+            <option value="queued">Queued</option>
+            <option value="completed">Completed</option>
+          </select>
+        </label>
+        <label id="text-control" hidden
+          ><input type="checkbox" id="large-text" /> Enlarge example text to
+          200%</label
+        >
+        <button id="reset" type="button">Reset example</button>
+      </div>
+      <h2 id="rule-heading"></h2>
+      <p id="task"></p>
+      <div class="behavior-pair">
+        <section class="example" id="good" aria-labelledby="good-heading">
+          <h3 id="good-heading">Good for this task</h3>
+          <p class="explanation"></p>
+          <div class="sample"></div>
+        </section>
+        <section class="example" id="bad" aria-labelledby="bad-heading">
+          <h3 id="bad-heading">Bad for this task</h3>
+          <p class="explanation"></p>
+          <div class="sample"></div>
+        </section>
+      </div>
+      <section class="review-notes" aria-labelledby="verification-heading">
+        <h2 id="verification-heading">What this example establishes</h2>
+        <p id="verification"></p>
+        <p>
+          <a id="policy-link" href="../design-rules.md">Read the requirement</a>
+          · <a href="behavior-catalog.json">Machine-readable catalog</a> ·
+          <a href="behavior-rules.json">Scoped native rules</a>
+        </p>
+        <h3>Other valid choices</h3>
+        <p id="alternatives"></p>
+        <h3>Exception</h3>
+        <p id="exception"></p>
+        <h3>Sources and scope</h3>
+        <ul id="sources"></ul>
+      </section>
+    </main>
+    <p id="load-error" role="alert" hidden>
+      Examples could not load. Serve this directory over HTTP and reload; the
+      catalog and assets are bundled locally.
+    </p>
+
+    <template id="scene-DR-009">
+      <section class="metric" aria-label="Shipment state">
+        <h4>Shipment snapshot</h4>
+        <p class="metric-value">
+          <span data-role="count">12</span> <span class="unit">shipments</span>
+        </p>
+        <p class="state-label" data-role="status" role="status"></p>
+        <p class="as-of" data-role="as-of">Snapshot as of 09:00</p>
+        <p class="refresh-at" data-role="refresh-at">Refresh attempted 09:05</p>
+        <button data-role="retry" type="button">Retry refresh</button>
+      </section>
+    </template>
+    <template id="scene-DR-010">
+      <label
+        >Destination filter <input data-role="filter" value="Seattle"
+      /></label>
+      <p>Selected shipment: <strong data-role="selected">EP 1042</strong></p>
+      <p>EP 1042 · Oakland → Seattle<br />EP 1043 · Oakland → Denver</p>
+      <button type="button" data-role="open">Inspect EP 1042</button>
+      <dialog data-role="dialog" aria-label="Shipment EP 1042 details">
+        <h4>EP 1042 · Seattle</h4>
+        <p>Latest scan: Portland, 08:40. Expected arrival: September 15.</p>
+        <button type="button" data-role="close">Return to queue</button>
+      </dialog>
+    </template>
+    <template id="scene-DR-011">
+      <h4>Rate proposal</h4>
+      <p class="action-scope" data-role="scope">
+        12 selected lanes · USD rates · effective September 15, 2026.
+      </p>
+      <button type="button" data-role="publish">
+        Publish rates for 12 selected lanes
+      </button>
+      <p data-role="result" role="status">No changes published.</p>
+      <dialog data-role="dialog" aria-label="Review publication">
+        <h4>Review publication</h4>
+        <p>
+          Update rates for 12 selected lanes, effective September 15, 2026.
+          Unselected lanes remain unchanged.
+        </p>
+        <button type="button" data-role="cancel">Cancel</button>
+        <button type="button" data-role="confirm">
+          Publish these 12 lanes
+        </button>
+      </dialog>
+    </template>
+    <template id="scene-DR-012">
+      <form data-role="form" novalidate>
+        <p>Approved reduction: <strong data-role="approved">5%</strong></p>
+        <label
+          >Proposed reduction (%)
+          <input data-role="proposal" type="number" step="0.1" value="7.5"
+        /></label>
+        <p>Fixture limit: 6%. The first submission will be rejected.</p>
+        <p data-role="error" class="error" role="alert" hidden></p>
+        <button type="submit">Review change</button>
+        <button type="button" data-role="undo" hidden>Undo last change</button>
+        <p data-role="result" role="status">No changes applied.</p>
+      </form>
+      <dialog data-role="dialog" aria-label="Review rate reduction">
+        <h4>Review rate reduction</h4>
+        <p data-role="review"></p>
+        <button type="button" data-role="cancel">Cancel</button>
+        <button type="button" data-role="confirm">Apply reviewed change</button>
+      </dialog>
+    </template>
+    <template id="scene-DR-013">
+      <div class="hierarchy">
+        <section class="exceptions">
+          <h4>3 shipments need a response</h4>
+          <p>
+            Address problems are blocking delivery. Review these exceptions
+            before the next dispatch.
+          </p>
+          <button type="button" data-role="respond">Review 3 exceptions</button>
+          <p data-role="result" role="status"></p>
+        </section>
+        <div class="volume">
+          <span>Shipments today</span><strong>1,200</strong>
+        </div>
+      </div>
+    </template>
+    <template id="scene-DR-014">
+      <p>
+        Keyboard walkthrough: select Reset, then use Tab, Enter, and Escape.
+      </p>
+      <button type="button" data-role="trigger" aria-expanded="false">
+        Inspect dwell evidence
+      </button>
+      <div data-role="evidence" hidden>
+        <h4>Facility dwell</h4>
+        <p>
+          Observed dwell: 18 hours<br />Service target: 12 hours<br />Over
+          target: 6 hours
+        </p>
+      </div>
+    </template>
+    <template id="scene-DR-015">
+      <h4>Choose a distinct service</h4>
+      <p class="service">
+        Regional International Priority Distribution — North
+      </p>
+      <p class="service">
+        Regional International Priority Distribution — South
+      </p>
+      <p>
+        Same prefix, different destinations. The suffix matters to this
+        selection.
+      </p>
+    </template>
+    <template id="scene-DR-016">
+      <h4>Parcels by carrier</h4>
+      <p>Color represents carrier identity, not rank.</p>
+      <ul class="swatches">
+        <li>
+          <span class="swatch" aria-hidden="true"></span><span>Carrier A</span
+          ><strong>240 parcels</strong>
+        </li>
+        <li>
+          <span class="swatch" aria-hidden="true"></span><span>Carrier B</span
+          ><strong>180 parcels</strong>
+        </li>
+        <li>
+          <span class="swatch" aria-hidden="true"></span><span>Carrier C</span
+          ><strong>90 parcels</strong>
+        </li>
+      </ul>
+    </template>
+  </body>
+</html>

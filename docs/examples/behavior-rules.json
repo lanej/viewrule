@@ -1,0 +1,21 @@
+[
+  {
+    "id": "behavior-state-context",
+    "type": "context",
+    "selector": "#good .metric, #bad .metric",
+    "required": [".state-label", ".as-of", ".refresh-at"],
+    "pages": ["failed-refresh"],
+    "designRules": ["DR-009"],
+    "severity": "error",
+    "reason": "The controlled failed-refresh state must disclose status, snapshot age, and the separate refresh attempt. Labels do not establish backend truth."
+  },
+  {
+    "id": "behavior-distinct-service-labels",
+    "type": "no-clip",
+    "selector": "#good .service, #bad .service",
+    "pages": ["long-labels"],
+    "designRules": ["DR-015"],
+    "severity": "error",
+    "reason": "These service names differ only at the suffix; clipping hides the distinction and no full-text inspection control is supplied."
+  }
+]

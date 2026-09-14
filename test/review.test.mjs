@@ -45,6 +45,29 @@ test(
     let corruptDownload = true;
     const server = createServer(async (req, res) => {
       const pathname = new URL(req.url, "http://localhost").pathname;
+      if (pathname.startsWith("/examples/") && exampleDirectory) {
+        const file = pathname.slice("/examples/".length);
+        if (
+          ![
+            "behavior.html",
+            "behavior.js",
+            "behavior.css",
+            "gallery.css",
+            "behavior-catalog.json",
+          ].includes(file)
+        ) {
+          res.writeHead(404);
+          return res.end();
+        }
+        const types = {
+          ".html": "text/html",
+          ".js": "text/javascript",
+          ".css": "text/css",
+          ".json": "application/json",
+        };
+        res.setHeader("Content-Type", types[path.extname(file)]);
+        return res.end(await readFile(path.join(exampleDirectory, file)));
+      }
       if (pathname.startsWith("/reading/")) {
         const variant = pathname.split("/")[2];
         res.setHeader("Content-Type", "text/html");
@@ -719,6 +742,123 @@ test(
         appFindings.some((f) => f.rule === id),
         `Mock app should expose ${id}`,
       );
+    // New policy IDs are first-class without pretending all their semantics are
+    // automatically assessed. Both sides use one scoped contract and real DOM.
+    const exampleDirectory = path.join(
+      JSON.parse(setup.stdout).engine,
+      "docs/examples",
+    );
+    const catalog = JSON.parse(
+      await readFile(
+        path.join(exampleDirectory, "behavior-catalog.json"),
+        "utf8",
+      ),
+    );
+    const additions = Array.from(
+      { length: 8 },
+      (_, i) => `DR-${String(i + 9).padStart(3, "0")}`,
+    );
+    assert.deepEqual(
+      catalog.rules.map((rule) => rule.id),
+      additions,
+    );
+    for (const rule of catalog.rules) {
+      for (const key of [
+        "task",
+        "good",
+        "bad",
+        "exception",
+        "verification",
+        "policyAnchor",
+      ])
+        assert.ok(rule[key]?.trim(), `${rule.id} needs ${key}`);
+      assert.ok(
+        rule.alternatives.length &&
+          rule.sources.every((url) => new URL(url).protocol === "https:"),
+      );
+    }
+    const contextSchema = JSON.parse(
+      (await cli(["schema", "--type", "context"])).stdout,
+    );
+    assert.equal(contextSchema.properties.designRules.items.enum.length, 16);
+    assert.deepEqual(
+      contextSchema.properties.designRules.items.enum.slice(8),
+      additions,
+    );
+    const behaviorConfig = JSON.parse(
+      await readFile(
+        path.join(exampleDirectory, "behavior-config.json"),
+        "utf8",
+      ),
+    );
+    const behaviorRules = JSON.parse(
+      await readFile(
+        path.join(exampleDirectory, "behavior-rules.json"),
+        "utf8",
+      ),
+    );
+    Object.assign(behaviorConfig, {
+      baseURL,
+      sourcePaths: ["src"],
+      requiredDesignRules: ["DR-016"],
+    });
+    await writeFile(
+      path.join(project, ".ui-review/config.json"),
+      JSON.stringify(behaviorConfig),
+    );
+    await writeFile(rulesPath, JSON.stringify(behaviorRules));
+    const behaviorCheck = await cli(["check"]);
+    assert.equal(
+      behaviorCheck.code,
+      1,
+      behaviorCheck.stderr || behaviorCheck.stdout,
+    );
+    const behaviorReport = JSON.parse(
+      await readFile(JSON.parse(behaviorCheck.stdout).report, "utf8"),
+    );
+    assert.equal(behaviorReport.designPolicy.rules.length, 16);
+    for (const capture of behaviorReport.pages) {
+      const findings = capture.findings.filter(
+        (finding) => finding.rule !== "design-coverage",
+      );
+      const dr = capture.name === "failed-refresh" ? "DR-009" : "DR-015";
+      assert.equal(findings.length, 2, JSON.stringify(capture.findings));
+      assert.ok(findings.every((finding) => finding.designRules.includes(dr)));
+      if (dr === "DR-009")
+        assert.deepEqual(findings.map((finding) => finding.actual).sort(), [
+          ".as-of",
+          ".refresh-at",
+        ]);
+      else
+        assert.ok(
+          findings.every(
+            (finding) =>
+              finding.actual.scrollWidth > finding.actual.clientWidth + 1,
+          ),
+        );
+      assert.equal(
+        capture.designCoverage.find((rule) => rule.id === "DR-016").status,
+        "unassessed",
+      );
+      assert.equal(
+        capture.findings.filter(
+          (finding) =>
+            finding.rule === "design-coverage" &&
+            finding.designRules.includes("DR-016"),
+        ).length,
+        1,
+        "A required subjective rule must not acquire a false pass from the catalog or a palette label",
+      );
+    }
+    await writeFile(
+      proposal,
+      JSON.stringify({ ...behaviorRules[0], designRules: ["DR-017"] }),
+    );
+    assert.equal(
+      (await cli(["add-rule", "--rule", proposal, "--dry-run"])).code,
+      2,
+      "Unregistered design-rule IDs remain invalid",
+    );
     const browser = await chromium.launch({
       executablePath:
         process.env.VIEWRULE_BROWSER_PATH ||
@@ -774,6 +914,205 @@ test(
       await page.locator("#clear-filters").click();
       assert.equal(await page.locator(".shipment-row").count(), 12);
       assert.deepEqual(pageErrors, []);
+
+      // One connected gallery walkthrough, with one positive/negative boundary
+      // for each new concern; not a new test suite or universal UI detector.
+      await page.setViewportSize({ width: 1200, height: 1000 });
+      await page.emulateMedia({ colorScheme: "light" });
+      const evidenceDirectory = path.join(repository, "dist/behavior-evidence");
+      await mkdir(evidenceDirectory, { recursive: true });
+      const captures = [];
+      const choose = async (id) => {
+        await page.goto(`${baseURL}/examples/behavior.html?rule=${id}`);
+        await page.waitForSelector(
+          `#behavior-examples[data-ready][data-rule="${id}"]`,
+        );
+      };
+      const role = (quality, name) =>
+        page.locator(`#${quality} [data-role="${name}"]`);
+      const screenshot = async (id, state = "initial") => {
+        const file = `${id.toLowerCase()}-${state}.png`;
+        await page.screenshot({
+          path: path.join(evidenceDirectory, file),
+          fullPage: true,
+        });
+        captures.push({
+          id,
+          state,
+          file,
+          viewport: page.viewportSize(),
+          colorScheme: "light",
+          deviceScaleFactor: 1,
+          fullPage: true,
+        });
+      };
+      await choose("DR-009");
+      assert.equal(await role("good", "count").textContent(), "12");
+      assert.equal(await role("bad", "count").textContent(), "0");
+      assert.match(await role("good", "status").textContent(), /stale/);
+      await screenshot("DR-009", "failed-refresh");
+      await role("good", "retry").click();
+      assert.match(await role("good", "as-of").textContent(), /09:05/);
+      await page.locator("#state-picker").selectOption("queued");
+      assert.match(
+        await role("good", "status").textContent(),
+        /not yet completed/,
+      );
+      assert.equal(await role("bad", "status").textContent(), "Published");
+
+      await choose("DR-010");
+      for (const quality of ["good", "bad"]) {
+        await role(quality, "filter").fill("Seattle priority");
+        await role(quality, "open").click();
+        await role(quality, "close").click();
+        if (quality === "bad")
+          await role("bad", "selected")
+            .filter({ hasText: "EP 1043" })
+            .waitFor();
+        assert.equal(
+          await role(quality, "filter").inputValue(),
+          quality === "good" ? "Seattle priority" : "",
+        );
+        assert.equal(
+          await role(quality, "selected").textContent(),
+          quality === "good" ? "EP 1042" : "EP 1043",
+        );
+        assert.equal(
+          await role(quality, quality === "good" ? "open" : "filter").evaluate(
+            (el) => el === el.ownerDocument.activeElement,
+          ),
+          true,
+        );
+      }
+      await screenshot("DR-010", "returned");
+
+      await choose("DR-011");
+      assert.match(
+        await role("good", "publish").textContent(),
+        /12 selected lanes/,
+      );
+      assert.equal(await role("bad", "publish").textContent(), "Apply");
+      await screenshot("DR-011");
+      await role("good", "publish").click();
+      assert.equal(await role("good", "dialog").isVisible(), true);
+      await role("good", "cancel").click();
+      assert.equal(
+        await role("good", "result").textContent(),
+        "No changes published.",
+      );
+      await role("good", "publish").click();
+      await role("good", "confirm").click();
+      assert.match(
+        await role("good", "result").textContent(),
+        /Published for 12 selected lanes/,
+      );
+
+      await choose("DR-012");
+      for (const quality of ["good", "bad"])
+        await page.locator(`#${quality} button[type="submit"]`).click();
+      assert.equal(await role("good", "proposal").inputValue(), "7.5");
+      assert.equal(await role("bad", "proposal").inputValue(), "");
+      assert.equal(
+        await role("good", "proposal").getAttribute("aria-invalid"),
+        "true",
+      );
+      await screenshot("DR-012", "rejected");
+      await role("good", "proposal").fill("6");
+      await page.locator('#good button[type="submit"]').click();
+      await role("good", "cancel").click();
+      assert.equal(await role("good", "approved").textContent(), "5%");
+      assert.equal(await role("good", "proposal").inputValue(), "6");
+      await page.locator('#good button[type="submit"]').click();
+      await role("good", "confirm").click();
+      assert.equal(await role("good", "approved").textContent(), "6%");
+      await role("good", "undo").click();
+      assert.equal(await role("good", "approved").textContent(), "5%");
+
+      await choose("DR-013");
+      assert.equal(
+        await page.locator("#good .volume strong").textContent(),
+        await page.locator("#bad .volume strong").textContent(),
+      );
+      await screenshot("DR-013");
+      // Composition remains a human-review example, not a hierarchy score.
+      await role("good", "respond").click();
+      assert.match(await role("good", "result").textContent(), /EP 1042/);
+
+      await choose("DR-014");
+      await page.locator("#reset").click();
+      await page.keyboard.press("Tab");
+      assert.equal(
+        await role("good", "trigger").evaluate(
+          (el) => el === el.ownerDocument.activeElement,
+        ),
+        true,
+      );
+      await page.keyboard.press("Enter");
+      assert.equal(await role("good", "evidence").isVisible(), true);
+      await screenshot("DR-014", "keyboard-open");
+      await page.keyboard.press("Escape");
+      assert.equal(await role("good", "evidence").isVisible(), false);
+      await page.keyboard.press("Tab");
+      assert.equal(
+        await page
+          .locator("#policy-link")
+          .evaluate((el) => el === el.ownerDocument.activeElement),
+        true,
+        "The bad pointer-only trigger is absent from real Tab traversal",
+      );
+      await role("bad", "trigger").hover();
+      assert.equal(await role("bad", "evidence").isVisible(), true);
+
+      await choose("DR-015");
+      await page.locator("#large-text").check();
+      const clipping = await page.locator(".service").evaluateAll((elements) =>
+        elements.map((el) => ({
+          clipped:
+            el.ownerDocument.defaultView.getComputedStyle(el).overflowX ===
+              "hidden" && el.scrollWidth > el.clientWidth + 1,
+          text: el.textContent.trim(),
+        })),
+      );
+      assert.deepEqual(
+        clipping.map((item) => item.clipped),
+        [false, false, true, true],
+      );
+      assert.deepEqual(
+        clipping.slice(0, 2).map((item) => item.text),
+        clipping.slice(2).map((item) => item.text),
+      );
+      await screenshot("DR-015", "enlarged");
+      await page.setViewportSize({ width: 390, height: 844 });
+      await screenshot("DR-015", "mobile-enlarged");
+      const mobileWidth = await page.locator("html").evaluate((el) => ({
+        content: el.scrollWidth,
+        viewport: el.ownerDocument.defaultView.innerWidth,
+      }));
+      assert.ok(
+        mobileWidth.content <= mobileWidth.viewport,
+        `Text adaptation must not add page-level horizontal overflow: ${JSON.stringify(mobileWidth)}`,
+      );
+      await page.setViewportSize({ width: 1200, height: 1000 });
+
+      await choose("DR-016");
+      assert.deepEqual(
+        await page.locator("#good .swatches li").allTextContents(),
+        await page.locator("#bad .swatches li").allTextContents(),
+      );
+      await screenshot("DR-016");
+      assert.deepEqual(pageErrors, []);
+      await writeFile(
+        path.join(evidenceDirectory, "captures.json"),
+        JSON.stringify(
+          {
+            browser: browser.version(),
+            source: "installed npm package",
+            captures,
+          },
+          null,
+          2,
+        ),
+      );
     } finally {
       await browser.close();
     }

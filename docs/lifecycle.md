@@ -123,5 +123,5 @@ passing evidence blocks an opted-in hook. Install failures leave the prior versi
 active. Remediation advice never mutates source or evidence.
 
 First diagnose the report's actual selector, viewport, observation, and expectation.
-Do not infer that all of DR-001–DR-008 are satisfied from a green exit code. A
+Do not infer that all of DR-001–DR-016 are satisfied from a green exit code. A
 repair must improve the intended task, not merely a measured proxy.

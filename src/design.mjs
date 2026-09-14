@@ -1,6 +1,7 @@
 import { readFile } from "node:fs/promises";
 import { createHash } from "node:crypto";
 import path from "node:path";
+import { designRuleIds } from "./policy-ids.mjs";
 
 export const policyPath = path.resolve(
   import.meta.dirname,
@@ -78,8 +79,15 @@ export async function readDesignPolicy() {
     body: body.trim(),
     href: `design-rules.html#${id}`,
   }));
-  if (rules.length !== 8)
-    throw new Error("Design-rule document is missing expected sections");
+  const ids = rules.map((rule) => rule.id);
+  if (
+    ids.length !== designRuleIds.length ||
+    new Set(ids).size !== ids.length ||
+    designRuleIds.some((id) => !ids.includes(id))
+  )
+    throw new Error(
+      "Design-rule document must contain each registered ID exactly once",
+    );
   return {
     document: "docs/design-rules.md",
     sha256: createHash("sha256").update(source).digest("hex"),

@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "baseURL": "http://127.0.0.1:4173",
+  "enforceOnStop": false,
+  "sourcePaths": ["docs/examples"],
+  "accessibility": false,
+  "pages": [
+    {
+      "name": "failed-refresh",
+      "path": "/examples/behavior.html?rule=DR-009",
+      "ready": "#behavior-examples[data-ready]"
+    },
+    {
+      "name": "long-labels",
+      "path": "/examples/behavior.html?rule=DR-015",
+      "ready": "#behavior-examples[data-ready]"
+    }
+  ],
+  "viewports": [{ "name": "desktop", "width": 1200, "height": 1000 }]
+}

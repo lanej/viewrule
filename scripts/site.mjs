@@ -29,6 +29,14 @@ await writeFile(
     "https://github.com/lanej/viewrule/blob/main/docs/design-examples.md",
   ),
 );
+const behavior = path.join(output, "examples/behavior.html");
+await writeFile(
+  behavior,
+  (await readFile(behavior, "utf8")).replaceAll(
+    "../design-rules.md",
+    "https://github.com/lanej/viewrule/blob/main/docs/design-rules.md",
+  ),
+);
 await writeFile(path.join(output, ".nojekyll"), "");
 console.log("Built dist/site (mock application and component gallery).");
 
@@ -37,6 +45,7 @@ if (process.argv.includes("--serve")) {
     ".html": "text/html",
     ".css": "text/css",
     ".js": "text/javascript",
+    ".json": "application/json",
     ".png": "image/png",
   };
   createServer(async (request, response) => {

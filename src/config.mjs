@@ -1,6 +1,7 @@
 import { Ajv } from "ajv";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
+import { designRuleIds } from "./policy-ids.mjs";
 
 const text = { type: "string", minLength: 1 };
 const names = { type: "array", minItems: 1, uniqueItems: true, items: text };
@@ -8,7 +9,7 @@ const positive = { type: "integer", minimum: 1 };
 const designIds = {
   type: "array",
   uniqueItems: true,
-  items: { enum: Array.from({ length: 8 }, (_, i) => `DR-00${i + 1}`) },
+  items: { enum: [...designRuleIds] },
 };
 const object = (properties, required) => ({
   type: "object",

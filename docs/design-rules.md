@@ -1,12 +1,13 @@
-# Design rules for analytical UIs
+# Design rules for evidence and interaction
 
 Help the reader make accurate comparisons and understand the evidence behind a
 decision. Use available space to reveal useful information while preserving
 legibility and context.
 
-These are our application of Edward Tufte's *The Visual Display of Quantitative
-Information*, supplemented by his later writing. They are design requirements
-for quantitative screens, not quotations or universal rules for every interface.
+DR-001–DR-008 apply ideas from Edward Tufte's *The Visual Display of Quantitative
+Information* and later writing. DR-009–DR-016 add task-scoped interaction and
+resilience requirements with their own cited sources. These are our interpretations,
+not quotations, endorsements, or universal prescriptions for every interface.
 
 This file defines the intended behavior. [Detection and enforcement](ui-review-enforcement.md)
 describes the implemented checks and their limits; listing a rule here does not
@@ -162,6 +163,207 @@ is not a reason to erase useful labels, context, or controls.
 
 **Review:** Treat excessive decoration as a design concern requiring judgment.
 An empty screen is not automatically a successful reduction of non-data ink.
+
+## DR-009 — System status reflects the available evidence
+
+**Requirement:** Loading, empty, filtered-out, unavailable, stale, pending, and
+completed states must remain distinguishable when they call for different user
+actions. Do not turn a failed request into an observed zero or a queued operation
+into a completed one. If retained data affects a decision, distinguish its as-of
+time from the latest refresh attempt.
+
+**Why:** A decision based on a false success or false absence can be wrong even
+when the layout is clear. This extends DR-004 from data representation to the
+interface's operational state. [Visibility of system status](https://www.nngroup.com/articles/visibility-system-status/)
+is practitioner guidance; [WCAG 4.1.3](https://www.w3.org/WAI/WCAG22/Understanding/status-messages.html)
+addresses programmatic identification of qualifying status messages, not backend truth.
+
+**Application:** Keep useful retained data explicitly labeled stale after a failed
+refresh; offer retry. Show submitting, queued, and completed according to actual
+operation evidence. Announce meaningful status changes without unnecessarily moving
+focus or making every update an interrupting alert.
+
+**Exception:** Omit distinctions that do not affect this task, but never claim a
+stronger state than the available evidence supports. Optimistic UI must expose
+pending status or support truthful reconciliation and failure recovery.
+
+**Review:** Exercise delayed, empty, failed, and recovered responses with controlled
+fixtures. Visible labels and ARIA metadata do not establish freshness or completion.
+[Good/bad example](examples/behavior.html?rule=DR-009).
+
+## DR-010 — Interactions preserve the working context
+
+**Requirement:** Opening detail, returning, refreshing, and adapting the layout
+must preserve task-relevant filters, selection identity, entered work, and position
+unless the operation explicitly changes them. Selection follows a stable entity,
+not its current row index. Returning focus must support the next step in the task.
+
+**Why:** The user should not have to reconstruct a comparison after inspecting it.
+This broader continuity requirement is a project interpretation, supported in part
+by the [APG dialog focus guidance](https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/).
+That pattern is not a universal mandate to return focus to the opener in every workflow.
+
+**Application:** Restore queue filters and the selected shipment on return. Keep
+selection attached to that shipment if rows reorder. Explain when the selected item
+leaves the result set instead of silently substituting the item now at its old index.
+
+**Exception:** An explicit reset, completed deletion, or next-step workflow may
+change context. Explain the transition and choose a useful surviving focus target.
+Do not restore stale state that would misrepresent the current operation.
+
+**Review:** Compare actual identities, input values, focus, and relevant scroll
+position before and after a journey. A static selected-state attribute is not proof
+of continuity. [Good/bad example](examples/behavior.html?rule=DR-010).
+
+## DR-011 — Controls communicate their action and scope
+
+**Requirement:** Essential controls must have discoverable interaction cues and
+names that communicate what they do. Consequential actions must make their scope
+and relevant effect clear before commitment. Important unavailable actions should
+have an accessible explanation of what prevents them.
+
+**Why:** Users need perceptible cues to discover possible actions; see Norman's
+[signifiers](https://jnd.org/signifiers-not-affordances/). Names must also be
+programmatically available where required by [WCAG 4.1.2](https://www.w3.org/WAI/WCAG22/Understanding/name-role-value.html).
+Neither source makes a pointer cursor or a particular button style sufficient proof.
+
+**Application:** Prefer “Publish rates for 12 selected lanes” over an unexplained
+“Apply” when scope could be confused. Distinguish static status from actionable
+controls. Keep an unavailable action's explanation accessible without depending on
+hover over a disabled element.
+
+**Exception:** Familiar compact controls can use icons with accessible names and
+appropriate contextual help. Repeating an already unambiguous scope in every button
+is not required. Do not replace standard semantics with decorative control imitation.
+
+**Review:** Check accessible names and the observed outcome, then assess whether
+the wording and visual cues communicate that outcome to the intended audience.
+[Good/bad example](examples/behavior.html?rule=DR-011).
+
+## DR-012 — Safeguards match consequences and preserve work
+
+**Requirement:** Match prevention and recovery to the action's consequences.
+Reversible low-risk operations should be easy to undo; consequential submissions
+need an appropriate reversal, checking, or review mechanism. On failure, preserve
+recoverable input and identify the problem and corrective action.
+
+**Why:** Re-entering valid work does not correct the original error. The applicable
+scope and alternatives of [WCAG 3.3.4](https://www.w3.org/WAI/WCAG22/Understanding/error-prevention-legal-financial-data.html)
+are specific; it does not require confirmation dialogs for every save.
+[WCAG 3.3.1](https://www.w3.org/WAI/WCAG22/Understanding/error-identification.html)
+requires textual identification of automatically detected input errors.
+
+**Application:** Preserve the entered proposal after server rejection, associate
+persistent correction guidance with the field, and show affected records before a
+bulk publication. Undo must reverse the actual operation, not merely dismiss a toast.
+
+**Exception:** Security-sensitive values or expired authorization may require
+re-entry. Explain the reason and retain other safe work. An irreversible action
+cannot truthfully offer Undo; show its consequences before commitment instead.
+
+**Review:** Exercise rejection, correction, retry, cancellation, and actual reversal
+where supported. A review dialog or Undo label alone does not establish protection.
+[Good/bad example](examples/behavior.html?rule=DR-012).
+
+## DR-013 — Visual emphasis follows the task's priority
+
+**Default:** State the intended attention order for the current task, then use
+contrast, size, grouping, position, and restraint to support it. The most visually
+prominent content should not routinely distract from the decision or action that
+matters most in that state.
+
+**Why:** [Visual hierarchy](https://www.nngroup.com/articles/visual-hierarchy-ux-definition/)
+is practitioner guidance on directing attention. This positive hierarchy rule
+complements DR-008; removing decoration does not by itself establish useful emphasis.
+
+**Application:** An exception-review screen can lead with affected shipments and
+their required response while keeping summary totals available but subordinate.
+The same dataset may need a different hierarchy in a planning or reporting task.
+
+**Exception:** Navigation, orientation, or a safety-critical alert may appropriately
+outrank the page's ordinary primary task. There is no universal KPI count, occupancy
+score, or rule requiring exactly one primary button on every page.
+
+**Review:** Compare an explicit task and attention order with the rendered result.
+Project-specific token checks may detect known deviations; no generic hierarchy
+score establishes that the emphasis is appropriate.
+[Good/bad example](examples/behavior.html?rule=DR-013).
+
+## DR-014 — Essential interactions do not require a pointer
+
+**Requirement:** Essential information and actions must be available through the
+supported input methods, including keyboard operation where applicable. Preserve
+predictable focus, a visible focus indication, and a usable route into and out of
+interactive disclosures. Do not make essential information hover-only.
+
+**Why:** [WCAG 2.1.1](https://www.w3.org/WAI/WCAG22/Understanding/keyboard.html)
+addresses keyboard operation, including its path-dependent-input exception.
+[WCAG 1.4.13](https://www.w3.org/WAI/WCAG22/Understanding/content-on-hover-or-focus.html)
+sets applicable dismissibility, hoverability, and persistence requirements;
+[WCAG 2.4.11](https://www.w3.org/WAI/WCAG22/Understanding/focus-not-obscured-minimum.html)
+addresses focused controls being entirely obscured by authored content.
+
+**Application:** Provide deliberate keyboard chart inspection or an equivalent
+accessible data view. Use native buttons for disclosures. Make opening, activation,
+dismissal, and the next focus destination work without a mouse.
+
+**Exception:** A genuinely path-dependent interaction may fall within the standard's
+exception; do not use that to exclude unrelated controls or essential data. A touch
+interface may expose information differently while preserving access to the task.
+
+**Review:** Perform a real keyboard sequence; programmatically focusing a control
+does not demonstrate that Tab can reach it. Static axe results do not establish
+complete keyboard, touch, screen-reader, or focus-visibility behavior.
+[Good/bad example](examples/behavior.html?rule=DR-014).
+
+## DR-015 — Layout survives content variation and text adaptation
+
+**Requirement:** Validate task-critical content with representative long labels,
+distinguishing suffixes, numeric extremes, and relevant empty or populated states.
+Supported text enlargement and spacing changes must not remove essential content
+or make controls unusable. Preserve meaning rather than merely fitting boxes.
+
+**Why:** [WCAG 1.4.4](https://www.w3.org/WAI/WCAG22/Understanding/resize-text.html)
+and [WCAG 1.4.12](https://www.w3.org/WAI/WCAG22/Understanding/text-spacing.html)
+address text adaptation. Our content-variation fixtures extend that reasoning to
+application-specific data; they are not additional universal WCAG thresholds.
+
+**Application:** Keep the distinguishing end of a service name available through
+wrapping, sizing, or an explicit accessible inspection mechanism. Allow longer error
+messages without displacing Save outside an unscrollable fixed-height panel.
+
+**Exception:** Truncation can be appropriate when it does not remove the information
+needed for the current task and full text is deliberately accessible. Large tables
+may use clearly scoped scrolling. Not every cell must expand indefinitely.
+
+**Review:** Reuse existing clipping, overlap, and legibility checks with difficult
+fixture content, then inspect the meaning retained. Root-font scaling is not browser
+zoom, and one passing fixture does not certify every locale or text preference.
+[Good/bad example](examples/behavior.html?rule=DR-015).
+
+## DR-016 — Color scales match the structure of the data
+
+**Requirement:** Choose color encodings according to what they represent:
+unordered categories, ordered magnitude, or deviation around a meaningful reference.
+Identify the mapping and preserve essential distinctions without color alone.
+
+**Why:** [ColorBrewer's scheme guidance](https://colorbrewer2.org/learnmore/schemes_full.html)
+distinguishes qualitative, sequential, and diverging encodings. This rule asks
+whether the mapping is appropriate; DR-005 asks whether an established meaning
+remains consistent. Those are separate questions.
+
+**Application:** Use qualitative colors for carrier identity, a sequential treatment
+for increasing dwell, and a diverging treatment for deviations around an actual
+service target. Provide readable labels and a legend or equivalent explanation.
+
+**Exception:** An explicitly ordered category set or a meaningful threshold may
+justify a different treatment. Explain it. A diverging midpoint must not imply an
+analytical reference merely because it is the mathematical midpoint of a palette.
+
+**Review:** Inspect the variable's semantics and the actual renderer mapping.
+Matching color attributes cannot establish either. A grayscale or accessible data
+view can be a valid alternative when color adds no necessary distinction.
+[Good/bad example](examples/behavior.html?rule=DR-016).
 
 ## Refining the rules
 

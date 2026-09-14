@@ -1,0 +1,151 @@
+{
+  "schemaVersion": 1,
+  "version": "1.0.0",
+  "data": "Original synthetic teaching fixtures. No carrier API, real publishing, or external requests.",
+  "rules": [
+    {
+      "id": "DR-009",
+      "title": "State honesty",
+      "task": "Decide whether the shipment count is usable after a refresh fails.",
+      "good": "Retain the known snapshot, distinguish its age from the refresh attempt, and explain retry.",
+      "bad": "A failed request becomes zero shipments and claims to be current.",
+      "alternatives": [
+        "Replace the metric with an explicit unavailable state when retained data is not useful."
+      ],
+      "exception": "Do not announce every background update; distinguish states when they affect this task.",
+      "nativeChecks": ["context"],
+      "verification": "Native context checks verify visible labels in the failed-response fixture. The response-to-state transition is an application assertion, not backend verification.",
+      "sources": [
+        "https://www.nngroup.com/articles/visibility-system-status/",
+        "https://www.w3.org/WAI/WCAG22/Understanding/status-messages.html"
+      ],
+      "example": "behavior.html?rule=DR-009",
+      "policyAnchor": "dr-009--system-status-reflects-the-available-evidence"
+    },
+    {
+      "id": "DR-010",
+      "title": "Working-context continuity",
+      "task": "Inspect EP 1042, return to the queue, and continue the Seattle comparison.",
+      "good": "The filter, selected shipment identity, and invoking control survive the detail round trip.",
+      "bad": "Closing detail clears the filter, substitutes EP 1043, and moves focus elsewhere.",
+      "alternatives": ["Keep a persistent detail panel beside the queue."],
+      "exception": "A deleted item needs an explained transition and a useful surviving focus target.",
+      "nativeChecks": [],
+      "verification": "Application assertions compare the real input value, selected identity, and focus across opening and closing. Generic journey and scroll preservation are not engine checks.",
+      "sources": ["https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/"],
+      "example": "behavior.html?rule=DR-010",
+      "policyAnchor": "dr-010--interactions-preserve-the-working-context"
+    },
+    {
+      "id": "DR-011",
+      "title": "Action and scope",
+      "task": "Understand which rates will change before publishing the selected proposal.",
+      "good": "The action names the 12 selected lanes; review exposes the effective date and scope before commitment.",
+      "bad": "Apply offers no indication of the affected scope or when it takes effect.",
+      "alternatives": [
+        "Use a shorter label when an adjacent persistent heading makes scope unambiguous."
+      ],
+      "exception": "Familiar icons can work with accessible names; no universal requirement for long button text.",
+      "nativeChecks": ["context"],
+      "verification": "Review the label against the simulated effect. A scoped context check can require scope text; it cannot decide whether the wording is understandable.",
+      "sources": [
+        "https://jnd.org/signifiers-not-affordances/",
+        "https://www.w3.org/WAI/WCAG22/Understanding/name-role-value.html"
+      ],
+      "example": "behavior.html?rule=DR-011",
+      "policyAnchor": "dr-011--controls-communicate-their-action-and-scope"
+    },
+    {
+      "id": "DR-012",
+      "title": "Proportional safeguards and recovery",
+      "task": "Correct a rejected 7.5% proposal without losing work; review a valid change and undo it.",
+      "good": "Rejection preserves input with specific guidance. A valid proposal is reviewed; Undo restores the previously approved rate.",
+      "bad": "Rejection clears the proposal and gives a generic error; a later valid proposal applies without review.",
+      "alternatives": [
+        "Use actual reversal without a modal for a genuinely low-risk operation."
+      ],
+      "exception": "Do not offer Undo for an irreversible action; explain safe re-entry requirements.",
+      "nativeChecks": ["context"],
+      "verification": "The fixture checks rejection, correction, cancellation, review, and actual local-model reversal. It does not prove remote transaction rollback or financial compliance.",
+      "sources": [
+        "https://www.w3.org/WAI/WCAG22/Understanding/error-prevention-legal-financial-data.html",
+        "https://www.w3.org/WAI/WCAG22/Understanding/error-identification.html"
+      ],
+      "example": "behavior.html?rule=DR-012",
+      "policyAnchor": "dr-012--safeguards-match-consequences-and-preserve-work"
+    },
+    {
+      "id": "DR-013",
+      "title": "Task-aligned emphasis",
+      "task": "Find the three shipments requiring a response among 1,200 shipments.",
+      "good": "The exceptions and response lead; the total remains available but subordinate.",
+      "bad": "A huge total attracts attention while the exception and response are visually secondary.",
+      "alternatives": [
+        "A planning task may appropriately lead with aggregate volume instead."
+      ],
+      "exception": "A safety-critical alert can supersede the ordinary attention order.",
+      "nativeChecks": [],
+      "verification": "Human task and visual review. There is no hierarchy score, universal KPI count, or manufactured failing engine badge.",
+      "sources": [
+        "https://www.nngroup.com/articles/visual-hierarchy-ux-definition/"
+      ],
+      "example": "behavior.html?rule=DR-013",
+      "policyAnchor": "dr-013--visual-emphasis-follows-the-tasks-priority"
+    },
+    {
+      "id": "DR-014",
+      "title": "Keyboard and non-hover access",
+      "task": "Inspect the dwell evidence using only the keyboard.",
+      "good": "Tab reaches a native button; Enter reveals evidence; Escape closes it and keeps focus on the trigger.",
+      "bad": "A pointer-only span exposes essential information on mouse interaction but is absent from the keyboard sequence.",
+      "alternatives": [
+        "Expose an equivalent always-available data table beside a pointer-inspection chart."
+      ],
+      "exception": "Path-dependent drawing can have exceptions; unrelated controls and essential evidence still need access.",
+      "nativeChecks": [],
+      "verification": "The actual Tab, Enter, and Escape sequence is exercised in the fixture. This does not establish complete screen-reader, touch, or focus-obscuration behavior.",
+      "sources": [
+        "https://www.w3.org/WAI/WCAG22/Understanding/keyboard.html",
+        "https://www.w3.org/WAI/WCAG22/Understanding/content-on-hover-or-focus.html",
+        "https://www.w3.org/WAI/WCAG22/Understanding/focus-not-obscured-minimum.html"
+      ],
+      "example": "behavior.html?rule=DR-014",
+      "policyAnchor": "dr-014--essential-interactions-do-not-require-a-pointer"
+    },
+    {
+      "id": "DR-015",
+      "title": "Content and text resilience",
+      "task": "Distinguish the North and South services, including with larger text.",
+      "good": "The distinguishing suffixes remain visible through wrapping and reflow.",
+      "bad": "Both long names truncate to the same prefix and have no full-text inspection control.",
+      "alternatives": [
+        "Use an accessible detail control or a labeled local scroll region when wrapping is inappropriate."
+      ],
+      "exception": "Truncation is acceptable when the task does not depend on the omitted distinction and full text is accessible.",
+      "nativeChecks": ["no-clip"],
+      "verification": "Native no-clip measures the actual clipped labels. Fixture enlargement is not browser zoom; meaning and untested locales still need review.",
+      "sources": [
+        "https://www.w3.org/WAI/WCAG22/Understanding/resize-text.html",
+        "https://www.w3.org/WAI/WCAG22/Understanding/text-spacing.html"
+      ],
+      "example": "behavior.html?rule=DR-015",
+      "policyAnchor": "dr-015--layout-survives-content-variation-and-text-adaptation"
+    },
+    {
+      "id": "DR-016",
+      "title": "Data-appropriate color",
+      "task": "Identify three unordered carriers while comparing their labeled parcel counts.",
+      "good": "Distinct qualitative swatches encode identity; counts and carrier names remain explicit.",
+      "bad": "A light-to-dark ramp implies an ordering of carrier identity that the data does not contain.",
+      "alternatives": [
+        "Use direct labels without color; use sequential scales for magnitude or diverging scales around a real target."
+      ],
+      "exception": "An explicitly ordered category set can justify a different encoding when explained.",
+      "nativeChecks": [],
+      "verification": "Human semantic review of the variable and palette. Attribute equality or an arbitrary data-palette declaration is not evidence that color meaning is appropriate.",
+      "sources": ["https://colorbrewer2.org/learnmore/schemes_full.html"],
+      "example": "behavior.html?rule=DR-016",
+      "policyAnchor": "dr-016--color-scales-match-the-structure-of-the-data"
+    }
+  ]
+}

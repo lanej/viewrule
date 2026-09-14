@@ -210,3 +210,49 @@ the constraint and its scope, inspect the interaction, and refresh its screensho
 at the intended reading size. Click a screenshot to view its original file when
 GitHub scales it down. These documentation examples complement the existing
 [installed regression workflow](../test/README.md); they do not add a second test suite.
+
+## Interaction and resilience: DR-009–DR-016
+
+[Open the paired behavior examples](examples/behavior.html). Choose a rule, then
+exercise the same synthetic task in the good and bad versions. The page links its
+sources, alternatives, exceptions, and exact checking boundary; it is not a report
+of universal design quality. The [machine-readable catalog](examples/behavior-catalog.json)
+uses the same stable DR IDs as the engine policy and is also read by the gallery.
+
+| Rule | Good | Bad | Verification boundary |
+| --- | --- | --- | --- |
+| DR-009 | Failed refresh retains data with state and separate timestamps | Failure becomes an observed zero | Native scoped context checks; fixture response transitions also exercised |
+| DR-010 | Detail return preserves the filter, stable identity, and focus | Returning clears the filter and silently replaces selection | Application interaction assertions, not a generic engine journey check |
+| DR-011 | Publication names its selected scope and effect | “Apply” leaves the effect ambiguous | Human action-clarity review; visible scope can be required |
+| DR-012 | Rejection preserves the proposal and identifies correction | Rejection clears work and says only “Something went wrong” | Application rejection/correction/undo assertions |
+| DR-013 | Exception and response lead the task | A decorative total dominates the exception | Task-scoped human review; no hierarchy score |
+| DR-014 | Native disclosure is reachable and operable with the keyboard | Pointer-only text hides essential information from keyboard users | Actual Tab/Enter/Escape fixture sequence; not full accessibility certification |
+| DR-015 | Distinguishing suffixes survive wrapping and enlarged text | Identical truncation hides different services | Native `no-clip` on shared long-content fixtures, plus human meaning review |
+| DR-016 | Unordered carriers get qualitative colors and labels | A light-to-dark ramp implies a ranking | Human semantic review; no inferred color correctness |
+
+The checks use deliberate fixture data and do not contact carriers or publish
+real rates. Good and bad labels describe the stated task, not actual engine output.
+Some bad examples intentionally pass unrelated geometry checks.
+
+
+Run `npm run site:preview` from a checkout and open
+`http://127.0.0.1:4173/examples/behavior.html`. All assets and the catalog are local;
+no carrier API or external UI runtime is required. `npm test` exercises the same
+examples from the packed and installed engine, not a separate test-only copy.
+The scoped [configuration](examples/behavior-config.json) and
+[rules](examples/behavior-rules.json) are provided for adaptation to a disposable
+`.ui-review` project; they intentionally reject the bad context and clipping cases.
+
+### Rendered interaction examples
+
+[![Failed refresh preserves the last snapshot instead of presenting zero shipments.](examples/images/behavior/dr-009-failed-refresh.png)](examples/images/behavior/dr-009-failed-refresh.png)
+
+[![Rejected input remains editable with a specific correction rather than being cleared.](examples/images/behavior/dr-012-rejected.png)](examples/images/behavior/dr-012-rejected.png)
+
+These original captures show both versions at 1200 CSS pixels wide, device scale 1,
+light theme; full-page height is not initial-viewport fit. See the
+[390px enlarged-text example](examples/images/behavior/dr-015-mobile-enlarged.png)
+and [capture metadata](examples/images/behavior/captures.json) for exact state,
+viewport, and browser. Enlarged example text is not browser zoom or a complete
+accessibility test. Run the interactions to inspect behaviors a static image cannot
+establish, including focus restoration and actual undo.
