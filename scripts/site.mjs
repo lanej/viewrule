@@ -149,6 +149,7 @@ for (const rule of policy.rules) {
   const directory = path.join(rulesRoot, slug);
   await mkdir(directory, { recursive: true });
   const example = ruleExamples[rule.id];
+  const principle = rule.body.match(/^\*\*Principle:\*\* (.+)$/m)?.[1] || "";
   const sections = sectionsFrom(
     rule.body.replace(/\[Good\/bad example\]\([^)]*\)\.?/g, ""),
   );
@@ -204,6 +205,7 @@ for (const rule of policy.rules) {
 <header>
 <div class="rule-meta"><span>${rule.id}</span><span class="mode mode-${rule.enforcement}">${rule.enforcement}</span></div>
 <h1>${escapeHtml(rule.title)}</h1>
+<p class="lede">${escapeHtml(principle)}</p>
 </header>
 ${sectionHtml}
 <section class="examples" aria-labelledby="examples-title">

@@ -1,4 +1,6 @@
-# DR-001 — Comparable charts use comparable scales
+# DR-001 — Rule of Shared Scales
+
+**Principle:** Comparable charts use comparable scales.
 
 **Requirement:** Charts comparing absolute magnitudes of the same measure must
 use the same units, axis domains, scale transformations, and plotting dimensions.

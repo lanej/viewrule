@@ -1,4 +1,6 @@
-# DR-007 — Larger screens expose useful detail and preserve legibility
+# DR-007 — Rule of Useful Space
+
+**Principle:** Larger screens expose useful detail and preserve legibility.
 
 **Requirement:** For the same task and data state, moving to a larger supported
 viewport must preserve the critical comparison set. Where additional evidence

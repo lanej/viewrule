@@ -1,4 +1,6 @@
-# DR-013 — Visual emphasis follows the task's priority
+# DR-013 — Rule of Priority
+
+**Principle:** Visual emphasis follows the task's priority.
 
 **Default:** State the intended attention order for the current task, then use
 contrast, size, grouping, position, and restraint to support it. The most visually

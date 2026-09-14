@@ -1,4 +1,6 @@
-# DR-002 — Visual magnitude reflects numerical magnitude
+# DR-002 — Rule of Proportion
+
+**Principle:** Visual magnitude reflects numerical magnitude.
 
 **Requirement:** Ordinary bars representing amounts must start at zero. Filled
 area charts representing amounts must preserve a zero baseline. Bubble area

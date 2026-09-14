@@ -1,4 +1,6 @@
-# DR-016 — Color scales match the structure of the data
+# DR-016 — Rule of Meaningful Color
+
+**Principle:** Color scales match the structure of the data.
 
 **Requirement:** Choose color encodings according to what they represent: unordered categories, ordered magnitude, or deviation around a meaningful reference. Identify the mapping and preserve essential distinctions without color alone.
 

@@ -6,6 +6,8 @@ DR-001–DR-008 apply ideas from Edward Tufte's *The Visual Display of Quantitat
 
 [Detection and enforcement](ui-review-enforcement.md) describes the implemented checks and their limits. [UI review](ui-review.md) covers setup. The [illustrated examples](design-examples.md) pair good and bad versions of common components, and the generated `/rules/` site provides one canonical page per design rule, with interactive good/bad examples embedded beside the requirement and verification guidance. The `/examples/` gallery is optional browsing; rule pages do not depend on it.
 
+Each rule has a short “Rule of …” name for discussion and recall. Its principle and full requirement define its scope; the DR ID remains the stable reference.
+
 ## How to apply the rules
 
 - **Must** defines a requirement when the stated condition applies.
@@ -14,67 +16,131 @@ DR-001–DR-008 apply ideas from Edward Tufte's *The Visual Display of Quantitat
 - Scope requirements to the task, page state, comparison group, and viewport. There is no universal density percentage, row count, or font size.
 - Document an exception with its rule ID, scope, reason, and how it preserves the intended comparison. A disclosure cannot make a misleading encoding accurate.
 
-## DR-001 — Comparable charts use comparable scales
+<a id="dr-001--comparable-charts-use-comparable-scales"></a>
+
+## DR-001 — Rule of Shared Scales
+
+Comparable charts use comparable scales.
 
 [Canonical rule →](design-rules/DR-001-comparable-scales.md)
 
-## DR-002 — Visual magnitude reflects numerical magnitude
+<a id="dr-002--visual-magnitude-reflects-numerical-magnitude"></a>
+
+## DR-002 — Rule of Proportion
+
+Visual magnitude reflects numerical magnitude.
 
 [Canonical rule →](design-rules/DR-002-proportional-magnitude.md)
 
-## DR-003 — Quantities carry the context needed to interpret them
+<a id="dr-003--quantities-carry-the-context-needed-to-interpret-them"></a>
+
+## DR-003 — Rule of Context
+
+Quantities carry the context needed to interpret them.
 
 [Canonical rule →](design-rules/DR-003-quantity-context.md)
 
-## DR-004 — Missing and estimated values remain distinguishable
+<a id="dr-004--missing-and-estimated-values-remain-distinguishable"></a>
+
+## DR-004 — Rule of Uncertainty
+
+Missing and estimated values remain distinguishable.
 
 [Canonical rule →](design-rules/DR-004-missing-estimated-values.md)
 
-## DR-005 — Visual meanings stay consistent
+<a id="dr-005--visual-meanings-stay-consistent"></a>
+
+## DR-005 — Rule of Consistency
+
+Visual meanings stay consistent.
 
 [Canonical rule →](design-rules/DR-005-consistent-meanings.md)
 
-## DR-006 — Related evidence stays visible together
+<a id="dr-006--related-evidence-stays-visible-together"></a>
+
+## DR-006 — Rule of Proximity
+
+Related evidence stays visible together.
 
 [Canonical rule →](design-rules/DR-006-related-evidence.md)
 
-## DR-007 — Larger screens expose useful detail and preserve legibility
+<a id="dr-007--larger-screens-expose-useful-detail-and-preserve-legibility"></a>
+
+## DR-007 — Rule of Useful Space
+
+Larger screens expose useful detail and preserve legibility.
 
 [Canonical rule →](design-rules/DR-007-responsive-detail.md)
 
-## DR-008 — Decoration earns its space and visual weight
+<a id="dr-008--decoration-earns-its-space-and-visual-weight"></a>
+
+## DR-008 — Rule of Restraint
+
+Decoration earns its space and visual weight.
 
 [Canonical rule →](design-rules/DR-008-earned-decoration.md)
 
-## DR-009 — System status reflects the available evidence
+<a id="dr-009--system-status-reflects-the-available-evidence"></a>
+
+## DR-009 — Rule of State Honesty
+
+System status reflects the available evidence.
 
 [Canonical rule →](design-rules/DR-009-state-honesty.md)
 
-## DR-010 — Interactions preserve the working context
+<a id="dr-010--interactions-preserve-the-working-context"></a>
+
+## DR-010 — Rule of Continuity
+
+Interactions preserve the working context.
 
 [Canonical rule →](design-rules/DR-010-context-continuity.md)
 
-## DR-011 — Controls communicate their action and scope
+<a id="dr-011--controls-communicate-their-action-and-scope"></a>
+
+## DR-011 — Rule of Clear Action
+
+Controls communicate their action and scope.
 
 [Canonical rule →](design-rules/DR-011-action-scope.md)
 
-## DR-012 — Safeguards match consequences and preserve work
+<a id="dr-012--safeguards-match-consequences-and-preserve-work"></a>
+
+## DR-012 — Rule of Recovery
+
+Safeguards match consequences and preserve work.
 
 [Canonical rule →](design-rules/DR-012-recovery-safeguards.md)
 
-## DR-013 — Visual emphasis follows the task's priority
+<a id="dr-013--visual-emphasis-follows-the-tasks-priority"></a>
+
+## DR-013 — Rule of Priority
+
+Visual emphasis follows the task's priority.
 
 [Canonical rule →](design-rules/DR-013-task-emphasis.md)
 
-## DR-014 — Essential interactions do not require a pointer
+<a id="dr-014--essential-interactions-do-not-require-a-pointer"></a>
+
+## DR-014 — Rule of Access
+
+Essential interactions do not require a pointer.
 
 [Canonical rule →](design-rules/DR-014-keyboard-access.md)
 
-## DR-015 — Layout survives content variation and text adaptation
+<a id="dr-015--layout-survives-content-variation-and-text-adaptation"></a>
+
+## DR-015 — Rule of Resilience
+
+Layout survives content variation and text adaptation.
 
 [Canonical rule →](design-rules/DR-015-content-resilience.md)
 
-## DR-016 — Color scales match the structure of the data
+<a id="dr-016--color-scales-match-the-structure-of-the-data"></a>
+
+## DR-016 — Rule of Meaningful Color
+
+Color scales match the structure of the data.
 
 [Canonical rule →](design-rules/DR-016-semantic-color.md)
 

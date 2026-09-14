@@ -1,4 +1,6 @@
-# DR-012 — Safeguards match consequences and preserve work
+# DR-012 — Rule of Recovery
+
+**Principle:** Safeguards match consequences and preserve work.
 
 **Requirement:** Match prevention and recovery to the action's consequences.
 Reversible low-risk operations should be easy to undo; consequential submissions

@@ -1,4 +1,6 @@
-# DR-005 — Visual meanings stay consistent
+# DR-005 — Rule of Consistency
+
+**Principle:** Visual meanings stay consistent.
 
 **Requirement:** Within a comparison workspace, the same entity or status must
 retain its color, symbol, and line-style meaning across charts, filters, sorting,

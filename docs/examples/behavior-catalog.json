@@ -5,7 +5,7 @@
   "rules": [
     {
       "id": "DR-009",
-      "title": "State honesty",
+      "title": "Rule of State Honesty",
       "enforcement": "behavioral",
       "task": "Decide whether the shipment count is usable after a refresh fails.",
       "good": "Retain the known snapshot, distinguish its age from the refresh attempt, and explain retry.",
@@ -25,7 +25,7 @@
     },
     {
       "id": "DR-010",
-      "title": "Working-context continuity",
+      "title": "Rule of Continuity",
       "enforcement": "behavioral",
       "task": "Inspect EP 1042, return to the queue, and continue the Seattle comparison.",
       "good": "The filter, selected shipment identity, and invoking control survive the detail round trip.",
@@ -40,7 +40,7 @@
     },
     {
       "id": "DR-011",
-      "title": "Action and scope",
+      "title": "Rule of Clear Action",
       "enforcement": "review",
       "task": "Understand which rates will change before publishing the selected proposal.",
       "good": "The action names the 12 selected lanes; review exposes the effective date and scope before commitment.",
@@ -60,7 +60,7 @@
     },
     {
       "id": "DR-012",
-      "title": "Proportional safeguards and recovery",
+      "title": "Rule of Recovery",
       "enforcement": "behavioral",
       "task": "Correct a rejected 7.5% proposal without losing work; review a valid change and undo it.",
       "good": "Rejection preserves input with specific guidance. A valid proposal is reviewed; Undo restores the previously approved rate.",
@@ -80,7 +80,7 @@
     },
     {
       "id": "DR-013",
-      "title": "Task-aligned emphasis",
+      "title": "Rule of Priority",
       "enforcement": "review",
       "task": "Find the three shipments requiring a response among 1,200 shipments.",
       "good": "The exceptions and response lead; the total remains available but subordinate.",
@@ -99,7 +99,7 @@
     },
     {
       "id": "DR-014",
-      "title": "Keyboard and non-hover access",
+      "title": "Rule of Access",
       "enforcement": "behavioral",
       "task": "Inspect the dwell evidence using only the keyboard.",
       "good": "Tab reaches a native button; Enter reveals evidence; Escape closes it and keeps focus on the trigger.",
@@ -120,7 +120,7 @@
     },
     {
       "id": "DR-015",
-      "title": "Content and text resilience",
+      "title": "Rule of Resilience",
       "enforcement": "automated",
       "task": "Distinguish the North and South services, including with larger text.",
       "good": "The distinguishing suffixes remain visible through wrapping and reflow.",
@@ -140,7 +140,7 @@
     },
     {
       "id": "DR-016",
-      "title": "Data-appropriate color",
+      "title": "Rule of Meaningful Color",
       "enforcement": "review",
       "task": "Identify three unordered carriers while comparing their labeled parcel counts.",
       "good": "Distinct qualitative swatches encode identity; counts and carrier names remain explicit.",

@@ -1,4 +1,6 @@
-# DR-015 — Layout survives content variation and text adaptation
+# DR-015 — Rule of Resilience
+
+**Principle:** Layout survives content variation and text adaptation.
 
 **Requirement:** Validate task-critical content with representative long labels, distinguishing suffixes, numeric extremes, and relevant empty or populated states. Supported text enlargement and spacing changes must not remove essential content or make controls unusable. Preserve meaning rather than merely fitting boxes.
 

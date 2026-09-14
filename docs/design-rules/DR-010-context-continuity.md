@@ -1,4 +1,6 @@
-# DR-010 — Interactions preserve the working context
+# DR-010 — Rule of Continuity
+
+**Principle:** Interactions preserve the working context.
 
 **Requirement:** Opening detail, returning, refreshing, and adapting the layout
 must preserve task-relevant filters, selection identity, entered work, and position
