@@ -30,9 +30,7 @@ export async function readContract(project, globalDir) {
   const policy = await readDesignPolicy();
   const snapshot = {
     config,
-    rules: [...rules].sort((a, b) =>
-      a.id < b.id ? -1 : a.id > b.id ? 1 : 0,
-    ),
+    rules: [...rules].sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0)),
     policySHA256: policy.sha256,
     projectDocuments,
   };
@@ -86,7 +84,9 @@ export async function readContract(project, globalDir) {
     const after = new Map(
       projectDocuments.map((document) => [document.path, document]),
     );
-    for (const file of [...new Set([...before.keys(), ...after.keys()])].sort()) {
+    for (const file of [
+      ...new Set([...before.keys(), ...after.keys()]),
+    ].sort()) {
       const old = before.get(file);
       const current = after.get(file);
       if (old?.sha256 === current?.sha256) continue;
