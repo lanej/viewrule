@@ -22,6 +22,15 @@ export interface Checkpoint {
   name: string;
   setup: string;
 }
+export interface SourceCheckProvider {
+  id: string;
+  command: string[];
+  authority: "advisory" | "blocking";
+  enabled?: boolean;
+  version?: string;
+  cwd?: string;
+  severityMap?: Record<string, "error" | "warning">;
+}
 export interface ProjectConfig {
   version: 1;
   baseURL: string;
@@ -30,6 +39,7 @@ export interface ProjectConfig {
   accessibility: boolean;
   projectDocuments?: string[];
   requiredDesignRules?: string[];
+  sourceChecks?: SourceCheckProvider[];
   storageState?: string;
   timeoutMs?: number;
   detailCapture?: DetailOptions;
@@ -112,6 +122,13 @@ export interface Finding {
   sources?: string[];
   suggestion?: string;
   evidenceKind?: string;
+  sourceCheck?: {
+    provider: string;
+    version: string | null;
+    authority: "advisory" | "blocking";
+    originalSeverity: string;
+    rule: string | null;
+  };
 }
 export type DesignPolicy = Awaited<
   ReturnType<typeof import("./design.mjs").readDesignPolicy>
@@ -146,6 +163,7 @@ export interface ReviewReport {
   status: "pass" | "fail";
   summary: { errors: number; warnings: number };
   pages: PageResult[];
+  sourceChecks?: Awaited<ReturnType<typeof import("./source-checks.mjs").runSourceChecks>>;
   designPolicy: DesignPolicy;
   contract: Awaited<ReturnType<typeof import("./contract.mjs").readContract>>;
 }
