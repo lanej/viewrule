@@ -2,7 +2,15 @@ import { execFile } from "node:child_process";
 import { createHash } from "node:crypto";
 import { createServer } from "node:http";
 import { createRequire } from "node:module";
-import { access, cp, mkdir, readFile, writeFile, rm } from "node:fs/promises";
+import {
+  access,
+  appendFile,
+  cp,
+  mkdir,
+  readFile,
+  writeFile,
+  rm,
+} from "node:fs/promises";
 import path from "node:path";
 import { chromium } from "playwright";
 import { validateConfig, validateRules } from "../src/config.mjs";
@@ -305,6 +313,34 @@ try {
         );
       }
     }
+    // Keep text evidence reviewable even when artifact downloads are unavailable.
+    console.log("BENCHMARK_RESULTS_JSON=" + JSON.stringify(results));
+    const status = (seed, count) =>
+      seed
+        ? count
+          ? "Findings: review required"
+          : "Missed"
+        : count
+          ? "Findings: review required"
+          : "Clean";
+    const summary = [
+      "## Analytical detector benchmark",
+      "",
+      "Authored Viewrule contract versus default Impeccable detectors. Findings require diagnostic review before being scored as detections.",
+      "",
+      "| Case | Viewport | Seed present | Viewrule | Impeccable |",
+      "| --- | --- | --- | --- | --- |",
+      ...results.runs.map(
+        (run) =>
+          `| ${run.case} | ${run.viewport} | ${run.seedPresent ? "Yes" : "No"} | ${status(run.seedPresent, run.viewrule.findings.length)} | ${status(run.seedPresent, run.impeccable.findings.length)} |`,
+      ),
+      "",
+      "Raw diagnostic JSON is in the benchmark step log and results.json artifact. Agent comparison: not run.",
+      "",
+    ].join("\n");
+    await writeFile(path.join(output, "summary.md"), summary);
+    if (process.env.GITHUB_STEP_SUMMARY)
+      await appendFile(process.env.GITHUB_STEP_SUMMARY, summary);
     console.log(
       "Benchmark complete. Review dist/benchmark/results.json and raw reports before scoring unrelated findings.",
     );

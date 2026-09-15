@@ -61,6 +61,7 @@ jobs:
           name: analytical-benchmark
           include-hidden-files: true
           path: |
+            dist/benchmark/summary.md
             dist/benchmark/results.json
             dist/benchmark/*/page.html
             dist/benchmark/*/checkpoint.mjs

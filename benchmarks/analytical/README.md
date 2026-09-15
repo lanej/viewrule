@@ -82,7 +82,14 @@ human reviewers, but a deterministic detector cannot infer every task requiremen
 from it. These conditions test declared enforcement versus generic detection, not
 zero-configuration superiority.
 
+CI also prints the complete result JSON and writes a per-viewport status table to
+the job summary. `Clean` means no diagnostics in an unseeded state; `Missed` means
+no diagnostics in a seeded state. Emitted findings require review before scoring.
+
 ## Agent review and repair trial
+
+The [controlled three-arm protocol](agent-trial.md) includes an unaided baseline,
+isolation, frozen evaluation, and explicit execution prerequisites.
 
 No agent trial has been run. To measure the remaining issue #22 questions, use
 independent clean worktrees and the same pinned model/harness, token budget, task,
