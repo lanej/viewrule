@@ -36,10 +36,9 @@
     "browser:install": "node bin/viewrule.mjs install-browser",
     "lint": "eslint . --max-warnings 0",
     "analyze": "tsc --project tsconfig.json",
-    "check": "npm run format:ci && npm run lint && npm run analyze",
+    "check": "npm run format:check && npm run lint && npm run analyze",
     "format": "prettier --write .",
-    "format:check": "prettier --check .",
-    "format:ci": "prettier --write . && git diff --exit-code"
+    "format:check": "prettier --check ."
   },
   "keywords": [
     "ui",
