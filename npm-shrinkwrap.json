@@ -31,7 +31,8 @@
         "prettier": "3.9.6",
         "react": "19.3.0",
         "react-dom": "19.3.0",
-        "typescript": "7.0.2"
+        "typescript": "7.0.2",
+        "marked": "18.0.13"
       },
       "engines": {
         "node": ">=22"
@@ -2219,6 +2220,19 @@
       },
       "funding": {
         "url": "https://github.com/sponsors/sindresorhus"
+      }
+    },
+    "node_modules/marked": {
+      "version": "18.0.13",
+      "resolved": "https://registry.npmjs.org/marked/-/marked-18.0.13.tgz",
+      "integrity": "sha512-xTxVzZsBFwunP6HDmtBkabUQEYArnP7/rMDGmPj9SlrKlQ4i8MdYVow+nJL0eOqwpUqhzBoTBRADGN6uYwPyOw==",
+      "dev": true,
+      "license": "MIT",
+      "bin": {
+        "marked": "bin/marked.js"
+      },
+      "engines": {
+        "node": ">= 20"
       }
     }
   }

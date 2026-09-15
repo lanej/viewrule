@@ -19,6 +19,8 @@ changing behavior. For code review, read [REVIEW.md](REVIEW.md).
   and independent of Node APIs and module closures.
 - Prefer small changes to the relevant layer. Do not add a hosted service, database,
   model dependency, plugin framework, or automatic source repair without a request.
+- Consult the [guide](plugins/claude-code/guide/v1/index.md) selectively before relevant UI work;
+  follow its authoring contract for guidance changes. Distinguish advice from checks.
 - Use `contract` before UI decisions and `/viewrule:add-rule` for authored boundaries.
   Keep rule/configuration changes visible separately from application repairs.
   React and esbuild belong to development fixtures, not the production engine.

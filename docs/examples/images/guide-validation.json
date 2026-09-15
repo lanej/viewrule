@@ -1,0 +1,109 @@
+{
+  "source": "c443cdf02784340e030765934282809d4b1809f5",
+  "browser": "Chromium 138.0.7204.0",
+  "deviceScaleFactor": 1,
+  "theme": "light",
+  "states": [
+    {
+      "name": "guide-pricing-compact",
+      "url": "/examples/pricing.html?mode=compact&open=A",
+      "width": 1200,
+      "height": 1000,
+      "fullPage": true,
+      "axeViolations": []
+    },
+    {
+      "name": "guide-pricing-sparse",
+      "url": "/examples/pricing.html?mode=sparse",
+      "width": 1200,
+      "height": 1000,
+      "fullPage": true,
+      "axeViolations": null
+    },
+    {
+      "name": "guide-pricing-overloaded",
+      "url": "/examples/pricing.html?mode=overloaded",
+      "width": 1200,
+      "height": 1000,
+      "fullPage": true,
+      "axeViolations": null
+    },
+    {
+      "name": "guide-pricing-table",
+      "url": "/examples/pricing.html?mode=table",
+      "width": 1200,
+      "height": 1000,
+      "fullPage": true,
+      "axeViolations": []
+    },
+    {
+      "name": "guide-pricing-trends",
+      "url": "/examples/pricing.html?mode=trends&task=trend",
+      "width": 1200,
+      "height": 1000,
+      "fullPage": true,
+      "axeViolations": []
+    },
+    {
+      "name": "guide-pricing-audit",
+      "url": "/examples/pricing.html?mode=detail&task=audit",
+      "width": 1200,
+      "height": 1000,
+      "fullPage": true,
+      "axeViolations": []
+    },
+    {
+      "name": "guide-encodings",
+      "url": "/examples/encodings.html",
+      "width": 1200,
+      "height": 1000,
+      "fullPage": true,
+      "axeViolations": []
+    },
+    {
+      "name": "guide-pricing-mobile",
+      "url": "/examples/pricing.html?mode=compact&open=A",
+      "width": 390,
+      "height": 844,
+      "fullPage": true,
+      "axeViolations": []
+    },
+    {
+      "name": "guide-pricing-table-mobile",
+      "url": "/examples/pricing.html?mode=table",
+      "width": 390,
+      "height": 844,
+      "fullPage": true,
+      "axeViolations": []
+    },
+    {
+      "name": "guide-index",
+      "url": "/guide/v1/index.html",
+      "width": 1200,
+      "height": 1000,
+      "fullPage": true,
+      "axeViolations": []
+    },
+    {
+      "name": "guide-action-lists",
+      "url": "/guide/v1/action-lists.html",
+      "width": 1200,
+      "height": 1000,
+      "fullPage": true,
+      "axeViolations": []
+    },
+    {
+      "name": "guide-mobile",
+      "url": "/guide/v1/action-lists.html",
+      "width": 390,
+      "height": 844,
+      "fullPage": true,
+      "axeViolations": []
+    }
+  ],
+  "markdownPages": 15,
+  "localLinks": 94,
+  "javascriptErrors": [],
+  "failedResponses": [],
+  "externalNetwork": "blocked during browser inspection"
+}

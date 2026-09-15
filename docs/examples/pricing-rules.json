@@ -1,0 +1,10 @@
+[
+  {
+    "id": "pricing-labels",
+    "type": "no-clip",
+    "selector": ".pricing-identity",
+    "severity": "error",
+    "designRules": ["DR-006"],
+    "reason": "Keep each proposal's complete lane identity readable. This does not establish decision sufficiency."
+  }
+]

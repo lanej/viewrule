@@ -41,6 +41,12 @@ jobs:
       - name: Check types
         if: ${{ !cancelled() && steps.dependencies.outcome == 'success' }}
         run: npm run analyze
+      - name: Check guide and example sources
+        if: ${{ !cancelled() && steps.dependencies.outcome == 'success' }}
+        run: npm run guide:check
+      - name: Build public site
+        if: ${{ !cancelled() && steps.dependencies.outcome == 'success' }}
+        run: npm run site:build
       - run: node bin/viewrule.mjs install-browser --with-deps
       - run: npm test
         env:
@@ -94,7 +100,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
-      - run: node scripts/site.mjs
+      - run: npm ci
+      - run: npm run site:build
       - uses: actions/configure-pages@v5
         with:
           enablement: true

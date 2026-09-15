@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{{title}} — Viewrule</title>
+    <link rel="stylesheet" href="{{prefix}}/examples/gallery.css" />
+    <link rel="stylesheet" href="{{prefix}}/guide.css" />
+  </head>
+  <body>
+    <a class="skip" href="#content">Skip to guidance</a>
+    <header class="guide-header">
+      <a href="{{prefix}}/index.html">Viewrule</a>
+      <nav aria-label="Documentation">
+        <a href="{{prefix}}/guide/v1/index.html">Guide</a> ·
+        <a href="{{prefix}}/examples/index.html">Examples</a> ·
+        <a href="{{prefix}}/app/">Design lab</a>
+      </nav>
+    </header>
+    <div class="guide-layout">
+      <aside>
+        <p class="eyebrow">START WITH THE TASK</p>
+        <nav aria-label="Design guidance">
+          {{#pages}}<a href="{{href}}" aria-current="{{current}}">{{title}}</a
+          >{{/pages}}
+        </nav>
+        <a href="{{prefix}}/guide/v1/authoring.html">Contribute guidance</a>
+      </aside>
+      <main id="content">
+        <div class="guide-meta">
+          <span>{{id}} · {{kind}} · v{{version}}</span
+          ><a href="{{markdown}}">Read Markdown</a>
+        </div>
+        {{{content}}}
+      </main>
+    </div>
+    <footer class="gallery-notes">
+      Patterns require task judgment. A passing check does not certify a useful
+      design.
+      <a href="{{prefix}}/guide/v1/index.json">Machine-readable index</a>
+    </footer>
+  </body>
+</html>

@@ -6,3 +6,8 @@ npm-shrinkwrap.json
 docs/assets/
 # Keep prose and agent instructions outside the code-formatting pass.
 **/*.md
+
+# Pinned Easy UI output; validate checksums, edit its canonical React source.
+docs/examples/easy-ui/
+docs/examples/pricing.html
+docs/examples/encodings.html

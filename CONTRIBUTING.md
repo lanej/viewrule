@@ -4,6 +4,16 @@ Start with a concrete interface problem, its task, a rejected layout, and an acc
 layout. Explain the relevant DR ID and how the proposed measurement distinguishes
 the two. A new arbitrary score is not enough.
 
+## Guidance and evidence
+
+For advice that cannot be enforced without task judgment, add to the existing
+[guide](plugins/claude-code/guide/v1/index.md). Follow its
+[contract and template](plugins/claude-code/guide/v1/authoring.md): cited evidence,
+explicit applicability/limits, original good and bad examples, and measurable scope.
+`npm run guide:check` validates structure and links; `npm run site:build` renders
+human pages and publishes the same Markdown bytes. Neither verifies evidence quality.
+Keep one corpus and use the existing gallery and installed regression.
+
 ## Development
 
 Use Node 22.13 or newer for development tooling; CI uses the current Node 22 release.

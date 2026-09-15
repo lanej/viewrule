@@ -86,6 +86,26 @@ Rule definitions are data, not executable user JavaScript. Adding a measurement
 means extending its schema, observation/evaluation, policy mapping, and docs in one
 change. Do not add a generic extension API before a concrete integration needs one.
 
+## Versioned design guidance
+
+Canonical Markdown lives in `plugins/claude-code/guide/v1/` so Claude's isolated
+plugin cache has offline guidance before engine setup. The npm package includes
+that same tree and its dependency-free reader. `guide [ID]` runs without a project,
+browser, or configured engine; existing `guidance` retains its preference behavior.
+The index reports stable IDs, summaries, applicability, related rules, and evidence.
+
+The build-only `marked` dependency renders the guide through the existing Mustache
+convention. `scripts/guide.mjs` checks its JSON-frontmatter contract, references, and
+examples before Pages rendering; the exported `.md` pages rewrite body and example-metadata links for direct public retrieval. The build validates their targets and anchors. Local/package Markdown remains canonical.
+Canonical runnable examples live in Easy UI’s existing Storybook/gallery. The maintenance
+command `examples:import` imports a clean commit’s static guide build into the existing
+`docs/examples/` routes, including local fonts and redistribution notices. The guide’s
+`examples.json` records source revision and checksums. Normal checks/builds validate
+the bundled assets offline; the installed workflow verifies client-rendered anchors
+and specific findings. React remains an example build dependency, not a CLI dependency.
+No runtime retrieval service, alternate app, or additional automated design rule is
+introduced. Advice cannot establish which decision factors the task requires.
+
 ## Stored state
 
 | File | Lifecycle |

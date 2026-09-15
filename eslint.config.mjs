@@ -2,7 +2,14 @@ import js from "@eslint/js";
 import globals from "globals";
 
 export default [
-  { ignores: ["node_modules/**", "dist/**", ".ui-review/**"] },
+  {
+    ignores: [
+      "node_modules/**",
+      "dist/**",
+      ".ui-review/**",
+      "docs/examples/easy-ui/**",
+    ],
+  },
   {
     files: ["**/*.mjs", "**/*.jsx", "docs/examples/*.js", "docs/app/*.js"],
     ...js.configs.recommended,

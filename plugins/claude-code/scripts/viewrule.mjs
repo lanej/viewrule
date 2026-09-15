@@ -108,6 +108,10 @@ async function install(root, pin) {
 }
 
 async function main() {
+  if (args[0] === "guide") {
+    const { printGuide } = await import("./guide.mjs");
+    return printGuide(args.slice(1));
+  }
   // Unconfigured projects and hook continuations never require an installed engine.
   let input;
   if (isHook) {

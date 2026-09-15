@@ -42,6 +42,34 @@ Skills are available for Claude to select when relevant; explicit invocation is 
 available. Selection is not guaranteed enforcement. The skills do not preauthorize
 shell commands, change Claude's permissions, or record model self-approval.
 
+## Selective guide access
+
+The review skill consults the bundled [guide](guide/v1/index.md) before relevant
+UI implementation. `node "${CLAUDE_PLUGIN_ROOT}/scripts/viewrule.mjs" guide` returns
+an index; `guide P-003` returns one Markdown page, and `guide E-CARBON` one evidence
+record. These commands work before engine setup and without network access.
+The package also includes this canonical corpus; the new engine source exposes
+`viewrule guide [ID]`. The existing engine release pin is unchanged.
+
+Guide/evidence Markdown is local to the plugin. Gallery examples and measurement
+manuals live in the source/package `docs/` (find an installed package through `docs`)
+or the published site. The current 0.3.1 engine pin predates the new gallery assets;
+use this checkout or Pages for those runnable examples until a later engine release.
+The new guide's written examples and evidence summaries are bundled offline. Public routes are `https://lanej.io/viewrule/guide/v1/index.json` and the linked
+`.md` pages, produced by the existing Pages build. A PR/local build does not mean those
+new routes are deployed. The human pages and raw Markdown come from the same source.
+
+Claude cites guidance ID + corpus version, identifies source type and limits, and
+states missing task assumptions. The guide does not supply automatic approval or
+pretend that essential decision fields can be inferred by geometry. No new agent,
+MCP service, startup corpus injection, or hook installation is introduced.
+
+Integration verified against official [skills](https://code.claude.com/docs/en/skills#add-supporting-files)
+and [plugin reference](https://code.claude.com/docs/en/plugins-reference) documentation
+on 2026-09-13: plugin skills support on-demand resources and `${CLAUDE_PLUGIN_ROOT}`.
+Deterministic tests verify retrieval/packaging; autonomous skill selection and useful
+recommendations still require a real Claude session.
+
 ## Enforcement and existing installs
 
 The bundled Stop hook uses the same pinned engine as the skills. Projects opt in with
