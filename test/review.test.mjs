@@ -1897,7 +1897,7 @@ test(
       <main><div class="item" id="a"></div><div class="item" id="b"></div>
       <div class="item" id="c"></div><div class="item duplicate"></div>
       <div class="item duplicate"></div></main>
-      <style>.item { width:18px; height:30px } #c { width:30px }</style></html>`,
+      <style>.item { width:18px; height:30px; background:#165b41 } #c { width:30px }</style></html>`,
     );
     const checkpointPath = path.join(project, ".ui-review/changes.mjs");
     const checkpointSetup =
@@ -1980,6 +1980,17 @@ test(
     ]);
     assert.equal(changesApproval.code, 0, changesApproval.stderr);
 
+    const unchangedCapture = await cli(["check"]);
+    assert.equal(unchangedCapture.code, 0, unchangedCapture.stderr);
+    const unchangedReport = JSON.parse(
+      await readFile(JSON.parse(unchangedCapture.stdout).report, "utf8"),
+    );
+    assert.ok(
+      unchangedReport.changes.evidence.every(
+        (e) => e.status === "unchanged" && e.regions.length === 0,
+      ),
+    );
+
     await writeFile(
       source,
       (await readFile(source, "utf8")).replace(
@@ -2013,6 +2024,31 @@ test(
     );
     const delta = afterChangesReport.changes;
     assert.equal(delta.baselineId, beforeChangesReport.id);
+    assert.ok(
+      delta.evidence.every((e) => e.status === "changed" && e.regionCount > 0),
+    );
+    const crop = delta.evidence[0].regions[0];
+    assert.ok(crop.changedPixels >= 64);
+    assert.ok(
+      crop.width < 1280 && crop.height < 900,
+      "Localized changes must not produce a whole-page crop",
+    );
+    const evidenceOutput = path.resolve(
+      import.meta.dirname,
+      "../dist/review-evidence",
+    );
+    await mkdir(evidenceOutput, { recursive: true });
+    await cp(
+      path.dirname(afterChangesOutput.report),
+      path.join(evidenceOutput, "changed-regions"),
+      { recursive: true },
+    );
+    const cropBytes = await readFile(
+      path.join(path.dirname(afterChangesOutput.report), crop.after),
+    );
+    assert.equal(cropBytes.readUInt32BE(16), crop.width);
+    assert.equal(cropBytes.readUInt32BE(20), crop.height);
+
     assert.equal(delta.newFindings.length, 2);
     assert.equal(delta.persistentFindings.length, 5);
     assert.equal(delta.resolvedFindings.length, 4);
@@ -2035,6 +2071,8 @@ test(
     assert.equal(delta.contract.documentChanges[0].path, "DESIGN.md");
     const changesHtml = await readFile(afterChangesOutput.html, "utf8");
     assert.match(changesHtml, /4 resolved/);
+    assert.match(changesHtml, /Image evidence since approval/);
+    assert.ok(changesHtml.includes(crop.after));
     assert.match(changesHtml, /reference\/capture-1.png/);
     assert.match(changesHtml, /Keep controls visible and labelled/);
     assert.match(changesHtml, /Still use &lt;theme&gt; tokens/);
@@ -2052,6 +2090,11 @@ test(
       await readFile(JSON.parse(unavailable.stdout).report, "utf8"),
     );
     assert.equal(unavailableReport.changes.baselineId, beforeChangesReport.id);
+    assert.equal(
+      unavailableReport.changes.evidence.find((e) => e.checkpoint === "closed")
+        .status,
+      "not-compared",
+    );
     assert.equal(unavailableReport.changes.notComparedFindings.length, 4);
     assert.ok(
       unavailableReport.changes.notComparedFindings.every(
@@ -2112,13 +2155,110 @@ test(
     assert.equal((await hook()).decision, "block");
 
     await writeFile(diagnosticsPath, "[]");
+    await writeFile(
+      source,
+      (await readFile(source, "utf8")).replace(
+        "</style>",
+        "main { height: 1200px }</style>",
+      ),
+    );
     const cleanProvider = await cli(["check"]);
     assert.equal(cleanProvider.code, 0, cleanProvider.stderr);
     const cleanProviderReport = JSON.parse(
       await readFile(JSON.parse(cleanProvider.stdout).report, "utf8"),
     );
     assert.deepEqual(cleanProviderReport.sourceChecks[0].findings, []);
+    assert.match(
+      cleanProviderReport.changes.evidence.find((e) => e.checkpoint === "open")
+        .reason,
+      /dimensions differ/,
+    );
     assert.deepEqual(await hook(), {});
+
+    // A pinned real Impeccable source scan has different exit codes from generic providers.
+    const impeccablePackage = JSON.parse(
+      await readFile(
+        new URL("../node_modules/impeccable/package.json", import.meta.url),
+        "utf8",
+      ),
+    );
+    assert.equal(impeccablePackage.version, "4.1.0");
+    const providerSource = path.join(project, "src/provider.css");
+    await writeFile(
+      providerSource,
+      "body { font-family: Inter, sans-serif; }\n",
+    );
+    const impeccableProvider = {
+      id: "impeccable",
+      format: "impeccable",
+      version: impeccablePackage.version,
+      authority: "advisory",
+      command: [
+        process.execPath,
+        path.resolve(
+          import.meta.dirname,
+          "../node_modules/impeccable/cli/bin/cli.js",
+        ),
+        "detect",
+        "--json",
+        "--no-config",
+        "src/provider.css",
+      ],
+      severityMap: { warning: "error" },
+    };
+    changeConfig.sourceChecks = [impeccableProvider];
+    await writeFile(
+      path.join(project, ".ui-review/config.json"),
+      JSON.stringify(changeConfig),
+    );
+    const advisoryScan = await cli(["check"]);
+    assert.equal(advisoryScan.code, 0, advisoryScan.stderr);
+    const advisoryReport = JSON.parse(
+      await readFile(JSON.parse(advisoryScan.stdout).report, "utf8"),
+    );
+    const realProvider = advisoryReport.sourceChecks[0];
+    assert.equal(realProvider.execution.code, 2);
+    assert.equal(
+      JSON.parse(realProvider.execution.stdout)[0].antipattern,
+      "overused-font",
+    );
+    assert.equal(realProvider.provider.version, "4.1.0");
+    await writeFile(
+      path.join(evidenceOutput, "impeccable-source.json"),
+      JSON.stringify(realProvider, null, 2) + "\n",
+    );
+    assert.equal(
+      realProvider.findings[0].rule,
+      "source:impeccable:overused-font",
+    );
+    assert.match(realProvider.findings[0].selector, /provider\.css:1$/);
+    assert.equal(
+      advisoryReport.summary.errors,
+      0,
+      "Advisory authority does not block even with an error mapping",
+    );
+    impeccableProvider.authority = "blocking";
+    await writeFile(
+      path.join(project, ".ui-review/config.json"),
+      JSON.stringify(changeConfig),
+    );
+    const rejectedSource = await cli(["check"]);
+    assert.equal(rejectedSource.code, 1, rejectedSource.stderr);
+    assert.equal((await hook()).decision, "block");
+    await writeFile(providerSource, "body { font-family: Georgia, serif; }\n");
+    const acceptedSource = await cli(["check"]);
+    assert.equal(acceptedSource.code, 0, acceptedSource.stderr);
+    const acceptedSourceReport = JSON.parse(
+      await readFile(JSON.parse(acceptedSource.stdout).report, "utf8"),
+    );
+    assert.equal(acceptedSourceReport.sourceChecks[0].execution.code, 0);
+    assert.deepEqual(acceptedSourceReport.sourceChecks[0].findings, []);
+    assert.deepEqual(await hook(), {});
+    await rm(providerSource);
+    const failedSource = await cli(["check"]);
+    assert.equal(failedSource.code, 2, failedSource.stdout);
+    assert.match(failedSource.stderr, /provider impeccable failed with exit 1/);
+    assert.equal((await hook()).decision, "block");
 
     // One rejected/passing chart boundary pair through the installed CLI.
     await writeFile(

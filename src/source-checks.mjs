@@ -48,6 +48,27 @@ function normalizeFinding(provider, raw, severityMap) {
   };
 }
 
+function impeccableFinding(raw) {
+  if (
+    !raw ||
+    typeof raw.antipattern !== "string" ||
+    typeof raw.description !== "string"
+  )
+    throw new Error(
+      "Impeccable returned a finding without antipattern/description",
+    );
+  return {
+    rule: raw.antipattern,
+    severity: raw.severity,
+    message: raw.name || raw.antipattern,
+    reason: raw.description,
+    file: raw.file,
+    line: raw.line,
+    column: raw.column,
+    actual: raw.snippet,
+  };
+}
+
 /** Run configured source-check adapters. Providers are commands that emit JSON to stdout:
  * either an array of findings or { findings: [...] }. Exit 0 and 1 are accepted so
  * linters may use exit 1 to signal findings; empty/malformed output and provider
@@ -67,7 +88,8 @@ export async function runSourceChecks(project, providers) {
       env: { ...process.env, VIEWRULE_SOURCE_CHECK: provider.id },
       stdio: ["ignore", "pipe", "pipe"],
     });
-    if (![0, 1].includes(execution.code))
+    const impeccable = provider.format === "impeccable";
+    if (!(impeccable ? [0, 2] : [0, 1]).includes(execution.code))
       throw new Error(
         `Source-check provider ${provider.id} failed with exit ${execution.code}: ${execution.stderr.trim()}`,
       );
@@ -86,7 +108,9 @@ export async function runSourceChecks(project, providers) {
         },
       );
     }
-    const findings = Array.isArray(parsed) ? parsed : parsed.findings;
+    const findings = Array.isArray(parsed)
+      ? parsed
+      : !impeccable && parsed?.findings;
     if (!Array.isArray(findings))
       throw new Error(
         `Source-check provider ${provider.id} must return an array or { findings: [] }`,
@@ -97,9 +121,16 @@ export async function runSourceChecks(project, providers) {
         version: provider.version ?? null,
         authority: provider.authority,
         command: provider.command,
+        cwd: provider.cwd ?? ".",
+        format: provider.format ?? "viewrule",
       },
+      execution,
       findings: findings.map((finding) =>
-        normalizeFinding(provider, finding, provider.severityMap ?? {}),
+        normalizeFinding(
+          provider,
+          impeccable ? impeccableFinding(finding) : finding,
+          provider.severityMap ?? {},
+        ),
       ),
     });
   }

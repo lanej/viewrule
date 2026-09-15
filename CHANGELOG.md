@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Integrate pinned Impeccable source scans with their native findings and exit
+  codes, preserving raw diagnostics and advisory/blocking authority.
+- Compare compatible approved/current captures with bounded, original-resolution
+  region crops. Missing or incompatible evidence remains explicitly not compared;
+  pixel changes never create violations or approve a design.
+
 - Add a versioned, cited design guide shared by Claude Code, the npm archive, and
   Pages, with selective offline retrieval and a lightweight authoring contract.
 - Extend the existing gallery with synthetic pricing/action-list and encoding

@@ -131,6 +131,15 @@ export function renderReport(report, preferences, reference) {
       ...report,
       contract,
       captureCount: report.pages.length,
+      evidenceChanges:
+        changes?.evidence?.map((entry) => ({
+          ...entry,
+          state: stateName(entry),
+        })) ?? [],
+      hasEvidenceChanges: Boolean(changes?.evidence?.length),
+      changedCaptureCount:
+        changes?.evidence?.filter((entry) => entry.status === "changed")
+          .length ?? 0,
       hasChangeBaseline: changes?.comparison === "available",
       noChangeBaseline: changes?.comparison !== "available",
       newFindingCount: changes?.newFindings.length ?? 0,

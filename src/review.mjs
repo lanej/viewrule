@@ -18,6 +18,7 @@ import { defaultPreferences } from "./presets.mjs";
 import { runCheckpoint } from "./checkpoints.mjs";
 import { runSourceChecks } from "./source-checks.mjs";
 import { classifyChanges } from "./changes.mjs";
+import { compareEvidence } from "./evidence-changes.mjs";
 
 /** @param {string} project @param {string} globalDir */
 export async function runReview(project, globalDir) {
@@ -65,6 +66,7 @@ export async function runReview(project, globalDir) {
         process.env.UI_REVIEW_BROWSER_PATH ||
         undefined,
     });
+    report.browserVersion = browser.version();
     for (const pageConfig of config.pages) {
       for (const viewport of config.viewports) {
         if (
@@ -257,13 +259,23 @@ export async function runReview(project, globalDir) {
       if (p.screenshot) {
         if (!/^capture-\d+\.png$/.test(p.screenshot))
           throw new Error("Invalid reference screenshot path");
-        await copyFile(
-          path.join(refDir, p.screenshot),
-          path.join(dir, "reference", p.screenshot),
-        );
+        try {
+          await copyFile(
+            path.join(refDir, p.screenshot),
+            path.join(dir, "reference", p.screenshot),
+          );
+        } catch (error) {
+          if (error.code !== "ENOENT") throw error;
+          p.screenshot = null;
+        }
       }
   }
   report.changes = classifyChanges(report, reference?.report);
+  report.changes.evidence = await compareEvidence(
+    report,
+    reference?.report,
+    dir,
+  );
   const preferences = [
     ...(await defaultPreferences()),
     ...(await readJSON(path.join(globalDir, "preferences.json"), [])),

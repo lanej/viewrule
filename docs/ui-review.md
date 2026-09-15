@@ -50,6 +50,13 @@ findings with exit 1. A clean scan must explicitly emit an empty array. Empty,
 whitespace-only, or malformed output fails review with setup exit code 2 and keeps
 the opted-in Stop hook blocked; it cannot resolve previously reported findings.
 
+Use `format: "impeccable"` for the pinned Impeccable source detector. Its exit
+codes are different: 0 means no primary findings, 2 means primary findings, and
+1 means an incomplete or failed scan. See [the working integration](impeccable.md).
+Provider results preserve exact stdout, stderr, exit code, configured version,
+command, format, and working directory alongside normalized findings. Version is
+configuration provenance; Viewrule does not install or update the provider.
+
 ### Changes since approval
 
 HTML and JSON lead with new, persistent, and resolved findings relative to the
@@ -73,7 +80,24 @@ caused them. Approval never waives automated failures.
 `changes.contract` compares requirements and project documents with the approved
 snapshot. HTML uses that same baseline; the existing top-level `contract` comparison
 still refers to the previous completed run. Before/after screenshots remain available
-as evidence. Automatic detection of materially changed image regions is not implemented.
+as evidence. `changes.evidence` classifies compatible captures as `changed` or
+`unchanged` and other states as `not-compared`, with reasons. HTML provides matching
+before/after crops at their original resolution. Changed pixels never alter findings,
+review status, or approval.
+
+Comparison requires matching page/checkpoint/viewport, URL, readiness, media,
+text scale, checkpoint setup path, recorded browser version, complete scale-1 captures,
+and equal PNG dimensions. Missing files, older reports without browser provenance,
+failed captures, and oversized images remain explicitly unassessed. Images are never
+rescaled or aligned. Layout shifts may affect many regions; timestamps and animations
+that remain visible can still produce differences.
+
+The versioned method records a 24-level RGB threshold after alpha compositing over
+white, 32-pixel cells containing at least four changed pixels, and connected regions
+containing at least 64 changed pixels. Eight pixels of context surround each crop.
+At most 32 regions are exported, largest first; omitted counts remain explicit.
+Captures above 24 million pixels or 32 MiB encoded size are not compared. `unchanged`
+means no region exceeded these noise thresholds, not byte identity or design approval.
 
 ## Author rules and inspect the contract
 
