@@ -14,3 +14,8 @@ comparisons.
 preserving the mapping and an identifiable label or other distinguishing mark.
 An explicitly different encoding, such as coloring carriers by risk instead of
 identity, must be explained where that encoding is used.
+
+**Discovery application:** When a subject mark identifies an entity in a list,
+carry that meaning into its detail view. Require the mark in each relevant
+component and compare actual visual evidence; matching identity labels alone
+cannot establish matching artwork. Scope intentional theme or encoding changes.

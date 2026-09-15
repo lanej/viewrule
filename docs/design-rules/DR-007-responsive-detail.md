@@ -33,3 +33,8 @@ marks. Compact the supporting context, not the type. Reuse `region-density` on s
 text regions as a geometry proxy; a large map box is not evidence of semantic density.
 Declared repeated metrics and scalar container heights can supply additional partial
 checks. [Expanded decision-surface reference](https://github.com/lanej/viewrule/blob/main/docs/design-examples.md#expanded-analytical-decision-surface).
+
+**Discovery application:** Reduce redundant spacing before reducing readable
+type. Bound the gap between a heading and its description without fixing the
+item height; let wrapped titles and enlarged text use the space they need.
+Exact type scales, icon sizes, gaps, and column choices remain project decisions.

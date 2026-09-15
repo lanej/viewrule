@@ -18,8 +18,8 @@ why controls/prose use warnings and numeric alignment uses explicit annotations.
 | [DR-002](design-rules.md#dr-002--visual-magnitude-reflects-numerical-magnitude) — Proportional magnitude | `attribute` checks explicit baseline, area-encoding, or projection declarations. | Actual mark-to-value proportionality requires the renderer and data; generic DOM checks do not measure canvas marks or validate the underlying quantities. |
 | [DR-003](design-rules.md#dr-003--quantities-carry-the-context-needed-to-interpret-them) — Context | `context` requires visible, nonempty labels within the declared component or shared group. | The source, denominator, period, and baseline must actually describe the data. |
 | [DR-004](design-rules.md#dr-004--missing-and-estimated-values-remain-distinguishable) — Missing/estimated values | `context` can require labels on elements the app identifies as estimates, forecasts, or missing values. | Detection of null-to-zero coercion, undeclared interpolation, or fabricated uncertainty requires data integration. |
-| [DR-005](design-rules.md#dr-005--visual-meanings-stay-consistent) — Consistent meanings | `consistent` compares computed colors/styles and declared symbols by stable identity, within the same page and across viewports. | The identity and semantics must be correct. Theme and interaction-state comparisons are not implemented. |
-| [DR-006](design-rules.md#dr-006--related-evidence-stays-visible-together) — Simultaneous comparison | `comparison-set`, alignment, overlap, clipping, visible-count, and declared `evidence-proximity` text-distance checks. | Decide which alternatives and relationships matter; geometry alone cannot select the task. |
+| [DR-005](design-rules.md#dr-005--visual-meanings-stay-consistent) — Consistent meanings | `consistent` compares computed colors/styles and declared symbols by stable identity; optionally compares inline SVG structure and identities across pages. | Identity and semantics must be correct. SVG structure is not painted equivalence; scope themes and interaction states explicitly. |
+| [DR-006](design-rules.md#dr-006--related-evidence-stays-visible-together) — Simultaneous comparison | `comparison-set`, alignment, overlap, clipping, visible-count, declared `evidence-proximity`, per-component `required-elements` and `relative-position` checks. | Decide which alternatives and relationships matter; geometry alone cannot select the task. |
 | [DR-007](design-rules.md#dr-007--larger-screens-expose-useful-detail-and-preserve-legibility) — Larger screens | `comparison-set` preserves identities, requires configured counts and readable type, plus density and full-resolution capture checks. | Useful additional information and comfortable reading still require visual review. |
 | [DR-008](design-rules.md#dr-008--decoration-earns-its-space-and-visual-weight) — Decoration | Scoped `max-height` (including declared scalar context), `style`, and `repeated-metric` identity-count checks can limit known sources of clutter. | Whether a boundary, label, or control earns its place is a design judgment; start these checks as warnings. |
 | [DR-009](design-rules.md#dr-009--system-status-reflects-the-available-evidence) — State honesty | Scoped `context` checks can require visible state, as-of, and refresh labels in controlled fixture states. | Truth against server responses, completion, freshness, and status announcements need integration and interaction review. |
@@ -166,6 +166,12 @@ missing pair or stacked layout cannot masquerade as a passing proximity check.
 The measurement uses actual text bounds rather than cell widths: widening a table
 can increase the measured gap while preserving the same comparison count.
 Neither check establishes semantic relevance or every form of clipping/occlusion.
+
+[Component relationships](component-relationships.md) extend these checks to
+text-free graphics and peer positioning. They preserve each component's required
+parts and bounded spacing without prescribing grid/flex CSS or universal density.
+Optional `consistent` settings compare SVG structure and shared identities across
+selected pages; existing page-local behavior remains the default.
 
 ## Enforcement and repair
 
