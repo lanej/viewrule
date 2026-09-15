@@ -5,9 +5,10 @@ Viewrule delegates general source diagnostics to **Impeccable CLI 4.1.0 / engine
 requirements, rendered measurements, state/viewport comparisons, and evidence.
 The detector runs without an agent, model API, or browser for local source targets.
 
-This built-in integration and `lint` command are unreleased. From a source checkout,
-run `npm ci`, then `node bin/viewrule.mjs lint --project /path/to/app --target src`.
-The published 0.5.1 engine supports the manual command adapter described below.
+The Impeccable adapter, built-in integration, and `lint` command are unreleased.
+From a source checkout, run `npm ci`, then
+`node bin/viewrule.mjs lint --project /path/to/app --target src`.
+The published 0.5.1 engine predates the Impeccable-specific adapter as well as `lint`.
 
 ## Quick checks
 
@@ -71,7 +72,7 @@ so calibrate its scope first. Font popularity is an opinion, not a universal def
 
 ## Existing command adapters
 
-Existing configurations with `command` remain supported. They resolve the executable
+Development configurations with `command` remain supported. They resolve the executable
 specified by the application and are not the bundled-provider path. For example,
 an application that separately pins `impeccable@4.1.0` may retain:
 

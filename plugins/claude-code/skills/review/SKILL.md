@@ -12,8 +12,9 @@ report its findings and source-only coverage; no guide-reading or full visual
 critique is needed for that task. A clean source scan does not assess application
 rules or satisfy the Stop hook. Use the rendered workflow below when the request
 includes layout, interaction, comparison requirements, or visual review. Engines
-without `lint` predate the bundled integration; state that limitation and consult
-their installed `docs/impeccable.md` for the existing command adapter. Do not
+without `lint` predate the bundled integration; state that limitation and use only
+capabilities present in their installed help and documentation. The published
+0.5.1 engine also predates the Impeccable-specific command adapter. Do not
 install or download a newer engine during a check or Stop hook.
 
 Before relevant UI work, run `guide` for a compact index, then `guide <ID>` for only
