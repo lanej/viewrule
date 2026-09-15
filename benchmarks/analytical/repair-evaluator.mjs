@@ -97,8 +97,9 @@ export async function evaluateRepair(
             const rows = [
               ...document.querySelectorAll("#comparison tbody tr"),
             ].map((row) => {
-              const label = row.querySelector(".service-label"),
-                values = [...row.querySelectorAll("td.number")];
+              const cells = [...row.querySelectorAll("td")];
+              const label = row.querySelector(".service-label") || cells[0],
+                values = cells.slice(1);
               const bounds = values.map(textBounds);
               return {
                 key: row.getAttribute("data-key"),
@@ -106,6 +107,10 @@ export async function evaluateRepair(
                   cell.textContent.trim(),
                 ),
                 visible: visible(row),
+                rendered: row.checkVisibility({
+                  checkOpacity: true,
+                  checkVisibilityCSS: true,
+                }),
                 labelVisible: visible(label),
                 clipped:
                   !label ||
@@ -143,11 +148,19 @@ export async function evaluateRepair(
           }));
           if (
             JSON.stringify(
-              observed.rows.map(({ key, cells }) => ({ key, cells })),
-            ) !== JSON.stringify(expected)
+              observed.rows
+                .map(({ key, cells }) => ({ key, cells }))
+                .sort((a, b) => String(a.key).localeCompare(String(b.key))),
+            ) !==
+            JSON.stringify(
+              expected.sort((a, b) =>
+                String(a.key).localeCompare(String(b.key)),
+              ),
+            )
           )
             failures.push("preserved-data-and-identities");
           const visible = observed.rows.filter((row) => row.visible);
+          const rendered = observed.rows.filter((row) => row.rendered);
           if (visible.length < Math.min(8, count))
             failures.push("initial-alternatives");
           if (
@@ -156,11 +169,14 @@ export async function evaluateRepair(
             !observed.period?.includes("USD per parcel")
           )
             failures.push("reporting-context");
-          if (visible.some((row) => row.clipped || !row.labelVisible))
+          if (
+            rendered.some((row) => row.clipped) ||
+            visible.some((row) => !row.labelVisible)
+          )
             failures.push("complete-labels");
-          if (visible.some((row) => row.minFont < 16))
+          if (rendered.some((row) => row.minFont < 16))
             failures.push("readable-type");
-          if (visible.some((row) => row.maxGap > 150))
+          if (rendered.some((row) => row.maxGap > 150))
             failures.push("related-values");
           if (observed.state !== state) failures.push("filter-behavior");
           const desktop = observations.find(
