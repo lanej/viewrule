@@ -1,0 +1,1 @@
+Viewrule intentionally reuses Playwright rather than defining a second interaction language. Application teams can use the same selectors and interaction patterns they already use in browser tests while Viewrule remains focused on design contracts, measurement, and evidence.
