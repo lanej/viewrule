@@ -1,7 +1,16 @@
 # Changelog
 
-## Unreleased
+## 0.5.0 — 2026-09-15
 
+- Load and snapshot project design/style documents with scoped source citations
+  and contract-change reporting.
+- Add reusable page interaction checkpoints and advisory/blocking source-check
+  adapters; keep missing evidence and failed setup explicit.
+- Compare reports against approved reviews with change-oriented findings and
+  explicit unassessed or incomparable evidence.
+- Add the synthetic analytical detector benchmark, pinned development-only
+  Impeccable comparison, and reproducible per-viewport diagnostic evidence.
+  Detector outcomes do not establish general superiority or agent repair ability.
 - Add entirely synthetic good/bad operations decision surfaces with a large
   schematic map, cited rationale, machine-readable rules/catalog, and native-scale
   captures. The installed regression rejects the bad layout and accepts the good
@@ -10,6 +19,13 @@
   checks with explicit missing/unassessed evidence. Reuse `region-density` and
   `max-height` for summary utilization and declared scalar context. Semantic density,
   redundancy judgments, complex map paint, and recommendation quality remain review.
+
+- Record a single-agent operations repair trial: all eight frozen checks pass
+  while independent verification preserves data, type sizes, map detail, and actions.
+  This is separate from the unrun controlled three-arm benchmark.
+- Clarify browser setup failures: install Chromium for a missing executable;
+  diagnose launch permissions when the browser is already installed.
+- Refresh the Claude plugin to the checksummed 0.5.0 engine archive.
 
 Compatibility: existing schema versions, presets, and enforcement modes remain
 unchanged. The updated DR-006/007/008/016 guidance changes the policy hash; rerun

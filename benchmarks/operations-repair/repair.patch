@@ -1,0 +1,126 @@
+--- a/src/index.html
++++ b/src/index.html
+@@ -30,13 +30,6 @@
+             </summary>
+             <div class="expanded">
+               <section class="outcome" aria-label="Observation summary">
+-                <div class="repeated-summary">
+-                  <span class="metric" data-metric="readiness"
+-                    ><span>Readiness index</span><strong>67.4 pts</strong></span
+-                  ><span class="metric" data-metric="observations"
+-                    ><span>Observations</span><strong>317</strong></span
+-                  >
+-                </div>
+                 <div class="outcome-labels">
+                   <span>Stable <strong>203</strong></span
+                   ><span>Review <strong>114</strong></span>
+@@ -155,22 +148,22 @@
+                       observation.
+                     </p>
+                   </section>
++                  <section class="recommendation">
++                    <h3>Recommendation</h3>
++                    <p class="decision-text">
++                      Review the coverage gaps around Nacre Hollow before extending
++                      the next activity cycle.
++                    </p>
++                    <div class="action-row">
++                      <strong>Next step: review six facilities</strong
++                      ><button type="button">Prepare coverage review</button>
++                    </div>
++                    <p class="action-status" role="status">
++                      Illustrative planning only.
++                    </p>
++                  </section>
+                 </div>
+               </div>
+-              <section class="recommendation">
+-                <h3>Recommendation</h3>
+-                <p class="decision-text">
+-                  Review the coverage gaps around Nacre Hollow before extending
+-                  the next activity cycle.
+-                </p>
+-                <div class="action-row">
+-                  <strong>Next step: review six facilities</strong
+-                  ><button type="button">Prepare coverage review</button>
+-                </div>
+-                <p class="action-status" role="status">
+-                  Illustrative planning only.
+-                </p>
+-              </section>
+             </div>
+           </details>
+         </article>
+--- a/src/app.css
++++ b/src/app.css
+@@ -282,16 +282,19 @@
+   outline-offset: 3px;
+ }
+ .workspace .outcome {
+-  min-height: 218px;
+-  border: 1px solid #bccdc2;
+-  padding: 26px 22px;
+-  margin-bottom: 20px;
+-}
+-.repeated-summary {
+-  display: flex;
+-  justify-content: space-between;
+-  margin-bottom: 64px;
++  display: flex;
++  align-items: center;
++  gap: 24px;
++  padding: 0;
++  margin-bottom: 16px;
+ }
++.workspace .outcome-labels {
++  gap: 24px;
++}
++.workspace .outcome-track {
++  flex: 1;
++  margin-top: 0;
++}
+ [hidden] {
+   display: none !important;
+ }
+@@ -303,20 +306,21 @@
+   height: 470px;
+ }
+ .workspace .facility {
+-  background: #a5b9ad;
++  background: #163f34;
+ }
+ .workspace .context {
+-  display: block;
+-  padding-bottom: 20px;
++  display: flex;
++  padding-bottom: 16px;
+ }
+ .workspace .scalar {
+-  height: 112px;
+-  padding: 15px 0;
++  flex: 1;
++  height: 40px;
++  padding: 0;
+ }
+ .workspace .scalar-track {
+   display: block;
+-  margin-top: 18px;
+-  height: 12px;
++  margin-top: 8px;
++  height: 6px;
+   background: #e3ebe5;
+   border-radius: 6px;
+   overflow: hidden;
+@@ -333,10 +337,8 @@
+   width: calc(7 / 19 * 100%);
+ }
+ .workspace .recommendation {
+-  margin-top: 190px;
+-  padding: 32px;
+-  min-height: 224px;
+-  border: 1px solid #bccdc2;
++  margin-top: 16px;
++  padding-top: 14px;
+ }
+ .explanation {
+   border-top: 1px solid #bccdc2;
