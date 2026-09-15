@@ -118,6 +118,10 @@ const common = {
   sources: names,
 };
 const types = {
+  "within-bounds": {
+    container: text,
+    tolerance: { type: "number", minimum: 0, maximum: 4 },
+  },
   "reading-column": {
     container: text,
     maxWidth: { type: "number", exclusiveMinimum: 0 },

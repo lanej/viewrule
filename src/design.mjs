@@ -11,6 +11,7 @@ export const policyPaths = Object.freeze(
   designRuleRegistry.map(({ file }) => path.join(policyDirectory, file)),
 );
 const defaults = {
+  "within-bounds": ["DR-006", "DR-007"],
   "reading-column": ["DR-006", "DR-007"],
   "vertical-order": ["DR-006", "DR-007"],
   align: ["DR-006"],
@@ -30,6 +31,8 @@ const defaults = {
   "max-text-gap": ["DR-006", "DR-007"],
 };
 const advice = {
+  "within-bounds":
+    "Reflow or resize the content and its declared container so labels remain inside the visible region. Preserve readable text and exact values.",
   "reading-column":
     "Center the declared content within its container and restore its bounded reading measure. Preserve readable type and use responsive gutters below the cap.",
   "vertical-order":
