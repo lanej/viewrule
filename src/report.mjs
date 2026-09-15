@@ -1,5 +1,6 @@
 import { readFileSync } from "node:fs";
 import Mustache from "mustache";
+import { documentSource } from "./project-documents.mjs";
 
 /** @param {string} name */
 const template = (name) =>
@@ -7,6 +8,7 @@ const template = (name) =>
 const reportTemplate = template("report");
 const pageTemplate = template("page");
 const policyTemplate = template("design-rules");
+const documentsTemplate = template("project-documents");
 
 /** @param {import("./types.js").DesignPolicy} policy */
 export function renderDesignPolicy(policy) {
@@ -20,9 +22,27 @@ export function renderDesignPolicy(policy) {
   return Mustache.render(policyTemplate, { ...policy, rules });
 }
 
+/** Preserve literal source text. Markdown, HTML, and YAML are never executed.
+ * @param {import("./types.js").ProjectDocument[]} documents */
+export function renderProjectDocuments(documents) {
+  return Mustache.render(documentsTemplate, {
+    hasDocuments: documents.length > 0,
+    documents: documents.map((document, index) => ({
+      ...document,
+      anchor: `document-${index + 1}`,
+      lines: document.content.split(/\r?\n/).map((text, line) => ({
+        text,
+        number: line + 1,
+        id: `document-${index + 1}-L${line + 1}`,
+      })),
+    })),
+  });
+}
+
 /** @param {import("./types.js").PageResult} page
- * @param {import("./types.js").Reference} [reference] */
-function pageView(page, reference) {
+ * @param {import("./types.js").Reference} reference
+ * @param {import("./types.js").ProjectDocument[]} documents */
+function pageView(page, reference, documents) {
   const approved = reference?.report.pages.find(
     (candidate) =>
       candidate.name === page.name &&
@@ -58,6 +78,9 @@ function pageView(page, reference) {
         id,
         separator: index < ids.length - 1 ? ", " : "",
       })),
+      sourceCitations: (finding.sources ?? []).map((source) =>
+        documentSource(source, documents),
+      ),
       evidence: JSON.stringify({
         actual: finding.actual,
         expected: finding.expected,
@@ -70,6 +93,7 @@ function pageView(page, reference) {
  * @param {(string | { note: string })[]} preferences
  * @param {import("./types.js").Reference} [reference] */
 export function renderReport(report, preferences, reference) {
+  const documents = report.contract?.projectDocuments ?? [];
   return Mustache.render(
     reportTemplate,
     {
@@ -86,12 +110,20 @@ export function renderReport(report, preferences, reference) {
       configurationChangeJSON: report.contract?.configurationChange
         ? JSON.stringify(report.contract.configurationChange)
         : "",
-
+      hasProjectDocuments: documents.length > 0,
+      projectDocuments: documents.map((document, index) => ({
+        ...document,
+        href: `project-documents.html#document-${index + 1}`,
+      })),
+      documentBaselineUnavailable:
+        report.contract?.documentComparison === "unavailable",
+      documentChanges: report.contract?.documentChanges ?? [],
+      hasDocumentChanges: Boolean(report.contract?.documentChanges?.length),
       hasPreferences: preferences.length > 0,
       preferences: preferences.map((entry) =>
         typeof entry === "string" ? entry : entry.note,
       ),
-      pages: report.pages.map((page) => pageView(page, reference)),
+      pages: report.pages.map((page) => pageView(page, reference, documents)),
     },
     { page: pageTemplate },
   );

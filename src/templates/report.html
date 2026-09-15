@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>UI review</title>
     <style>
       body {
@@ -98,12 +98,23 @@
         do not certify that a chart renders its data faithfully. Inspect the
         detail images and review unassessed requirements.
       </p>
-      {{#hasContract}}
+      {{#hasProjectDocuments}}
+      <p>
+        <a href="project-documents.html">Project design and style sources</a>
+        are preserved with this report. Prose is guidance, not an executed
+        check.
+      </p>
+      {{/hasProjectDocuments}} {{#hasDocumentChanges}}
+      <p>
+        <strong>Project design/style sources changed.</strong>
+        Review the document changes separately from application repairs below.
+      </p>
+      {{/hasDocumentChanges}} {{#hasContract}}
       <details>
         <summary>Design contract and changes</summary>
         <p>
           Contract SHA-256: <code>{{contract.hash}}</code>. This identifies the
-          configured boundaries, not overall design quality.
+          configured boundaries and project sources, not overall design quality.
         </p>
         {{#contractBaselineAvailable}}
         <p>
@@ -139,10 +150,42 @@
         <pre>{{configurationChangeJSON}}</pre>
         {{/configurationChangeJSON}} {{#contract.policyChanged}}
         <p>The design-policy document changed.</p>
-        {{/contract.policyChanged}}
+        {{/contract.policyChanged}} {{#hasProjectDocuments}}
+        <h3>Project sources used</h3>
+        <ul>
+          {{#projectDocuments}}
+          <li>
+            <a href="{{href}}">{{path}}</a> · {{role}} ·
+            <code>{{sha256}}</code>
+          </li>
+          {{/projectDocuments}}
+        </ul>
+        {{/hasProjectDocuments}} {{#documentBaselineUnavailable}}
         <p>
-          The JSON report contains the full effective configuration and rule
-          snapshot. A passing run does not approve a change to these boundaries.
+          The previous report did not snapshot project documents. Their prior
+          contents are unknown; no document change history is inferred.
+        </p>
+        {{/documentBaselineUnavailable}} {{#hasDocumentChanges}}
+        <h3>Project document changes</h3>
+        {{#documentChanges}}
+        <details>
+          <summary>{{path}} · {{kind}}</summary>
+          <div class="compare">
+            <div>
+              <h4>Before</h4>
+              <pre>{{before}}</pre>
+            </div>
+            <div>
+              <h4>After</h4>
+              <pre>{{after}}</pre>
+            </div>
+          </div>
+        </details>
+        {{/documentChanges}} {{/hasDocumentChanges}}
+        <p>
+          The JSON report contains the full effective configuration, rules, and
+          project source snapshots. A passing run does not approve a change to
+          these boundaries or establish compliance with all their prose.
         </p>
       </details>
       {{/hasContract}} {{#hasPreferences}}

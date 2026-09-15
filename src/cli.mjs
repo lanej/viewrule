@@ -1,10 +1,11 @@
 #!/usr/bin/env node
 import { globalConfigDir } from "./paths.mjs";
 import { parseArgs } from "node:util";
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { readJSON, validateConfig, ruleSchema } from "./config.mjs";
 import { readContract } from "./contract.mjs";
+import { readProjectDocuments } from "./project-documents.mjs";
 import { runReview } from "./review.mjs";
 import { defaultPreferences, presetRules } from "./presets.mjs";
 import {
@@ -18,10 +19,11 @@ import {
 const help = `viewrule — rendered UI checks and a versioned design feedback loop
 
   install-browser [--with-deps]       Install the pinned Chromium browser
-  init --url http://localhost:3000 [--preset baseline|analytical]
+  init --url http://localhost:3000 [--preset baseline|analytical] [--documents]
                                        Create config and editable starter rules (never overwrite)
+                                       --documents also creates missing DESIGN.md and STYLE.md scaffolds
   preset --name baseline|analytical     Print starter rules for review or adaptation
-  contract                             Print effective constraints and changes since the previous report
+  contract                             Print effective constraints, project documents, and changes
   schema [--type TYPE]                  Print the installed rule schema for authoring
   add-rule --rule FILE [--dry-run]      Validate and add a project rule; never replace an existing ID
   check                                Capture pages, check rules, write HTML + JSON
@@ -29,15 +31,15 @@ const help = `viewrule — rendered UI checks and a versioned design feedback lo
                                        Save feedback; approval preserves screenshots
   learn --feedback ID --rule FILE [--scope project|global]
                                        Convert recorded feedback into a JSON rule
-  guidance                             Print built-in guidance, personal preferences, and feedback
+  guidance                             Print project documents, built-in guidance, preferences, and feedback
   hook                                 Claude Stop hook; opt-in per project
 
 Common: --project DIR (default cwd), --help, --version
-Project files: .ui-review/config.json, rules.json, feedback.jsonl, approved/
+Project files: DESIGN.md, STYLE.md (optional); .ui-review/config.json, rules.json, feedback.jsonl, approved/
 Global files: $XDG_CONFIG_HOME/viewrule (default ~/.config/viewrule)
 Override: VIEWRULE_CONFIG_DIR; UI_REVIEW_GLOBAL_DIR remains supported.
 Exit codes: 0 checks pass, 1 checks fail, 2 setup/configuration/usage error.
-See docs/ui-review.md for rule types and CI use.
+See docs/ui-review.md for rule types and CI use; docs/project-documents.md for project guidance.
 `;
 try {
   const { values: args, positionals } = parseArgs({
@@ -54,6 +56,7 @@ try {
       preset: { type: "string" },
       name: { type: "string" },
       type: { type: "string" },
+      documents: { type: "boolean" },
       "dry-run": { type: "boolean" },
       help: { type: "boolean" },
     },
@@ -98,8 +101,21 @@ try {
         if (err.code !== "EEXIST") throw err;
       }
     }
+    if (args.documents)
+      for (const name of ["DESIGN.md", "STYLE.md"]) {
+        try {
+          await writeFile(
+            path.join(project, name),
+            await readFile(new URL(`../presets/${name}`, import.meta.url)),
+            { flag: "wx" },
+          );
+        } catch (err) {
+          if (err.code !== "EEXIST") throw err;
+        }
+      }
+    const documents = await readProjectDocuments(project);
     console.log(
-      `Created ${dir}/config.json with editable ${args.preset ?? "baseline"} starter rules (existing rule files are preserved). Calibrate selectors, counts, and thresholds to the task. Stop enforcement is off until enforceOnStop is true.`,
+      `Created ${dir}/config.json with editable ${args.preset ?? "baseline"} starter rules (existing rule files are preserved). Calibrate selectors, counts, and thresholds to the task. Stop enforcement is off until enforceOnStop is true. Project guidance: ${documents.map((document) => document.path).join(", ") || "none found"}.`,
     );
   } else if (command === "preset") {
     console.log(
@@ -146,6 +162,8 @@ try {
           comparison: result.report.contract.comparison,
           previousReportId: result.report.contract.previousReportId,
           changes: result.report.contract.changes,
+          documentComparison: result.report.contract.documentComparison,
+          documentChanges: result.report.contract.documentChanges,
           configurationChange: result.report.contract.configurationChange,
           policyChanged: result.report.contract.policyChanged,
         },
@@ -154,6 +172,10 @@ try {
         designRules: path.join(
           path.dirname(result.reportFile),
           "design-rules.html",
+        ),
+        projectDocuments: path.join(
+          path.dirname(result.reportFile),
+          "project-documents.html",
         ),
         findings: result.report.pages.flatMap((page) =>
           page.findings.map((finding) => ({
@@ -194,9 +216,17 @@ try {
       ),
     );
   } else if (command === "guidance") {
+    const rawConfig = await readJSON(
+      path.join(project, ".ui-review/config.json"),
+      null,
+    );
     console.log(
       JSON.stringify(
         {
+          projectDocuments: await readProjectDocuments(
+            project,
+            rawConfig ? validateConfig(rawConfig).projectDocuments : undefined,
+          ),
           defaults: await defaultPreferences(),
           preferences: await readJSON(
             path.join(globalDir, "preferences.json"),

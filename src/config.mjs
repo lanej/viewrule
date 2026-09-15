@@ -2,6 +2,10 @@ import { Ajv } from "ajv";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { designRuleIds } from "./policy-ids.mjs";
+import {
+  readProjectDocuments,
+  validateDocumentSources,
+} from "./project-documents.mjs";
 
 const text = { type: "string", minLength: 1 };
 const names = { type: "array", minItems: 1, uniqueItems: true, items: text };
@@ -25,6 +29,12 @@ export const configSchema = object(
     enforceOnStop: { type: "boolean" },
     sourcePaths: names,
     accessibility: { type: "boolean" },
+    projectDocuments: {
+      type: "array",
+      uniqueItems: true,
+      maxItems: 32,
+      items: text,
+    },
     requiredDesignRules: designIds,
     storageState: text,
     timeoutMs: { type: "integer", minimum: 1000, maximum: 120000 },
@@ -82,6 +92,7 @@ const common = {
   optional: { type: "boolean" },
   feedbackId: text,
   designRules: { ...designIds, minItems: 1 },
+  sources: names,
 };
 const types = {
   "reading-column": {
@@ -239,7 +250,24 @@ export async function loadProject(project, globalDir) {
     local,
   );
   validateRuleScopes(local, config);
-  return { config, rules };
+  const projectDocuments = await readProjectDocuments(
+    project,
+    config.projectDocuments,
+  );
+  // Inherited rules can target other projects; resolve sources only when active.
+  const active = rules.filter((rule) =>
+    config.pages.some(
+      (page) =>
+        (!rule.pages || rule.pages.includes(page.name)) &&
+        config.viewports.some(
+          (viewport) =>
+            (!page.viewports || page.viewports.includes(viewport.name)) &&
+            (!rule.viewports || rule.viewports.includes(viewport.name)),
+        ),
+    ),
+  );
+  validateDocumentSources(active, projectDocuments);
+  return { config, rules, projectDocuments };
 }
 
 // Global rules may target other projects. Validate local scopes before writing them.

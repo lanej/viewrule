@@ -11,12 +11,20 @@ export interface DetailOptions {
   overlap: number;
   maxTiles: number;
 }
+export interface ProjectDocument {
+  path: string;
+  role: "design" | "style" | "reference";
+  sha256: string;
+  content: string;
+  headings: { id: string; line: number; title: string }[];
+}
 export interface ProjectConfig {
   version: 1;
   baseURL: string;
   enforceOnStop: boolean;
   sourcePaths: string[];
   accessibility: boolean;
+  projectDocuments?: string[];
   requiredDesignRules?: string[];
   storageState?: string;
   timeoutMs?: number;
@@ -58,6 +66,7 @@ export interface Rule {
   optional?: boolean;
   feedbackId?: string;
   designRules?: string[];
+  sources?: string[];
   edge?: "left" | "right" | "top" | "bottom";
   tolerance?: number;
   min?: number;
@@ -95,6 +104,7 @@ export interface Finding {
   expected?: unknown;
   box?: { x: number; y: number; width: number; height: number };
   designRules?: string[];
+  sources?: string[];
   suggestion?: string;
   evidenceKind?: string;
 }
