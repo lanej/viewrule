@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Project design and style sources</title>
+    <style>
+      body {
+        font: 16px/1.5 system-ui, sans-serif;
+        color: #172d27;
+        background: #f6f8f7;
+        margin: 0;
+      }
+      main {
+        max-width: 1100px;
+        margin: auto;
+        padding: 24px;
+      }
+      a {
+        color: #165b41;
+      }
+      section {
+        margin: 32px 0;
+      }
+      pre {
+        padding: 16px;
+        border: 1px solid #ced8d2;
+        background: white;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+      }
+      code {
+        overflow-wrap: anywhere;
+      }
+      pre a {
+        display: inline-block;
+        min-width: 4ch;
+        margin-right: 1ch;
+        text-align: right;
+      }
+      pre span:target {
+        outline: 2px solid #165b41;
+        scroll-margin-top: 24px;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <p><a href="index.html">Back to review</a></p>
+      <h1>Project design and style sources</h1>
+      <p>
+        These are the exact local documents used by this review, not their
+        current working copies. Their prose provides context; only explicit
+        rules are measured. Source citations do not certify that every
+        requirement in a document has been assessed.
+      </p>
+      {{^hasDocuments}}
+      <p>No project design or style documents were loaded.</p>
+      {{/hasDocuments}}
+      <nav aria-label="Project documents">
+        <ul>
+          {{#documents}}
+          <li><a href="#{{anchor}}">{{path}}</a> · {{role}}</li>
+          {{/documents}}
+        </ul>
+      </nav>
+      {{#documents}}
+      <section id="{{anchor}}">
+        <h2>{{path}}</h2>
+        <p>{{role}} · SHA-256: <code>{{sha256}}</code></p>
+        <pre>{{#lines}}<span id="{{id}}"><a href="#{{id}}" aria-label="Line {{number}}">{{number}}</a>{{text}}</span>
+{{/lines}}</pre>
+      </section>
+      {{/documents}}
+    </main>
+  </body>
+</html>
