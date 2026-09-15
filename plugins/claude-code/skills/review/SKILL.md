@@ -13,8 +13,8 @@ critique is needed for that task. A clean source scan does not assess applicatio
 rules or satisfy the Stop hook. Use the rendered workflow below when the request
 includes layout, interaction, comparison requirements, or visual review. Engines
 without `lint` predate the bundled integration; state that limitation and use only
-capabilities present in their installed help and documentation. The published
-0.5.1 engine also predates the Impeccable-specific command adapter. Do not
+capabilities present in their installed help and documentation. Older engines through
+0.5.1 also predate the Impeccable-specific command adapter. Do not
 install or download a newer engine during a check or Stop hook.
 
 Before relevant UI work, run `guide` for a compact index, then `guide <ID>` for only
@@ -23,9 +23,8 @@ P-004 Tufte, P-005 encodings). Follow selected evidence IDs, examples, and relat
 pages as needed. Do not load the entire corpus. Direct offline reads begin at
 `${CLAUDE_PLUGIN_ROOT}/guide/v1/index.md`; relative guide/evidence links stay there.
 Links leaving the guide target repository/package files: use `docs` for the installed
-engine's documentation root and resolve `docs/...` there. The current engine pin
-predates new gallery assets; use a current checkout or public examples when needed
-and state unavailable access. The bundled Markdown examples and evidence summaries
+engine's documentation root and resolve `docs/...` there. The pinned 0.6.0 engine
+includes the gallery assets; state unavailable access if using an older engine. The bundled Markdown examples and evidence summaries
 remain available without network or engine setup.
 Public fallback: `https://lanej.io/viewrule/guide/v1/index.json` and linked `.md` files.
 Published Markdown links resolve directly; the index also supplies absolute example URLs.

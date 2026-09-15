@@ -2323,12 +2323,43 @@ test(
       "Explicit detector targets remain tracked outside normal source scope",
     );
     impeccableProvider.noConfig = false;
+    // Impeccable resolves context from each target, including fallback documents
+    // outside sourcePaths and ignored by Git. A changed contract must stale a pass.
+    const detectorDesign = path.join(project, "dist/docs/DESIGN.md");
+    await mkdir(path.dirname(detectorDesign), { recursive: true });
+    const fontContract = (font) =>
+      `---\ntypography:\n  body:\n    fontFamily: ${font}\n---\n`;
+    await writeFile(detectorDesign, fontContract("Georgia"));
     await writeFile(
       path.join(project, ".ui-review/config.json"),
       JSON.stringify(changeConfig),
     );
     const contextualSource = await cli(["check"]);
     assert.equal(contextualSource.code, 0, contextualSource.stderr);
+    assert.deepEqual(await hook(), {});
+    await writeFile(detectorDesign, fontContract("Palatino"));
+    const changedDesignLint = await cli(["lint"]);
+    assert.equal(changedDesignLint.code, 1, changedDesignLint.stderr);
+    assert.ok(
+      JSON.parse(changedDesignLint.stdout).findings.some(
+        (finding) => finding.rule === "source:impeccable:design-system-font",
+      ),
+    );
+    assert.equal(
+      (await hook()).decision,
+      "block",
+      "A changed fallback design document cannot reuse the earlier passing review",
+    );
+    await writeFile(detectorDesign, fontContract("Georgia"));
+    assert.deepEqual(await hook(), {});
+    const nearerDesign = path.join(project, "dist/DESIGN.md");
+    await writeFile(nearerDesign, fontContract("Palatino"));
+    assert.equal(
+      (await hook()).decision,
+      "block",
+      "Creating a nearer design document invalidates the old context",
+    );
+    await rm(nearerDesign);
     assert.deepEqual(await hook(), {});
     await mkdir(path.join(project, ".impeccable"), { recursive: true });
     await writeFile(

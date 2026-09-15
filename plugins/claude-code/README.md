@@ -21,8 +21,8 @@ In Claude Code:
 Setup installs the checksummed engine release in `engine.json` and its Playwright
 Chromium browser. It then helps configure your running application. Installing the
 plugin alone makes no engine or browser download, and does not enable enforcement.
-Version 0.5.1 pins the 0.5.1 engine, including decision-surface checks, project
-design/style contracts, interaction checkpoints, and source-check adapters.
+Version 0.6.0 pins the 0.6.0 engine, including bundled Impeccable source diagnostics,
+`lint`, decision-surface checks, project design/style contracts, and interaction checkpoints.
 The default baseline checks readable text and flags clipping/oversized headers;
 the analytical preset adds comparison counts, labels, context, proximity, and alignment.
 The expanded defaults add control-size and prose warnings plus declared numeric alignment.
@@ -48,13 +48,12 @@ The review skill consults the bundled [guide](guide/v1/index.md) before relevant
 UI implementation. `node "${CLAUDE_PLUGIN_ROOT}/scripts/viewrule.mjs" guide` returns
 an index; `guide P-003` returns one Markdown page, and `guide E-CARBON` one evidence
 record. These commands work before engine setup and without network access.
-The package also includes this canonical corpus; the new engine source exposes
-`viewrule guide [ID]`. The existing engine release pin is unchanged.
+The engine package includes the same canonical corpus and exposes
+`viewrule guide [ID]`.
 
 Guide/evidence Markdown is local to the plugin. Gallery examples and measurement
 manuals live in the source/package `docs/` (find an installed package through `docs`)
-or the published site. The current 0.3.1 engine pin predates the new gallery assets;
-use this checkout or Pages for those runnable examples until a later engine release.
+or the published site. The pinned 0.6.0 engine includes the gallery assets.
 The new guide's written examples and evidence summaries are bundled offline. Public routes are `https://lanej.io/viewrule/guide/v1/index.json` and the linked
 `.md` pages, produced by the existing Pages build. A PR/local build does not mean those
 new routes are deployed. The human pages and raw Markdown come from the same source.
