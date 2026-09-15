@@ -7,7 +7,7 @@ measurements; Claude interprets findings and makes application changes within yo
 
 ## Install and use
 
-Requires Node.js 22+, npm, and a current Claude Code with plugin support. Linux is
+Requires Node.js 22.18+, npm, and a current Claude Code with plugin support. Linux is
 covered by the regression workflow; macOS and Windows have not been validated.
 In Claude Code:
 

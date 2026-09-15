@@ -21,6 +21,19 @@ Global configuration defaults to `$XDG_CONFIG_HOME/viewrule`, or `~/.config/view
 Project rules override global rules by exact rule ID. No per-user data is written
 inside the installed package.
 
+## Source diagnostics
+
+`lint` runs Impeccable through its pinned installed native CLI and JSON interface.
+The package dependency supplies the platform engine; checks do not download or
+install tools. New projects include an advisory built-in source provider, while
+existing command adapters and application contracts remain unchanged.
+
+`src/impeccable.mjs` resolves and identifies the installed detector.
+`src/source-checks.mjs` executes and normalizes providers with shared authority
+rules for `lint` and `check`. The quick command returns source-only JSON and never
+writes `.ui-review/latest.json`; authored rendered requirements still require the
+browser workflow. See [configuration and limits](impeccable.md).
+
 ## Runtime path
 
 ```mermaid

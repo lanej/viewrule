@@ -24,7 +24,9 @@ export interface Checkpoint {
 }
 export interface SourceCheckProvider {
   id: string;
-  command: string[];
+  command?: string[];
+  targets?: string[];
+  noConfig?: boolean;
   authority: "advisory" | "blocking";
   enabled?: boolean;
   version?: string;

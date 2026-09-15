@@ -13,6 +13,7 @@ import { createHash } from "node:crypto";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { createServer } from "node:http";
+import { createRequire } from "node:module";
 import { execFile } from "node:child_process";
 import { chromium } from "playwright";
 import { config } from "./fixtures.mjs";
@@ -200,6 +201,7 @@ test(
     pin.sha256 = createHash("sha256").update(archive).digest("hex");
     await writeFile(path.join(plugin, "engine.json"), JSON.stringify(pin));
     const runtime = path.join(project, "runtime data");
+    /** @type {NodeJS.ProcessEnv} */
     const env = {
       ...process.env,
       VIEWRULE_CONFIG_DIR: globalDir,
@@ -297,6 +299,38 @@ test(
       await readFile(JSON.parse(docs.stdout).policy, "utf8"),
       /DR-007/,
     );
+    // The installed runtime scans a file without configuration or Chromium.
+    const lintSource = path.join(project, "src/lint.css");
+    await writeFile(lintSource, "body { font-family: Inter, sans-serif; }\n");
+    const savedBrowserPath = env.VIEWRULE_BROWSER_PATH;
+    env.VIEWRULE_BROWSER_PATH = path.join(project, "unavailable-browser");
+    env.IMPECCABLE_BIN = process.execPath; // A user override must not replace the installed detector.
+    const standaloneLint = await cli(["lint", "--target", "src/lint.css"]);
+    if (savedBrowserPath === undefined) delete env.VIEWRULE_BROWSER_PATH;
+    else env.VIEWRULE_BROWSER_PATH = savedBrowserPath;
+    delete env.IMPECCABLE_BIN;
+    assert.equal(standaloneLint.code, 0, standaloneLint.stderr);
+    const standaloneReport = JSON.parse(standaloneLint.stdout);
+    assert.equal(standaloneReport.coverage, "source-only");
+    assert.equal(standaloneReport.renderedRequirements, "not-assessed");
+    assert.equal(
+      standaloneReport.sourceChecks[0].provider.engineVersion,
+      "0.1.5",
+    );
+    assert.match(
+      standaloneReport.sourceChecks[0].provider.binarySHA256,
+      /^[a-f0-9]{64}$/,
+    );
+    assert.ok(
+      standaloneReport.findings.some(
+        (finding) => finding.rule === "source:impeccable:overused-font",
+      ),
+    );
+    await assert.rejects(
+      readFile(path.join(project, ".ui-review/latest.json")),
+      { code: "ENOENT" },
+    );
+    await rm(lintSource);
     const init = await cli(["init", "--url", baseURL]);
     assert.equal(init.code, 0, init.stderr);
     assert.equal(
@@ -306,6 +340,19 @@ test(
       false,
     );
     assert.deepEqual(await hook(), {}, "Setup does not enable enforcement");
+    assert.deepEqual(
+      JSON.parse(
+        await readFile(path.join(project, ".ui-review/config.json"), "utf8"),
+      ).sourceChecks,
+      [
+        {
+          id: "impeccable",
+          format: "impeccable",
+          targets: ["."],
+          authority: "advisory",
+        },
+      ],
+    );
     const initialRules = await readFile(
       path.join(project, ".ui-review/rules.json"),
       "utf8",
@@ -1926,17 +1973,18 @@ test(
           ],
         },
       ],
-      sourceChecks: [
-        {
-          id: "tokens",
-          authority: "advisory",
-          command: [
-            process.execPath,
-            "-e",
-            "const output = require('node:fs').readFileSync('src/diagnostics.json', 'utf8'); process.stdout.write(output); process.exitCode = !output.trim() || JSON.parse(output).length ? 1 : 0;",
-          ],
-        },
-      ],
+      sourceChecks:
+        /** @type {import("../src/types.js").SourceCheckProvider[]} */ ([
+          {
+            id: "tokens",
+            authority: "advisory",
+            command: [
+              process.execPath,
+              "-e",
+              "const output = require('node:fs').readFileSync('src/diagnostics.json', 'utf8'); process.stdout.write(output); process.exitCode = !output.trim() || JSON.parse(output).length ? 1 : 0;",
+            ],
+          },
+        ]),
     };
     await writeFile(
       path.join(project, ".ui-review/config.json"),
@@ -2178,32 +2226,27 @@ test(
     // A pinned real Impeccable source scan has different exit codes from generic providers.
     const impeccablePackage = JSON.parse(
       await readFile(
-        new URL("../node_modules/impeccable/package.json", import.meta.url),
+        createRequire(
+          path.join(JSON.parse(setup.stdout).engine, "package.json"),
+        ).resolve("impeccable/package.json"),
         "utf8",
       ),
     );
     assert.equal(impeccablePackage.version, "4.1.0");
-    const providerSource = path.join(project, "src/provider.css");
+    await mkdir(path.join(project, "dist"), { recursive: true });
+    const providerSource = path.join(project, "dist/provider.css");
     await writeFile(
       providerSource,
       "body { font-family: Inter, sans-serif; }\n",
     );
+    /** @type {import("../src/types.js").SourceCheckProvider} */
     const impeccableProvider = {
       id: "impeccable",
       format: "impeccable",
       version: impeccablePackage.version,
       authority: "advisory",
-      command: [
-        process.execPath,
-        path.resolve(
-          import.meta.dirname,
-          "../node_modules/impeccable/cli/bin/cli.js",
-        ),
-        "detect",
-        "--json",
-        "--no-config",
-        "src/provider.css",
-      ],
+      targets: ["dist/provider.css"],
+      noConfig: true,
       severityMap: { warning: "error" },
     };
     changeConfig.sourceChecks = [impeccableProvider];
@@ -2245,7 +2288,23 @@ test(
     const rejectedSource = await cli(["check"]);
     assert.equal(rejectedSource.code, 1, rejectedSource.stderr);
     assert.equal((await hook()).decision, "block");
+    const rejectedLint = await cli(["lint"]);
+    assert.equal(rejectedLint.code, 1, rejectedLint.stderr);
+    assert.equal(JSON.parse(rejectedLint.stdout).errors, 1);
     await writeFile(providerSource, "body { font-family: Georgia, serif; }\n");
+    const priorState = await readFile(
+      path.join(project, ".ui-review/latest.json"),
+      "utf8",
+    );
+    const acceptedLint = await cli(["lint"]);
+    assert.equal(acceptedLint.code, 0, acceptedLint.stderr);
+    assert.deepEqual(JSON.parse(acceptedLint.stdout).findings, []);
+    assert.equal(
+      await readFile(path.join(project, ".ui-review/latest.json"), "utf8"),
+      priorState,
+      "Source-only passes never replace rendered review state",
+    );
+    assert.equal((await hook()).decision, "block");
     const acceptedSource = await cli(["check"]);
     assert.equal(acceptedSource.code, 0, acceptedSource.stderr);
     const acceptedSourceReport = JSON.parse(
@@ -2254,7 +2313,36 @@ test(
     assert.equal(acceptedSourceReport.sourceChecks[0].execution.code, 0);
     assert.deepEqual(acceptedSourceReport.sourceChecks[0].findings, []);
     assert.deepEqual(await hook(), {});
+    await writeFile(
+      providerSource,
+      "body { font-family: Georgia, serif; }\n/* changed generated source */\n",
+    );
+    assert.equal(
+      (await hook()).decision,
+      "block",
+      "Explicit detector targets remain tracked outside normal source scope",
+    );
+    impeccableProvider.noConfig = false;
+    await writeFile(
+      path.join(project, ".ui-review/config.json"),
+      JSON.stringify(changeConfig),
+    );
+    const contextualSource = await cli(["check"]);
+    assert.equal(contextualSource.code, 0, contextualSource.stderr);
+    assert.deepEqual(await hook(), {});
+    await mkdir(path.join(project, ".impeccable"), { recursive: true });
+    await writeFile(
+      path.join(project, ".impeccable/config.local.json"),
+      '{"detector":{"ignoreRules":["overused-font"]}}\n',
+    );
+    assert.equal(
+      (await hook()).decision,
+      "block",
+      "Ignored local Impeccable settings invalidate rendered checks",
+    );
     await rm(providerSource);
+    const failedLint = await cli(["lint"]);
+    assert.equal(failedLint.code, 2, failedLint.stdout);
     const failedSource = await cli(["check"]);
     assert.equal(failedSource.code, 2, failedSource.stdout);
     assert.match(failedSource.stderr, /provider impeccable failed with exit 1/);

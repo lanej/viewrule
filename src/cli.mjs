@@ -3,7 +3,14 @@ import { globalConfigDir } from "./paths.mjs";
 import { parseArgs } from "node:util";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { readJSON, validateConfig, ruleSchema } from "./config.mjs";
+import {
+  readJSON,
+  validateConfig,
+  validateSourceChecks,
+  ruleSchema,
+} from "./config.mjs";
+import { impeccableProvider } from "./impeccable.mjs";
+import { runSourceChecks, sourceSummary } from "./source-checks.mjs";
 import { readContract } from "./contract.mjs";
 import { readProjectDocuments } from "./project-documents.mjs";
 import { runReview } from "./review.mjs";
@@ -26,6 +33,8 @@ const help = `viewrule — rendered UI checks and a versioned design feedback lo
   contract                             Print effective constraints, project documents, and changes
   schema [--type TYPE]                  Print the installed rule schema for authoring
   add-rule --rule FILE [--dry-run]      Validate and add a project rule; never replace an existing ID
+  lint [--target PATH ...]             Run source diagnostics as JSON; no browser, project setup, or review state
+                                       --target selects bundled Impeccable; otherwise use configured providers
   check                                Capture pages, check rules, write HTML + JSON
   feedback --report PATH --decision approve|adjust --note TEXT [--scope project|global]
                                        Save feedback; approval preserves screenshots
@@ -57,6 +66,7 @@ try {
       preset: { type: "string" },
       name: { type: "string" },
       type: { type: "string" },
+      target: { type: "string", multiple: true },
       documents: { type: "boolean" },
       "dry-run": { type: "boolean" },
       help: { type: "boolean" },
@@ -65,6 +75,8 @@ try {
   const command = positionals[0];
   const project = path.resolve(args.project ?? process.cwd());
   const globalDir = globalConfigDir();
+  if (args.target?.length && command !== "lint")
+    throw new Error("--target is only supported by lint");
   if (args.help || !command) console.log(help);
   else if (positionals.length !== 1)
     throw new Error("Expected one command; use --help.");
@@ -76,6 +88,7 @@ try {
       baseURL: args.url ?? "http://localhost:3000",
       enforceOnStop: false,
       sourcePaths: ["."],
+      sourceChecks: [impeccableProvider()],
       accessibility: true,
       pages: [{ name: "main", path: "/", ready: "main" }],
       viewports: [
@@ -152,6 +165,37 @@ try {
         2,
       ),
     );
+  } else if (command === "lint") {
+    const started = performance.now();
+    const rawConfig = await readJSON(
+      path.join(project, ".ui-review/config.json"),
+      null,
+    );
+    const config = rawConfig ? validateConfig(rawConfig, project) : null;
+    const providers = validateSourceChecks(
+      args.target?.length
+        ? [impeccableProvider(args.target)]
+        : (config?.sourceChecks ?? [impeccableProvider()]),
+    );
+    if (!providers.some((provider) => provider.enabled !== false))
+      throw new Error(
+        "No enabled source checks; use lint --target PATH to scan with bundled Impeccable.",
+      );
+    const results = await runSourceChecks(project, providers);
+    const summary = sourceSummary(results);
+    console.log(
+      JSON.stringify({
+        version: 1,
+        status: summary.errors ? "fail" : "pass",
+        coverage: "source-only",
+        renderedRequirements: "not-assessed",
+        ...summary,
+        elapsedMs: Math.round(performance.now() - started),
+        sourceChecks: results,
+        findings: results.flatMap((result) => result.findings),
+      }),
+    );
+    process.exitCode = summary.errors ? 1 : 0;
   } else if (command === "check") {
     const result = await runReview(project, globalDir);
     console.log(
@@ -178,13 +222,18 @@ try {
           path.dirname(result.reportFile),
           "project-documents.html",
         ),
-        findings: result.report.pages.flatMap((page) =>
-          page.findings.map((finding) => ({
-            page: page.name,
-            viewport: page.viewport.name,
-            ...finding,
-          })),
-        ),
+        findings: [
+          ...result.report.pages.flatMap((page) =>
+            page.findings.map((finding) => ({
+              page: page.name,
+              viewport: page.viewport.name,
+              ...finding,
+            })),
+          ),
+          ...(result.report.sourceChecks ?? []).flatMap(
+            (provider) => provider.findings,
+          ),
+        ],
       }),
     );
     process.exitCode = result.report.status === "pass" ? 0 : 1;

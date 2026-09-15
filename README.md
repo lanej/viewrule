@@ -14,7 +14,7 @@ the same CLI directly.
 
 **Status:** experimental 0.5.1, distributed through
 [GitHub Releases](https://github.com/lanej/viewrule/releases). No npm registry release
-is available yet. Node.js 22+ and npm are required. Linux is exercised in CI;
+is available yet. Node.js 22.18+ and npm are required. Linux is exercised in CI;
 macOS and Windows have not been validated.
 
 ## Why it exists
@@ -174,6 +174,23 @@ The demo prints an HTML gallery for the same broken, compact, stretched, and fin
 comparison fixtures used by the preset regression. It includes desktop and 4K
 reports, uses illustrative data, and does not record human approval.
 
+### Run quick source diagnostics
+
+Viewrule now includes pinned Impeccable source diagnostics. From a current source
+checkout, use `node bin/viewrule.mjs lint --project /path/to/app --target src`.
+This integration is unreleased; the downloadable 0.5.1 engine does not have `lint`.
+
+```sh
+viewrule lint --target src
+```
+
+This returns general diagnostics without a running app, browser, or agent review.
+New projects include Impeccable as an advisory provider; existing configurations
+are preserved. Source-only passes do not assess rendered requirements or satisfy
+the Stop hook. Run `check` when the application's layout, data presentation, or
+interaction requirements need verification. See [Impeccable integration](docs/impeccable.md)
+for configuration, findings, and deliberate enforcement.
+
 ### Configure a real application
 
 Start your application's development server, then run these commands in its repository:
@@ -282,7 +299,8 @@ than a substitute for a required CI check. See [integrations](docs/integrations.
 ## How it is architected
 
 Viewrule is a Node.js CLI orchestrating Chromium through Playwright. Ajv validates
-configuration and rules; axe supplies automated accessibility checks. It uses local
+configuration and rules; Impeccable supplies general source diagnostics, and axe
+supplies automated accessibility checks. It uses local
 JSON, JSONL, HTML, and PNG files, with no hosted service, database, model API, or
 telemetry. The configured application can make its own browser network requests.
 The Claude plugin packages skills, a release installer, and the existing Stop-hook
