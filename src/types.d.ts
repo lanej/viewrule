@@ -112,6 +112,7 @@ export interface Finding {
   rule: string;
   severity: "error" | "warning";
   message: string;
+  identity?: string;
   selector?: string;
   element?: string;
   reason?: string;
@@ -154,6 +155,21 @@ export interface PageResult {
     checks: string[];
   }[];
 }
+export interface FindingChange {
+  id: string;
+  page: string;
+  checkpoint: string | null;
+  viewport: Viewport;
+  finding: Finding;
+}
+export interface ReviewChanges {
+  comparison: "available" | "unavailable";
+  baselineId: string | null;
+  newFindings: FindingChange[];
+  persistentFindings: FindingChange[];
+  resolvedFindings: FindingChange[];
+  newlyUnassessed: { id: string; designRule: string }[];
+}
 export interface ReviewReport {
   version: 1;
   id: string;
@@ -166,6 +182,7 @@ export interface ReviewReport {
   sourceChecks?: Awaited<
     ReturnType<typeof import("./source-checks.mjs").runSourceChecks>
   >;
+  changes?: ReviewChanges;
   designPolicy: DesignPolicy;
   contract: Awaited<ReturnType<typeof import("./contract.mjs").readContract>>;
 }
