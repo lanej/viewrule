@@ -21,7 +21,9 @@ export function checkpointPath(project, setup) {
 export async function runCheckpoint(project, checkpoint, page, context) {
   const file = checkpointPath(project, checkpoint.setup);
   await readFile(file);
-  const module = await import(`${pathToFileURL(file).href}?viewrule=${Date.now()}`);
+  const module = await import(
+    `${pathToFileURL(file).href}?viewrule=${Date.now()}`
+  );
   if (typeof module.default !== "function")
     throw new Error(
       `Checkpoint ${checkpoint.name}: ${checkpoint.setup} must default-export a function`,
