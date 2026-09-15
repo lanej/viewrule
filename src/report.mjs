@@ -14,7 +14,6 @@ const documentsTemplate = template("project-documents");
 export function renderDesignPolicy(policy) {
   const rules = policy.rules.map((rule) => ({
     ...rule,
-    // Escape source text first. Only these fixed formatting tags bypass Mustache escaping.
     bodyHtml: Mustache.escape(rule.body)
       .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
       .replace(/\n\n/g, "</p><p>"),
@@ -46,6 +45,7 @@ function pageView(page, reference, documents) {
   const approved = reference?.report.pages.find(
     (candidate) =>
       candidate.name === page.name &&
+      candidate.checkpoint === page.checkpoint &&
       candidate.viewport.name === page.viewport.name &&
       candidate.viewport.width === page.viewport.width &&
       candidate.viewport.height === page.viewport.height,
@@ -58,6 +58,9 @@ function pageView(page, reference, documents) {
   }));
   return {
     ...page,
+    stateName: page.checkpoint
+      ? `${page.name} · ${page.checkpoint}`
+      : page.name,
     approved: approved?.screenshot
       ? { ...approved, note: reference.note }
       : null,

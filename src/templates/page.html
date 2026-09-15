@@ -1,8 +1,11 @@
 <section>
   <h2>
-    {{name}} · {{viewport.name}} ({{viewport.width}} × {{viewport.height}})
+    {{stateName}} · {{viewport.name}} ({{viewport.width}} × {{viewport.height}})
   </h2>
-  <small>{{url}}</small>
+  <small
+    >{{url}}{{#checkpointSetup}} · state:
+    <code>{{checkpointSetup}}</code>{{/checkpointSetup}}</small
+  >
   {{#hasDesignCoverage}}
   <details>
     <summary>Design-rule coverage · {{unassessedCount}} unassessed</summary>
@@ -35,14 +38,14 @@
     <figure>
       <figcaption>Current</figcaption>
       <a href="{{screenshot}}"
-        ><img src="{{screenshot}}" alt="Current {{name}}"
+        ><img src="{{screenshot}}" alt="Current {{stateName}}"
       /></a>
     </figure>
     {{/screenshot}} {{#approved}}
     <figure>
       <figcaption>Approved reference · {{note}}</figcaption>
       <a href="reference/{{screenshot}}"
-        ><img src="reference/{{screenshot}}" alt="Approved {{name}}"
+        ><img src="reference/{{screenshot}}" alt="Approved {{stateName}}"
       /></a>
     </figure>
     {{/approved}}
@@ -109,8 +112,9 @@
       {{#findings}}
       <tr>
         <td class="{{severity}}">
-          {{severity}}<br /><code>{{rule}}</code><br />
-          {{#citations}}<a href="design-rules.html#{{id}}">{{id}}</a
+          {{severity}}<br /><code>{{rule}}</code><br />{{#citations}}<a
+            href="design-rules.html#{{id}}"
+            >{{id}}</a
           >{{separator}}{{/citations}} {{#sourceCitations}}<br /><a
             href="{{href}}"
             >{{source}}</a

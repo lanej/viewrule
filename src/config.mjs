@@ -2,6 +2,7 @@ import { Ajv } from "ajv";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { designRuleIds } from "./policy-ids.mjs";
+import { checkpointPath } from "./checkpoints.mjs";
 import {
   readProjectDocuments,
   validateDocumentSources,
@@ -21,6 +22,7 @@ const object = (properties, required) => ({
   properties,
   required,
 });
+const checkpointSchema = object({ name: text, setup: text }, ["name", "setup"]);
 /** @type {import("ajv").Schema} */
 export const configSchema = object(
   {
@@ -58,6 +60,7 @@ export const configSchema = object(
           media: { enum: ["screen", "print"] },
           textScale: { type: "number", minimum: 1, maximum: 4 },
           viewports: names,
+          checkpoints: { type: "array", minItems: 1, items: checkpointSchema },
         },
         ["name", "path", "ready"],
       ),
@@ -172,7 +175,7 @@ function unique(values, label) {
   if (new Set(values).size !== values.length)
     throw new Error(`Duplicate ${label}`);
 }
-export function validateConfig(config) {
+export function validateConfig(config, project) {
   if (!checkConfig(config))
     throw new Error(`Invalid config: ${ajv.errorsText(checkConfig.errors)}`);
   const url = new URL(config.baseURL);
@@ -196,11 +199,17 @@ export function validateConfig(config) {
     for (const name of p.viewports ?? [])
       if (!config.viewports.some((v) => v.name === name))
         throw new Error(`Page ${p.name}: unknown viewport ${name}`);
+    unique(
+      (p.checkpoints ?? []).map((c) => c.name),
+      `checkpoint name on page ${p.name}`,
+    );
+    if (project)
+      for (const checkpoint of p.checkpoints ?? [])
+        checkpointPath(project, checkpoint.setup);
   }
-  for (const p of config.sourcePaths) {
+  for (const p of config.sourcePaths)
     if (path.isAbsolute(p) || p.split(/[\\/]/).includes(".."))
       throw new Error("sourcePaths must stay inside the project");
-  }
   return config;
 }
 export function validateRules(rules) {
@@ -225,8 +234,7 @@ export function validateRules(rules) {
       );
   return rules;
 }
-/** @param {import("./types.js").Rule[]} global
- * @param {import("./types.js").Rule[]} local */
+/** @param {import("./types.js").Rule[]} global @param {import("./types.js").Rule[]} local */
 export function mergeRules(global, local) {
   validateRules(global);
   validateRules(local);
@@ -243,6 +251,7 @@ export async function readJSON(file, fallback) {
 export async function loadProject(project, globalDir) {
   const config = validateConfig(
     await readJSON(path.join(project, ".ui-review/config.json")),
+    project,
   );
   const local = await readJSON(path.join(project, ".ui-review/rules.json"), []);
   const rules = mergeRules(
@@ -254,7 +263,6 @@ export async function loadProject(project, globalDir) {
     project,
     config.projectDocuments,
   );
-  // Inherited rules can target other projects; resolve sources only when active.
   const active = rules.filter((rule) =>
     config.pages.some(
       (page) =>
@@ -269,10 +277,7 @@ export async function loadProject(project, globalDir) {
   validateDocumentSources(active, projectDocuments);
   return { config, rules, projectDocuments };
 }
-
-// Global rules may target other projects. Validate local scopes before writing them.
-/** @param {import("./types.js").Rule[]} rules
- * @param {import("./types.js").ProjectConfig} config */
+/** @param {import("./types.js").Rule[]} rules @param {import("./types.js").ProjectConfig} config */
 export function validateRuleScopes(rules, config) {
   for (const r of rules) {
     for (const n of r.pages ?? [])
