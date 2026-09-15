@@ -21,6 +21,10 @@ import {
   validateRuleScopes,
 } from "./config.mjs";
 import { policyPaths } from "./design.mjs";
+import {
+  readProjectDocuments,
+  validateDocumentSources,
+} from "./project-documents.mjs";
 
 export async function writeJSON(file, value) {
   await mkdir(path.dirname(file), { recursive: true });
@@ -50,7 +54,11 @@ async function walk(root, relative = "") {
   }
   return files;
 }
-export async function fingerprint(project, config, globalDir) {
+/** @param {string} project
+ * @param {import("./types.js").ProjectConfig} config
+ * @param {string} globalDir
+ * @param {import("./types.js").ProjectDocument[]} [documents] */
+export async function fingerprint(project, config, globalDir, documents) {
   const hash = createHash("sha256");
   const listed = spawnSync(
     "git",
@@ -97,6 +105,14 @@ export async function fingerprint(project, config, globalDir) {
       if (err.code !== "ENOENT") throw err;
     }
   }
+  // Project guidance is part of the contract even outside sourcePaths or git.
+  hash.update("project-documents\0");
+  hash.update(
+    JSON.stringify(
+      documents ??
+        (await readProjectDocuments(project, config.projectDocuments)),
+    ),
+  );
   // Changing the checker itself invalidates old passing runs after a Viewrule update.
   for (const file of [
     "config.mjs",
@@ -110,6 +126,7 @@ export async function fingerprint(project, config, globalDir) {
     "report.mjs",
     "presets.mjs",
     "contract.mjs",
+    "project-documents.mjs",
     "../presets/preferences.json",
     "../presets/baseline.json",
     "../presets/analytical.json",
@@ -218,8 +235,12 @@ export async function addRule(project, globalDir, rule, dryRun = false) {
   validateRules([rule]);
   if (rule.feedbackId)
     throw new Error("Use learn to attach recorded feedback provenance");
-  const { config, rules } = await loadProject(project, globalDir);
+  const { config, rules, projectDocuments } = await loadProject(
+    project,
+    globalDir,
+  );
   validateRuleScopes([rule], config);
+  validateDocumentSources([rule], projectDocuments);
   if (rules.some((existing) => existing.id === rule.id))
     throw new Error(
       `Rule ${rule.id} already exists; add-rule never replaces a boundary`,
@@ -240,14 +261,16 @@ async function writeRule(project, globalDir, rule, scope, replace) {
   });
   try {
     const existing = validateRules(await readJSON(file, []));
+    const next = [...existing.filter((entry) => entry.id !== rule.id), rule];
     if (scope === "project") {
       const config = validateConfig(
         await readJSON(path.join(project, ".ui-review/config.json")),
       );
-      // Validate the proposed result so a requested revision can repair an invalid old scope.
-      validateRuleScopes(
-        [...existing.filter((entry) => entry.id !== rule.id), rule],
-        config,
+      // A requested revision can repair an invalid old scope or source citation.
+      validateRuleScopes(next, config);
+      validateDocumentSources(
+        next,
+        await readProjectDocuments(project, config.projectDocuments),
       );
       const inherited = validateRules(
         await readJSON(path.join(globalDir, "rules.json"), []),
@@ -260,7 +283,6 @@ async function writeRule(project, globalDir, rule, scope, replace) {
           `Rule ${rule.id} already exists; add-rule never replaces a boundary`,
         );
     }
-    const next = [...existing.filter((entry) => entry.id !== rule.id), rule];
     await writeJSON(file, next);
   } finally {
     await lock.close();
