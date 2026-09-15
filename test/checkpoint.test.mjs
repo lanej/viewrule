@@ -17,6 +17,12 @@ test("checkpoint setup is project-local and receives Playwright objects", async 
   const checkpoint = { name: "details-open", setup: "checks/open.mjs" };
   await runCheckpoint(project, checkpoint, page, {});
   assert.equal(page.seen, "details-open");
-  assert.equal(checkpointPath(project, checkpoint.setup), path.join(project, checkpoint.setup));
-  assert.throws(() => checkpointPath(project, "../escape.mjs"), /inside the project/);
+  assert.equal(
+    checkpointPath(project, checkpoint.setup),
+    path.join(project, checkpoint.setup),
+  );
+  assert.throws(
+    () => checkpointPath(project, "../escape.mjs"),
+    /inside the project/,
+  );
 });
