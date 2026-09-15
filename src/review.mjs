@@ -17,6 +17,7 @@ import { readDesignPolicy, evaluateDesign } from "./design.mjs";
 import { defaultPreferences } from "./presets.mjs";
 import { runCheckpoint } from "./checkpoints.mjs";
 import { runSourceChecks } from "./source-checks.mjs";
+import { classifyChanges } from "./changes.mjs";
 
 /** @param {string} project @param {string} globalDir */
 export async function runReview(project, globalDir) {
@@ -261,6 +262,7 @@ export async function runReview(project, globalDir) {
         );
       }
   }
+  report.changes = classifyChanges(report, reference?.report);
   const preferences = [
     ...(await defaultPreferences()),
     ...(await readJSON(path.join(globalDir, "preferences.json"), [])),

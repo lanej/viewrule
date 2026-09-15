@@ -18,7 +18,29 @@ jobs:
           cache: npm
           cache-dependency-path: npm-shrinkwrap.json
       - run: npm ci
-      - run: npm run check
+        id: dependencies
+      - name: Check formatting
+        id: formatting
+        run: npm run format:check
+      - name: Show required formatting changes
+        if: failure() && steps.formatting.outcome == 'failure'
+        shell: bash
+        run: |
+          status=0
+          npx --no-install prettier --list-different . > "$RUNNER_TEMP/prettier-files.txt" || status=$?
+          if [ "$status" -gt 1 ]; then exit "$status"; fi
+          while IFS= read -r file; do
+            npx --no-install prettier "$file" > "$RUNNER_TEMP/prettier-expected.txt"
+            diff_status=0
+            diff -u --label "a/$file" --label "b/$file" "$file" "$RUNNER_TEMP/prettier-expected.txt" || diff_status=$?
+            if [ "$diff_status" -gt 1 ]; then exit "$diff_status"; fi
+          done < "$RUNNER_TEMP/prettier-files.txt"
+      - name: Check lint
+        if: ${{ !cancelled() && steps.dependencies.outcome == 'success' }}
+        run: npm run lint
+      - name: Check types
+        if: ${{ !cancelled() && steps.dependencies.outcome == 'success' }}
+        run: npm run analyze
       - run: node bin/viewrule.mjs install-browser --with-deps
       - run: npm test
         env:

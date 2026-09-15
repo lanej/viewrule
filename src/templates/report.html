@@ -91,6 +91,108 @@
       <small
         >{{createdAt}} · <a href="report.json">JSON report</a> · {{id}}</small
       >
+
+      <section>
+        <h2>Since the approved review</h2>
+        {{#hasChangeBaseline}}
+        <p>
+          Compared with approved report <code>{{changes.baselineId}}</code>:
+          <strong>{{newFindingCount}} new</strong> · {{persistentFindingCount}}
+          persistent · <strong>{{resolvedFindingCount}} resolved</strong> ·
+          {{newlyUnassessedCount}} newly unassessed · {{notComparedCount}} not
+          compared.
+        </p>
+        {{/hasChangeBaseline}} {{#hasNewFindings}}
+        <h3>
+          {{#hasChangeBaseline}}New
+          findings{{/hasChangeBaseline}}{{#noChangeBaseline}}Current
+          findings{{/noChangeBaseline}}
+        </h3>
+        <table>
+          <thead>
+            <tr>
+              <th>State</th>
+              <th>Rule</th>
+              <th>Finding</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#newFindings}}
+            <tr>
+              <td>{{state}}</td>
+              <td class="{{severity}}">
+                <code>{{rule}}</code><br /><small
+                  >{{selector}} · {{authority}}</small
+                >
+              </td>
+              <td>{{message}}</td>
+            </tr>
+            {{/newFindings}}
+          </tbody>
+        </table>
+        {{/hasNewFindings}} {{#hasPersistentFindings}}
+        <details>
+          <summary>Persistent findings</summary>
+          <ul>
+            {{#persistentFindings}}
+            <li>
+              {{state}} · <code>{{rule}}</code> · {{selector}} · {{authority}} ·
+              {{message}}
+            </li>
+            {{/persistentFindings}}
+          </ul>
+        </details>
+        {{/hasPersistentFindings}} {{#hasResolvedFindings}}
+        <h3>Resolved findings</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>State</th>
+              <th>Rule</th>
+              <th>Previous finding</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#resolvedFindings}}
+            <tr>
+              <td>{{state}}</td>
+              <td><code>{{rule}}</code><br /><small>{{selector}}</small></td>
+              <td>{{message}}</td>
+            </tr>
+            {{/resolvedFindings}}
+          </tbody>
+        </table>
+        {{/hasResolvedFindings}} {{#hasNotComparedFindings}}
+        <h3>Previous findings not compared</h3>
+        <ul>
+          {{#notComparedFindings}}
+          <li>{{state}} · <code>{{rule}}</code> · {{message}} — {{reason}}</li>
+          {{/notComparedFindings}}
+        </ul>
+        {{/hasNotComparedFindings}} {{#hasNewlyUnassessed}}
+        <h3>Newly unassessed requirements</h3>
+        <ul>
+          {{#newlyUnassessed}}
+          <li>{{state}} · <code>{{designRule}}</code></li>
+          {{/newlyUnassessed}}
+        </ul>
+        {{/hasNewlyUnassessed}}
+        <p>
+          Screenshot differences are evidence, not failures. Findings describe
+          observed changes without attributing them to application code.
+          Contract and project-document changes are reported separately below. A
+          missing state or changed boundary does not establish that a finding
+          was fixed.
+        </p>
+        {{#noChangeBaseline}}
+        <p>
+          No approved review is available as an application baseline. Current
+          findings are preserved as new findings in JSON, but no regression is
+          inferred.
+        </p>
+        {{/noChangeBaseline}}
+      </section>
+
       <p>
         Automated checks cover configured constraints.
         <a href="design-rules.html">Design-rule reference used for this run</a>.
@@ -106,8 +208,8 @@
       </p>
       {{/hasProjectDocuments}} {{#hasDocumentChanges}}
       <p>
-        <strong>Project design/style sources changed.</strong>
-        Review the document changes separately from application repairs below.
+        <strong>Project design/style sources changed.</strong> Review the
+        document changes separately from application repairs below.
       </p>
       {{/hasDocumentChanges}} {{#hasContract}}
       <details>
@@ -118,8 +220,9 @@
         </p>
         {{#contractBaselineAvailable}}
         <p>
-          Compared with report {{contract.previousReportId}}. Constraint changes
-          are separate from application repairs.
+          Compared with {{#hasChangeBaseline}}approved{{/hasChangeBaseline}}
+          report {{contract.previousReportId}}. Constraint changes are separate
+          from application repairs.
         </p>
         {{/contractBaselineAvailable}} {{^contractBaselineAvailable}}
         <p>
@@ -155,8 +258,7 @@
         <ul>
           {{#projectDocuments}}
           <li>
-            <a href="{{href}}">{{path}}</a> · {{role}} ·
-            <code>{{sha256}}</code>
+            <a href="{{href}}">{{path}}</a> · {{role}} · <code>{{sha256}}</code>
           </li>
           {{/projectDocuments}}
         </ul>
@@ -181,7 +283,7 @@
             </div>
           </div>
         </details>
-        {{/documentChanges}} {{/hasDocumentChanges}}
+        {{/documentChanges}}{{/hasDocumentChanges}}
         <p>
           The JSON report contains the full effective configuration, rules, and
           project source snapshots. A passing run does not approve a change to
@@ -197,7 +299,7 @@
           {{/preferences}}
         </ul>
       </details>
-      {{/hasPreferences}} {{#pages}} {{> page}} {{/pages}}
+      {{/hasPreferences}} {{#pages}}{{> page}}{{/pages}}
       <section>
         <h2>Record feedback</h2>
         <p>

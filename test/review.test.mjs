@@ -377,6 +377,14 @@ test(
     assert.equal(bad.code, 1, bad.stderr);
     const badOutput = JSON.parse(bad.stdout);
     const badReport = JSON.parse(await readFile(badOutput.report, "utf8"));
+    assert.equal(badReport.changes.comparison, "unavailable");
+    assert.equal(badReport.changes.baselineId, null);
+    assert.equal(badReport.changes.resolvedFindings.length, 0);
+    assert.equal(
+      new Set(badReport.changes.newFindings.map((entry) => entry.id)).size,
+      badReport.changes.newFindings.length,
+      "Repeated selector matches retain distinct finding occurrences",
+    );
     assert.equal(
       badReport.contract.hash,
       beforeDesign.hash,
@@ -573,6 +581,8 @@ test(
       await readFile(JSON.parse(alternate.stdout).report, "utf8"),
     );
     assert.deepEqual(alternateReport.summary, { errors: 0, warnings: 0 });
+    assert.equal(alternateReport.changes.baselineId, report.id);
+    assert.deepEqual(alternateReport.changes.newFindings, []);
     assert.equal(
       alternateReport.contract.hash,
       report.contract.hash,
@@ -1386,6 +1396,208 @@ test(
       ),
     );
     assert.deepEqual(revisedReport.pages[1].findings, []);
+
+    // Exercise approved-review deltas through the shipped CLI, including repeated
+    // elements, checkpoint scope, a source adapter, and lost evidence.
+    await writeFile(
+      source,
+      `<!doctype html><html lang="en"><title>Changes</title>
+      <main><div class="item" id="a"></div><div class="item" id="b"></div>
+      <div class="item" id="c"></div><div class="item duplicate"></div>
+      <div class="item duplicate"></div></main>
+      <style>.item { width:18px; height:30px } #c { width:30px }</style></html>`,
+    );
+    const checkpointPath = path.join(project, ".ui-review/changes.mjs");
+    const checkpointSetup =
+      'export default async ({ page }) => { await page.locator("main").waitFor(); };';
+    await writeFile(checkpointPath, checkpointSetup);
+    const diagnosticsPath = path.join(project, "src/diagnostics.json");
+    const diagnostic = {
+      rule: "token",
+      file: "src/page.html",
+      line: 1,
+      severity: "warning",
+      message: "Use <theme> tokens",
+    };
+    await writeFile(diagnosticsPath, JSON.stringify([diagnostic]));
+    const changeConfig = {
+      ...config(baseURL),
+      accessibility: false,
+      pages: [
+        {
+          name: "changes | review",
+          path: "/",
+          ready: "main",
+          checkpoints: [
+            { name: "open", setup: ".ui-review/changes.mjs" },
+            { name: "closed", setup: ".ui-review/changes.mjs" },
+          ],
+        },
+      ],
+      sourceChecks: [
+        {
+          id: "tokens",
+          authority: "advisory",
+          command: [
+            process.execPath,
+            "-e",
+            "console.log(require('node:fs').readFileSync('src/diagnostics.json', 'utf8'))",
+          ],
+        },
+      ],
+    };
+    await writeFile(
+      path.join(project, ".ui-review/config.json"),
+      JSON.stringify(changeConfig),
+    );
+    await writeFile(path.join(globalDir, "rules.json"), "[]");
+    const changeRules = [
+      {
+        id: "change-size",
+        type: "min-size",
+        selector: ".item",
+        minWidth: 24,
+        minHeight: 24,
+        severity: "warning",
+        reason: "Fixture controls retain measurable bounds.",
+        designRules: ["DR-007"],
+      },
+    ];
+    await writeFile(rulesPath, JSON.stringify(changeRules));
+    const documentPath = path.join(project, "DESIGN.md");
+    await writeFile(documentPath, "# Controls\nKeep controls visible.\n");
+    const beforeChanges = await cli(["check"]);
+    assert.equal(
+      beforeChanges.code,
+      0,
+      beforeChanges.stderr || beforeChanges.stdout,
+    );
+    const beforeChangesOutput = JSON.parse(beforeChanges.stdout);
+    const beforeChangesReport = JSON.parse(
+      await readFile(beforeChangesOutput.report, "utf8"),
+    );
+    assert.equal(beforeChangesReport.summary.warnings, 9);
+    const changesApproval = await cli([
+      "feedback",
+      "--report",
+      beforeChangesOutput.report,
+      "--decision",
+      "approve",
+      "--note",
+      "Fixture human approval preserves warnings; it does not waive them.",
+    ]);
+    assert.equal(changesApproval.code, 0, changesApproval.stderr);
+
+    await writeFile(
+      source,
+      (await readFile(source, "utf8")).replace(
+        "</style>",
+        "#a, .duplicate:first-of-type { width:30px } #b { width:19px } #c { width:18px } .duplicate:nth-of-type(4) { width:30px }</style>",
+      ),
+    );
+    await writeFile(
+      diagnosticsPath,
+      JSON.stringify([
+        {
+          ...diagnostic,
+          message: "Still use <theme> tokens",
+          severity: "error",
+        },
+      ]),
+    );
+    await writeFile(
+      documentPath,
+      "# Controls\nKeep controls visible and labelled.\n",
+    );
+    const afterChanges = await cli(["check"]);
+    assert.equal(
+      afterChanges.code,
+      0,
+      afterChanges.stderr || afterChanges.stdout,
+    );
+    const afterChangesOutput = JSON.parse(afterChanges.stdout);
+    const afterChangesReport = JSON.parse(
+      await readFile(afterChangesOutput.report, "utf8"),
+    );
+    const delta = afterChangesReport.changes;
+    assert.equal(delta.baselineId, beforeChangesReport.id);
+    assert.equal(delta.newFindings.length, 2);
+    assert.equal(delta.persistentFindings.length, 5);
+    assert.equal(delta.resolvedFindings.length, 4);
+    assert.deepEqual(delta.notComparedFindings, []);
+    assert.deepEqual(
+      delta.newFindings.map((entry) => entry.finding.element),
+      ["#c", "#c"],
+    );
+    assert.ok(
+      delta.persistentFindings.some(
+        (entry) =>
+          entry.finding.element === "#b" && entry.finding.actual.width === 19,
+      ),
+    );
+    assert.ok(
+      delta.persistentFindings.some(
+        (entry) => entry.finding.sourceCheck?.authority === "advisory",
+      ),
+    );
+    assert.equal(delta.contract.documentChanges[0].path, "DESIGN.md");
+    const changesHtml = await readFile(afterChangesOutput.html, "utf8");
+    assert.match(changesHtml, /4 resolved/);
+    assert.match(changesHtml, /reference\/capture-1.png/);
+    assert.match(changesHtml, /Keep controls visible and labelled/);
+    assert.match(changesHtml, /Still use &lt;theme&gt; tokens/);
+    assert.doesNotMatch(changesHtml, /<theme>/);
+
+    // A failed checkpoint cannot resolve its approved findings; other inspected
+    // states still compare. The approved document delta survives an intervening run.
+    await writeFile(
+      checkpointPath,
+      'export default async ({ checkpoint }) => { if (checkpoint.name === "closed") throw new Error("Fixture state unavailable"); };',
+    );
+    const unavailable = await cli(["check"]);
+    assert.equal(unavailable.code, 1, unavailable.stderr);
+    const unavailableReport = JSON.parse(
+      await readFile(JSON.parse(unavailable.stdout).report, "utf8"),
+    );
+    assert.equal(unavailableReport.changes.baselineId, beforeChangesReport.id);
+    assert.equal(unavailableReport.changes.notComparedFindings.length, 4);
+    assert.ok(
+      unavailableReport.changes.notComparedFindings.every(
+        (entry) => entry.checkpoint === "closed",
+      ),
+    );
+    assert.equal(unavailableReport.changes.resolvedFindings.length, 2);
+    assert.ok(
+      unavailableReport.changes.newlyUnassessed.some(
+        (entry) =>
+          entry.designRule === "DR-007" && entry.checkpoint === "closed",
+      ),
+    );
+    assert.deepEqual(unavailableReport.contract.documentChanges, []);
+    assert.equal(
+      unavailableReport.changes.contract.documentChanges[0].path,
+      "DESIGN.md",
+    );
+
+    await writeFile(checkpointPath, checkpointSetup);
+    changeConfig.pages[0].checkpoints.pop();
+    await writeFile(
+      path.join(project, ".ui-review/config.json"),
+      JSON.stringify(changeConfig),
+    );
+    await writeFile(rulesPath, "[]");
+    const removed = await cli(["check"]);
+    assert.equal(removed.code, 0, removed.stderr || removed.stdout);
+    const removedReport = JSON.parse(
+      await readFile(JSON.parse(removed.stdout).report, "utf8"),
+    );
+    assert.deepEqual(removedReport.changes.resolvedFindings, []);
+    assert.equal(removedReport.changes.notComparedFindings.length, 8);
+    assert.equal(removedReport.changes.contract.changes[0].kind, "removed");
+    assert.match(
+      await readFile(JSON.parse(removed.stdout).html, "utf8"),
+      /Previous findings not compared/,
+    );
     t.diagnostic(
       "broken → compact → sidebar (same contract) → stretched → finite → missing annotations: expected rules, measurements, and DR citations verified",
     );

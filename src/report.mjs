@@ -38,6 +38,25 @@ export function renderProjectDocuments(documents) {
   });
 }
 
+function stateName(entry) {
+  return `${entry.page}${entry.checkpoint ? ` · ${entry.checkpoint}` : ""}${entry.viewport ? ` · ${entry.viewport.name} (${entry.viewport.width}×${entry.viewport.height})` : ""}`;
+}
+
+/** @param {import("./types.js").FindingChange} entry */
+function changeView(entry) {
+  return {
+    ...entry,
+    state: stateName(entry),
+    rule: entry.finding.rule,
+    severity: entry.finding.severity,
+    message: entry.finding.message,
+    selector: [entry.finding.selector, entry.finding.element]
+      .filter(Boolean)
+      .join(" · "),
+    authority: entry.finding.sourceCheck?.authority ?? "rendered",
+  };
+}
+
 /** @param {import("./types.js").PageResult} page
  * @param {import("./types.js").Reference} reference
  * @param {import("./types.js").ProjectDocument[]} documents */
@@ -97,21 +116,52 @@ function pageView(page, reference, documents) {
  * @param {import("./types.js").Reference} [reference] */
 export function renderReport(report, preferences, reference) {
   const documents = report.contract?.projectDocuments ?? [];
+  const changes = report.changes;
+  const contract =
+    changes?.comparison === "available"
+      ? {
+          ...report.contract,
+          ...changes.contract,
+          previousReportId: changes.baselineId,
+        }
+      : report.contract;
   return Mustache.render(
     reportTemplate,
     {
       ...report,
+      contract,
       captureCount: report.pages.length,
+      hasChangeBaseline: changes?.comparison === "available",
+      noChangeBaseline: changes?.comparison !== "available",
+      newFindingCount: changes?.newFindings.length ?? 0,
+      persistentFindingCount: changes?.persistentFindings.length ?? 0,
+      resolvedFindingCount: changes?.resolvedFindings.length ?? 0,
+      newlyUnassessedCount: changes?.newlyUnassessed.length ?? 0,
+      notComparedCount: changes?.notComparedFindings.length ?? 0,
+      hasNotComparedFindings: Boolean(changes?.notComparedFindings.length),
+      notComparedFindings: changes?.notComparedFindings.map(changeView) ?? [],
+      hasNewFindings: Boolean(changes?.newFindings.length),
+      hasPersistentFindings: Boolean(changes?.persistentFindings.length),
+      persistentFindings: changes?.persistentFindings.map(changeView) ?? [],
+      hasResolvedFindings: Boolean(changes?.resolvedFindings.length),
+      hasNewlyUnassessed: Boolean(changes?.newlyUnassessed.length),
+      newFindings: changes?.newFindings.map(changeView) ?? [],
+      resolvedFindings: changes?.resolvedFindings.map(changeView) ?? [],
+      newlyUnassessed:
+        changes?.newlyUnassessed.map((entry) => ({
+          ...entry,
+          state: stateName(entry),
+        })) ?? [],
       hasContract: Boolean(report.contract),
-      contractBaselineAvailable: report.contract?.comparison === "available",
-      contractChanges: report.contract?.changes.map((change) => ({
+      contractBaselineAvailable: contract?.comparison === "available",
+      contractChanges: contract?.changes.map((change) => ({
         ...change,
         beforeJSON: JSON.stringify(change.before),
         afterJSON: JSON.stringify(change.after),
       })),
-      hasContractChanges: Boolean(report.contract?.changes.length),
-      configurationChangeJSON: report.contract?.configurationChange
-        ? JSON.stringify(report.contract.configurationChange)
+      hasContractChanges: Boolean(contract?.changes.length),
+      configurationChangeJSON: contract?.configurationChange
+        ? JSON.stringify(contract.configurationChange)
         : "",
       hasProjectDocuments: documents.length > 0,
       projectDocuments: documents.map((document, index) => ({
@@ -119,9 +169,9 @@ export function renderReport(report, preferences, reference) {
         href: `project-documents.html#document-${index + 1}`,
       })),
       documentBaselineUnavailable:
-        report.contract?.documentComparison === "unavailable",
-      documentChanges: report.contract?.documentChanges ?? [],
-      hasDocumentChanges: Boolean(report.contract?.documentChanges?.length),
+        contract?.documentComparison === "unavailable",
+      documentChanges: contract?.documentChanges ?? [],
+      hasDocumentChanges: Boolean(contract?.documentChanges?.length),
       hasPreferences: preferences.length > 0,
       preferences: preferences.map((entry) =>
         typeof entry === "string" ? entry : entry.note,
