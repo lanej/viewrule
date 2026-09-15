@@ -237,7 +237,8 @@ export function validateConfig(config, project) {
   for (const provider of config.sourceChecks ?? [])
     if (
       provider.cwd &&
-      (path.isAbsolute(provider.cwd) || provider.cwd.split(/[\\/]/).includes(".."))
+      (path.isAbsolute(provider.cwd) ||
+        provider.cwd.split(/[\\/]/).includes(".."))
     )
       throw new Error("Source-check cwd must stay inside the project");
   return config;
