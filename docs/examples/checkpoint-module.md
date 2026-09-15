@@ -1,0 +1,1 @@
+Checkpoint modules receive the active Playwright `page`, its isolated browser `context`, and the checkpoint configuration object. They should establish the state and wait until it is stable enough to inspect; Viewrule performs capture and rule evaluation after the function resolves.
