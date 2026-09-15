@@ -1,9 +1,11 @@
 # Controlled repair trial
 
-Status: **not run**. The deterministic detector results do not measure agent repairs.
-Execution requires an authenticated, pinned agent runner and a browser available to
-all conditions. Neither a Claude/Codex CLI nor local Chromium was available in the
-preparation workspace. No model credentials were created or inferred.
+Status: **prepared, agent runs not executed**. `scripts/repair-trial.mjs` creates
+neutral inputs, assistance, hashes, rotated trial order, and a frozen independent
+evaluator. The evaluator has a separate validation run against the seeded corpus;
+that is not an agent result. Execution still requires an authenticated, pinned
+runner and browser. The preparation workspace has no Claude/Codex CLI or model
+credentials. No model credentials or repair transcripts were created or inferred.
 
 ## Conditions
 
@@ -59,3 +61,70 @@ without arm labels: seeded defects repaired, new requirement failures, preserved
 semantics, unnecessary edits to controls, and actionable explanations. Keep raw
 counts by case and repetition; do not infer statistical superiority from a small
 pilot. Human semantic review remains distinct from deterministic assertions.
+
+## Reproduce the preparation
+
+Use a new directory outside this repository. Keep the parent directory, manifest,
+other trials, evaluator, source repository, and existing benchmark results outside
+every agent's filesystem boundary.
+
+```sh
+git clone https://github.com/pbakaus/impeccable.git /tmp/impeccable-trial-source
+git -C /tmp/impeccable-trial-source checkout 73a6f51a540bc3938a2c40677d074c70b81fa5a0
+node scripts/repair-trial.mjs prepare /tmp/viewrule-repair-trial /tmp/impeccable-trial-source
+```
+
+Preparation creates 81 neutral `task-NNN` directories: nine cases × three arms ×
+three repetitions, rotating arm order. Every repetition/arm for a case receives
+identical application bytes and shared task text. The source contains only its
+active condition; query parameters, seed names, and unused defect branches are
+removed. `manifest.json` stores grouping outside the agent workspaces. It records
+input and prompt hashes, hashes of protected tool/requirement files, the evaluator
+hash, tool revisions, and preparation elapsed time. Authored-contract labor/cost
+is unknown until supplied; preparation runtime is not that cost.
+
+Impeccable assistance is copied unchanged from its pinned source: CLI 4.1.0,
+platform engine 0.1.5, skill 4.3.0. Viewrule gets its development rules, checkpoints,
+and review instructions. Supply the matching installed plugin/packed CLI and
+bundled guide as read-only tools; do not mount this source repository into an arm.
+The baseline gets neither tool's instructions. Configure tool exposure and prompt
+routing explicitly in the runner; the preparation script does not launch agents.
+
+Before execution, fill every `manifest.runner` field with the same exact model,
+reasoning, runner version, token ceiling, wall-time limit, and browser version.
+Preinstall tools and record setup effort separately. Start a fresh session for
+every directory, serve only that directory at `http://127.0.0.1:4173`, and apply the
+same browser, network, and filesystem restrictions. Mount assistance read-only,
+allow edits only to `index.html`, and keep evaluation outside the sandbox. Running
+unrestricted agents in sibling directories does **not** establish isolation.
+
+For each trial, capture a `before` evaluation, launch the authenticated runner with
+`TASK.md` plus only that arm's assistance, retain its full transcript and patch,
+then capture an `after` evaluation. Save the frozen evaluator hash separately from
+the editable task directory before starting any agent:
+
+```sh
+node scripts/repair-trial.mjs evaluate /tmp/viewrule-repair-trial task-001 FROZEN_SHA256 before
+# Authenticated runner executes this task with the pinned settings and budget.
+node scripts/repair-trial.mjs evaluate /tmp/viewrule-repair-trial task-001 FROZEN_SHA256 after
+```
+
+Evaluation rejects changed tool/requirement files or a changed evaluator, checks
+the pinned browser, and writes per-state observations and original-size captures
+outside the workspace. It independently checks data/identity preservation,
+visible alternatives, complete labels, reporting context, readable type, numeric
+proximity, filter state, and continuity at both viewports. It imports no Viewrule
+measurement implementation. The task keeps one self-contained HTML file and a
+fixed synthetic dataset; it is not a general website evaluator.
+
+`result-template.json` makes missing transcript, patch, explanation, elapsed time,
+tokens, provider cost, setup effort, and semantic review explicit. Fill these from
+the runner's actual records; unavailable values remain null. An evaluator pass
+alone is not a valid agent trial. Verify budgets and runner settings from those
+records and mark invalid or failed starts explicitly. Grade explanations and
+semantics blind to the arm labels; no automated score substitutes for that review.
+
+`node scripts/repair-trial.mjs verify` exercises the evaluator against the nine
+neutral original inputs in the existing benchmark CI job. Its output is labeled
+`evaluator-validation-not-agent-results` and stored in the benchmark artifact.
+The issue remains open until all agent trials and their review are complete.

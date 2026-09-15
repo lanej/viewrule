@@ -37,6 +37,7 @@ export default [
       "src/checks.mjs",
       "src/capture.mjs",
       "src/review.mjs",
+      "benchmarks/analytical/repair-evaluator.mjs",
     ],
     languageOptions: { globals: globals.browser },
   },

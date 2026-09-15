@@ -59,7 +59,9 @@ jobs:
           retention-days: 7
       - name: Benchmark analytical detectors
         id: benchmark
-        run: npm run benchmark
+        run: |
+          npm run benchmark
+          node scripts/repair-trial.mjs verify
       - name: Preserve benchmark evidence
         if: ${{ !cancelled() && steps.benchmark.outcome != 'skipped' }}
         uses: actions/upload-artifact@v4
@@ -68,6 +70,7 @@ jobs:
           include-hidden-files: true
           path: |
             dist/review-evidence/
+            dist/repair-evaluator-validation.json
             dist/benchmark/summary.md
             dist/benchmark/results.json
             dist/benchmark/*/page.html
