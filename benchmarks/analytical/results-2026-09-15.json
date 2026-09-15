@@ -1,0 +1,1982 @@
+{
+  "agentTrial": {
+    "reason": "No isolated model/harness trial was executed. No claims about agent review or repair success.",
+    "status": "not-run"
+  },
+  "createdAt": "2026-09-15T15:39:57.099Z",
+  "provenance": {
+    "arch": "x64",
+    "browserSHA256": "0b20b130e7edd9dd51873be867761295fe0cfad490c2b9a64f95bd3cfc08fa71",
+    "browserVersion": "151.0.7922.34",
+    "commit": "34fa90a137557264a0380c52414111e24ee5d109",
+    "configuration": "Impeccable detect --no-config --json --viewport WxH URL; no rules suppressed. Same Chromium executable for both tools.",
+    "impeccable": {
+      "binarySHA256": "cf5231a4b1ae66996c85b033800b1dad0797e590eae2f21ef2579430af187f19",
+      "enginePackageVersion": "0.1.5",
+      "packageVersion": "4.1.0",
+      "reportedVersion": "4.0.0"
+    },
+    "inputs": {
+      "cases": "066a4871f719d560c178eb343674bc37144a36a41851e74cc865f10c3f0d3831",
+      "checkpoint": "67509268bb25a4c47fad8d6912a3de937cc99582924d47f7abe85953b0755920",
+      "html": "6e7b1ff246925e461d3393c0188ad86997592d6f854fb2e96c3a55dd00253168",
+      "rules": "49b89b88e991fe2ef6948d84e632bd2c9ca6931bdacd90ac9da79261bf0bbfb5"
+    },
+    "node": "v22.23.2",
+    "platform": "linux",
+    "viewports": [
+      {
+        "height": 900,
+        "name": "desktop",
+        "width": 1280
+      },
+      {
+        "height": 2160,
+        "name": "wide",
+        "width": 3840
+      }
+    ],
+    "viewrule": {
+      "archiveSHA256": "dbdd7d05784f792ecbfd1428d78ec52185a76ebfa2e8d83618dd722bdbeb2652",
+      "version": "0.4.0"
+    }
+  },
+  "runs": [
+    {
+      "case": "reference",
+      "checkpoint": "initial",
+      "impeccable": {
+        "adjudication": "unreviewed: candidate rule families are not a detection score",
+        "candidateFindings": 0,
+        "elapsedMs": 2341,
+        "exitCode": 0,
+        "findings": [],
+        "stderr": ""
+      },
+      "ruleConfigSHA256": "17c8277199bdf986128e1d560a817ebb31e95613ef08b13637a41bae3c563c8d",
+      "seedPresent": false,
+      "viewport": "desktop",
+      "viewrule": {
+        "exitCode": 0,
+        "findings": [],
+        "report": "reference/.ui-review/runs/2026-09-15T15-39-58-215Z-01802238/report.json",
+        "runElapsedMs": 3568,
+        "seedFindings": 0
+      }
+    },
+    {
+      "case": "reference",
+      "checkpoint": "initial",
+      "impeccable": {
+        "adjudication": "unreviewed: candidate rule families are not a detection score",
+        "candidateFindings": 0,
+        "elapsedMs": 2317,
+        "exitCode": 0,
+        "findings": [],
+        "stderr": ""
+      },
+      "ruleConfigSHA256": "17c8277199bdf986128e1d560a817ebb31e95613ef08b13637a41bae3c563c8d",
+      "seedPresent": false,
+      "viewport": "wide",
+      "viewrule": {
+        "exitCode": 0,
+        "findings": [],
+        "report": "reference/.ui-review/runs/2026-09-15T15-39-58-215Z-01802238/report.json",
+        "runElapsedMs": 3568,
+        "seedFindings": 0
+      }
+    },
+    {
+      "case": "finite-control",
+      "checkpoint": "initial",
+      "impeccable": {
+        "adjudication": "unreviewed: candidate rule families are not a detection score",
+        "candidateFindings": 0,
+        "elapsedMs": 2281,
+        "exitCode": 0,
+        "findings": [],
+        "stderr": ""
+      },
+      "ruleConfigSHA256": "0a1b4b07feb577c50aa18f68886a64c253b50f5a1d0fc9b2c310b134ab7f02ce",
+      "seedPresent": false,
+      "viewport": "desktop",
+      "viewrule": {
+        "exitCode": 0,
+        "findings": [],
+        "report": "finite-control/.ui-review/runs/2026-09-15T15-40-06-463Z-8775d979/report.json",
+        "runElapsedMs": 3426,
+        "seedFindings": 0
+      }
+    },
+    {
+      "case": "finite-control",
+      "checkpoint": "initial",
+      "impeccable": {
+        "adjudication": "unreviewed: candidate rule families are not a detection score",
+        "candidateFindings": 0,
+        "elapsedMs": 2300,
+        "exitCode": 0,
+        "findings": [],
+        "stderr": ""
+      },
+      "ruleConfigSHA256": "0a1b4b07feb577c50aa18f68886a64c253b50f5a1d0fc9b2c310b134ab7f02ce",
+      "seedPresent": false,
+      "viewport": "wide",
+      "viewrule": {
+        "exitCode": 0,
+        "findings": [],
+        "report": "finite-control/.ui-review/runs/2026-09-15T15-40-06-463Z-8775d979/report.json",
+        "runElapsedMs": 3426,
+        "seedFindings": 0
+      }
+    },
+    {
+      "case": "hidden-alternatives",
+      "checkpoint": "initial",
+      "impeccable": {
+        "adjudication": "unreviewed: candidate rule families are not a detection score",
+        "candidateFindings": 0,
+        "elapsedMs": 2291,
+        "exitCode": 0,
+        "findings": [],
+        "stderr": ""
+      },
+      "ruleConfigSHA256": "17c8277199bdf986128e1d560a817ebb31e95613ef08b13637a41bae3c563c8d",
+      "seedPresent": true,
+      "viewport": "desktop",
+      "viewrule": {
+        "exitCode": 1,
+        "findings": [
+          {
+            "actual": 4,
+            "box": {
+              "height": 41,
+              "width": 650,
+              "x": 32,
+              "y": 290.5
+            },
+            "designRules": ["DR-006"],
+            "element": "tr",
+            "evidenceKind": "DOM/capture",
+            "expected": 8,
+            "identity": "finding:03052340bbceb8f1:1",
+            "message": "Only 4 complete items fit in the initial viewport.",
+            "reason": "Eight complete available alternatives must fit in the first viewport.",
+            "rule": "alternatives",
+            "selector": "#comparison tbody tr",
+            "severity": "error",
+            "suggestion": "Reduce excess spacing or reflow the comparison to reveal the required items."
+          },
+          {
+            "actual": 4,
+            "designRules": ["DR-006", "DR-007"],
+            "evidenceKind": "DOM/capture",
+            "expected": 8,
+            "identity": "finding:4b853883b1629519:1",
+            "message": "Too few distinct comparisons fit this viewport.",
+            "reason": "Larger viewports must preserve comparison identities and legibility.",
+            "rule": "identities",
+            "selector": "#comparison tbody tr",
+            "severity": "error",
+            "suggestion": "Reflow the comparison to preserve the missing identities and expose the configured detail; retain readable type."
+          }
+        ],
+        "report": "hidden-alternatives/.ui-review/runs/2026-09-15T15-40-14-466Z-f3572c9f/report.json",
+        "runElapsedMs": 3386,
+        "seedFindings": 2
+      }
+    },
+    {
+      "case": "hidden-alternatives",
+      "checkpoint": "initial",
+      "impeccable": {
+        "adjudication": "unreviewed: candidate rule families are not a detection score",
+        "candidateFindings": 0,
+        "elapsedMs": 2293,
+        "exitCode": 0,
+        "findings": [],
+        "stderr": ""
+      },
+      "ruleConfigSHA256": "17c8277199bdf986128e1d560a817ebb31e95613ef08b13637a41bae3c563c8d",
+      "seedPresent": true,
+      "viewport": "wide",
+      "viewrule": {
+        "exitCode": 1,
+        "findings": [
+          {
+            "actual": 4,
+            "box": {
+              "height": 41,
+              "width": 650,
+              "x": 32,
+              "y": 290.5
+            },
+            "designRules": ["DR-006"],
+            "element": "tr",
+            "evidenceKind": "DOM/capture",
+            "expected": 8,
+            "identity": "finding:33e4776112100a41:1",
+            "message": "Only 4 complete items fit in the initial viewport.",
+            "reason": "Eight complete available alternatives must fit in the first viewport.",
+            "rule": "alternatives",
+            "selector": "#comparison tbody tr",
+            "severity": "error",
+            "suggestion": "Reduce excess spacing or reflow the comparison to reveal the required items."
+          },
+          {
+            "actual": 4,
+            "designRules": ["DR-006", "DR-007"],
+            "evidenceKind": "DOM/capture",
+            "expected": 8,
+            "identity": "finding:1cb23dd7b0bbee4b:1",
+            "message": "Too few distinct comparisons fit this viewport.",
+            "reason": "Larger viewports must preserve comparison identities and legibility.",
+            "rule": "identities",
+            "selector": "#comparison tbody tr",
+            "severity": "error",
+            "suggestion": "Reflow the comparison to preserve the missing identities and expose the configured detail; retain readable type."
+          }
+        ],
+        "report": "hidden-alternatives/.ui-review/runs/2026-09-15T15-40-14-466Z-f3572c9f/report.json",
+        "runElapsedMs": 3386,
+        "seedFindings": 2
+      }
+    },
+    {
+      "case": "lost-context",
+      "checkpoint": "initial",
+      "impeccable": {
+        "adjudication": "unreviewed: candidate rule families are not a detection score",
+        "candidateFindings": 0,
+        "elapsedMs": 2321,
+        "exitCode": 0,
+        "findings": [],
+        "stderr": ""
+      },
+      "ruleConfigSHA256": "17c8277199bdf986128e1d560a817ebb31e95613ef08b13637a41bae3c563c8d",
+      "seedPresent": true,
+      "viewport": "desktop",
+      "viewrule": {
+        "exitCode": 1,
+        "findings": [
+          {
+            "actual": ".period",
+            "box": {
+              "height": 581,
+              "width": 650,
+              "x": 32,
+              "y": 202
+            },
+            "designRules": ["DR-003"],
+            "element": "#comparison",
+            "evidenceKind": "DOM/capture",
+            "expected": "visible nonempty context",
+            "identity": "finding:8dfd1ec505b31ec7:1",
+            "message": "Missing visible, nonempty context: .period.",
+            "reason": "The quote date and units must remain visible beside the comparison.",
+            "rule": "period",
+            "selector": "#comparison",
+            "severity": "error",
+            "suggestion": "Display the missing context from the underlying data beside the claim or in its shared heading."
+          }
+        ],
+        "report": "lost-context/.ui-review/runs/2026-09-15T15-40-22-427Z-2053d8f6/report.json",
+        "runElapsedMs": 3513,
+        "seedFindings": 1
+      }
+    },
+    {
+      "case": "lost-context",
+      "checkpoint": "initial",
+      "impeccable": {
+        "adjudication": "unreviewed: candidate rule families are not a detection score",
+        "candidateFindings": 0,
+        "elapsedMs": 2314,
+        "exitCode": 0,
+        "findings": [],
+        "stderr": ""
+      },
+      "ruleConfigSHA256": "17c8277199bdf986128e1d560a817ebb31e95613ef08b13637a41bae3c563c8d",
+      "seedPresent": true,
+      "viewport": "wide",
+      "viewrule": {
+        "exitCode": 1,
+        "findings": [
+          {
+            "actual": ".period",
+            "box": {
+              "height": 581,
+              "width": 650,
+              "x": 32,
+              "y": 202
+            },
+            "designRules": ["DR-003"],
+            "element": "#comparison",
+            "evidenceKind": "DOM/capture",
+            "expected": "visible nonempty context",
+            "identity": "finding:b767f25c05b0ccf8:1",
+            "message": "Missing visible, nonempty context: .period.",
+            "reason": "The quote date and units must remain visible beside the comparison.",
+            "rule": "period",
+            "selector": "#comparison",
+            "severity": "error",
+            "suggestion": "Display the missing context from the underlying data beside the claim or in its shared heading."
+          }
+        ],
+        "report": "lost-context/.ui-review/runs/2026-09-15T15-40-22-427Z-2053d8f6/report.json",
+        "runElapsedMs": 3513,
+        "seedFindings": 1
+      }
+    },
+    {
+      "case": "stretched",
+      "checkpoint": "initial",
+      "impeccable": {
+        "adjudication": "unreviewed: candidate rule families are not a detection score",
+        "candidateFindings": 0,
+        "elapsedMs": 2332,
+        "exitCode": 0,
+        "findings": [],
+        "stderr": ""
+      },
+      "ruleConfigSHA256": "17c8277199bdf986128e1d560a817ebb31e95613ef08b13637a41bae3c563c8d",
+      "seedPresent": false,
+      "viewport": "desktop",
+      "viewrule": {
+        "exitCode": 1,
+        "findings": [],
+        "report": "stretched/.ui-review/runs/2026-09-15T15-40-30-569Z-a2867e07/report.json",
+        "runElapsedMs": 3563,
+        "seedFindings": 0
+      }
+    },
+    {
+      "case": "stretched",
+      "checkpoint": "initial",
+      "impeccable": {
+        "adjudication": "unreviewed: candidate rule families are not a detection score",
+        "candidateFindings": 0,
+        "elapsedMs": 2388,
+        "exitCode": 0,
+        "findings": [],
+        "stderr": ""
+      },
+      "ruleConfigSHA256": "17c8277199bdf986128e1d560a817ebb31e95613ef08b13637a41bae3c563c8d",
+      "seedPresent": true,
+      "viewport": "wide",
+      "viewrule": {
+        "exitCode": 1,
+        "findings": [
+          {
+            "actual": 1143.8125,
+            "box": {
+              "height": 41,
+              "width": 1154,
+              "x": 1500,
+              "y": 290.5
+            },
+            "designRules": ["DR-007"],
+            "element": "td.number",
+            "evidenceKind": "DOM/capture",
+            "expected": 150,
+            "identity": "finding:7cc001a1a1083418:1",
+            "message": "Adjacent text values are 1143.8px apart.",
+            "reason": "Keep related numeric values within 150 CSS pixels.",
+            "rule": "value-distance",
+            "selector": "#comparison tbody tr",
+            "severity": "error",
+            "suggestion": "Bound the comparison's columns or bring related values closer. Use extra space for useful detail or preserve it as whitespace outside the comparison."
+          },
+          {
+            "actual": 1103.171875,
+            "box": {
+              "height": 41,
+              "width": 1154,
+              "x": 2654,
+              "y": 290.5
+            },
+            "designRules": ["DR-007"],
+            "element": "td.number",
+            "evidenceKind": "DOM/capture",
+            "expected": 150,
+            "identity": "finding:7cc001a1a1083418:2",
+            "message": "Adjacent text values are 1103.2px apart.",
+            "reason": "Keep related numeric values within 150 CSS pixels.",
+            "rule": "value-distance",
+            "selector": "#comparison tbody tr",
+            "severity": "error",
+            "suggestion": "Bound the comparison's columns or bring related values closer. Use extra space for useful detail or preserve it as whitespace outside the comparison."
+          },
+          {
+            "actual": 1143.8125,
+            "box": {
+              "height": 41,
+              "width": 1154,
+              "x": 1500,
+              "y": 331.5
+            },
+            "designRules": ["DR-007"],
+            "element": "td.number",
+            "evidenceKind": "DOM/capture",
+            "expected": 150,
+            "identity": "finding:7cc001a1a1083418:3",
+            "message": "Adjacent text values are 1143.8px apart.",
+            "reason": "Keep related numeric values within 150 CSS pixels.",
+            "rule": "value-distance",
+            "selector": "#comparison tbody tr",
+            "severity": "error",
+            "suggestion": "Bound the comparison's columns or bring related values closer. Use extra space for useful detail or preserve it as whitespace outside the comparison."
+          },
+          {
+            "actual": 1103.171875,
+            "box": {
+              "height": 41,
+              "width": 1154,
+              "x": 2654,
+              "y": 331.5
+            },
+            "designRules": ["DR-007"],
+            "element": "td.number",
+            "evidenceKind": "DOM/capture",
+            "expected": 150,
+            "identity": "finding:7cc001a1a1083418:4",
+            "message": "Adjacent text values are 1103.2px apart.",
+            "reason": "Keep related numeric values within 150 CSS pixels.",
+            "rule": "value-distance",
+            "selector": "#comparison tbody tr",
+            "severity": "error",
+            "suggestion": "Bound the comparison's columns or bring related values closer. Use extra space for useful detail or preserve it as whitespace outside the comparison."
+          },
+          {
+            "actual": 1143.8125,
+            "box": {
+              "height": 41,
+              "width": 1154,
+              "x": 1500,
+              "y": 372.5
+            },
+            "designRules": ["DR-007"],
+            "element": "td.number",
+            "evidenceKind": "DOM/capture",
+            "expected": 150,
+            "identity": "finding:7cc001a1a1083418:5",
+            "message": "Adjacent text values are 1143.8px apart.",
+            "reason": "Keep related numeric values within 150 CSS pixels.",
+            "rule": "value-distance",
+            "selector": "#comparison tbody tr",
+            "severity": "error",
+            "suggestion": "Bound the comparison's columns or bring related values closer. Use extra space for useful detail or preserve it as whitespace outside the comparison."
+          },
+          {
+            "actual": 1103.171875,
+            "box": {
+              "height": 41,
+              "width": 1154,
+              "x": 2654,
+              "y": 372.5
+            },
+            "designRules": ["DR-007"],
+            "element": "td.number",
+            "evidenceKind": "DOM/capture",
+            "expected": 150,
+            "identity": "finding:7cc001a1a1083418:6",
+            "message": "Adjacent text values are 1103.2px apart.",
+            "reason": "Keep related numeric values within 150 CSS pixels.",
+            "rule": "value-distance",
+            "selector": "#comparison tbody tr",
+            "severity": "error",
+            "suggestion": "Bound the comparison's columns or bring related values closer. Use extra space for useful detail or preserve it as whitespace outside the comparison."
+          },
+          {
+            "actual": 1143.8125,
+            "box": {
+              "height": 41,
+              "width": 1154,
+              "x": 1500,
+              "y": 413.5
+            },
+            "designRules": ["DR-007"],
+            "element": "td.number",
+            "evidenceKind": "DOM/capture",
+            "expected": 150,
+            "identity": "finding:7cc001a1a1083418:7",
+            "message": "Adjacent text values are 1143.8px apart.",
+            "reason": "Keep related numeric values within 150 CSS pixels.",
+            "rule": "value-distance",
+            "selector": "#comparison tbody tr",
+            "severity": "error",
+            "suggestion": "Bound the comparison's columns or bring related values closer. Use extra space for useful detail or preserve it as whitespace outside the comparison."
+          },
+          {
+            "actual": 1103.171875,
+            "box": {
+              "height": 41,
+              "width": 1154,
+              "x": 2654,
+              "y": 413.5
+            },
+            "designRules": ["DR-007"],
+            "element": "td.number",
+            "evidenceKind": "DOM/capture",
+            "expected": 150,
+            "identity": "finding:7cc001a1a1083418:8",
+            "message": "Adjacent text values are 1103.2px apart.",
+            "reason": "Keep related numeric values within 150 CSS pixels.",
+            "rule": "value-distance",
+            "selector": "#comparison tbody tr",
+            "severity": "error",
+            "suggestion": "Bound the comparison's columns or bring related values closer. Use extra space for useful detail or preserve it as whitespace outside the comparison."
+          },
+          {
+            "actual": 1143.8125,
+            "box": {
+              "height": 41,
+              "width": 1154,
+              "x": 1500,
+              "y": 454.5
+            },
+            "designRules": ["DR-007"],
+            "element": "td.number",
+            "evidenceKind": "DOM/capture",
+            "expected": 150,
+            "identity": "finding:7cc001a1a1083418:9",
+            "message": "Adjacent text values are 1143.8px apart.",
+            "reason": "Keep related numeric values within 150 CSS pixels.",
+            "rule": "value-distance",
+            "selector": "#comparison tbody tr",
+            "severity": "error",
+            "suggestion": "Bound the comparison's columns or bring related values closer. Use extra space for useful detail or preserve it as whitespace outside the comparison."
+          },
+          {
+            "actual": 1103.171875,
+            "box": {
+              "height": 41,
+              "width": 1154,
+              "x": 2654,
+              "y": 454.5
+            },
+            "designRules": ["DR-007"],
+            "element": "td.number",
+            "evidenceKind": "DOM/capture",
+            "expected": 150,
+            "identity": "finding:7cc001a1a1083418:10",
+            "message": "Adjacent text values are 1103.2px apart.",
+            "reason": "Keep related numeric values within 150 CSS pixels.",
+            "rule": "value-distance",
+            "selector": "#comparison tbody tr",
+            "severity": "error",
+            "suggestion": "Bound the comparison's columns or bring related values closer. Use extra space for useful detail or preserve it as whitespace outside the comparison."
+          },
+          {
+            "actual": 1143.8125,
+            "box": {
+              "height": 41,
+              "width": 1154,
+              "x": 1500,
+              "y": 495.5
+            },
+            "designRules": ["DR-007"],
+            "element": "td.number",
+            "evidenceKind": "DOM/capture",
+            "expected": 150,
+            "identity": "finding:7cc001a1a1083418:11",
+            "message": "Adjacent text values are 1143.8px apart.",
+            "reason": "Keep related numeric values within 150 CSS pixels.",
+            "rule": "value-distance",
+            "selector": "#comparison tbody tr",
+            "severity": "error",
+            "suggestion": "Bound the comparison's columns or bring related values closer. Use extra space for useful detail or preserve it as whitespace outside the comparison."
+          },
+          {
+            "actual": 1103.171875,
+            "box": {
+              "height": 41,
+              "width": 1154,
+              "x": 2654,
+              "y": 495.5
+            },
+            "designRules": ["DR-007"],
+            "element": "td.number",
+            "evidenceKind": "DOM/capture",
+            "expected": 150,
+            "identity": "finding:7cc001a1a1083418:12",
+            "message": "Adjacent text values are 1103.2px apart.",
+            "reason": "Keep related numeric values within 150 CSS pixels.",
+            "rule": "value-distance",
+            "selector": "#comparison tbody tr",
+            "severity": "error",
+            "suggestion": "Bound the comparison's columns or bring related values closer. Use extra space for useful detail or preserve it as whitespace outside the comparison."
+          },
+          {
+            "actual": 1143.8125,
+            "box": {
+              "height": 41,
+              "width": 1154,
+              "x": 1500,
+              "y": 536.5
+            },
+            "designRules": ["DR-007"],
+            "element": "td.number",
+            "evidenceKind": "DOM/capture",
+            "expected": 150,
+            "identity": "finding:7cc001a1a1083418:13",
+            "message": "Adjacent text values are 1143.8px apart.",
+            "reason": "Keep related numeric values within 150 CSS pixels.",
+            "rule": "value-distance",
+            "selector": "#comparison tbody tr",
+            "severity": "error",
+            "suggestion": "Bound the comparison's columns or bring related values closer. Use extra space for useful detail or preserve it as whitespace outside the comparison."
+          },
+          {
+            "actual": 1103.171875,
+            "box": {
+              "height": 41,
+              "width": 1154,
+              "x": 2654,
+              "y": 536.5
+            },
+            "designRules": ["DR-007"],
+            "element": "td.number",
+            "evidenceKind": "DOM/capture",
+            "expected": 150,
+            "identity": "finding:7cc001a1a1083418:14",
+            "message": "Adjacent text values are 1103.2px apart.",
+            "reason": "Keep related numeric values within 150 CSS pixels.",
+            "rule": "value-distance",
+            "selector": "#comparison tbody tr",
+            "severity": "error",
+            "suggestion": "Bound the comparison's columns or bring related values closer. Use extra space for useful detail or preserve it as whitespace outside the comparison."
+          },
+          {
+            "actual": 1143.8125,
+            "box": {
+              "height": 41,
+              "width": 1154,
+              "x": 1500,
+              "y": 577.5
+            },
+            "designRules": ["DR-007"],
+            "element": "td.number",
+            "evidenceKind": "DOM/capture",
+            "expected": 150,
+            "identity": "finding:7cc001a1a1083418:15",
+            "message": "Adjacent text values are 1143.8px apart.",
+            "reason": "Keep related numeric values within 150 CSS pixels.",
+            "rule": "value-distance",
+            "selector": "#comparison tbody tr",
+            "severity": "error",
+            "suggestion": "Bound the comparison's columns or bring related values closer. Use extra space for useful detail or preserve it as whitespace outside the comparison."
+          },
+          {
+            "actual": 1103.171875,
+            "box": {
+              "height": 41,
+              "width": 1154,
+              "x": 2654,
+              "y": 577.5
+            },
+            "designRules": ["DR-007"],
+            "element": "td.number",
+            "evidenceKind": "DOM/capture",
+            "expected": 150,
+            "identity": "finding:7cc001a1a1083418:16",
+            "message": "Adjacent text values are 1103.2px apart.",
+            "reason": "Keep related numeric values within 150 CSS pixels.",
+            "rule": "value-distance",
+            "selector": "#comparison tbody tr",
+            "severity": "error",
+            "suggestion": "Bound the comparison's columns or bring related values closer. Use extra space for useful detail or preserve it as whitespace outside the comparison."
+          },
+          {
+            "actual": 1143.8125,
+            "box": {
+              "height": 41,
+              "width": 1154,
+              "x": 1500,
+              "y": 618.5
+            },
+            "designRules": ["DR-007"],
+            "element": "td.number",
+            "evidenceKind": "DOM/capture",
+            "expected": 150,
+            "identity": "finding:7cc001a1a1083418:17",
+            "message": "Adjacent text values are 1143.8px apart.",
+            "reason": "Keep related numeric values within 150 CSS pixels.",
+            "rule": "value-distance",
+            "selector": "#comparison tbody tr",
+            "severity": "error",
+            "suggestion": "Bound the comparison's columns or bring related values closer. Use extra space for useful detail or preserve it as whitespace outside the comparison."
+          },
+          {
+            "actual": 1103.171875,
+            "box": {
+              "height": 41,
+              "width": 1154,
+              "x": 2654,
+              "y": 618.5
+            },
+            "designRules": ["DR-007"],
+            "element": "td.number",
+            "evidenceKind": "DOM/capture",
+            "expected": 150,
+            "identity": "finding:7cc001a1a1083418:18",
+            "message": "Adjacent text values are 1103.2px apart.",
+            "reason": "Keep related numeric values within 150 CSS pixels.",
+            "rule": "value-distance",
+            "selector": "#comparison tbody tr",
+            "severity": "error",
+            "suggestion": "Bound the comparison's columns or bring related values closer. Use extra space for useful detail or preserve it as whitespace outside the comparison."
+          },
+          {
+            "actual": 1143.8125,
+            "box": {
+              "height": 41,
+              "width": 1154,
+              "x": 1500,
+              "y": 659.5
+            },
+            "designRules": ["DR-007"],
+            "element": "td.number",
+            "evidenceKind": "DOM/capture",
+            "expected": 150,
+            "identity": "finding:7cc001a1a1083418:19",
+            "message": "Adjacent text values are 1143.8px apart.",
+            "reason": "Keep related numeric values within 150 CSS pixels.",
+            "rule": "value-distance",
+            "selector": "#comparison tbody tr",
+            "severity": "error",
+            "suggestion": "Bound the comparison's columns or bring related values closer. Use extra space for useful detail or preserve it as whitespace outside the comparison."
+          },
+          {
+            "actual": 1103.171875,
+            "box": {
+              "height": 41,
+              "width": 1154,
+              "x": 2654,
+              "y": 659.5
+            },
+            "designRules": ["DR-007"],
+            "element": "td.number",
+            "evidenceKind": "DOM/capture",
+            "expected": 150,
+            "identity": "finding:7cc001a1a1083418:20",
+            "message": "Adjacent text values are 1103.2px apart.",
+            "reason": "Keep related numeric values within 150 CSS pixels.",
+            "rule": "value-distance",
+            "selector": "#comparison tbody tr",
+            "severity": "error",
+            "suggestion": "Bound the comparison's columns or bring related values closer. Use extra space for useful detail or preserve it as whitespace outside the comparison."
+          },
+          {
+            "actual": 1143.8125,
+            "box": {
+              "height": 41,
+              "width": 1154,
+              "x": 1500,
+              "y": 700.5
+            },
+            "designRules": ["DR-007"],
+            "element": "td.number",
+            "evidenceKind": "DOM/capture",
+            "expected": 150,
+            "identity": "finding:7cc001a1a1083418:21",
+            "message": "Adjacent text values are 1143.8px apart.",
+            "reason": "Keep related numeric values within 150 CSS pixels.",
+            "rule": "value-distance",
+            "selector": "#comparison tbody tr",
+            "severity": "error",
+            "suggestion": "Bound the comparison's columns or bring related values closer. Use extra space for useful detail or preserve it as whitespace outside the comparison."
+          },
+          {
+            "actual": 1103.171875,
+            "box": {
+              "height": 41,
+              "width": 1154,
+              "x": 2654,
+              "y": 700.5
+            },
+            "designRules": ["DR-007"],
+            "element": "td.number",
+            "evidenceKind": "DOM/capture",
+            "expected": 150,
+            "identity": "finding:7cc001a1a1083418:22",
+            "message": "Adjacent text values are 1103.2px apart.",
+            "reason": "Keep related numeric values within 150 CSS pixels.",
+            "rule": "value-distance",
+            "selector": "#comparison tbody tr",
+            "severity": "error",
+            "suggestion": "Bound the comparison's columns or bring related values closer. Use extra space for useful detail or preserve it as whitespace outside the comparison."
+          },
+          {
+            "actual": 1143.8125,
+            "box": {
+              "height": 41,
+              "width": 1154,
+              "x": 1500,
+              "y": 741.5
+            },
+            "designRules": ["DR-007"],
+            "element": "td.number",
+            "evidenceKind": "DOM/capture",
+            "expected": 150,
+            "identity": "finding:7cc001a1a1083418:23",
+            "message": "Adjacent text values are 1143.8px apart.",
+            "reason": "Keep related numeric values within 150 CSS pixels.",
+            "rule": "value-distance",
+            "selector": "#comparison tbody tr",
+            "severity": "error",
+            "suggestion": "Bound the comparison's columns or bring related values closer. Use extra space for useful detail or preserve it as whitespace outside the comparison."
+          },
+          {
+            "actual": 1103.171875,
+            "box": {
+              "height": 41,
+              "width": 1154,
+              "x": 2654,
+              "y": 741.5
+            },
+            "designRules": ["DR-007"],
+            "element": "td.number",
+            "evidenceKind": "DOM/capture",
+            "expected": 150,
+            "identity": "finding:7cc001a1a1083418:24",
+            "message": "Adjacent text values are 1103.2px apart.",
+            "reason": "Keep related numeric values within 150 CSS pixels.",
+            "rule": "value-distance",
+            "selector": "#comparison tbody tr",
+            "severity": "error",
+            "suggestion": "Bound the comparison's columns or bring related values closer. Use extra space for useful detail or preserve it as whitespace outside the comparison."
+          }
+        ],
+        "report": "stretched/.ui-review/runs/2026-09-15T15-40-30-569Z-a2867e07/report.json",
+        "runElapsedMs": 3563,
+        "seedFindings": 24
+      }
+    },
+    {
+      "case": "clipped-labels",
+      "checkpoint": "initial",
+      "impeccable": {
+        "adjudication": "unreviewed: candidate rule families are not a detection score",
+        "candidateFindings": 12,
+        "elapsedMs": 2316,
+        "exitCode": 2,
+        "findings": [
+          {
+            "antipattern": "text-overflow",
+            "category": "quality",
+            "description": "Content renders wider than its container, spilling out or forcing a horizontal scrollbar. Let text wrap, constrain widths, or give the region a deliberate scroll affordance.",
+            "file": "http://benchmark.local/?case=clipped-labels",
+            "line": 0,
+            "name": "Content overflowing its container",
+            "severity": "warning",
+            "snippet": "span.service-label overflows its box by 88px"
+          },
+          {
+            "antipattern": "text-overflow",
+            "category": "quality",
+            "description": "Content renders wider than its container, spilling out or forcing a horizontal scrollbar. Let text wrap, constrain widths, or give the region a deliberate scroll affordance.",
+            "file": "http://benchmark.local/?case=clipped-labels",
+            "line": 0,
+            "name": "Content overflowing its container",
+            "severity": "warning",
+            "snippet": "span.service-label overflows its box by 123px"
+          },
+          {
+            "antipattern": "text-overflow",
+            "category": "quality",
+            "description": "Content renders wider than its container, spilling out or forcing a horizontal scrollbar. Let text wrap, constrain widths, or give the region a deliberate scroll affordance.",
+            "file": "http://benchmark.local/?case=clipped-labels",
+            "line": 0,
+            "name": "Content overflowing its container",
+            "severity": "warning",
+            "snippet": "span.service-label overflows its box by 94px"
+          },
+          {
+            "antipattern": "text-overflow",
+            "category": "quality",
+            "description": "Content renders wider than its container, spilling out or forcing a horizontal scrollbar. Let text wrap, constrain widths, or give the region a deliberate scroll affordance.",
+            "file": "http://benchmark.local/?case=clipped-labels",
+            "line": 0,
+            "name": "Content overflowing its container",
+            "severity": "warning",
+            "snippet": "span.service-label overflows its box by 106px"
+          },
+          {
+            "antipattern": "text-overflow",
+            "category": "quality",
+            "description": "Content renders wider than its container, spilling out or forcing a horizontal scrollbar. Let text wrap, constrain widths, or give the region a deliberate scroll affordance.",
+            "file": "http://benchmark.local/?case=clipped-labels",
+            "line": 0,
+            "name": "Content overflowing its container",
+            "severity": "warning",
+            "snippet": "span.service-label overflows its box by 77px"
+          },
+          {
+            "antipattern": "text-overflow",
+            "category": "quality",
+            "description": "Content renders wider than its container, spilling out or forcing a horizontal scrollbar. Let text wrap, constrain widths, or give the region a deliberate scroll affordance.",
+            "file": "http://benchmark.local/?case=clipped-labels",
+            "line": 0,
+            "name": "Content overflowing its container",
+            "severity": "warning",
+            "snippet": "span.service-label overflows its box by 98px"
+          },
+          {
+            "antipattern": "text-overflow",
+            "category": "quality",
+            "description": "Content renders wider than its container, spilling out or forcing a horizontal scrollbar. Let text wrap, constrain widths, or give the region a deliberate scroll affordance.",
+            "file": "http://benchmark.local/?case=clipped-labels",
+            "line": 0,
+            "name": "Content overflowing its container",
+            "severity": "warning",
+            "snippet": "span.service-label overflows its box by 94px"
+          },
+          {
+            "antipattern": "text-overflow",
+            "category": "quality",
+            "description": "Content renders wider than its container, spilling out or forcing a horizontal scrollbar. Let text wrap, constrain widths, or give the region a deliberate scroll affordance.",
+            "file": "http://benchmark.local/?case=clipped-labels",
+            "line": 0,
+            "name": "Content overflowing its container",
+            "severity": "warning",
+            "snippet": "span.service-label overflows its box by 118px"
+          },
+          {
+            "antipattern": "text-overflow",
+            "category": "quality",
+            "description": "Content renders wider than its container, spilling out or forcing a horizontal scrollbar. Let text wrap, constrain widths, or give the region a deliberate scroll affordance.",
+            "file": "http://benchmark.local/?case=clipped-labels",
+            "line": 0,
+            "name": "Content overflowing its container",
+            "severity": "warning",
+            "snippet": "span.service-label overflows its box by 71px"
+          },
+          {
+            "antipattern": "text-overflow",
+            "category": "quality",
+            "description": "Content renders wider than its container, spilling out or forcing a horizontal scrollbar. Let text wrap, constrain widths, or give the region a deliberate scroll affordance.",
+            "file": "http://benchmark.local/?case=clipped-labels",
+            "line": 0,
+            "name": "Content overflowing its container",
+            "severity": "warning",
+            "snippet": "span.service-label overflows its box by 119px"
+          },
+          {
+            "antipattern": "text-overflow",
+            "category": "quality",
+            "description": "Content renders wider than its container, spilling out or forcing a horizontal scrollbar. Let text wrap, constrain widths, or give the region a deliberate scroll affordance.",
+            "file": "http://benchmark.local/?case=clipped-labels",
+            "line": 0,
+            "name": "Content overflowing its container",
+            "severity": "warning",
+            "snippet": "span.service-label overflows its box by 101px"
+          },
+          {
+            "antipattern": "text-overflow",
+            "category": "quality",
+            "description": "Content renders wider than its container, spilling out or forcing a horizontal scrollbar. Let text wrap, constrain widths, or give the region a deliberate scroll affordance.",
+            "file": "http://benchmark.local/?case=clipped-labels",
+            "line": 0,
+            "name": "Content overflowing its container",
+            "severity": "warning",
+            "snippet": "span.service-label overflows its box by 113px"
+          }
+        ],
+        "stderr": ""
+      },
+      "ruleConfigSHA256": "17c8277199bdf986128e1d560a817ebb31e95613ef08b13637a41bae3c563c8d",
+      "seedPresent": true,
+      "viewport": "desktop",
+      "viewrule": {
+        "exitCode": 1,
+        "findings": [
+          {
+            "actual": {
+              "clientHeight": 24,
+              "clientWidth": 90,
+              "scrollHeight": 24,
+              "scrollWidth": 178
+            },
+            "box": {
+              "height": 24,
+              "width": 90,
+              "x": 44,
+              "y": 299
+            },
+            "designRules": ["DR-006"],
+            "element": "span.service-label",
+            "evidenceKind": "DOM/capture",
+            "expected": "no hidden overflow",
+            "identity": "finding:b217c420f9f39da4:1",
+            "message": "Content is clipped inside this element.",
+            "reason": "Read the service suffix without guessing.",
+            "rule": "labels",
+            "selector": ".service-label",
+            "severity": "error",
+            "suggestion": "Allow enough space for the full content or provide intentional local scrolling."
+          },
+          {
+            "actual": {
+              "clientHeight": 24,
+              "clientWidth": 90,
+              "scrollHeight": 24,
+              "scrollWidth": 213
+            },
+            "box": {
+              "height": 24,
+              "width": 90,
+              "x": 44,
+              "y": 340
+            },
+            "designRules": ["DR-006"],
+            "element": "span.service-label",
+            "evidenceKind": "DOM/capture",
+            "expected": "no hidden overflow",
+            "identity": "finding:b217c420f9f39da4:2",
+            "message": "Content is clipped inside this element.",
+            "reason": "Read the service suffix without guessing.",
+            "rule": "labels",
+            "selector": ".service-label",
+            "severity": "error",
+            "suggestion": "Allow enough space for the full content or provide intentional local scrolling."
+          },
+          {
+            "actual": {
+              "clientHeight": 24,
+              "clientWidth": 90,
+              "scrollHeight": 24,
+              "scrollWidth": 184
+            },
+            "box": {
+              "height": 24,
+              "width": 90,
+              "x": 44,
+              "y": 381
+            },
+            "designRules": ["DR-006"],
+            "element": "span.service-label",
+            "evidenceKind": "DOM/capture",
+            "expected": "no hidden overflow",
+            "identity": "finding:b217c420f9f39da4:3",
+            "message": "Content is clipped inside this element.",
+            "reason": "Read the service suffix without guessing.",
+            "rule": "labels",
+            "selector": ".service-label",
+            "severity": "error",
+            "suggestion": "Allow enough space for the full content or provide intentional local scrolling."
+          },
+          {
+            "actual": {
+              "clientHeight": 24,
+              "clientWidth": 90,
+              "scrollHeight": 24,
+              "scrollWidth": 196
+            },
+            "box": {
+              "height": 24,
+              "width": 90,
+              "x": 44,
+              "y": 422
+            },
+            "designRules": ["DR-006"],
+            "element": "span.service-label",
+            "evidenceKind": "DOM/capture",
+            "expected": "no hidden overflow",
+            "identity": "finding:b217c420f9f39da4:4",
+            "message": "Content is clipped inside this element.",
+            "reason": "Read the service suffix without guessing.",
+            "rule": "labels",
+            "selector": ".service-label",
+            "severity": "error",
+            "suggestion": "Allow enough space for the full content or provide intentional local scrolling."
+          },
+          {
+            "actual": {
+              "clientHeight": 24,
+              "clientWidth": 90,
+              "scrollHeight": 24,
+              "scrollWidth": 167
+            },
+            "box": {
+              "height": 24,
+              "width": 90,
+              "x": 44,
+              "y": 463
+            },
+            "designRules": ["DR-006"],
+            "element": "span.service-label",
+            "evidenceKind": "DOM/capture",
+            "expected": "no hidden overflow",
+            "identity": "finding:b217c420f9f39da4:5",
+            "message": "Content is clipped inside this element.",
+            "reason": "Read the service suffix without guessing.",
+            "rule": "labels",
+            "selector": ".service-label",
+            "severity": "error",
+            "suggestion": "Allow enough space for the full content or provide intentional local scrolling."
+          },
+          {
+            "actual": {
+              "clientHeight": 24,
+              "clientWidth": 90,
+              "scrollHeight": 24,
+              "scrollWidth": 188
+            },
+            "box": {
+              "height": 24,
+              "width": 90,
+              "x": 44,
+              "y": 504
+            },
+            "designRules": ["DR-006"],
+            "element": "span.service-label",
+            "evidenceKind": "DOM/capture",
+            "expected": "no hidden overflow",
+            "identity": "finding:b217c420f9f39da4:6",
+            "message": "Content is clipped inside this element.",
+            "reason": "Read the service suffix without guessing.",
+            "rule": "labels",
+            "selector": ".service-label",
+            "severity": "error",
+            "suggestion": "Allow enough space for the full content or provide intentional local scrolling."
+          },
+          {
+            "actual": {
+              "clientHeight": 24,
+              "clientWidth": 90,
+              "scrollHeight": 24,
+              "scrollWidth": 184
+            },
+            "box": {
+              "height": 24,
+              "width": 90,
+              "x": 44,
+              "y": 545
+            },
+            "designRules": ["DR-006"],
+            "element": "span.service-label",
+            "evidenceKind": "DOM/capture",
+            "expected": "no hidden overflow",
+            "identity": "finding:b217c420f9f39da4:7",
+            "message": "Content is clipped inside this element.",
+            "reason": "Read the service suffix without guessing.",
+            "rule": "labels",
+            "selector": ".service-label",
+            "severity": "error",
+            "suggestion": "Allow enough space for the full content or provide intentional local scrolling."
+          },
+          {
+            "actual": {
+              "clientHeight": 24,
+              "clientWidth": 90,
+              "scrollHeight": 24,
+              "scrollWidth": 208
+            },
+            "box": {
+              "height": 24,
+              "width": 90,
+              "x": 44,
+              "y": 586
+            },
+            "designRules": ["DR-006"],
+            "element": "span.service-label",
+            "evidenceKind": "DOM/capture",
+            "expected": "no hidden overflow",
+            "identity": "finding:b217c420f9f39da4:8",
+            "message": "Content is clipped inside this element.",
+            "reason": "Read the service suffix without guessing.",
+            "rule": "labels",
+            "selector": ".service-label",
+            "severity": "error",
+            "suggestion": "Allow enough space for the full content or provide intentional local scrolling."
+          },
+          {
+            "actual": {
+              "clientHeight": 24,
+              "clientWidth": 90,
+              "scrollHeight": 24,
+              "scrollWidth": 161
+            },
+            "box": {
+              "height": 24,
+              "width": 90,
+              "x": 44,
+              "y": 627
+            },
+            "designRules": ["DR-006"],
+            "element": "span.service-label",
+            "evidenceKind": "DOM/capture",
+            "expected": "no hidden overflow",
+            "identity": "finding:b217c420f9f39da4:9",
+            "message": "Content is clipped inside this element.",
+            "reason": "Read the service suffix without guessing.",
+            "rule": "labels",
+            "selector": ".service-label",
+            "severity": "error",
+            "suggestion": "Allow enough space for the full content or provide intentional local scrolling."
+          },
+          {
+            "actual": {
+              "clientHeight": 24,
+              "clientWidth": 90,
+              "scrollHeight": 24,
+              "scrollWidth": 209
+            },
+            "box": {
+              "height": 24,
+              "width": 90,
+              "x": 44,
+              "y": 668
+            },
+            "designRules": ["DR-006"],
+            "element": "span.service-label",
+            "evidenceKind": "DOM/capture",
+            "expected": "no hidden overflow",
+            "identity": "finding:b217c420f9f39da4:10",
+            "message": "Content is clipped inside this element.",
+            "reason": "Read the service suffix without guessing.",
+            "rule": "labels",
+            "selector": ".service-label",
+            "severity": "error",
+            "suggestion": "Allow enough space for the full content or provide intentional local scrolling."
+          },
+          {
+            "actual": {
+              "clientHeight": 24,
+              "clientWidth": 90,
+              "scrollHeight": 24,
+              "scrollWidth": 191
+            },
+            "box": {
+              "height": 24,
+              "width": 90,
+              "x": 44,
+              "y": 709
+            },
+            "designRules": ["DR-006"],
+            "element": "span.service-label",
+            "evidenceKind": "DOM/capture",
+            "expected": "no hidden overflow",
+            "identity": "finding:b217c420f9f39da4:11",
+            "message": "Content is clipped inside this element.",
+            "reason": "Read the service suffix without guessing.",
+            "rule": "labels",
+            "selector": ".service-label",
+            "severity": "error",
+            "suggestion": "Allow enough space for the full content or provide intentional local scrolling."
+          },
+          {
+            "actual": {
+              "clientHeight": 24,
+              "clientWidth": 90,
+              "scrollHeight": 24,
+              "scrollWidth": 203
+            },
+            "box": {
+              "height": 24,
+              "width": 90,
+              "x": 44,
+              "y": 750
+            },
+            "designRules": ["DR-006"],
+            "element": "span.service-label",
+            "evidenceKind": "DOM/capture",
+            "expected": "no hidden overflow",
+            "identity": "finding:b217c420f9f39da4:12",
+            "message": "Content is clipped inside this element.",
+            "reason": "Read the service suffix without guessing.",
+            "rule": "labels",
+            "selector": ".service-label",
+            "severity": "error",
+            "suggestion": "Allow enough space for the full content or provide intentional local scrolling."
+          }
+        ],
+        "report": "clipped-labels/.ui-review/runs/2026-09-15T15-40-38-855Z-09c47563/report.json",
+        "runElapsedMs": 3545,
+        "seedFindings": 12
+      }
+    },
+    {
+      "case": "clipped-labels",
+      "checkpoint": "initial",
+      "impeccable": {
+        "adjudication": "unreviewed: candidate rule families are not a detection score",
+        "candidateFindings": 12,
+        "elapsedMs": 2298,
+        "exitCode": 2,
+        "findings": [
+          {
+            "antipattern": "text-overflow",
+            "category": "quality",
+            "description": "Content renders wider than its container, spilling out or forcing a horizontal scrollbar. Let text wrap, constrain widths, or give the region a deliberate scroll affordance.",
+            "file": "http://benchmark.local/?case=clipped-labels",
+            "line": 0,
+            "name": "Content overflowing its container",
+            "severity": "warning",
+            "snippet": "span.service-label overflows its box by 88px"
+          },
+          {
+            "antipattern": "text-overflow",
+            "category": "quality",
+            "description": "Content renders wider than its container, spilling out or forcing a horizontal scrollbar. Let text wrap, constrain widths, or give the region a deliberate scroll affordance.",
+            "file": "http://benchmark.local/?case=clipped-labels",
+            "line": 0,
+            "name": "Content overflowing its container",
+            "severity": "warning",
+            "snippet": "span.service-label overflows its box by 123px"
+          },
+          {
+            "antipattern": "text-overflow",
+            "category": "quality",
+            "description": "Content renders wider than its container, spilling out or forcing a horizontal scrollbar. Let text wrap, constrain widths, or give the region a deliberate scroll affordance.",
+            "file": "http://benchmark.local/?case=clipped-labels",
+            "line": 0,
+            "name": "Content overflowing its container",
+            "severity": "warning",
+            "snippet": "span.service-label overflows its box by 94px"
+          },
+          {
+            "antipattern": "text-overflow",
+            "category": "quality",
+            "description": "Content renders wider than its container, spilling out or forcing a horizontal scrollbar. Let text wrap, constrain widths, or give the region a deliberate scroll affordance.",
+            "file": "http://benchmark.local/?case=clipped-labels",
+            "line": 0,
+            "name": "Content overflowing its container",
+            "severity": "warning",
+            "snippet": "span.service-label overflows its box by 106px"
+          },
+          {
+            "antipattern": "text-overflow",
+            "category": "quality",
+            "description": "Content renders wider than its container, spilling out or forcing a horizontal scrollbar. Let text wrap, constrain widths, or give the region a deliberate scroll affordance.",
+            "file": "http://benchmark.local/?case=clipped-labels",
+            "line": 0,
+            "name": "Content overflowing its container",
+            "severity": "warning",
+            "snippet": "span.service-label overflows its box by 77px"
+          },
+          {
+            "antipattern": "text-overflow",
+            "category": "quality",
+            "description": "Content renders wider than its container, spilling out or forcing a horizontal scrollbar. Let text wrap, constrain widths, or give the region a deliberate scroll affordance.",
+            "file": "http://benchmark.local/?case=clipped-labels",
+            "line": 0,
+            "name": "Content overflowing its container",
+            "severity": "warning",
+            "snippet": "span.service-label overflows its box by 98px"
+          },
+          {
+            "antipattern": "text-overflow",
+            "category": "quality",
+            "description": "Content renders wider than its container, spilling out or forcing a horizontal scrollbar. Let text wrap, constrain widths, or give the region a deliberate scroll affordance.",
+            "file": "http://benchmark.local/?case=clipped-labels",
+            "line": 0,
+            "name": "Content overflowing its container",
+            "severity": "warning",
+            "snippet": "span.service-label overflows its box by 94px"
+          },
+          {
+            "antipattern": "text-overflow",
+            "category": "quality",
+            "description": "Content renders wider than its container, spilling out or forcing a horizontal scrollbar. Let text wrap, constrain widths, or give the region a deliberate scroll affordance.",
+            "file": "http://benchmark.local/?case=clipped-labels",
+            "line": 0,
+            "name": "Content overflowing its container",
+            "severity": "warning",
+            "snippet": "span.service-label overflows its box by 118px"
+          },
+          {
+            "antipattern": "text-overflow",
+            "category": "quality",
+            "description": "Content renders wider than its container, spilling out or forcing a horizontal scrollbar. Let text wrap, constrain widths, or give the region a deliberate scroll affordance.",
+            "file": "http://benchmark.local/?case=clipped-labels",
+            "line": 0,
+            "name": "Content overflowing its container",
+            "severity": "warning",
+            "snippet": "span.service-label overflows its box by 71px"
+          },
+          {
+            "antipattern": "text-overflow",
+            "category": "quality",
+            "description": "Content renders wider than its container, spilling out or forcing a horizontal scrollbar. Let text wrap, constrain widths, or give the region a deliberate scroll affordance.",
+            "file": "http://benchmark.local/?case=clipped-labels",
+            "line": 0,
+            "name": "Content overflowing its container",
+            "severity": "warning",
+            "snippet": "span.service-label overflows its box by 119px"
+          },
+          {
+            "antipattern": "text-overflow",
+            "category": "quality",
+            "description": "Content renders wider than its container, spilling out or forcing a horizontal scrollbar. Let text wrap, constrain widths, or give the region a deliberate scroll affordance.",
+            "file": "http://benchmark.local/?case=clipped-labels",
+            "line": 0,
+            "name": "Content overflowing its container",
+            "severity": "warning",
+            "snippet": "span.service-label overflows its box by 101px"
+          },
+          {
+            "antipattern": "text-overflow",
+            "category": "quality",
+            "description": "Content renders wider than its container, spilling out or forcing a horizontal scrollbar. Let text wrap, constrain widths, or give the region a deliberate scroll affordance.",
+            "file": "http://benchmark.local/?case=clipped-labels",
+            "line": 0,
+            "name": "Content overflowing its container",
+            "severity": "warning",
+            "snippet": "span.service-label overflows its box by 113px"
+          }
+        ],
+        "stderr": ""
+      },
+      "ruleConfigSHA256": "17c8277199bdf986128e1d560a817ebb31e95613ef08b13637a41bae3c563c8d",
+      "seedPresent": true,
+      "viewport": "wide",
+      "viewrule": {
+        "exitCode": 1,
+        "findings": [
+          {
+            "actual": {
+              "clientHeight": 24,
+              "clientWidth": 90,
+              "scrollHeight": 24,
+              "scrollWidth": 178
+            },
+            "box": {
+              "height": 24,
+              "width": 90,
+              "x": 44,
+              "y": 299
+            },
+            "designRules": ["DR-006"],
+            "element": "span.service-label",
+            "evidenceKind": "DOM/capture",
+            "expected": "no hidden overflow",
+            "identity": "finding:9b9db18c5ccbad6b:1",
+            "message": "Content is clipped inside this element.",
+            "reason": "Read the service suffix without guessing.",
+            "rule": "labels",
+            "selector": ".service-label",
+            "severity": "error",
+            "suggestion": "Allow enough space for the full content or provide intentional local scrolling."
+          },
+          {
+            "actual": {
+              "clientHeight": 24,
+              "clientWidth": 90,
+              "scrollHeight": 24,
+              "scrollWidth": 213
+            },
+            "box": {
+              "height": 24,
+              "width": 90,
+              "x": 44,
+              "y": 340
+            },
+            "designRules": ["DR-006"],
+            "element": "span.service-label",
+            "evidenceKind": "DOM/capture",
+            "expected": "no hidden overflow",
+            "identity": "finding:9b9db18c5ccbad6b:2",
+            "message": "Content is clipped inside this element.",
+            "reason": "Read the service suffix without guessing.",
+            "rule": "labels",
+            "selector": ".service-label",
+            "severity": "error",
+            "suggestion": "Allow enough space for the full content or provide intentional local scrolling."
+          },
+          {
+            "actual": {
+              "clientHeight": 24,
+              "clientWidth": 90,
+              "scrollHeight": 24,
+              "scrollWidth": 184
+            },
+            "box": {
+              "height": 24,
+              "width": 90,
+              "x": 44,
+              "y": 381
+            },
+            "designRules": ["DR-006"],
+            "element": "span.service-label",
+            "evidenceKind": "DOM/capture",
+            "expected": "no hidden overflow",
+            "identity": "finding:9b9db18c5ccbad6b:3",
+            "message": "Content is clipped inside this element.",
+            "reason": "Read the service suffix without guessing.",
+            "rule": "labels",
+            "selector": ".service-label",
+            "severity": "error",
+            "suggestion": "Allow enough space for the full content or provide intentional local scrolling."
+          },
+          {
+            "actual": {
+              "clientHeight": 24,
+              "clientWidth": 90,
+              "scrollHeight": 24,
+              "scrollWidth": 196
+            },
+            "box": {
+              "height": 24,
+              "width": 90,
+              "x": 44,
+              "y": 422
+            },
+            "designRules": ["DR-006"],
+            "element": "span.service-label",
+            "evidenceKind": "DOM/capture",
+            "expected": "no hidden overflow",
+            "identity": "finding:9b9db18c5ccbad6b:4",
+            "message": "Content is clipped inside this element.",
+            "reason": "Read the service suffix without guessing.",
+            "rule": "labels",
+            "selector": ".service-label",
+            "severity": "error",
+            "suggestion": "Allow enough space for the full content or provide intentional local scrolling."
+          },
+          {
+            "actual": {
+              "clientHeight": 24,
+              "clientWidth": 90,
+              "scrollHeight": 24,
+              "scrollWidth": 167
+            },
+            "box": {
+              "height": 24,
+              "width": 90,
+              "x": 44,
+              "y": 463
+            },
+            "designRules": ["DR-006"],
+            "element": "span.service-label",
+            "evidenceKind": "DOM/capture",
+            "expected": "no hidden overflow",
+            "identity": "finding:9b9db18c5ccbad6b:5",
+            "message": "Content is clipped inside this element.",
+            "reason": "Read the service suffix without guessing.",
+            "rule": "labels",
+            "selector": ".service-label",
+            "severity": "error",
+            "suggestion": "Allow enough space for the full content or provide intentional local scrolling."
+          },
+          {
+            "actual": {
+              "clientHeight": 24,
+              "clientWidth": 90,
+              "scrollHeight": 24,
+              "scrollWidth": 188
+            },
+            "box": {
+              "height": 24,
+              "width": 90,
+              "x": 44,
+              "y": 504
+            },
+            "designRules": ["DR-006"],
+            "element": "span.service-label",
+            "evidenceKind": "DOM/capture",
+            "expected": "no hidden overflow",
+            "identity": "finding:9b9db18c5ccbad6b:6",
+            "message": "Content is clipped inside this element.",
+            "reason": "Read the service suffix without guessing.",
+            "rule": "labels",
+            "selector": ".service-label",
+            "severity": "error",
+            "suggestion": "Allow enough space for the full content or provide intentional local scrolling."
+          },
+          {
+            "actual": {
+              "clientHeight": 24,
+              "clientWidth": 90,
+              "scrollHeight": 24,
+              "scrollWidth": 184
+            },
+            "box": {
+              "height": 24,
+              "width": 90,
+              "x": 44,
+              "y": 545
+            },
+            "designRules": ["DR-006"],
+            "element": "span.service-label",
+            "evidenceKind": "DOM/capture",
+            "expected": "no hidden overflow",
+            "identity": "finding:9b9db18c5ccbad6b:7",
+            "message": "Content is clipped inside this element.",
+            "reason": "Read the service suffix without guessing.",
+            "rule": "labels",
+            "selector": ".service-label",
+            "severity": "error",
+            "suggestion": "Allow enough space for the full content or provide intentional local scrolling."
+          },
+          {
+            "actual": {
+              "clientHeight": 24,
+              "clientWidth": 90,
+              "scrollHeight": 24,
+              "scrollWidth": 208
+            },
+            "box": {
+              "height": 24,
+              "width": 90,
+              "x": 44,
+              "y": 586
+            },
+            "designRules": ["DR-006"],
+            "element": "span.service-label",
+            "evidenceKind": "DOM/capture",
+            "expected": "no hidden overflow",
+            "identity": "finding:9b9db18c5ccbad6b:8",
+            "message": "Content is clipped inside this element.",
+            "reason": "Read the service suffix without guessing.",
+            "rule": "labels",
+            "selector": ".service-label",
+            "severity": "error",
+            "suggestion": "Allow enough space for the full content or provide intentional local scrolling."
+          },
+          {
+            "actual": {
+              "clientHeight": 24,
+              "clientWidth": 90,
+              "scrollHeight": 24,
+              "scrollWidth": 161
+            },
+            "box": {
+              "height": 24,
+              "width": 90,
+              "x": 44,
+              "y": 627
+            },
+            "designRules": ["DR-006"],
+            "element": "span.service-label",
+            "evidenceKind": "DOM/capture",
+            "expected": "no hidden overflow",
+            "identity": "finding:9b9db18c5ccbad6b:9",
+            "message": "Content is clipped inside this element.",
+            "reason": "Read the service suffix without guessing.",
+            "rule": "labels",
+            "selector": ".service-label",
+            "severity": "error",
+            "suggestion": "Allow enough space for the full content or provide intentional local scrolling."
+          },
+          {
+            "actual": {
+              "clientHeight": 24,
+              "clientWidth": 90,
+              "scrollHeight": 24,
+              "scrollWidth": 209
+            },
+            "box": {
+              "height": 24,
+              "width": 90,
+              "x": 44,
+              "y": 668
+            },
+            "designRules": ["DR-006"],
+            "element": "span.service-label",
+            "evidenceKind": "DOM/capture",
+            "expected": "no hidden overflow",
+            "identity": "finding:9b9db18c5ccbad6b:10",
+            "message": "Content is clipped inside this element.",
+            "reason": "Read the service suffix without guessing.",
+            "rule": "labels",
+            "selector": ".service-label",
+            "severity": "error",
+            "suggestion": "Allow enough space for the full content or provide intentional local scrolling."
+          },
+          {
+            "actual": {
+              "clientHeight": 24,
+              "clientWidth": 90,
+              "scrollHeight": 24,
+              "scrollWidth": 191
+            },
+            "box": {
+              "height": 24,
+              "width": 90,
+              "x": 44,
+              "y": 709
+            },
+            "designRules": ["DR-006"],
+            "element": "span.service-label",
+            "evidenceKind": "DOM/capture",
+            "expected": "no hidden overflow",
+            "identity": "finding:9b9db18c5ccbad6b:11",
+            "message": "Content is clipped inside this element.",
+            "reason": "Read the service suffix without guessing.",
+            "rule": "labels",
+            "selector": ".service-label",
+            "severity": "error",
+            "suggestion": "Allow enough space for the full content or provide intentional local scrolling."
+          },
+          {
+            "actual": {
+              "clientHeight": 24,
+              "clientWidth": 90,
+              "scrollHeight": 24,
+              "scrollWidth": 203
+            },
+            "box": {
+              "height": 24,
+              "width": 90,
+              "x": 44,
+              "y": 750
+            },
+            "designRules": ["DR-006"],
+            "element": "span.service-label",
+            "evidenceKind": "DOM/capture",
+            "expected": "no hidden overflow",
+            "identity": "finding:9b9db18c5ccbad6b:12",
+            "message": "Content is clipped inside this element.",
+            "reason": "Read the service suffix without guessing.",
+            "rule": "labels",
+            "selector": ".service-label",
+            "severity": "error",
+            "suggestion": "Allow enough space for the full content or provide intentional local scrolling."
+          }
+        ],
+        "report": "clipped-labels/.ui-review/runs/2026-09-15T15-40-38-855Z-09c47563/report.json",
+        "runElapsedMs": 3545,
+        "seedFindings": 12
+      }
+    },
+    {
+      "case": "spacious-dashboard",
+      "checkpoint": "initial",
+      "impeccable": {
+        "adjudication": "unreviewed: candidate rule families are not a detection score",
+        "candidateFindings": 0,
+        "elapsedMs": 2338,
+        "exitCode": 0,
+        "findings": [],
+        "stderr": ""
+      },
+      "ruleConfigSHA256": "17c8277199bdf986128e1d560a817ebb31e95613ef08b13637a41bae3c563c8d",
+      "seedPresent": true,
+      "viewport": "desktop",
+      "viewrule": {
+        "exitCode": 1,
+        "findings": [
+          {
+            "actual": 2,
+            "box": {
+              "height": 41,
+              "width": 650,
+              "x": 32,
+              "y": 790.5
+            },
+            "designRules": ["DR-006"],
+            "element": "tr",
+            "evidenceKind": "DOM/capture",
+            "expected": 8,
+            "identity": "finding:a646bfb06cde1961:1",
+            "message": "Only 2 complete items fit in the initial viewport.",
+            "reason": "Eight complete available alternatives must fit in the first viewport.",
+            "rule": "alternatives",
+            "selector": "#comparison tbody tr",
+            "severity": "error",
+            "suggestion": "Reduce excess spacing or reflow the comparison to reveal the required items."
+          },
+          {
+            "actual": 2,
+            "designRules": ["DR-006", "DR-007"],
+            "evidenceKind": "DOM/capture",
+            "expected": 8,
+            "identity": "finding:ec52896c60497a6d:1",
+            "message": "Too few distinct comparisons fit this viewport.",
+            "reason": "Larger viewports must preserve comparison identities and legibility.",
+            "rule": "identities",
+            "selector": "#comparison tbody tr",
+            "severity": "error",
+            "suggestion": "Reflow the comparison to preserve the missing identities and expose the configured detail; retain readable type."
+          }
+        ],
+        "report": "spacious-dashboard/.ui-review/runs/2026-09-15T15-40-47-036Z-eb48c95f/report.json",
+        "runElapsedMs": 3577,
+        "seedFindings": 2
+      }
+    },
+    {
+      "case": "spacious-dashboard",
+      "checkpoint": "initial",
+      "impeccable": {
+        "adjudication": "unreviewed: candidate rule families are not a detection score",
+        "candidateFindings": 0,
+        "elapsedMs": 2334,
+        "exitCode": 0,
+        "findings": [],
+        "stderr": ""
+      },
+      "ruleConfigSHA256": "17c8277199bdf986128e1d560a817ebb31e95613ef08b13637a41bae3c563c8d",
+      "seedPresent": false,
+      "viewport": "wide",
+      "viewrule": {
+        "exitCode": 1,
+        "findings": [],
+        "report": "spacious-dashboard/.ui-review/runs/2026-09-15T15-40-47-036Z-eb48c95f/report.json",
+        "runElapsedMs": 3577,
+        "seedFindings": 0
+      }
+    },
+    {
+      "case": "cross-viewport",
+      "checkpoint": "initial",
+      "impeccable": {
+        "adjudication": "unreviewed: candidate rule families are not a detection score",
+        "candidateFindings": 0,
+        "elapsedMs": 2320,
+        "exitCode": 0,
+        "findings": [],
+        "stderr": ""
+      },
+      "ruleConfigSHA256": "17c8277199bdf986128e1d560a817ebb31e95613ef08b13637a41bae3c563c8d",
+      "seedPresent": false,
+      "viewport": "desktop",
+      "viewrule": {
+        "exitCode": 1,
+        "findings": [],
+        "report": "cross-viewport/.ui-review/runs/2026-09-15T15-40-55-276Z-e6687627/report.json",
+        "runElapsedMs": 3509,
+        "seedFindings": 0
+      }
+    },
+    {
+      "case": "cross-viewport",
+      "checkpoint": "initial",
+      "impeccable": {
+        "adjudication": "unreviewed: candidate rule families are not a detection score",
+        "candidateFindings": 0,
+        "elapsedMs": 2316,
+        "exitCode": 0,
+        "findings": [],
+        "stderr": ""
+      },
+      "ruleConfigSHA256": "17c8277199bdf986128e1d560a817ebb31e95613ef08b13637a41bae3c563c8d",
+      "seedPresent": true,
+      "viewport": "wide",
+      "viewrule": {
+        "exitCode": 1,
+        "findings": [
+          {
+            "actual": ["carrier-2"],
+            "designRules": ["DR-006", "DR-007"],
+            "evidenceKind": "DOM/capture",
+            "expected": [
+              "carrier-1",
+              "carrier-2",
+              "carrier-3",
+              "carrier-4",
+              "carrier-5",
+              "carrier-6",
+              "carrier-7",
+              "carrier-8",
+              "carrier-9",
+              "carrier-10",
+              "carrier-11",
+              "carrier-12"
+            ],
+            "identity": "finding:544fd013acb45298:1",
+            "message": "Larger viewport lost previously visible comparisons.",
+            "reason": "Larger viewports must preserve comparison identities and legibility.",
+            "rule": "identities",
+            "selector": "#comparison tbody tr",
+            "severity": "error",
+            "suggestion": "Reflow the comparison to preserve the missing identities and expose the configured detail; retain readable type."
+          }
+        ],
+        "report": "cross-viewport/.ui-review/runs/2026-09-15T15-40-55-276Z-e6687627/report.json",
+        "runElapsedMs": 3509,
+        "seedFindings": 1
+      }
+    },
+    {
+      "case": "after-filter",
+      "checkpoint": "filtered",
+      "impeccable": {
+        "adjudication": "unreviewed: candidate rule families are not a detection score",
+        "candidateFindings": 0,
+        "elapsedMs": 2329,
+        "exitCode": 0,
+        "findings": [],
+        "stderr": ""
+      },
+      "ruleConfigSHA256": "17c8277199bdf986128e1d560a817ebb31e95613ef08b13637a41bae3c563c8d",
+      "seedPresent": true,
+      "viewport": "desktop",
+      "viewrule": {
+        "exitCode": 1,
+        "findings": [
+          {
+            "actual": ".period",
+            "box": {
+              "height": 581,
+              "width": 650,
+              "x": 32,
+              "y": 202
+            },
+            "designRules": ["DR-003"],
+            "element": "#comparison",
+            "evidenceKind": "DOM/capture",
+            "expected": "visible nonempty context",
+            "identity": "finding:261efa8c6890e519:1",
+            "message": "Missing visible, nonempty context: .period.",
+            "reason": "The quote date and units must remain visible beside the comparison.",
+            "rule": "period",
+            "selector": "#comparison",
+            "severity": "error",
+            "suggestion": "Display the missing context from the underlying data beside the claim or in its shared heading."
+          }
+        ],
+        "report": "after-filter/.ui-review/runs/2026-09-15T15-41-03-409Z-55d57aaa/report.json",
+        "runElapsedMs": 3530,
+        "seedFindings": 1
+      }
+    },
+    {
+      "case": "after-filter",
+      "checkpoint": "filtered",
+      "impeccable": {
+        "adjudication": "unreviewed: candidate rule families are not a detection score",
+        "candidateFindings": 0,
+        "elapsedMs": 2320,
+        "exitCode": 0,
+        "findings": [],
+        "stderr": ""
+      },
+      "ruleConfigSHA256": "17c8277199bdf986128e1d560a817ebb31e95613ef08b13637a41bae3c563c8d",
+      "seedPresent": true,
+      "viewport": "wide",
+      "viewrule": {
+        "exitCode": 1,
+        "findings": [
+          {
+            "actual": ".period",
+            "box": {
+              "height": 581,
+              "width": 650,
+              "x": 32,
+              "y": 202
+            },
+            "designRules": ["DR-003"],
+            "element": "#comparison",
+            "evidenceKind": "DOM/capture",
+            "expected": "visible nonempty context",
+            "identity": "finding:32c8a200f9e9e47e:1",
+            "message": "Missing visible, nonempty context: .period.",
+            "reason": "The quote date and units must remain visible beside the comparison.",
+            "rule": "period",
+            "selector": "#comparison",
+            "severity": "error",
+            "suggestion": "Display the missing context from the underlying data beside the claim or in its shared heading."
+          }
+        ],
+        "report": "after-filter/.ui-review/runs/2026-09-15T15-41-03-409Z-55d57aaa/report.json",
+        "runElapsedMs": 3530,
+        "seedFindings": 1
+      }
+    }
+  ],
+  "scope": "Deterministic detectors; authored Viewrule contract versus Impeccable defaults. Not an agent-quality comparison.",
+  "version": 1
+}

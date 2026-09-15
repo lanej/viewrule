@@ -59,6 +59,9 @@ commands, raw findings, source configuration, and screenshots. CI uploads those 
 failures stop the run; they are never recorded as missed defects or clean scans.
 Impeccable's exit 2 means findings, while exit 1 means an operational failure.
 
+The [reviewed 2026-09-15 results](results.md) preserve the raw diagnostics and
+report detected, missed, and clean outcomes separately for each viewport.
+
 ## Interpret results
 
 The primary unit is a **seed at a viewport/state**, not an arbitrary tool exit code.
