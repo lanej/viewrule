@@ -1,0 +1,1 @@
+Checkpoint setup modules are executable project code, analogous to Playwright test fixtures. Viewrule only accepts project-relative setup paths and does not fetch or execute remote checkpoint modules.
