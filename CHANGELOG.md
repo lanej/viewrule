@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Add a versioned, cited design guide shared by Claude Code, the npm archive, and
+  Pages, with selective offline retrieval and a lightweight authoring contract.
+- Extend the existing gallery with synthetic pricing/action-list and encoding
+  examples; distinguish advisory counterexamples from scoped automated findings.
+- Plugin 0.5.2 bundles guide access independently of the existing engine pin.
+  Existing checks and defaults are unchanged.
 - Add opt-in `required-elements` and `relative-position` rules for per-component
   graphics, peer placement, and bounded spacing independent of grid/flex CSS.
 - Extend `consistent` with opt-in cross-page identity and inline SVG structure

@@ -1,0 +1,125 @@
+body {
+  max-width: 1280px;
+}
+.guide-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 12px 0 24px;
+  border-bottom: 1px solid light-dark(#d2ded6, #42554a);
+}
+.guide-header > a {
+  font-size: 22px;
+  font-weight: 650;
+  text-decoration: none;
+}
+.guide-layout {
+  display: grid;
+  grid-template-columns: 210px minmax(0, 1fr);
+  gap: 48px;
+  margin: 32px 0;
+}
+aside {
+  font-size: 14px;
+}
+aside nav {
+  display: grid;
+  gap: 6px;
+  margin: 16px 0 24px;
+}
+aside nav a {
+  padding: 8px;
+  text-decoration: none;
+  border-radius: 4px;
+}
+aside nav a[aria-current="page"] {
+  background: light-dark(#edf4ef, #24352c);
+  font-weight: 650;
+}
+.eyebrow {
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  font-weight: 650;
+}
+main {
+  min-width: 0;
+  max-width: 850px;
+}
+main h1 {
+  font-size: clamp(28px, 4vw, 38px);
+  line-height: 1.15;
+  margin: 22px 0;
+  letter-spacing: -0.025em;
+}
+main h2 {
+  font-size: 22px;
+  margin: 32px 0 12px;
+}
+main p,
+main li {
+  max-width: 72ch;
+}
+main li {
+  margin: 8px 0;
+}
+.guide-meta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 13px;
+  color: light-dark(#4c6256, #b5c8bc);
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  margin: 24px 0;
+}
+th,
+td {
+  text-align: left;
+  vertical-align: top;
+  padding: 12px 10px;
+  border-bottom: 1px solid light-dark(#d2ded6, #42554a);
+  overflow-wrap: anywhere;
+}
+th {
+  background: light-dark(#f1f5f2, #24352c);
+}
+pre {
+  overflow: auto;
+  padding: 16px;
+  background: light-dark(#f1f5f2, #24352c);
+  font-size: 13px;
+}
+code {
+  overflow-wrap: anywhere;
+}
+.skip:not(:focus) {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+@media (max-width: 780px) {
+  .guide-layout {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  aside nav {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  aside > .eyebrow {
+    margin: 0;
+  }
+  body {
+    padding: 16px;
+  }
+  th,
+  td {
+    padding: 10px 6px;
+  }
+}

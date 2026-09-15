@@ -42,6 +42,15 @@ if (args.length === 1 && args[0] === "hook") {
       }),
     );
   }
+} else if (args[0] === "guide") {
+  try {
+    const { printGuide } =
+      await import("../plugins/claude-code/scripts/guide.mjs");
+    await printGuide(args.slice(1));
+  } catch (err) {
+    console.error(`viewrule: ${err.message}`);
+    process.exitCode = 2;
+  }
 } else if (args.length === 1 && args[0] === "--version") {
   console.log(
     JSON.parse(

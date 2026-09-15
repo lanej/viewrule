@@ -31,6 +31,7 @@ const help = `viewrule — rendered UI checks and a versioned design feedback lo
                                        Save feedback; approval preserves screenshots
   learn --feedback ID --rule FILE [--scope project|global]
                                        Convert recorded feedback into a JSON rule
+  guide [ID]                           Read the versioned guide index or one Markdown page
   guidance                             Print project documents, built-in guidance, preferences, and feedback
   hook                                 Claude Stop hook; opt-in per project
 

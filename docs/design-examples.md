@@ -3,6 +3,13 @@
 For a complete connected workflow, see [the mock application](mock-application.md):
 navigation, charts, search, filters, drawers, tabs, and carrier comparisons together.
 
+The gallery now also links [synthetic pricing action lists](examples/pricing.html)
+and [encoding comparisons](examples/encodings.html). Their task, cited guidance,
+assumptions, and scoped expected findings are explained in the
+[design guide](../plugins/claude-code/guide/v1/index.md). The sparse and overloaded
+pricing examples are advisory counterexamples that pass the supplied clipping rule.
+Use `npm run site:preview` for working guide links in these new examples.
+
 Each pair keeps the content and task constant. Component pairs change one design
 property; the analytical decision-surface pair combines several related lessons.
 “Good” means that property satisfies the stated expectation; it does not approve

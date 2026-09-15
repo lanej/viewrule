@@ -1,0 +1,13 @@
+[
+  {
+    "id": "encoding-shared-domain",
+    "type": "consistent",
+    "selector": "[data-chart]",
+    "keyAttribute": "data-group",
+    "properties": [],
+    "attributes": ["data-min", "data-max"],
+    "severity": "error",
+    "designRules": ["DR-001"],
+    "reason": "Within each absolute-magnitude comparison, renderer-declared domains should match. Inspect SVG marks independently."
+  }
+]

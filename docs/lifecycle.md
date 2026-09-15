@@ -71,8 +71,9 @@ wording is included in the policy hash and old reports retain their policy text.
    pin uses the packed archive served by the fixture; production pins stay unchanged.
    It leaves the tested tarball in `dist/`.
    If updating the plugin in the same release, set its `engine.json` URL/version and
-   SHA-256 from the final archive and bump its manifest version. The plugin is not
-   part of the npm archive, so updating that pin does not change the archive digest.
+   SHA-256 from the final archive and bump its manifest version. The plugin manifest and engine pin are not
+   part of the npm archive, so updating them does not change the archive digest.
+   The shared guide corpus and guide reader are included in the archive.
    `[release]` PRs and commits verify a matching-version pin against the packed archive;
    ordinary source/doc changes can still target the previously published engine.
 3. Publish the reviewed version change to `main` with `[release]` in the final

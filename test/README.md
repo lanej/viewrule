@@ -84,3 +84,19 @@ The rendered gallery also works below the Pages prefix, expands/collapses, and p
 its local sample action. Native-scale captures and metadata are generated in
 `dist/decision-evidence/`. There are no image snapshot assertions. Task relevance,
 semantic density, complex map contrast, and recommendation quality remain human review.
+
+## Guide and original examples
+
+The same installed workflow retrieves one pattern and its evidence from an isolated
+plugin **before engine setup**, then checks identical Markdown through the packed
+engine. Unknown IDs return usage failure. `npm run guide:check` handles the authoring
+contract and links; the Pages build is also a PR CI gate.
+
+The pricing scenario uses one desktop viewport and a scoped `no-clip` contract:
+compact, sparse, and overloaded variants pass; clipped identity labels must produce
+`pricing-labels`. The latter two passing designs remain task-disfavored advice.
+The encoding comparison must produce `encoding-shared-domain` for independently
+rescaled panels; truthful area and position examples pass that declaration check.
+The browser interaction checks expansion, retained identity, local action state,
+return focus, and reset. These tests do not prove decision sufficiency, actual SVG
+truth, or Claude's autonomous skill selection. No separate suite was added.

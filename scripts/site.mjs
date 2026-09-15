@@ -3,6 +3,8 @@ import path from "node:path";
 import { createServer } from "node:http";
 import { readDesignPolicy } from "../src/design.mjs";
 
+import { buildGuide } from "./guide.mjs";
+
 const repository = path.resolve(import.meta.dirname, "..");
 const output = path.join(repository, "dist/site");
 await rm(output, { recursive: true, force: true });
@@ -258,8 +260,15 @@ await writeFile(
   ),
 );
 
+await cp(
+  path.join(repository, "docs/guide.css"),
+  path.join(output, "guide.css"),
+);
+await buildGuide(output);
 await writeFile(path.join(output, ".nojekyll"), "");
-console.log("Built dist/site (mock application, rule pages, and examples).");
+console.log(
+  "Built dist/site (guide, mock application, rule pages, and examples).",
+);
 
 if (process.argv.includes("--serve")) {
   const types = {
@@ -268,6 +277,9 @@ if (process.argv.includes("--serve")) {
     ".js": "text/javascript",
     ".json": "application/json",
     ".png": "image/png",
+    ".md": "text/markdown",
+    ".woff": "font/woff",
+    ".woff2": "font/woff2",
   };
   createServer(async (request, response) => {
     try {

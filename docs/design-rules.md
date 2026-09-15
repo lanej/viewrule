@@ -8,6 +8,11 @@ DR-001–DR-008 apply ideas from Edward Tufte's *The Visual Display of Quantitat
 
 Each rule has a short “Rule of …” name for discussion and recall. Its principle and full requirement define its scope; the DR ID remains the stable reference.
 
+The [design guide](../plugins/claude-code/guide/v1/index.md) distinguishes patterns,
+evidence, and enforceable conditions. DR IDs provide policy rationale; only configured
+measurements are automated requirements. No DR citation alone establishes coverage
+of semantic claims such as decision sufficiency.
+
 ## How to apply the rules
 
 - **Must** defines a requirement when the stated condition applies.

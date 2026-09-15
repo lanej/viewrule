@@ -1,11 +1,37 @@
 ---
 name: review
-description: Guide web UI design and implementation with Viewrule rules, then measure layout, comparison density, and large-screen detail. Use for building, revising, or reviewing rendered interfaces.
+description: Consult cited design patterns before building or revising dashboards, charts, action lists, or disclosure flows; then check and review rendered interfaces with Viewrule.
 ---
 
 Run from the application repository. Use this launcher for all Viewrule commands:
 `node "${CLAUDE_PLUGIN_ROOT}/scripts/viewrule.mjs" <command>`.
-If the engine or project is unconfigured, follow `/viewrule:setup` within the task's scope.
+Before relevant UI work, run `guide` for a compact index, then `guide <ID>` for only
+the relevant pages (P-001 decision context, P-002 disclosure, P-003 action lists,
+P-004 Tufte, P-005 encodings). Follow selected evidence IDs, examples, and related
+pages as needed. Do not load the entire corpus. Direct offline reads begin at
+`${CLAUDE_PLUGIN_ROOT}/guide/v1/index.md`; relative guide/evidence links stay there.
+Links leaving the guide target repository/package files: use `docs` for the installed
+engine's documentation root and resolve `docs/...` there. The current engine pin
+predates new gallery assets; use a current checkout or public examples when needed
+and state unavailable access. The bundled Markdown examples and evidence summaries
+remain available without network or engine setup.
+Public fallback: `https://lanej.io/viewrule/guide/v1/index.json` and linked `.md` files.
+Published Markdown links resolve directly; the index also supplies absolute example URLs.
+Local Markdown retains repository/package paths for offline use. When following runnable
+examples, read the index’s `exampleSource` (`guide/v1/examples.json`) for the pinned
+Easy UI source and stories. Reuse relevant components from that revision; guidance
+itself is framework-independent. Generated package examples work offline; do not
+edit their bundles as if they were canonical implementation source.
+Cite consulted IDs and corpus version, relevant sources, assumptions, and reasons
+for adopting or departing from conditional advice. Do not claim a cited paper tested
+our example UI. If the decision or essential factors are unknown, state a provisional
+assumption or ask a targeted question; never certify decision sufficiency.
+
+Patterns are advice; evidence has an explicit type and limits. Enforceable requirements
+come from the application's configured contract, not an ID or an arbitrary density
+preference. A passing check does not establish a useful design. Consult, inspect
+examples/evidence, implement, then measure. For checks, if the engine or project is
+unconfigured, follow `/viewrule:setup` within the task's scope.
 
 Before making UI decisions, run `contract`, `guidance`, and `docs`. Read the policy at the returned
 path, relevant measurement definitions, project rules, and applicable approved

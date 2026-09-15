@@ -1,5 +1,9 @@
 # Research behind the expanded defaults
 
+For task-centered patterns and the expanding evidence corpus, start with the
+[versioned guide](../plugins/claude-code/guide/v1/index.md). This page retains the
+research rationale for existing preset defaults; the guide does not silently change them.
+
 Reviewed 2026-09-12. Viewrule applies these principles as boundaries on an agent's
 solution before implementation, then measures the resulting interface. Existing
 DR-001–DR-008 remain stable; the additional sources clarify selected applications.

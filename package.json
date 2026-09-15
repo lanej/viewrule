@@ -26,7 +26,9 @@
     "docs/",
     "presets/",
     "npm-shrinkwrap.json",
-    "CHANGELOG.md"
+    "CHANGELOG.md",
+    "plugins/claude-code/guide/",
+    "plugins/claude-code/scripts/guide.mjs"
   ],
   "scripts": {
     "benchmark": "node scripts/benchmark.mjs",
@@ -37,9 +39,11 @@
     "browser:install": "node bin/viewrule.mjs install-browser",
     "lint": "eslint . --max-warnings 0",
     "analyze": "tsc --project tsconfig.json",
-    "check": "npm run format:check && npm run lint && npm run analyze",
+    "check": "npm run format:check && npm run lint && npm run analyze && npm run guide:check",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "guide:check": "node scripts/guide.mjs",
+    "examples:import": "node scripts/examples.mjs"
   },
   "keywords": [
     "ui",
@@ -64,6 +68,7 @@
     "eslint": "10.10.0",
     "globals": "17.12.0",
     "impeccable": "4.1.0",
+    "marked": "18.0.13",
     "prettier": "3.9.6",
     "react": "19.3.0",
     "react-dom": "19.3.0",

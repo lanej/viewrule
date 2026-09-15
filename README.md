@@ -58,6 +58,30 @@ presence, bounded peer spacing independent of grid/flex CSS, and opt-in SVG
 continuity across list and detail pages. Exact sizes and layout preferences stay
 in the application contract.
 
+## Consult guidance before building
+
+The [versioned design guide](plugins/claude-code/guide/v1/index.md) covers decision
+context, progressive disclosure, action lists, Tufte, and graphical perception.
+It separates conditional patterns, original evidence, and enforceable measurements.
+The existing Pages build renders the same Markdown under `guide/v1/`, with raw
+`.md` pages and a generated `index.json`; no second prose copy is maintained.
+
+```sh
+viewrule guide          # compact local index; no project or browser needed
+viewrule guide P-003    # one Markdown page on action lists
+viewrule guide E-CARBON # just the selected evidence record
+```
+
+These commands ship with this source change; older engine releases do not include
+them. The updated plugin supplies `guide [ID]` independently of its pinned engine,
+so its review skill can consult bundled guidance before setup. Read only relevant
+pages, state decision assumptions, inspect examples, implement, then run checks.
+The runnable pricing and encoding examples compose Easy UI components from a pinned
+commit. The [source manifest](plugins/claude-code/guide/v1/examples.json) records
+provenance and checksums; generated assets ship offline without adding Easy UI to
+the engine’s dependencies.
+See [guide contribution instructions](plugins/claude-code/guide/v1/authoring.md).
+
 ## Define boundaries before building
 
 Run `viewrule contract` to inspect effective rules and configuration before changing

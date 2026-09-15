@@ -83,7 +83,10 @@ test(
             "behavior.css",
             "gallery.css",
             "behavior-catalog.json",
-          ].includes(file)
+          ].includes(file) &&
+          !/^(?:(?:pricing|encodings|gallery)\.(?:html|css|js)|easy-ui\/assets\/[a-zA-Z0-9_.-]+\.(?:js|css|woff2?))$/.test(
+            file,
+          )
         ) {
           res.writeHead(404);
           return res.end();
@@ -93,6 +96,8 @@ test(
           ".js": "text/javascript",
           ".css": "text/css",
           ".json": "application/json",
+          ".woff": "font/woff",
+          ".woff2": "font/woff2",
         };
         res.setHeader("Content-Type", types[path.extname(file)]);
         return res.end(await readFile(path.join(exampleDirectory, file)));
@@ -232,6 +237,25 @@ test(
       assert.equal(result.code, 0, result.stderr);
       return JSON.parse(result.stdout);
     };
+    // Offline guide retrieval works from an isolated plugin before setup.
+    const guide = await cli(["guide"]);
+    assert.equal(guide.code, 0, guide.stderr);
+    const guideIndex = JSON.parse(guide.stdout);
+    const actionGuide = guideIndex.pages.find((p) => p.id === "P-003");
+    assert.ok(actionGuide && actionGuide.sources.includes("E-CARBON"));
+    const selectedGuide = await cli(["guide", actionGuide.id]);
+    assert.equal(selectedGuide.code, 0, selectedGuide.stderr);
+    assert.equal(
+      selectedGuide.stdout,
+      await readFile(
+        path.join(guideIndex.localRoot, actionGuide.markdown),
+        "utf8",
+      ),
+    );
+    const evidenceGuide = await cli(["guide", "E-CARBON"]);
+    assert.equal(evidenceGuide.code, 0, evidenceGuide.stderr);
+    assert.ok(evidenceGuide.stdout.includes("https://carbondesignsystem.com/"));
+    assert.equal((await cli(["guide", "../engine.json"])).code, 2);
     assert.deepEqual(await hook(), {}, "Unconfigured hook needs no engine");
     await writeFile(
       path.join(project, ".ui-review/config.json"),
@@ -256,6 +280,17 @@ test(
     const setup = await cli(["setup", "--skip-browser"]);
     assert.equal(setup.code, 0, setup.stderr);
     assert.equal((await cli(["--version"])).stdout.trim(), pin.version);
+    const packageGuide = await run(process.execPath, [
+      path.join(JSON.parse(setup.stdout).engine, "bin/viewrule.mjs"),
+      "guide",
+      "P-003",
+    ]);
+    assert.equal(packageGuide.code, 0, packageGuide.stderr);
+    assert.equal(
+      packageGuide.stdout,
+      selectedGuide.stdout,
+      "Plugin and packed engine read identical canonical guidance",
+    );
     const docs = await cli(["docs"]);
     assert.equal(docs.code, 0, docs.stderr);
     assert.match(
@@ -1469,6 +1504,208 @@ test(
       );
     } finally {
       await browser.close();
+    }
+    // One task-guidance scenario: advisory counterexamples pass a label boundary,
+    // while clipping and inconsistent scale declarations produce specific findings.
+    env.VIEWRULE_CONFIG_DIR = path.join(project, "guide-global");
+    const pricingRules = JSON.parse(
+      await readFile(path.join(exampleDirectory, "pricing-rules.json"), "utf8"),
+    );
+    const encodingRules = JSON.parse(
+      await readFile(
+        path.join(exampleDirectory, "encodings-rules.json"),
+        "utf8",
+      ),
+    );
+    const guideConfig = {
+      version: 1,
+      baseURL,
+      enforceOnStop: false,
+      sourcePaths: ["src"],
+      accessibility: false,
+      pages: [
+        ...[
+          "compact",
+          "sparse",
+          "overloaded",
+          "clipped",
+          "table",
+          "trends",
+          "detail",
+        ].map((mode) => ({
+          name: mode,
+          path: `/examples/pricing.html?mode=${mode}`,
+          ready: "#pricing[data-ready]",
+        })),
+        {
+          name: "encodings",
+          path: "/examples/encodings.html",
+          ready: "#encodings[data-ready]",
+        },
+      ],
+      viewports: [{ name: "desktop", width: 1200, height: 1000 }],
+    };
+    await writeFile(
+      path.join(project, ".ui-review/config.json"),
+      JSON.stringify(guideConfig),
+    );
+    await writeFile(
+      path.join(project, ".ui-review/rules.json"),
+      JSON.stringify([
+        ...pricingRules.map((r) => ({
+          ...r,
+          pages: [
+            "compact",
+            "sparse",
+            "overloaded",
+            "clipped",
+            "table",
+            "trends",
+            "detail",
+          ],
+        })),
+        ...encodingRules.map((r) => ({ ...r, pages: ["encodings"] })),
+      ]),
+    );
+    const exampleCheck = await cli(["check"]);
+    assert.equal(
+      exampleCheck.code,
+      1,
+      exampleCheck.stderr || exampleCheck.stdout,
+    );
+    const exampleReport = JSON.parse(
+      await readFile(JSON.parse(exampleCheck.stdout).report, "utf8"),
+    );
+    for (const example of exampleReport.pages) {
+      const findings = example.findings.filter(
+        (f) => f.severity === "error" || f.severity === "warning",
+      );
+      if (example.name === "clipped") {
+        assert.equal(findings.length, 3);
+        assert.ok(findings.every((f) => f.rule === "pricing-labels"));
+      } else if (example.name === "encodings") {
+        assert.equal(findings.length, 2);
+        assert.ok(
+          findings.every(
+            (f) =>
+              f.rule === "encoding-shared-domain" &&
+              f.expected["attr:data-max"] === "80",
+          ),
+        );
+        assert.deepEqual(
+          findings.map((f) => f.actual["attr:data-max"]).sort(),
+          ["20", "40"],
+        );
+      } else
+        assert.deepEqual(
+          findings,
+          [],
+          `${example.name} should pass the scoped label check`,
+        );
+    }
+    const guideBrowser = await chromium.launch({
+      executablePath:
+        process.env.VIEWRULE_BROWSER_PATH ||
+        process.env.UI_REVIEW_BROWSER_PATH ||
+        undefined,
+    });
+    try {
+      const page = await guideBrowser.newPage({
+        viewport: { width: 1200, height: 1000 },
+      });
+      await page.goto(`${baseURL}/examples/pricing.html?mode=compact`);
+      const expand = page.locator('[data-proposal="A"] .expand button');
+      await expand.focus();
+      await page.keyboard.press("Enter");
+      assert.equal(await expand.getAttribute("aria-expanded"), "true");
+      assert.equal(await page.locator("#factors-A").isVisible(), true);
+      assert.equal(await page.locator(".pricing-identity:visible").count(), 3);
+      await page.locator('[data-proposal="B"] .expand button').click();
+      assert.equal(await page.locator("#factors-A").isVisible(), true);
+      assert.equal(await page.locator("#factors-B").isVisible(), true);
+      await page.locator('[data-proposal="B"] .expand button').click();
+      await page.locator('[data-proposal="A"] .queue-action button').click();
+      await page.locator("#mode").selectOption("sparse");
+      assert.equal(await page.locator("#detail").isVisible(), false);
+      await page.locator('[data-proposal="A"] .expand button').click();
+      assert.equal(
+        await page.locator("#detail .queue-action").textContent(),
+        "Queued for review",
+      );
+      await page.locator("#back button").click();
+      assert.equal(
+        await page
+          .locator('[data-proposal="A"] .expand button')
+          .evaluate((el) => el === globalThis.document.activeElement),
+        true,
+      );
+      await page.locator("#mode").selectOption("table");
+      assert.equal(await page.locator("#comparison tbody tr").count(), 3);
+      await page.getByRole("button", { name: "Inspect proposal B" }).click();
+      assert.match(
+        await page.locator("#detail-title").textContent(),
+        /Proposal B/,
+      );
+      assert.equal(await page.locator("#comparison").isVisible(), true);
+      assert.match(
+        await page.locator("#comparison").textContent(),
+        /−\$20 to \+\$100/,
+      );
+      await page.locator("#task").selectOption("trend");
+      await page.locator("#mode").selectOption("trends");
+      assert.equal(await page.locator(".trend:visible").count(), 3);
+      assert.equal(await page.locator(".diagnostic-notes[open]").count(), 0);
+      assert.equal(
+        await page.locator('[data-proposal="A"] .trend-values').textContent(),
+        "90, 110, 100, 140, 130, 155, 160",
+      );
+      await page.locator("#mode").selectOption("compact");
+      assert.equal(
+        await page.locator('[data-proposal="A"] .trend').isVisible(),
+        false,
+      );
+      await page.locator("#task").selectOption("audit");
+      await page.locator("#mode").selectOption("detail");
+      await page
+        .locator("#audit-note")
+        .fill("Investigate the capacity restriction before review.");
+      await page.locator("#mode").selectOption("table");
+      await page.locator("#mode").selectOption("detail");
+      assert.match(
+        await page.locator("#audit-note").inputValue(),
+        /capacity restriction/,
+      );
+      const shared = new URL(page.url());
+      assert.equal(shared.searchParams.get("task"), "audit");
+      assert.equal(shared.searchParams.get("open"), "B");
+      assert.equal(shared.href.includes("capacity"), false);
+      await page.locator("#reset button").click();
+      assert.equal(await page.locator("#mode").inputValue(), "compact");
+      assert.equal(await page.locator("#task").inputValue(), "routine");
+      await page.locator("#task").selectOption("audit");
+      await page.locator("#mode").selectOption("detail");
+      assert.equal(await page.locator("#audit-note").inputValue(), "");
+      const exampleManifest = JSON.parse(
+        await readFile(
+          path.join(
+            exampleDirectory,
+            "../../plugins/claude-code/guide/v1/examples.json",
+          ),
+          "utf8",
+        ),
+      );
+      for (const [file, metadata] of Object.entries(exampleManifest.pages)) {
+        await page.goto(`${baseURL}/examples/${file}`);
+        await page.locator("[data-ready]").waitFor();
+        for (const anchor of metadata.anchors)
+          assert.equal(
+            await page.locator(`#${anchor}`).count(),
+            1,
+            `${file}#${anchor}`,
+          );
+      }
+    } finally {
+      await guideBrowser.close();
     }
     // The migrated essay detector uses generic rules through the installed CLI.
     env.VIEWRULE_CONFIG_DIR = path.join(project, "reading-global");
