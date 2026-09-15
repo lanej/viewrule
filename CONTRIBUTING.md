@@ -16,7 +16,7 @@ Keep one corpus and use the existing gallery and installed regression.
 
 ## Development
 
-Use Node 22.13 or newer for development tooling; CI uses the current Node 22 release.
+Use Node 22.18 or newer for development tooling; CI uses the current Node 22 release.
 
 ```sh
 npm ci

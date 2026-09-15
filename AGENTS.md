@@ -11,7 +11,7 @@ changing behavior. For code review, read [REVIEW.md](REVIEW.md).
   dotfiles; application selectors, thresholds, and approvals belong in the app.
 - The Claude plugin is a CLI client. Keep its skills concise, use installed engine
   docs, and bump its manifest version for updates; never install from a Stop hook.
-- The engine requires Node 22+ and npm; development tooling needs Node 22.13+.
+- The engine requires Node 22.18+ and npm; development tooling needs Node 22.18+.
   Use ES modules and pinned dependencies; no
   compilation step is required. Run the formatter, linter, and static checks below.
   Keep `src/` modules internal.

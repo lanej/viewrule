@@ -72,7 +72,7 @@ checking text and alignment; a scaled overview loses detail.
 
 ## Develop and assess it
 
-From a source checkout with Node 22.13+:
+From a source checkout with Node 22.18+:
 
 ```sh
 npm ci

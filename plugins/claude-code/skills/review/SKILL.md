@@ -5,6 +5,17 @@ description: Consult cited design patterns before building or revising dashboard
 
 Run from the application repository. Use this launcher for all Viewrule commands:
 `node "${CLAUDE_PLUGIN_ROOT}/scripts/viewrule.mjs" <command>`.
+
+For a request limited to automated source diagnostics, inspect the installed
+engine's `--help` once. If it supports `lint`, run `lint --target <UI source>` and
+report its findings and source-only coverage; no guide-reading or full visual
+critique is needed for that task. A clean source scan does not assess application
+rules or satisfy the Stop hook. Use the rendered workflow below when the request
+includes layout, interaction, comparison requirements, or visual review. Engines
+without `lint` predate the bundled integration; state that limitation and consult
+their installed `docs/impeccable.md` for the existing command adapter. Do not
+install or download a newer engine during a check or Stop hook.
+
 Before relevant UI work, run `guide` for a compact index, then `guide <ID>` for only
 the relevant pages (P-001 decision context, P-002 disclosure, P-003 action lists,
 P-004 Tufte, P-005 encodings). Follow selected evidence IDs, examples, and related

@@ -27,6 +27,8 @@ const sourceCheckSchema = object(
   {
     id: text,
     command: names,
+    targets: names,
+    noConfig: { type: "boolean" },
     authority: { enum: ["advisory", "blocking"] },
     enabled: { type: "boolean" },
     version: text,
@@ -37,8 +39,24 @@ const sourceCheckSchema = object(
       additionalProperties: { enum: ["error", "warning"] },
     },
   },
-  ["id", "command", "authority"],
+  ["id", "authority"],
 );
+// Keep arbitrary command providers compatible; the built-in detector instead
+// accepts local targets and resolves its installed executable itself.
+const sourceCheckChoice = {
+  ...sourceCheckSchema,
+  oneOf: [
+    {
+      required: ["command"],
+      not: { anyOf: [{ required: ["targets"] }, { required: ["noConfig"] }] },
+    },
+    {
+      required: ["format", "targets"],
+      properties: { format: { const: "impeccable" } },
+      not: { required: ["command"] },
+    },
+  ],
+};
 /** @type {import("ajv").Schema} */
 export const configSchema = object(
   {
@@ -57,7 +75,7 @@ export const configSchema = object(
     sourceChecks: {
       type: "array",
       uniqueItems: true,
-      items: sourceCheckSchema,
+      items: sourceCheckChoice,
     },
     storageState: text,
     timeoutMs: { type: "integer", minimum: 1000, maximum: 120000 },
@@ -218,6 +236,8 @@ export const ruleSchema = {
   ),
 };
 const ajv = new Ajv({ allErrors: true });
+/** @type {import("ajv").ValidateFunction<import("./types.js").SourceCheckProvider[]>} */
+const checkSources = ajv.compile({ type: "array", items: sourceCheckChoice });
 /** @type {import("ajv").ValidateFunction<import("./types.js").ProjectConfig>} */
 const checkConfig = ajv.compile(configSchema);
 /** @type {import("ajv").ValidateFunction<import("./types.js").Rule[]>} */
@@ -244,10 +264,7 @@ export function validateConfig(config, project) {
     config.viewports.map((v) => v.name),
     "viewport name",
   );
-  unique(
-    (config.sourceChecks ?? []).map((provider) => provider.id),
-    "source-check provider ID",
-  );
+  validateSourceChecks(config.sourceChecks ?? []);
   for (const p of config.pages) {
     if (new URL(p.path, url).origin !== url.origin)
       throw new Error("Page paths must stay on baseURL origin");
@@ -265,14 +282,37 @@ export function validateConfig(config, project) {
   for (const p of config.sourcePaths)
     if (path.isAbsolute(p) || p.split(/[\\/]/).includes(".."))
       throw new Error("sourcePaths must stay inside the project");
-  for (const provider of config.sourceChecks ?? [])
+  return config;
+}
+export function validateSourceChecks(providers) {
+  if (!checkSources(providers))
+    throw new Error(
+      `Invalid source checks: ${ajv.errorsText(checkSources.errors)}`,
+    );
+  unique(
+    providers.map((provider) => provider.id),
+    "source-check provider ID",
+  );
+  for (const provider of providers)
     if (
       provider.cwd &&
       (path.isAbsolute(provider.cwd) ||
         provider.cwd.split(/[\\/]/).includes(".."))
     )
       throw new Error("Source-check cwd must stay inside the project");
-  return config;
+  for (const provider of providers)
+    for (const target of provider.targets ?? [])
+      if (
+        path.isAbsolute(target) ||
+        path.win32.isAbsolute(target) ||
+        /^[a-z]+:/i.test(target) ||
+        target.split(/[\\/]/).includes("..") ||
+        target.includes("\0")
+      )
+        throw new Error(
+          "Impeccable targets must be local paths inside the project; URL scans require viewrule check or an explicit external provider.",
+        );
+  return providers;
 }
 export function validateRules(rules) {
   if (!checkRules(rules))

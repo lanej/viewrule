@@ -12,7 +12,7 @@ implemented checks, configuration examples, and the limits of their evidence.
 
 ## Setup and first review
 
-Requires Node 22+ and npm. Install the standalone package as described in [README](../README.md).
+Requires Node 22.18+ and npm. Install the standalone package as described in [README](../README.md).
 
 ```sh
 viewrule install-browser
@@ -49,6 +49,10 @@ to stdout. Exit codes 0 and 1 are accepted with valid JSON so linters can signal
 findings with exit 1. A clean scan must explicitly emit an empty array. Empty,
 whitespace-only, or malformed output fails review with setup exit code 2 and keeps
 the opted-in Stop hook blocked; it cannot resolve previously reported findings.
+
+Use `viewrule lint --target src` for a source-only scan without Chromium. New
+projects include bundled Impeccable diagnostics as advisory; source-only results
+never replace a rendered review or satisfy its Stop hook.
 
 Use `format: "impeccable"` for the pinned Impeccable source detector. Its exit
 codes are different: 0 means no primary findings, 2 means primary findings, and

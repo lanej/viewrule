@@ -16,7 +16,7 @@ import { captureDetails } from "./capture.mjs";
 import { readDesignPolicy, evaluateDesign } from "./design.mjs";
 import { defaultPreferences } from "./presets.mjs";
 import { runCheckpoint } from "./checkpoints.mjs";
-import { runSourceChecks } from "./source-checks.mjs";
+import { runSourceChecks, sourceSummary } from "./source-checks.mjs";
 import { classifyChanges } from "./changes.mjs";
 import { compareEvidence } from "./evidence-changes.mjs";
 
@@ -235,15 +235,9 @@ export async function runReview(project, globalDir) {
         f.sources = sources.get(f.rule);
       report.summary[f.severity === "error" ? "errors" : "warnings"]++;
     }
-  for (const providerResult of report.sourceChecks ?? [])
-    for (const finding of providerResult.findings) {
-      if (
-        finding.sourceCheck?.authority === "blocking" &&
-        finding.severity === "error"
-      )
-        report.summary.errors++;
-      else report.summary.warnings++;
-    }
+  const sourceCounts = sourceSummary(report.sourceChecks ?? []);
+  report.summary.errors += sourceCounts.errors;
+  report.summary.warnings += sourceCounts.warnings;
   report.status = report.summary.errors ? "fail" : "pass";
   const feedback = await feedbackEntries(path.join(project, ".ui-review"));
   const approved = feedback.findLast(

@@ -77,9 +77,26 @@ export async function fingerprint(project, config, globalDir, documents) {
     listed.status === 0
       ? [...new Set(listed.stdout.split("\0").filter(Boolean))]
       : await walk(project);
+  const bundledProviders = (config.sourceChecks ?? []).filter(
+    (provider) =>
+      provider.enabled !== false &&
+      provider.format === "impeccable" &&
+      !provider.command,
+  );
+  const sourcePaths = [
+    ...config.sourcePaths,
+    ...bundledProviders.flatMap((provider) =>
+      provider.targets.map((target) =>
+        path
+          .join(provider.cwd ?? ".", target)
+          .split(path.sep)
+          .join("/"),
+      ),
+    ),
+  ];
   const inScope = (file) =>
     !file.split("/").some((p) => excluded.has(p)) &&
-    config.sourcePaths.some(
+    sourcePaths.some(
       (p) =>
         p === "." || file === p || file.startsWith(p.replace(/\/$/, "") + "/"),
     );
@@ -97,6 +114,16 @@ export async function fingerprint(project, config, globalDir, documents) {
     path.join(project, ".ui-review/rules.json"),
     path.join(globalDir, "rules.json"),
     path.join(globalDir, "preferences.json"),
+    ...bundledProviders
+      .filter((provider) => !provider.noConfig)
+      .flatMap((provider) =>
+        [
+          "DESIGN.md",
+          ".impeccable/config.json",
+          ".impeccable/config.local.json",
+          ".impeccable/design.json",
+        ].map((file) => path.join(project, provider.cwd ?? ".", file)),
+      ),
   ]) {
     hash.update(file + "\0");
     try {
@@ -127,6 +154,8 @@ export async function fingerprint(project, config, globalDir, documents) {
     "presets.mjs",
     "contract.mjs",
     "project-documents.mjs",
+    "source-checks.mjs",
+    "impeccable.mjs",
     "../presets/preferences.json",
     "../presets/baseline.json",
     "../presets/analytical.json",
