@@ -57,7 +57,9 @@ export async function runSourceChecks(project, providers) {
   const results = [];
   for (const provider of providers ?? []) {
     if (provider.enabled === false) continue;
-    const cwd = provider.cwd ? projectPath(project, provider.cwd, "Source-check cwd") : project;
+    const cwd = provider.cwd
+      ? projectPath(project, provider.cwd, "Source-check cwd")
+      : project;
     const [command, ...args] = provider.command;
     const execution = await collect(command, args, {
       cwd,
@@ -72,9 +74,12 @@ export async function runSourceChecks(project, providers) {
     try {
       parsed = JSON.parse(execution.stdout || "[]");
     } catch (error) {
-      throw new Error(`Source-check provider ${provider.id} returned invalid JSON`, {
-        cause: error,
-      });
+      throw new Error(
+        `Source-check provider ${provider.id} returned invalid JSON`,
+        {
+          cause: error,
+        },
+      );
     }
     const findings = Array.isArray(parsed) ? parsed : parsed.findings;
     if (!Array.isArray(findings))
