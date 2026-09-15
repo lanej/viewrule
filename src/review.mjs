@@ -7,7 +7,11 @@ import { readJSON } from "./config.mjs";
 import { readContract } from "./contract.mjs";
 import { fingerprint, writeJSON, feedbackEntries } from "./state.mjs";
 import { inspectPage } from "./checks.mjs";
-import { renderReport, renderDesignPolicy } from "./report.mjs";
+import {
+  renderReport,
+  renderDesignPolicy,
+  renderProjectDocuments,
+} from "./report.mjs";
 import { captureDetails } from "./capture.mjs";
 import { readDesignPolicy, evaluateDesign } from "./design.mjs";
 import { defaultPreferences } from "./presets.mjs";
@@ -18,7 +22,12 @@ export async function runReview(project, globalDir) {
   project = await realpath(project);
   const contract = await readContract(project, globalDir);
   const { config, rules } = contract;
-  const before = await fingerprint(project, config, globalDir);
+  const before = await fingerprint(
+    project,
+    config,
+    globalDir,
+    contract.projectDocuments,
+  );
   const id =
     new Date().toISOString().replace(/[:.]/g, "-") +
     "-" +
@@ -194,12 +203,17 @@ export async function runReview(project, globalDir) {
     report.pages[0].findings.push({
       rule: "source-changed",
       severity: "error",
-      message: "Source or rules changed during capture. Rerun the review.",
+      message:
+        "Source, rules, or project documents changed during capture. Rerun the review.",
     });
   evaluateDesign(report, rules, config);
+  const sources = new Map(rules.map((rule) => [rule.id, rule.sources]));
   for (const page of report.pages)
-    for (const f of page.findings)
+    for (const f of page.findings) {
+      if (sources.has(f.rule) && sources.get(f.rule))
+        f.sources = sources.get(f.rule);
       report.summary[f.severity === "error" ? "errors" : "warnings"]++;
+    }
   report.status = report.summary.errors ? "fail" : "pass";
   const feedback = await feedbackEntries(path.join(project, ".ui-review"));
   const approved = feedback.findLast(
@@ -232,6 +246,10 @@ export async function runReview(project, globalDir) {
   await writeFile(
     path.join(dir, "design-rules.html"),
     renderDesignPolicy(report.designPolicy),
+  );
+  await writeFile(
+    path.join(dir, "project-documents.html"),
+    renderProjectDocuments(contract.projectDocuments),
   );
   await writeFile(
     path.join(dir, "index.html"),
