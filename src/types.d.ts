@@ -57,6 +57,7 @@ export interface ProjectConfig {
 export interface Rule {
   id: string;
   type:
+    | "within-bounds"
     | "reading-column"
     | "vertical-order"
     | "align"

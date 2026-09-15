@@ -199,3 +199,22 @@ combines these partial checks under DR-006/007/008/016. Density remains the exis
 uses `max-height`, and unsupported contrast paint stays unassessed. See the
 [rule reference](ui-review.md#analytical-decision-surfaces) for scopes, units, and
 missing-evidence behavior. DR-008 and DR-016 retain their review enforcement modes.
+
+## Contained chart labels and controls
+
+`within-bounds` compares each selected HTML or SVG element's rendered bounding
+rectangle with its nearest matching ancestor's border box. Specify `container`
+and a `tolerance` from 0 to 4 CSS px. Missing or hidden required containers fail.
+This catches SVG tick labels outside the viewport, where `no-clip` cannot rely on
+HTML scroll dimensions. It also works for declared controls and other child boxes.
+
+This is a geometric boundary, not a chart-truth or comprehensive clipping check.
+It does not inspect canvas text, SVG clip paths or masks, occlusion, rounded
+corners, or intermediate ancestors. Transforms use axis-aligned client rectangles;
+rotated content may require a different scope. Intentional local scrolling should
+be scoped to its content region rather than the smaller scroll viewport.
+
+The installed regression checks a long currency label crossing its SVG's left
+edge and a contained alternative in the same capture, with specific excess, rule,
+and DR-006/DR-007 assertions. No default rule is added: the application declares
+which content must fit which boundary.

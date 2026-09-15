@@ -138,7 +138,38 @@ export function inspectPage(rules) {
         );
       continue;
     }
-    if (rule.type === "reading-column") {
+    if (rule.type === "within-bounds") {
+      for (const el of els) {
+        const container = el.parentElement?.closest(rule.container);
+        if (!container || !visible(container)) {
+          add(
+            rule,
+            "Content needs a visible containing ancestor.",
+            el,
+            null,
+            rule.container,
+          );
+          continue;
+        }
+        const bounds = rect(container),
+          box = rect(el);
+        const excess = {
+          left: Math.max(0, bounds.left - box.left),
+          right: Math.max(0, box.right - bounds.right),
+          top: Math.max(0, bounds.top - box.top),
+          bottom: Math.max(0, box.bottom - bounds.bottom),
+        };
+        if (Object.values(excess).some((value) => value > rule.tolerance)) {
+          add(
+            rule,
+            "Content extends beyond its declared container.",
+            el,
+            excess,
+            { maximumExcess: rule.tolerance, container: rule.container },
+          );
+        }
+      }
+    } else if (rule.type === "reading-column") {
       for (const el of els) {
         const container = el.parentElement?.closest(rule.container);
         if (!container || !visible(container)) {

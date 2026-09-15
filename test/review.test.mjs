@@ -1867,6 +1867,54 @@ test(
     );
     assert.deepEqual(cleanProviderReport.sourceChecks[0].findings, []);
     assert.deepEqual(await hook(), {});
+
+    // One rejected/passing chart boundary pair through the installed CLI.
+    await writeFile(
+      source,
+      `<!doctype html><html><body><main>
+      <svg width="280" height="100" style="overflow:hidden" aria-label="Clipped values">
+        <text id="clipped-value" x="8" y="30" text-anchor="end">$12,345,678.90</text>
+      </svg>
+      <svg width="280" height="100" style="overflow:hidden" aria-label="Contained values">
+        <text id="contained-value" x="8" y="30">$12,345,678.90</text>
+      </svg>
+    </main></body></html>`,
+    );
+    await writeFile(
+      path.join(project, ".ui-review/config.json"),
+      JSON.stringify({
+        ...readingConfig,
+        pages: [{ name: "chart-bounds", path: "/", ready: "svg text" }],
+        viewports: [{ name: "desktop", width: 800, height: 600 }],
+      }),
+    );
+    await writeFile(
+      path.join(project, ".ui-review/rules.json"),
+      JSON.stringify([
+        {
+          id: "chart-label-bounds",
+          type: "within-bounds",
+          selector: "svg text",
+          container: "svg",
+          tolerance: 1,
+          severity: "error",
+          reason: "Chart values must remain inside their visible SVG viewport.",
+        },
+      ]),
+    );
+    const chartBounds = await cli(["check"]);
+    assert.equal(chartBounds.code, 1, chartBounds.stderr || chartBounds.stdout);
+    const boundsReport = JSON.parse(
+      await readFile(JSON.parse(chartBounds.stdout).report, "utf8"),
+    );
+    assert.equal(boundsReport.summary.errors, 1);
+    const boundsFinding = boundsReport.pages[0].findings[0];
+    assert.equal(boundsFinding.rule, "chart-label-bounds");
+    assert.equal(boundsFinding.element, "#clipped-value");
+    assert.ok(boundsFinding.actual.left > 40);
+    assert.equal(boundsFinding.expected.maximumExcess, 1);
+    assert.deepEqual(boundsFinding.designRules, ["DR-006", "DR-007"]);
+    assert.equal(boundsReport.pages[0].details.complete, true);
     t.diagnostic(
       "broken → compact → sidebar (same contract) → stretched → finite → missing annotations: expected rules, measurements, and DR citations verified",
     );

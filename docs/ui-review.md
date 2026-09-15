@@ -128,6 +128,7 @@ optional components, not required evidence.
 
 | Type | Extra fields | Meaning |
 | --- | --- | --- |
+| `within-bounds` | `container`, `tolerance` | Selected HTML/SVG element boxes must fit their nearest matching ancestor's border box; CSS px. Detects labels outside an SVG viewport even when the page itself does not overflow. |
 | `min-size` | `minWidth`, `minHeight` | Minimum visible element bounds in CSS px; not a complete hit-target/accessibility test |
 | `align` | `edge`, `tolerance` | Maximum spread of left/right/top/bottom edges, in CSS pixels; select one peer group |
 | `reading-column` | `container`, `maxWidth`, `tolerance` | Each selected box fills `min(ancestor width, maxWidth)` and is horizontally centered within its nearest matching ancestor; CSS px |
