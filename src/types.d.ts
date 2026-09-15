@@ -72,7 +72,10 @@ export interface Rule {
     | "consistent"
     | "comparison-set"
     | "context"
-    | "region-density";
+    | "region-density"
+    | "repeated-metric"
+    | "evidence-proximity"
+    | "mark-contrast";
   selector: string;
   severity: "error" | "warning";
   reason: string;
@@ -106,6 +109,12 @@ export interface Rule {
   maxVerticalGap?: number;
   container?: string;
   maxWidth?: number;
+  maxOccurrences?: number;
+  evidence?: string;
+  decision?: string;
+  maxDistance?: number;
+  substrate?: string;
+  minRatio?: number;
   groups?: { selector: string; optional: boolean }[];
 }
 export interface Finding {

@@ -1,5 +1,20 @@
 # Changelog
 
+## Unreleased
+
+- Add entirely synthetic good/bad operations decision surfaces with a large
+  schematic map, cited rationale, machine-readable rules/catalog, and native-scale
+  captures. The installed regression rejects the bad layout and accepts the good
+  layout under the same constraints.
+- Add opt-in `repeated-metric`, `evidence-proximity`, and solid CSS `mark-contrast`
+  checks with explicit missing/unassessed evidence. Reuse `region-density` and
+  `max-height` for summary utilization and declared scalar context. Semantic density,
+  redundancy judgments, complex map paint, and recommendation quality remain review.
+
+Compatibility: existing schema versions, presets, and enforcement modes remain
+unchanged. The updated DR-006/007/008/016 guidance changes the policy hash; rerun
+review to refresh evidence. Existing reports retain their original policy snapshot.
+
 ## 0.4.0 — 2026-09-14
 
 - Add stable DR-009–DR-016 for state honesty, continuity, action clarity,

@@ -135,6 +135,9 @@ optional components, not required evidence.
 | `consistent` | `keyAttribute`, `properties`, `attributes` | Same identity retains selected computed CSS/attribute values within a page and across viewports; at least one field is required |
 | `comparison-set` | `keyAttribute`, `requiredKeys`, `minVisibleByViewport`, `preserveFrom`, `minFontSize` | Distinct visible identities, readable text, and preservation of comparisons on larger viewports |
 | `context` | `required` | Each matching component contains visible nonempty descendants for these selectors |
+| `repeated-metric` | `items`, `keyAttribute`, `requiredKeys`, `maxOccurrences` | Count visible text-bearing declared metric identities separately inside each selected decision surface |
+| `evidence-proximity` | `evidence`, `decision`, `maxDistance` | Shortest Euclidean gap between two declared text bounds, in CSS px, per selected decision surface |
+| `mark-contrast` | `substrate`, `minRatio` | Computed opaque CSS background-color contrast between an HTML mark and its containing solid HTML substrate |
 | `region-density` | `region`, `measure`, `minCoverage`, `maxVerticalGap` | Union coverage of selected content within the visible part of one region, plus its largest empty vertical band |
 
 Page-level horizontal overflow and axe WCAG A/AA checks run independently of
@@ -308,3 +311,60 @@ rule because it passes only the example used to invent it.
 References: [Tufte](https://www.edwardtufte.com/book/the-visual-display-of-quantitative-information/),
 [Playwright accessibility](https://playwright.dev/docs/accessibility-testing),
 [Claude hooks](https://code.claude.com/docs/en/hooks-guide).
+
+
+## Analytical decision surfaces
+
+See the [synthetic pair and executable rules](design-examples.md#expanded-analytical-decision-surface).
+These are opt-in project rules; existing presets and application contracts remain unchanged.
+
+`repeated-metric` uses `selector` for decision surfaces and `items` for their summary
+metric descendants. `keyAttribute` identifies a **measure with its population, period,
+and unit**, not its displayed number. Within each surface, visible text-bearing
+instances of the same key must not exceed `maxOccurrences` (positive integer).
+`requiredKeys` is a nonempty list that prevents deleting a required metric to pass.
+Other selected keys are also counted. Blank keys/text fail. Hidden responsive variants
+are ignored; nested selected surfaces own their own descendants, so unrelated decisions
+are not deduplicated. Equal values with different identities are not repetitions.
+This checks declared identities, not semantic equivalence or annotation completeness.
+Use an `items` selector that still matches a metric if its key attribute is removed.
+
+`evidence-proximity` uses `selector` for decision surfaces and requires exactly one
+visible, nonempty descendant matching each of `evidence` and `decision` per surface.
+Nested surfaces own their own anchors. It unions the text bounds in each anchor,
+then computes horizontal and vertical edge gaps and their Euclidean distance against
+`maxDistance` (nonnegative CSS px). Empty, missing, or ambiguous anchors fail and
+are recorded as missing evidence. Padded container edges do not substitute for text.
+The measurement works outside the initial viewport too; it does **not** require the
+pair to be on screen simultaneously. Overlapping text bounds have zero distance:
+combine with `no-overlap`, clipping, or visible-count constraints where applicable.
+Semantic support, reading order, disconnected text ranges, and occlusion need review.
+
+`mark-contrast` selects actual HTML marks and finds the nearest matching containing
+ancestor using `substrate`. Both must have opaque, solid, computed sRGB
+`background-color` values. It compares relative luminance without rounding the ratio
+against `minRatio` (1–21). No declared contrast number or color metadata is trusted.
+The model rejects transparent or unsupported color syntax, SVG marks/substrates,
+missing substrates, marks outside their substrate, intervening painted backgrounds,
+background images/gradients, generated pseudo-content, shadows, and ancestor opacity,
+filters, masks, or blending. Unsupported paint emits an **unassessed** finding at the
+configured severity and does not establish executed coverage. It does not fall back
+to nominal colors or silently pass. On error rules, such evidence cannot satisfy a gate.
+
+This deliberately limited model measures a declared solid-color relationship, not
+raster pixels: sibling overlays, terrain drawn in another layer, borders/outlines,
+anti-aliasing, clipping, and interactive/theme states require visual review. Choose
+the true containing substrate and inspect the captures. A real map with imagery or
+SVG/canvas marks needs a different measurement integration or human review. The
+[W3C guidance](https://www.w3.org/WAI/WCAG22/Understanding/non-text-contrast.html)
+explains adjacent colors and 3:1 for relevant graphics; semantic color selection
+(DR-016) remains a review rule even when this partial check passes.
+
+Reports expose `metrics.repeatedMetrics` (per-surface counts), `evidenceDistances`
+(horizontal/vertical gaps and distance), and `markContrasts` (computed colors,
+unrounded ratio or unassessed status). `region-density` retains its existing text/
+box union coverage, element-count, and empty-band metrics. Keep its selectors on
+supporting content instead of rewarding the large map's bounding box. Use existing
+`max-height` for explicitly identified scalar displays; a new scalar-quality score
+would overstate what geometry can establish. Readable-type and map-size rules prevent
+compression from becoming smaller text or an unreadable geographic thumbnail.

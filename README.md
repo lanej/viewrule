@@ -66,6 +66,11 @@ Use `/viewrule:add-rule` in Claude Code, or `schema` and `add-rule --rule <file>
 snapshots and distinguish constraint changes from application repairs. See
 [rule authoring](docs/rule-authoring.md) and [research behind the defaults](docs/design-principles.md).
 
+See the [synthetic decision-surface pair](docs/examples/decision.html) for a large-map
+operations analysis with shared good/bad content, scoped executable checks, and
+explicit human-review limits. Its [catalog](docs/examples/decision-catalog.json)
+records the rules and expected findings.
+
 See the [new rule examples](docs/examples/behavior.html) for paired good/bad
 interaction and resilience demonstrations, shared synthetic data, cited rationales,
 and explicit native-check versus application-review coverage.

@@ -1,0 +1,97 @@
+{
+  "version": 1,
+  "id": "analytical-decision-surface",
+  "task": "Decide whether an invented operations district needs coverage review before its next activity cycle.",
+  "data": "One shared synthetic HTML template. All entities, localities, geometry, cycles, labels, scores, and counts are invented; no external data or map tiles.",
+  "good": "Consolidated summary, compact scalar context, table and recommendation adjacent, high-contrast facility marks, large map.",
+  "bad": "Repeated headline metrics, tall single-value tracks, empty summary bands, distant recommendation, low-contrast facility marks.",
+  "alternatives": [
+    "Keep a larger map when facility inspection is central.",
+    "Use a stacked layout at narrow widths while preserving type and label detail."
+  ],
+  "exception": "Repeated context may be useful across independent decisions or after a long scroll. A richer multi-value chart is not a scalar and needs its own scope.",
+  "example": "decision.html",
+  "config": "decision-config.json",
+  "rules": "decision-rules.json",
+  "viewports": [
+    {
+      "name": "desktop",
+      "width": 1440,
+      "height": 1100
+    }
+  ],
+  "sources": [
+    "https://www.edwardtufte.com/book/the-visual-display-of-quantitative-information/",
+    "https://www.w3.org/WAI/WCAG22/Understanding/non-text-contrast.html"
+  ],
+  "nativeChecks": [
+    {
+      "id": "decision-summary-density",
+      "type": "region-density",
+      "designRules": ["DR-007"],
+      "verification": "deterministic declared DOM geometry/identity proxy"
+    },
+    {
+      "id": "decision-repeated-summary",
+      "type": "repeated-metric",
+      "designRules": ["DR-007", "DR-008"],
+      "verification": "deterministic declared DOM geometry/identity proxy"
+    },
+    {
+      "id": "decision-evidence-distance",
+      "type": "evidence-proximity",
+      "designRules": ["DR-006"],
+      "verification": "deterministic declared DOM geometry/identity proxy"
+    },
+    {
+      "id": "decision-scalar-height",
+      "type": "max-height",
+      "designRules": ["DR-007", "DR-008"],
+      "verification": "deterministic declared DOM geometry/identity proxy"
+    },
+    {
+      "id": "decision-mark-contrast",
+      "type": "mark-contrast",
+      "designRules": ["DR-007", "DR-016"],
+      "verification": "deterministic solid-color model; unsupported paint is unassessed"
+    },
+    {
+      "id": "decision-readable-type",
+      "type": "min-font-size",
+      "designRules": ["DR-007"],
+      "verification": "deterministic declared DOM geometry/identity proxy"
+    },
+    {
+      "id": "decision-map-detail",
+      "type": "min-size",
+      "designRules": ["DR-007"],
+      "verification": "deterministic declared DOM geometry/identity proxy"
+    },
+    {
+      "id": "decision-evidence-present",
+      "type": "context",
+      "designRules": ["DR-003"],
+      "verification": "deterministic declared DOM geometry/identity proxy"
+    }
+  ],
+  "expected": {
+    "good": [],
+    "bad": [
+      "decision-summary-density",
+      "decision-repeated-summary",
+      "decision-evidence-distance",
+      "decision-scalar-height",
+      "decision-mark-contrast"
+    ]
+  },
+  "humanReview": [
+    "Semantic information density and task relevance; DOM counts and text coverage do not measure either.",
+    "Whether repeated metrics are redundant or supply useful context, and whether annotations cover every summary.",
+    "Whether the selected evidence actually supports the recommendation and the action is appropriate.",
+    "Facility/locality resolution, label collisions, and the useful share of map area. The 480×340 minimum is a fixture choice.",
+    "Contrast over imagery, gradients, SVG/canvas paint, overlapping terrain, sibling layers, outlines, anti-aliasing, and interactive themes.",
+    "Whether a large display carries genuinely scalar information; max-height enforces only the authored selector boundary."
+  ],
+  "verification": "The packed, installed CLI checks both individual layouts against the same rules. Passing means these configured checks pass, not human design approval.",
+  "rationale": "decision-rationale.md"
+}

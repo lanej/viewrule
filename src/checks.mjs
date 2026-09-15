@@ -5,6 +5,9 @@ export function inspectPage(rules) {
   /** @type {import("./types.js").Finding[]} */
   const findings = [];
   const density = [];
+  const repeatedMetrics = [],
+    evidenceDistances = [],
+    markContrasts = [];
   const comparisons = [],
     consistency = [],
     evaluations = [];
@@ -49,6 +52,30 @@ export function inspectPage(rules) {
         }
       : null;
   };
+  const solidRGB = (value) => {
+    const match = value.match(
+      /^rgba?\(\s*([\d.]+),\s*([\d.]+),\s*([\d.]+)(?:,\s*([\d.]+))?\s*\)$/,
+    );
+    if (!match || (match[4] !== undefined && Number(match[4]) !== 1))
+      return null;
+    const channels = match.slice(1, 4).map(Number);
+    return channels.every((channel) => channel >= 0 && channel <= 255)
+      ? channels
+      : null;
+  };
+  const luminance = (rgb) =>
+    rgb
+      .map((value) => {
+        const channel = value / 255;
+        return channel <= 0.04045
+          ? channel / 12.92
+          : ((channel + 0.055) / 1.055) ** 2.4;
+      })
+      .reduce(
+        (sum, channel, index) =>
+          sum + channel * [0.2126, 0.7152, 0.0722][index],
+        0,
+      );
   const add = (rule, message, el, actual, expected) =>
     findings.push({
       rule: rule.id,
@@ -382,6 +409,200 @@ export function inspectPage(rules) {
             );
         }
       }
+    } else if (rule.type === "repeated-metric") {
+      for (const el of els) {
+        // A nested decision surface owns its own metrics.
+        const items = [...el.querySelectorAll(rule.items)].filter(
+          (item) => visible(item) && item.closest(rule.selector) === el,
+        );
+        const counts = new Map();
+        for (const item of items) {
+          const key = item.getAttribute(rule.keyAttribute)?.trim();
+          if (!key || !textBounds(item)) {
+            evaluations.at(-1).status = "missing";
+            add(
+              rule,
+              "Metric needs a stable identity and visible text.",
+              item,
+              key || null,
+              rule.keyAttribute,
+            );
+            continue;
+          }
+          counts.set(key, (counts.get(key) || 0) + 1);
+        }
+        for (const key of rule.requiredKeys) {
+          if (!counts.has(key)) {
+            evaluations.at(-1).status = "missing";
+            add(
+              rule,
+              "Required metric is missing from this decision surface.",
+              el,
+              key,
+              "visible metric identity",
+            );
+          }
+        }
+        for (const [key, count] of counts) {
+          if (count > rule.maxOccurrences)
+            add(
+              rule,
+              "Metric identity repeats within the same decision surface.",
+              el,
+              { key, count },
+              { maxOccurrences: rule.maxOccurrences },
+            );
+        }
+        repeatedMetrics.push({
+          rule: rule.id,
+          surface: describe(el),
+          counts: Object.fromEntries(counts),
+        });
+      }
+    } else if (rule.type === "evidence-proximity") {
+      for (const el of els) {
+        const anchors = [rule.evidence, rule.decision].map((selector) =>
+          [...el.querySelectorAll(selector)].filter(
+            (item) => visible(item) && item.closest(rule.selector) === el,
+          ),
+        );
+        const boxes = anchors.map((items) =>
+          items.length === 1 ? textBounds(items[0]) : null,
+        );
+        if (boxes.some((box) => !box)) {
+          evaluations.at(-1).status = "missing";
+          add(
+            rule,
+            "Proximity needs exactly one visible, nonempty evidence and decision anchor per surface.",
+            el,
+            anchors.map((items) => items.length),
+            [rule.evidence, rule.decision],
+          );
+          continue;
+        }
+        const [a, b] = boxes;
+        const horizontalGap = Math.max(0, a.left - b.right, b.left - a.right);
+        const verticalGap = Math.max(0, a.top - b.bottom, b.top - a.bottom);
+        const distance = Math.hypot(horizontalGap, verticalGap);
+        const observation = {
+          rule: rule.id,
+          surface: describe(el),
+          horizontalGap,
+          verticalGap,
+          distance,
+        };
+        evidenceDistances.push(observation);
+        if (distance > rule.maxDistance)
+          add(
+            rule,
+            "Evidence and decision text are too far apart.",
+            anchors[1][0],
+            observation,
+            { maxDistance: rule.maxDistance },
+          );
+      }
+    } else if (rule.type === "mark-contrast") {
+      for (const el of els) {
+        const substrate = el.parentElement?.closest(rule.substrate);
+        const foreground = getComputedStyle(el).backgroundColor;
+        const background = substrate
+          ? getComputedStyle(substrate).backgroundColor
+          : "";
+        const fg = solidRGB(foreground),
+          bg = solidRGB(background);
+        let unsupported =
+          !substrate ||
+          !visible(substrate) ||
+          !fg ||
+          !bg ||
+          !(el instanceof HTMLElement) ||
+          !(substrate instanceof HTMLElement);
+        // Support opaque CSS-background marks on a containing solid background.
+        // Reject paint effects instead of calculating a misleading nominal ratio.
+        for (let current = el; current; current = current.parentElement) {
+          const style = getComputedStyle(current);
+          if (
+            Number(style.opacity) !== 1 ||
+            style.filter !== "none" ||
+            style.backdropFilter !== "none" ||
+            style.mixBlendMode !== "normal" ||
+            style.maskImage !== "none"
+          )
+            unsupported = true;
+          if (
+            current === el ||
+            current === substrate ||
+            (substrate && substrate.contains(current))
+          ) {
+            if (style.backgroundImage !== "none" || style.boxShadow !== "none")
+              unsupported = true;
+            if (
+              current !== el &&
+              current !== substrate &&
+              style.backgroundColor !== "rgba(0, 0, 0, 0)"
+            )
+              unsupported = true;
+            for (const pseudo of ["::before", "::after"]) {
+              if (
+                !["none", "normal"].includes(
+                  getComputedStyle(current, pseudo).content,
+                )
+              )
+                unsupported = true;
+            }
+          }
+        }
+        if (substrate) {
+          const a = rect(el),
+            b = rect(substrate);
+          if (
+            a.left < b.left ||
+            a.right > b.right ||
+            a.top < b.top ||
+            a.bottom > b.bottom
+          )
+            unsupported = true;
+        }
+        if (unsupported) {
+          evaluations.at(-1).status = "unassessed";
+          const observation = {
+            rule: rule.id,
+            element: describe(el),
+            status: "unassessed",
+            foreground,
+            background,
+          };
+          markContrasts.push(observation);
+          add(
+            rule,
+            "Mark contrast is unassessed: requires opaque CSS background colors on a containing solid substrate without paint effects.",
+            el,
+            observation,
+            "supported solid paint or human review",
+          );
+          continue;
+        }
+        const a = luminance(fg),
+          b = luminance(bg);
+        const ratio = (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
+        const observation = {
+          rule: rule.id,
+          element: describe(el),
+          status: "measured",
+          foreground,
+          background,
+          ratio,
+        };
+        markContrasts.push(observation);
+        if (ratio < rule.minRatio)
+          add(
+            rule,
+            "Mark contrast against the declared solid substrate is too low.",
+            el,
+            observation,
+            { minRatio: rule.minRatio },
+          );
+      }
     } else if (rule.type === "region-density") {
       const regions =
         rule.region === "viewport"
@@ -658,6 +879,9 @@ export function inspectPage(rules) {
       pageHeight: document.documentElement.scrollHeight,
       evaluatedRules: evaluated,
       density,
+      repeatedMetrics,
+      evidenceDistances,
+      markContrasts,
       comparisons,
       consistency,
       evaluations,

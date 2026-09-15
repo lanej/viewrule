@@ -27,3 +27,9 @@ do not manufacture content to meet an occupancy target.
 for every target viewport. A reduced overview alone cannot establish legibility
 on a large screen. Viewport dimensions refer to CSS pixels; account for browser
 zoom and display scaling when choosing representative screen sizes.
+
+**Decision surfaces:** Retain enough map or chart area for the required labels and
+marks. Compact the supporting context, not the type. Reuse `region-density` on scoped
+text regions as a geometry proxy; a large map box is not evidence of semantic density.
+Declared repeated metrics and scalar container heights can supply additional partial
+checks. [Expanded decision-surface reference](https://github.com/lanej/viewrule/blob/main/docs/design-examples.md#expanded-analytical-decision-surface).

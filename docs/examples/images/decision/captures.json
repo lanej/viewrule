@@ -1,0 +1,27 @@
+{
+  "viewport": {
+    "name": "desktop",
+    "width": 1440,
+    "height": 1100
+  },
+  "deviceScaleFactor": 1,
+  "browser": "151.0.7922.34",
+  "layouts": {
+    "good": {
+      "height": 680.421875,
+      "mapWidth": 653,
+      "mapHeight": 354,
+      "mapShare": 0.49097744360902257,
+      "labels": ["Node A", "Node B", "Node C", "Node D", "Node E", "Node F"],
+      "textSize": "16px"
+    },
+    "bad": {
+      "height": 1365.5625,
+      "mapWidth": 630,
+      "mapHeight": 470,
+      "mapShare": 0.47368421052631576,
+      "labels": ["Node A", "Node B", "Node C", "Node D", "Node E", "Node F"],
+      "textSize": "16px"
+    }
+  }
+}

@@ -16,3 +16,9 @@ expandable. Align numeric amounts and their headers consistently, with suitable
 precision and tabular digits where supported; identifiers need not follow numeric
 amount formatting. Small screens may use an explicit selection or comparison mode;
 the reduced view must keep the identity and context of each alternative clear.
+
+**Decision surfaces:** Keep the supporting evidence, recommendation, and next action
+adjacent within an expanded analytical item. `evidence-proximity` can enforce a
+project's declared text-distance limit; it cannot identify which evidence supports
+the decision. Inspect simultaneous visibility and preserve map detail needed for
+facility-level reading. [Expanded decision-surface reference](https://github.com/lanej/viewrule/blob/main/docs/design-examples.md#expanded-analytical-decision-surface).

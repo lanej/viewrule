@@ -1,0 +1,113 @@
+[
+  {
+    "id": "decision-summary-density",
+    "type": "region-density",
+    "selector": ".outcome",
+    "region": ".outcome",
+    "measure": "text",
+    "minCoverage": 0.06,
+    "maxVerticalGap": 48,
+    "viewports": ["desktop"],
+    "severity": "error",
+    "reason": "Limit empty bands in the supporting summary; preserve the map and readable type. Text coverage is a geometric proxy, not information yield.",
+    "designRules": ["DR-007"],
+    "sources": ["docs/examples/decision-rationale.md#summary-density"]
+  },
+  {
+    "id": "decision-repeated-summary",
+    "type": "repeated-metric",
+    "selector": ".decision-surface",
+    "items": ".metric",
+    "keyAttribute": "data-metric",
+    "requiredKeys": ["readiness", "observations"],
+    "maxOccurrences": 1,
+    "viewports": ["desktop"],
+    "severity": "error",
+    "reason": "Show each declared headline metric once in this expanded decision surface. Equal numbers alone do not imply duplication.",
+    "designRules": ["DR-007", "DR-008"],
+    "sources": ["docs/examples/decision-rationale.md#repeated-summaries"]
+  },
+  {
+    "id": "decision-evidence-distance",
+    "type": "evidence-proximity",
+    "selector": ".decision-surface",
+    "evidence": ".evidence",
+    "decision": ".decision-text",
+    "maxDistance": 80,
+    "viewports": ["desktop"],
+    "severity": "error",
+    "reason": "Keep the text of the evidence and its recommendation close enough to evaluate together.",
+    "designRules": ["DR-006"],
+    "sources": ["docs/examples/decision-rationale.md#evidence-distance"]
+  },
+  {
+    "id": "decision-scalar-height",
+    "type": "max-height",
+    "selector": ".scalar",
+    "max": 56,
+    "viewports": ["desktop"],
+    "severity": "error",
+    "reason": "These two scalar positions need compact labeled context; their track containers should not displace the evidence.",
+    "designRules": ["DR-007", "DR-008"],
+    "sources": ["docs/examples/decision-rationale.md#scalar-context"]
+  },
+  {
+    "id": "decision-mark-contrast",
+    "type": "mark-contrast",
+    "selector": ".facility",
+    "substrate": ".map",
+    "minRatio": 3,
+    "viewports": ["desktop"],
+    "severity": "error",
+    "reason": "Facility marks must stand out against the actual uniform map substrate.",
+    "designRules": ["DR-007", "DR-016"],
+    "sources": ["docs/examples/decision-rationale.md#mark-contrast"]
+  },
+  {
+    "id": "decision-readable-type",
+    "type": "min-font-size",
+    "selector": ".decision-surface",
+    "min": 14,
+    "viewports": ["desktop"],
+    "severity": "error",
+    "reason": "Compact the hierarchy while preserving readable text.",
+    "designRules": ["DR-007"],
+    "sources": ["docs/examples/decision-rationale.md#preserved-evidence"]
+  },
+  {
+    "id": "decision-map-detail",
+    "type": "min-size",
+    "selector": ".map",
+    "minWidth": 480,
+    "minHeight": 340,
+    "viewports": ["desktop"],
+    "severity": "error",
+    "reason": "Retain enough map area to distinguish facility and locality labels in this desktop scenario.",
+    "designRules": ["DR-007"],
+    "sources": ["docs/examples/decision-rationale.md#preserved-evidence"]
+  },
+  {
+    "id": "decision-evidence-present",
+    "type": "context",
+    "selector": ".decision-surface",
+    "required": [
+      "summary",
+      ".scalar",
+      ".evidence table",
+      "figcaption",
+      ".decision-text",
+      "button",
+      "[data-facility=\"A\"] + span",
+      "[data-facility=\"B\"] + span",
+      "[data-facility=\"C\"] + span",
+      "[data-facility=\"D\"] + span",
+      "[data-facility=\"E\"] + span",
+      "[data-facility=\"F\"] + span"
+    ],
+    "viewports": ["desktop"],
+    "severity": "error",
+    "reason": "Preserve summary identities, scalar context, table, map caption, and action in both layouts.",
+    "designRules": ["DR-003"],
+    "sources": ["docs/examples/decision-rationale.md#preserved-evidence"]
+  }
+]

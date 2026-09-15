@@ -21,6 +21,9 @@ const defaults = {
   context: ["DR-003"],
   consistent: ["DR-005"],
   "region-density": ["DR-007"],
+  "repeated-metric": ["DR-007", "DR-008"],
+  "evidence-proximity": ["DR-006"],
+  "mark-contrast": ["DR-007", "DR-016"],
   "max-height": ["DR-008"],
   "min-size": ["DR-007"],
   "min-font-size": ["DR-007"],
@@ -47,6 +50,12 @@ const advice = {
     "Correct the renderer or data mapping, then regenerate its metadata. Changing an annotation alone does not repair the display.",
   "region-density":
     "Use the available comparison area for useful evidence; check the detail tiles before changing spacing.",
+  "repeated-metric":
+    "Consolidate repeated summaries within this decision surface. Retain necessary context and stable metric identities; justified repetition needs an explicitly scoped contract.",
+  "evidence-proximity":
+    "Bring the declared evidence and decision text together by compacting intervening context. Preserve readable type and the map or chart detail needed for the task.",
+  "mark-contrast":
+    "Increase mark contrast against the actual substrate. Unsupported paint needs visual review or a supported solid treatment; changing an annotation alone is not a repair.",
   "max-height":
     "Reduce excess header or container height while preserving necessary controls and context.",
   "min-size":
@@ -214,6 +223,7 @@ export function evaluateDesign(report, rules, config) {
         : "Resolve the capture or accessibility issue and rerun viewrule check.";
       finding.evidenceKind =
         rule?.type === "attribute" ||
+        rule?.type === "repeated-metric" ||
         (rule?.type === "consistent" && rule.attributes.length)
           ? "DOM and declared metadata"
           : "DOM/capture";
