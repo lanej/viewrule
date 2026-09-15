@@ -5,10 +5,10 @@ Viewrule delegates general source diagnostics to **Impeccable CLI 4.1.0 / engine
 requirements, rendered measurements, state/viewport comparisons, and evidence.
 The detector runs without an agent, model API, or browser for local source targets.
 
-The Impeccable adapter, built-in integration, and `lint` command are unreleased.
+The Impeccable adapter, built-in integration, and `lint` command ship in 0.6.0.
 From a source checkout, run `npm ci`, then
 `node bin/viewrule.mjs lint --project /path/to/app --target src`.
-The published 0.5.1 engine predates the Impeccable-specific adapter as well as `lint`.
+The older 0.5.1 engine predates the Impeccable-specific adapter as well as `lint`.
 
 ## Quick checks
 
@@ -60,10 +60,15 @@ The built-in source scan has a 30-second limit; interruption is an operational f
 
 Normal scans respect Impeccable's project configuration, inline ignores, and design
 context. `noConfig: true` requests its raw baseline scan without those mechanisms.
-Keep exceptions narrow and intentional. The built-in provider's targets and local
-`DESIGN.md`, `.impeccable/config.json`, `.impeccable/config.local.json`, and
-`.impeccable/design.json` participate in rendered-review freshness, including when
-the settings are ignored by Git. Provider/rule changes remain visible in the contract.
+Keep exceptions narrow and intentional. The built-in provider tracks scanned sources and design-context candidates, including
+Git-ignored files, nested documents, `docs/` and `.agents/context/` fallbacks,
+case variants, design sidecars, and workspace ownership settings. Ancestors are
+checked up to repository or home boundaries because Impeccable can inherit workspace
+context. Creating, changing, or deleting a candidate invalidates rendered-review
+freshness; an unused alternative can conservatively require a recheck too. Only
+named context inputs and boundary existence are hashed outside source targets.
+`noConfig: true` omits this context tracking because the detector ignores it.
+Provider/rule changes remain visible in the contract.
 
 Opinions default to warnings. `authority: "advisory"` never blocks, including with
 an error severity mapping. Deliberate enforcement uses `authority: "blocking"` and

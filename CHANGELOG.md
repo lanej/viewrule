@@ -1,7 +1,15 @@
 # Changelog
 
-## Unreleased
+## 0.6.0 — 2026-09-15
 
+- Bundle Impeccable CLI 4.1.0 / engine 0.1.5 and add browser-free `lint` with
+  explicit source-only coverage, a 30-second limit, and no review-state writes.
+- Invalidate passing reviews when Impeccable design context changes, including
+  ignored fallback/nested documents, sidecars, and workspace boundaries. Track
+  the native scanner's local source scope instead of crawling unrelated ignored files.
+- Refresh the Claude plugin to the checksummed 0.6.0 engine archive.
+- Preserve the nine-trial repair pilot and defer the remaining study: no incremental
+  seeded-repair benefit was observed; full agent latency remains unproven.
 - Integrate pinned Impeccable source scans with their native findings and exit
   codes, preserving raw diagnostics and advisory/blocking authority.
 - Compare compatible approved/current captures with bounded, original-resolution
@@ -21,6 +29,12 @@
 - Generalize discovery feedback into guidance, documented examples, and the
   installed-CLI regression. Sizes, spacing, selectors, and layout choices stay
   application-owned; no global density or icon-size requirement is added.
+
+Compatibility: existing project configurations and approvals are preserved. New
+projects enable advisory Impeccable diagnostics. The engine now requires Node
+22.18+ and its pinned optional platform package. Source-only results cannot satisfy
+the Stop hook. Rerun browser review after upgrading; design-context tracking is
+conservative and may invalidate a pass when an unused candidate changes.
 
 ## 0.5.1 — 2026-09-15
 
