@@ -23,12 +23,16 @@ const same = (a, b) =>
  * @param {string} globalDir */
 export async function readContract(project, globalDir) {
   project = await realpath(project);
-  const { config, rules } = await loadProject(project, globalDir);
+  const { config, rules, projectDocuments } = await loadProject(
+    project,
+    globalDir,
+  );
   const policy = await readDesignPolicy();
   const snapshot = {
     config,
     rules: [...rules].sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0)),
     policySHA256: policy.sha256,
+    projectDocuments,
   };
   const hash = createHash("sha256")
     .update(JSON.stringify(canonical(snapshot)))
@@ -66,6 +70,34 @@ export async function readContract(project, globalDir) {
       });
     }
   }
+  const documentComparison = !baseline
+    ? "initial"
+    : Array.isArray(baseline.projectDocuments)
+      ? "available"
+      : "unavailable";
+  const documentChanges = [];
+  if (documentComparison === "available") {
+    /** @type {Map<string, import("./types.js").ProjectDocument>} */
+    const before = new Map(
+      baseline.projectDocuments.map((document) => [document.path, document]),
+    );
+    const after = new Map(
+      projectDocuments.map((document) => [document.path, document]),
+    );
+    for (const file of [...new Set([...before.keys(), ...after.keys()])].sort()) {
+      const old = before.get(file);
+      const current = after.get(file);
+      if (old?.sha256 === current?.sha256) continue;
+      documentChanges.push({
+        path: file,
+        kind: !old ? "added" : !current ? "removed" : "modified",
+        beforeSHA256: old?.sha256 ?? null,
+        afterSHA256: current?.sha256 ?? null,
+        before: old?.content ?? null,
+        after: current?.content ?? null,
+      });
+    }
+  }
   return {
     version: 1,
     hash,
@@ -74,6 +106,8 @@ export async function readContract(project, globalDir) {
     previousReportId: previous?.id ?? null,
     previousReportFile: latest?.reportFile ?? null,
     changes,
+    documentComparison,
+    documentChanges,
     configurationChange:
       baseline && !same(baseline.config, config)
         ? { before: baseline.config, after: config }
