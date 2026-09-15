@@ -2233,7 +2233,8 @@ test(
       ),
     );
     assert.equal(impeccablePackage.version, "4.1.0");
-    const providerSource = path.join(project, "src/provider.css");
+    await mkdir(path.join(project, "dist"), { recursive: true });
+    const providerSource = path.join(project, "dist/provider.css");
     await writeFile(
       providerSource,
       "body { font-family: Inter, sans-serif; }\n",
@@ -2244,7 +2245,7 @@ test(
       format: "impeccable",
       version: impeccablePackage.version,
       authority: "advisory",
-      targets: ["src/provider.css"],
+      targets: ["dist/provider.css"],
       noConfig: true,
       severityMap: { warning: "error" },
     };
@@ -2312,6 +2313,15 @@ test(
     assert.equal(acceptedSourceReport.sourceChecks[0].execution.code, 0);
     assert.deepEqual(acceptedSourceReport.sourceChecks[0].findings, []);
     assert.deepEqual(await hook(), {});
+    await writeFile(
+      providerSource,
+      "body { font-family: Georgia, serif; }\n/* changed generated source */\n",
+    );
+    assert.equal(
+      (await hook()).decision,
+      "block",
+      "Explicit detector targets remain tracked outside normal source scope",
+    );
     impeccableProvider.noConfig = false;
     await writeFile(
       path.join(project, ".ui-review/config.json"),

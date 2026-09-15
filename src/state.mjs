@@ -10,6 +10,7 @@ import {
   unlink,
   cp,
   realpath,
+  stat,
 } from "node:fs/promises";
 import { spawnSync } from "node:child_process";
 import path from "node:path";
@@ -100,7 +101,27 @@ export async function fingerprint(project, config, globalDir, documents) {
       (p) =>
         p === "." || file === p || file.startsWith(p.replace(/\/$/, "") + "/"),
     );
-  for (const file of files.filter(inScope).sort()) {
+  const scopedFiles = new Set(files.filter(inScope));
+  // Explicit detector targets can include generated/ignored source that the
+  // normal project fingerprint excludes. Hash what the user asked us to scan.
+  for (const target of new Set(
+    bundledProviders.flatMap((provider) =>
+      provider.targets.map((file) => path.join(provider.cwd ?? ".", file)),
+    ),
+  )) {
+    const directory = path.join(project, target);
+    try {
+      const info = await stat(directory);
+      if (info.isDirectory())
+        for (const file of await walk(directory))
+          scopedFiles.add(path.join(target, file));
+      else scopedFiles.add(target);
+    } catch (error) {
+      if (error.code !== "ENOENT") throw error;
+      scopedFiles.add(target);
+    }
+  }
+  for (const file of [...scopedFiles].sort()) {
     hash.update(file + "\0");
     try {
       hash.update(await readFile(path.join(project, file)));
