@@ -1,11 +1,17 @@
 # Controlled repair trial
 
-Status: **prepared, agent runs not executed**. `scripts/repair-trial.mjs` creates
-neutral inputs, assistance, hashes, rotated trial order, and a frozen independent
-evaluator. The evaluator has a separate validation run against the seeded corpus;
-that is not an agent result. Execution still requires an authenticated, pinned
-runner and browser. The preparation workspace has no Claude/Codex CLI or model
-credentials. No model credentials or repair transcripts were created or inferred.
+Status: **nine-trial exploratory pilot complete; full study deferred**. The
+[2026-09-15 pilot](pilot-2026-09-15.md) ran one clean control and two seeded cases
+once per arm. All three arms repaired both seeds with no new evaluator failures;
+the pilot showed no incremental repair benefit. The remaining 72 prepared tasks
+were not run after the user narrowed scope due to latency concerns. Blind semantic
+and explanation grading remain unrecorded; issue #22 stays open.
+
+`scripts/repair-trial.mjs` creates neutral inputs, assistance, hashes, rotated trial
+order, and a frozen independent evaluator. The [local container runner](execution.md)
+records authenticated sessions with a pinned browser and enforced isolation. The
+evaluator's separate validation against the seeded corpus is not an agent outcome.
+The full-study protocol below remains the target for any later expansion.
 
 ## Conditions
 
