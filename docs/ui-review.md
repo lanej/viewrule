@@ -42,6 +42,31 @@ the evaluated rule IDs and axe checks requiring manual review. Exit codes:
 `0` = no errors (warnings allowed), `1` = failed checks/capture, `2` = bad setup or
 configuration. Missing/hidden required selectors and invalid rules fail explicitly.
 
+### Changes since approval
+
+HTML and JSON lead with new, persistent, and resolved findings relative to the
+last project-approved review, including source-check findings with their provider
+authority. A first run has no regression baseline; its findings are current findings.
+Newly unassessed design rules retain their page, checkpoint, and viewport context.
+
+Finding identities use the review state, rule, selector, element description, and
+sorted design-rule citations. Wording, severity, and measured-value changes do not
+create new identities. Indistinguishable repeated elements retain occurrence counts;
+these identify a group of observations, not individual records across reordering.
+Source identities use the provider and reported file/line; moving a diagnostic can
+appear as a new finding.
+
+Absent findings count as resolved only when the state was inspected under unchanged
+configuration, policy, and governing rules. Removed states, skipped evidence, failed
+captures, and changed boundaries are listed as **not compared**, with a reason.
+New/persistent findings alone do not identify whether application or contract changes
+caused them. Approval never waives automated failures.
+
+`changes.contract` compares requirements and project documents with the approved
+snapshot. HTML uses that same baseline; the existing top-level `contract` comparison
+still refers to the previous completed run. Before/after screenshots remain available
+as evidence. Automatic detection of materially changed image regions is not implemented.
+
 ## Author rules and inspect the contract
 
 `viewrule contract` prints effective merged boundaries before implementation without

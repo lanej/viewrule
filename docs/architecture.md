@@ -66,6 +66,7 @@ Plugin cache files are immutable during setup; no parent-repository paths are ne
 | `src/cli.mjs` | Command parsing and presentation |
 | `src/paths.mjs` | User-config location and compatibility environment variables |
 | `src/contract.mjs` | Effective pre-design boundaries, canonical hashes, snapshots, and report-to-report changes |
+| `src/changes.mjs` | Finding identities and approved-review deltas, including unassessed or incomparable evidence |
 | `src/config.mjs` | Ajv validation, project loading, defaults, rule merging |
 | `src/review.mjs` | Browser lifecycle and review orchestration |
 | `src/capture.mjs` | Native-scale tile planning, capture, and coverage accounting |

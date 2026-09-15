@@ -5,80 +5,313 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>UI review</title>
     <style>
-      body { font: 16px/1.5 system-ui, sans-serif; color: #172d27; background: #f6f8f7; margin: 0; }
-      main { max-width: 1400px; margin: auto; padding: 24px; }
-      h1, h2 { line-height: 1.2; }
-      small { color: #46594f; }
-      table { border-collapse: collapse; width: 100%; background: white; }
-      th, td { padding: 10px; text-align: left; vertical-align: top; border-bottom: 1px solid #ced8d2; }
-      code { overflow-wrap: anywhere; }
-      figure { margin: 0; min-width: 0; }
-      img { width: 100%; border: 1px solid #becbc3; }
-      .compare { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); gap: 20px; }
-      section { margin: 32px 0; }
-      a { color: #165b41; }
-      .error { color: #962e24; }
-      .warning { color: #704b0c; }
-      .pass { color: #165b41; }
-      pre { white-space: pre-wrap; overflow-wrap: anywhere; }
-      .tile { margin: 16px 0; overflow: auto; }
-      .tile img { max-width: none; }
+      body {
+        font:
+          16px/1.5 system-ui,
+          sans-serif;
+        color: #172d27;
+        background: #f6f8f7;
+        margin: 0;
+      }
+      main {
+        max-width: 1400px;
+        margin: auto;
+        padding: 24px;
+      }
+      h1,
+      h2 {
+        line-height: 1.2;
+      }
+      small {
+        color: #46594f;
+      }
+      table {
+        border-collapse: collapse;
+        width: 100%;
+        background: white;
+      }
+      th,
+      td {
+        padding: 10px;
+        text-align: left;
+        vertical-align: top;
+        border-bottom: 1px solid #ced8d2;
+      }
+      code {
+        overflow-wrap: anywhere;
+      }
+      figure {
+        margin: 0;
+        min-width: 0;
+      }
+      img {
+        width: 100%;
+        border: 1px solid #becbc3;
+      }
+      .compare {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr));
+        gap: 20px;
+      }
+      section {
+        margin: 32px 0;
+      }
+      a {
+        color: #165b41;
+      }
+      .error {
+        color: #962e24;
+      }
+      .warning {
+        color: #704b0c;
+      }
+      .pass {
+        color: #165b41;
+      }
+      pre {
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+      }
+      .tile {
+        margin: 16px 0;
+        overflow: auto;
+      }
+      .tile img {
+        max-width: none;
+      }
     </style>
   </head>
   <body>
     <main>
       <h1>UI review · <span class="{{status}}">{{status}}</span></h1>
-      <p>{{summary.errors}} errors · {{summary.warnings}} warnings · {{captureCount}} captures</p>
-      <small>{{createdAt}} · <a href="report.json">JSON report</a> · {{id}}</small>
+      <p>
+        {{summary.errors}} errors · {{summary.warnings}} warnings ·
+        {{captureCount}} captures
+      </p>
+      <small
+        >{{createdAt}} · <a href="report.json">JSON report</a> · {{id}}</small
+      >
 
       <section>
         <h2>Since the approved review</h2>
         {{#hasChangeBaseline}}
-        <p>Compared with approved report <code>{{changes.baselineId}}</code>: <strong>{{newFindingCount}} new</strong> · {{persistentFindingCount}} persistent · <strong>{{resolvedFindingCount}} resolved</strong> · {{newlyUnassessedCount}} newly unassessed.</p>
-        {{#hasNewFindings}}
-        <h3>New violations</h3>
-        <table><thead><tr><th>State</th><th>Rule</th><th>Finding</th></tr></thead><tbody>
-          {{#newFindings}}<tr><td>{{state}}</td><td class="{{severity}}"><code>{{rule}}</code><br /><small>{{selector}}</small></td><td>{{message}}</td></tr>{{/newFindings}}
-        </tbody></table>
-        {{/hasNewFindings}}
-        {{#hasResolvedFindings}}
-        <h3>Resolved violations</h3>
-        <table><thead><tr><th>State</th><th>Rule</th><th>Previous finding</th></tr></thead><tbody>
-          {{#resolvedFindings}}<tr><td>{{state}}</td><td><code>{{rule}}</code><br /><small>{{selector}}</small></td><td>{{message}}</td></tr>{{/resolvedFindings}}
-        </tbody></table>
-        {{/hasResolvedFindings}}
-        {{#hasNewlyUnassessed}}
+        <p>
+          Compared with approved report <code>{{changes.baselineId}}</code>:
+          <strong>{{newFindingCount}} new</strong> · {{persistentFindingCount}}
+          persistent · <strong>{{resolvedFindingCount}} resolved</strong> ·
+          {{newlyUnassessedCount}} newly unassessed · {{notComparedCount}} not
+          compared.
+        </p>
+        {{/hasChangeBaseline}} {{#hasNewFindings}}
+        <h3>
+          {{#hasChangeBaseline}}New
+          findings{{/hasChangeBaseline}}{{#noChangeBaseline}}Current
+          findings{{/noChangeBaseline}}
+        </h3>
+        <table>
+          <thead>
+            <tr>
+              <th>State</th>
+              <th>Rule</th>
+              <th>Finding</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#newFindings}}
+            <tr>
+              <td>{{state}}</td>
+              <td class="{{severity}}">
+                <code>{{rule}}</code><br /><small
+                  >{{selector}} · {{authority}}</small
+                >
+              </td>
+              <td>{{message}}</td>
+            </tr>
+            {{/newFindings}}
+          </tbody>
+        </table>
+        {{/hasNewFindings}} {{#hasPersistentFindings}}
+        <details>
+          <summary>Persistent findings</summary>
+          <ul>
+            {{#persistentFindings}}
+            <li>
+              {{state}} · <code>{{rule}}</code> · {{selector}} · {{authority}} ·
+              {{message}}
+            </li>
+            {{/persistentFindings}}
+          </ul>
+        </details>
+        {{/hasPersistentFindings}} {{#hasResolvedFindings}}
+        <h3>Resolved findings</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>State</th>
+              <th>Rule</th>
+              <th>Previous finding</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#resolvedFindings}}
+            <tr>
+              <td>{{state}}</td>
+              <td><code>{{rule}}</code><br /><small>{{selector}}</small></td>
+              <td>{{message}}</td>
+            </tr>
+            {{/resolvedFindings}}
+          </tbody>
+        </table>
+        {{/hasResolvedFindings}} {{#hasNotComparedFindings}}
+        <h3>Previous findings not compared</h3>
+        <ul>
+          {{#notComparedFindings}}
+          <li>{{state}} · <code>{{rule}}</code> · {{message}} — {{reason}}</li>
+          {{/notComparedFindings}}
+        </ul>
+        {{/hasNotComparedFindings}} {{#hasNewlyUnassessed}}
         <h3>Newly unassessed requirements</h3>
-        <ul>{{#newlyUnassessed}}<li><code>{{designRule}}</code></li>{{/newlyUnassessed}}</ul>
+        <ul>
+          {{#newlyUnassessed}}
+          <li>{{state}} · <code>{{designRule}}</code></li>
+          {{/newlyUnassessed}}
+        </ul>
         {{/hasNewlyUnassessed}}
-        <p>Screenshot differences are evidence, not failures. Contract and project-document changes are reported separately below and are not classified as application regressions.</p>
-        {{/hasChangeBaseline}}
-        {{#noChangeBaseline}}<p>No approved review is available as an application baseline. Current findings are preserved as new findings in JSON, but no regression is inferred.</p>{{/noChangeBaseline}}
+        <p>
+          Screenshot differences are evidence, not failures. Findings describe
+          observed changes without attributing them to application code.
+          Contract and project-document changes are reported separately below. A
+          missing state or changed boundary does not establish that a finding
+          was fixed.
+        </p>
+        {{#noChangeBaseline}}
+        <p>
+          No approved review is available as an application baseline. Current
+          findings are preserved as new findings in JSON, but no regression is
+          inferred.
+        </p>
+        {{/noChangeBaseline}}
       </section>
 
-      <p>Automated checks cover configured constraints. <a href="design-rules.html">Design-rule reference used for this run</a>. A passed check establishes only its measured condition; metadata checks do not certify that a chart renders its data faithfully. Inspect the detail images and review unassessed requirements.</p>
-      {{#hasProjectDocuments}}<p><a href="project-documents.html">Project design and style sources</a> are preserved with this report. Prose is guidance, not an executed check.</p>{{/hasProjectDocuments}}
-      {{#hasDocumentChanges}}<p><strong>Project design/style sources changed.</strong> Review the document changes separately from application repairs below.</p>{{/hasDocumentChanges}}
-      {{#hasContract}}
+      <p>
+        Automated checks cover configured constraints.
+        <a href="design-rules.html">Design-rule reference used for this run</a>.
+        A passed check establishes only its measured condition; metadata checks
+        do not certify that a chart renders its data faithfully. Inspect the
+        detail images and review unassessed requirements.
+      </p>
+      {{#hasProjectDocuments}}
+      <p>
+        <a href="project-documents.html">Project design and style sources</a>
+        are preserved with this report. Prose is guidance, not an executed
+        check.
+      </p>
+      {{/hasProjectDocuments}} {{#hasDocumentChanges}}
+      <p>
+        <strong>Project design/style sources changed.</strong> Review the
+        document changes separately from application repairs below.
+      </p>
+      {{/hasDocumentChanges}} {{#hasContract}}
       <details>
         <summary>Design contract and changes</summary>
-        <p>Contract SHA-256: <code>{{contract.hash}}</code>. This identifies the configured boundaries and project sources, not overall design quality.</p>
-        {{#contractBaselineAvailable}}<p>Compared with report {{contract.previousReportId}}. Constraint changes are separate from application repairs.</p>{{/contractBaselineAvailable}}
-        {{^contractBaselineAvailable}}<p>No prior contract is available for comparison ({{contract.comparison}}).</p>{{/contractBaselineAvailable}}
-        {{#hasContractChanges}}<table><thead><tr><th>Rule / change</th><th>Before</th><th>After</th></tr></thead><tbody>{{#contractChanges}}<tr><td>{{id}} · {{kind}}</td><td><code>{{beforeJSON}}</code></td><td><code>{{afterJSON}}</code></td></tr>{{/contractChanges}}</tbody></table>{{/hasContractChanges}}
-        {{#configurationChangeJSON}}<p>Configuration changed:</p><pre>{{configurationChangeJSON}}</pre>{{/configurationChangeJSON}}
-        {{#contract.policyChanged}}<p>The design-policy document changed.</p>{{/contract.policyChanged}}
-        {{#hasProjectDocuments}}<h3>Project sources used</h3><ul>{{#projectDocuments}}<li><a href="{{href}}">{{path}}</a> · {{role}} · <code>{{sha256}}</code></li>{{/projectDocuments}}</ul>{{/hasProjectDocuments}}
-        {{#documentBaselineUnavailable}}<p>The previous report did not snapshot project documents. Their prior contents are unknown; no document change history is inferred.</p>{{/documentBaselineUnavailable}}
-        {{#hasDocumentChanges}}<h3>Project document changes</h3>{{#documentChanges}}<details><summary>{{path}} · {{kind}}</summary><div class="compare"><div><h4>Before</h4><pre>{{before}}</pre></div><div><h4>After</h4><pre>{{after}}</pre></div></div></details>{{/documentChanges}}{{/hasDocumentChanges}}
-        <p>The JSON report contains the full effective configuration, rules, and project source snapshots. A passing run does not approve a change to these boundaries or establish compliance with all their prose.</p>
+        <p>
+          Contract SHA-256: <code>{{contract.hash}}</code>. This identifies the
+          configured boundaries and project sources, not overall design quality.
+        </p>
+        {{#contractBaselineAvailable}}
+        <p>
+          Compared with {{#hasChangeBaseline}}approved{{/hasChangeBaseline}}
+          report {{contract.previousReportId}}. Constraint changes are separate
+          from application repairs.
+        </p>
+        {{/contractBaselineAvailable}} {{^contractBaselineAvailable}}
+        <p>
+          No prior contract is available for comparison
+          ({{contract.comparison}}).
+        </p>
+        {{/contractBaselineAvailable}} {{#hasContractChanges}}
+        <table>
+          <thead>
+            <tr>
+              <th>Rule / change</th>
+              <th>Before</th>
+              <th>After</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#contractChanges}}
+            <tr>
+              <td>{{id}} · {{kind}}</td>
+              <td><code>{{beforeJSON}}</code></td>
+              <td><code>{{afterJSON}}</code></td>
+            </tr>
+            {{/contractChanges}}
+          </tbody>
+        </table>
+        {{/hasContractChanges}} {{#configurationChangeJSON}}
+        <p>Configuration changed:</p>
+        <pre>{{configurationChangeJSON}}</pre>
+        {{/configurationChangeJSON}} {{#contract.policyChanged}}
+        <p>The design-policy document changed.</p>
+        {{/contract.policyChanged}} {{#hasProjectDocuments}}
+        <h3>Project sources used</h3>
+        <ul>
+          {{#projectDocuments}}
+          <li>
+            <a href="{{href}}">{{path}}</a> · {{role}} · <code>{{sha256}}</code>
+          </li>
+          {{/projectDocuments}}
+        </ul>
+        {{/hasProjectDocuments}} {{#documentBaselineUnavailable}}
+        <p>
+          The previous report did not snapshot project documents. Their prior
+          contents are unknown; no document change history is inferred.
+        </p>
+        {{/documentBaselineUnavailable}} {{#hasDocumentChanges}}
+        <h3>Project document changes</h3>
+        {{#documentChanges}}
+        <details>
+          <summary>{{path}} · {{kind}}</summary>
+          <div class="compare">
+            <div>
+              <h4>Before</h4>
+              <pre>{{before}}</pre>
+            </div>
+            <div>
+              <h4>After</h4>
+              <pre>{{after}}</pre>
+            </div>
+          </div>
+        </details>
+        {{/documentChanges}}{{/hasDocumentChanges}}
+        <p>
+          The JSON report contains the full effective configuration, rules, and
+          project source snapshots. A passing run does not approve a change to
+          these boundaries or establish compliance with all their prose.
+        </p>
       </details>
-      {{/hasContract}}
-      {{#hasPreferences}}<details open><summary>Design guidance and prior feedback</summary><ul>{{#preferences}}<li>{{.}}</li>{{/preferences}}</ul></details>{{/hasPreferences}}
-      {{#pages}}{{> page}}{{/pages}}
-      <section><h2>Record feedback</h2><p>Tell your coding agent what works or what should change. It can run the feedback command below, then convert measurable feedback into a scoped rule. Approval saves a reference; it never waives failing checks.</p><pre>
+      {{/hasContract}} {{#hasPreferences}}
+      <details open>
+        <summary>Design guidance and prior feedback</summary>
+        <ul>
+          {{#preferences}}
+          <li>{{.}}</li>
+          {{/preferences}}
+        </ul>
+      </details>
+      {{/hasPreferences}} {{#pages}}{{> page}}{{/pages}}
+      <section>
+        <h2>Record feedback</h2>
+        <p>
+          Tell your coding agent what works or what should change. It can run
+          the feedback command below, then convert measurable feedback into a
+          scoped rule. Approval saves a reference; it never waives failing
+          checks.
+        </p>
+        <pre>
 ui-review feedback --report .ui-review/runs/{{id}}/report.json --decision approve --note "What works and where it applies"
-ui-review feedback --report .ui-review/runs/{{id}}/report.json --decision adjust --note "What to change and why"</pre></section>
+ui-review feedback --report .ui-review/runs/{{id}}/report.json --decision adjust --note "What to change and why"</pre>
+      </section>
     </main>
   </body>
 </html>

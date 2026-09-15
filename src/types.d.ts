@@ -161,6 +161,13 @@ export interface FindingChange {
   checkpoint: string | null;
   viewport: Viewport;
   finding: Finding;
+  reason?: string;
+}
+export interface ContractSnapshot {
+  config: ProjectConfig;
+  rules: Rule[];
+  policySHA256: string;
+  projectDocuments?: ProjectDocument[];
 }
 export interface ReviewChanges {
   comparison: "available" | "unavailable";
@@ -168,7 +175,15 @@ export interface ReviewChanges {
   newFindings: FindingChange[];
   persistentFindings: FindingChange[];
   resolvedFindings: FindingChange[];
-  newlyUnassessed: { id: string; designRule: string }[];
+  notComparedFindings: FindingChange[];
+  newlyUnassessed: {
+    id: string;
+    designRule: string;
+    page: string;
+    checkpoint: string | null;
+    viewport: Viewport;
+  }[];
+  contract: ReturnType<typeof import("./contract.mjs").compareContracts>;
 }
 export interface ReviewReport {
   version: 1;

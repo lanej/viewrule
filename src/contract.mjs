@@ -51,7 +51,25 @@ export async function readContract(project, globalDir) {
       );
     previous = await readJSON(file, null);
   }
-  const baseline = previous?.contract;
+  return {
+    version: 1,
+    hash,
+    ...snapshot,
+    ...compareContracts(snapshot, previous?.contract),
+    comparison: previous?.contract
+      ? "available"
+      : latest
+        ? "unavailable"
+        : "initial",
+    previousReportId: previous?.id ?? null,
+    previousReportFile: latest?.reportFile ?? null,
+  };
+}
+
+/** Compare explicit snapshots without changing the CLI's latest-run baseline.
+ * @param {import("./types.js").ContractSnapshot} snapshot
+ * @param {import("./types.js").ContractSnapshot} [baseline] */
+export function compareContracts(snapshot, baseline) {
   const changes = [];
   if (baseline) {
     const before = new Map(baseline.rules.map((rule) => [rule.id, rule]));
@@ -82,7 +100,10 @@ export async function readContract(project, globalDir) {
       baseline.projectDocuments.map((document) => [document.path, document]),
     );
     const after = new Map(
-      projectDocuments.map((document) => [document.path, document]),
+      (snapshot.projectDocuments ?? []).map((document) => [
+        document.path,
+        document,
+      ]),
     );
     for (const file of [
       ...new Set([...before.keys(), ...after.keys()]),
@@ -101,19 +122,16 @@ export async function readContract(project, globalDir) {
     }
   }
   return {
-    version: 1,
-    hash,
-    ...snapshot,
-    comparison: baseline ? "available" : latest ? "unavailable" : "initial",
-    previousReportId: previous?.id ?? null,
-    previousReportFile: latest?.reportFile ?? null,
+    comparison: baseline ? "available" : "unavailable",
     changes,
     documentComparison,
     documentChanges,
     configurationChange:
-      baseline && !same(baseline.config, config)
-        ? { before: baseline.config, after: config }
+      baseline && !same(baseline.config, snapshot.config)
+        ? { before: baseline.config, after: snapshot.config }
         : null,
-    policyChanged: baseline ? baseline.policySHA256 !== policy.sha256 : false,
+    policyChanged: baseline
+      ? baseline.policySHA256 !== snapshot.policySHA256
+      : false,
   };
 }
