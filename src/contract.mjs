@@ -30,7 +30,9 @@ export async function readContract(project, globalDir) {
   const policy = await readDesignPolicy();
   const snapshot = {
     config,
-    rules: [...rules].sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0)),
+    rules: [...rules].sort((a, b) =>
+      a.id < b.id ? -1 : a.id > b.id ? 1 : 0,
+    ),
     policySHA256: policy.sha256,
     projectDocuments,
   };
