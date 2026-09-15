@@ -163,7 +163,9 @@ export interface ReviewReport {
   status: "pass" | "fail";
   summary: { errors: number; warnings: number };
   pages: PageResult[];
-  sourceChecks?: Awaited<ReturnType<typeof import("./source-checks.mjs").runSourceChecks>>;
+  sourceChecks?: Awaited<
+    ReturnType<typeof import("./source-checks.mjs").runSourceChecks>
+  >;
   designPolicy: DesignPolicy;
   contract: Awaited<ReturnType<typeof import("./contract.mjs").readContract>>;
 }
