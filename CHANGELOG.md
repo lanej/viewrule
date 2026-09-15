@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.5.1 — 2026-09-15
+
+- Reject empty or whitespace-only source-check output instead of treating missing
+  provider evidence as a clean scan. Exit 0/1 still accepts valid JSON findings;
+  clean providers must explicitly emit `[]` or `{ "findings": [] }`.
+- Verify through the installed CLI that a failed provider invalidates an earlier
+  passing review, blocks the opted-in hook, and recovers after explicit clean JSON.
+- Refresh the Claude plugin to the checksummed 0.5.1 engine archive.
+
+Compatibility: silent source-check providers now fail with setup exit code 2.
+Update such providers to emit JSON; no project rules or approvals are rewritten.
+
 ## 0.5.0 — 2026-09-15
 
 - Load and snapshot project design/style documents with scoped source citations

@@ -42,6 +42,14 @@ the evaluated rule IDs and axe checks requiring manual review. Exit codes:
 `0` = no errors (warnings allowed), `1` = failed checks/capture, `2` = bad setup or
 configuration. Missing/hidden required selectors and invalid rules fail explicitly.
 
+### Source-check output
+
+Enabled source-check providers must emit a JSON array or `{ "findings": [] }`
+to stdout. Exit codes 0 and 1 are accepted with valid JSON so linters can signal
+findings with exit 1. A clean scan must explicitly emit an empty array. Empty,
+whitespace-only, or malformed output fails review with setup exit code 2 and keeps
+the opted-in Stop hook blocked; it cannot resolve previously reported findings.
+
 ### Changes since approval
 
 HTML and JSON lead with new, persistent, and resolved findings relative to the

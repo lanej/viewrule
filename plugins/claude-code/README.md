@@ -21,7 +21,7 @@ In Claude Code:
 Setup installs the checksummed engine release in `engine.json` and its Playwright
 Chromium browser. It then helps configure your running application. Installing the
 plugin alone makes no engine or browser download, and does not enable enforcement.
-Version 0.5.0 pins the 0.5.0 engine, including decision-surface checks, project
+Version 0.5.1 pins the 0.5.1 engine, including decision-surface checks, project
 design/style contracts, interaction checkpoints, and source-check adapters.
 The default baseline checks readable text and flags clipping/oversized headers;
 the analytical preset adds comparison counts, labels, context, proximity, and alignment.
