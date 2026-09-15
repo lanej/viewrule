@@ -1,0 +1,11 @@
+{
+  "name": "Shipment workspace",
+  "path": "/shipments",
+  "ready": "[data-ready]",
+  "checkpoints": [
+    {
+      "name": "details-open",
+      "setup": "docs/examples/checkpoint-setup.mjs"
+    }
+  ]
+}
