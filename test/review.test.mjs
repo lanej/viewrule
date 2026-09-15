@@ -75,6 +75,9 @@ test(
         const file = pathname.slice("/examples/".length);
         if (
           ![
+            "decision.html",
+            "decision.js",
+            "decision.css",
             "behavior.html",
             "behavior.js",
             "behavior.css",
@@ -784,6 +787,164 @@ test(
       JSON.parse(setup.stdout).engine,
       "docs/examples",
     );
+    // One synthetic operations pair exercises declared decision surfaces through
+    // the packed CLI. No proprietary reference asset enters the package.
+    const decisionCatalog = JSON.parse(
+      await readFile(
+        path.join(exampleDirectory, "decision-catalog.json"),
+        "utf8",
+      ),
+    );
+    const decisionRules = JSON.parse(
+      await readFile(
+        path.join(exampleDirectory, "decision-rules.json"),
+        "utf8",
+      ),
+    );
+    const decisionConfig = JSON.parse(
+      await readFile(
+        path.join(exampleDirectory, "decision-config.json"),
+        "utf8",
+      ),
+    );
+    await mkdir(path.join(project, "docs/examples"), { recursive: true });
+    await cp(
+      path.join(exampleDirectory, "decision-rationale.md"),
+      path.join(project, "docs/examples/decision-rationale.md"),
+    );
+    Object.assign(decisionConfig, { baseURL, sourcePaths: ["src"] });
+    await writeFile(rulesPath, JSON.stringify(decisionRules));
+    const decisionMetrics = {};
+    for (const quality of ["bad", "good"]) {
+      const scenario = {
+        ...decisionConfig,
+        pages: decisionConfig.pages.filter((page) => page.name === quality),
+      };
+      await writeFile(
+        path.join(project, ".ui-review/config.json"),
+        JSON.stringify(scenario),
+      );
+      const result = await cli(["check"]);
+      assert.equal(
+        result.code,
+        quality === "bad" ? 1 : 0,
+        result.stderr || result.stdout,
+      );
+      const report = JSON.parse(
+        await readFile(JSON.parse(result.stdout).report, "utf8"),
+      );
+      const capture = report.pages[0];
+      assert.deepEqual(
+        [...new Set(capture.findings.map((finding) => finding.rule))].sort(),
+        [...decisionCatalog.expected[quality]].sort(),
+        JSON.stringify(capture.findings),
+      );
+      decisionMetrics[quality] = capture.metrics;
+      assert.equal(capture.metrics.markContrasts.length, 6);
+      assert.ok(
+        capture.metrics.markContrasts.every(
+          (mark) =>
+            mark.status === "measured" &&
+            (quality === "good" ? mark.ratio >= 3 : mark.ratio < 3),
+        ),
+      );
+      assert.deepEqual(capture.metrics.repeatedMetrics[0].counts, {
+        readiness: quality === "good" ? 1 : 2,
+        observations: quality === "good" ? 1 : 2,
+      });
+      assert.ok(
+        quality === "good"
+          ? capture.metrics.evidenceDistances[0].distance <= 80
+          : capture.metrics.evidenceDistances[0].distance > 80,
+      );
+      const density = capture.metrics.density[0];
+      assert.ok(
+        quality === "good"
+          ? density.coverage >= 0.06 && density.largestVerticalGap <= 48
+          : density.coverage < 0.06 || density.largestVerticalGap > 48,
+      );
+      if (quality === "bad") {
+        assert.equal(
+          capture.findings.filter(
+            (finding) =>
+              finding.rule === "decision-scalar-height" && finding.actual > 56,
+          ).length,
+          2,
+        );
+        for (const finding of capture.findings) {
+          const rule = decisionRules.find((rule) => rule.id === finding.rule);
+          assert.deepEqual(finding.designRules, rule.designRules);
+          assert.ok(
+            rule.sources.every((source) => finding.sources.includes(source)),
+          );
+        }
+      }
+      assert.equal(
+        report.designPolicy.rules.find((rule) => rule.id === "DR-016")
+          .enforcement,
+        "review",
+        "A solid-paint contrast check must not promote semantic color to fully automated enforcement",
+      );
+    }
+    assert.ok(
+      decisionMetrics.good.density[0].coverage >
+        decisionMetrics.bad.density[0].coverage,
+    );
+
+    // Missing declarations and unsupported paint cannot become a successful
+    // review by removing evidence or measuring nominal colors over a gradient.
+    await writeFile(
+      path.join(project, "decision-missing.mjs"),
+      `export default async function ({ page }) {
+      await page.locator('summary [data-metric="readiness"]').evaluate((el) => el.removeAttribute('data-metric'));
+      await page.locator('.decision-text').evaluate((el) => { el.textContent = ''; });
+      await page.locator('.map').evaluate((el) => { el.style.backgroundImage = 'linear-gradient(white, black)'; });
+    }`,
+    );
+    await writeFile(
+      path.join(project, ".ui-review/config.json"),
+      JSON.stringify({
+        ...decisionConfig,
+        pages: [
+          {
+            ...decisionConfig.pages.find((page) => page.name === "good"),
+            checkpoints: [
+              { name: "missing-evidence", setup: "decision-missing.mjs" },
+            ],
+          },
+        ],
+      }),
+    );
+    const missingDecision = await cli(["check"]);
+    assert.equal(
+      missingDecision.code,
+      1,
+      missingDecision.stderr || missingDecision.stdout,
+    );
+    const missingReport = JSON.parse(
+      await readFile(JSON.parse(missingDecision.stdout).report, "utf8"),
+    );
+    for (const [id, status] of [
+      ["decision-repeated-summary", "missing"],
+      ["decision-evidence-distance", "missing"],
+      ["decision-mark-contrast", "unassessed"],
+    ]) {
+      assert.equal(
+        missingReport.pages[0].metrics.evaluations.find(
+          (entry) => entry.rule === id,
+        ).status,
+        status,
+      );
+      assert.ok(
+        missingReport.pages[0].findings.some((finding) => finding.rule === id),
+      );
+    }
+    assert.ok(
+      missingReport.pages[0].metrics.markContrasts.every(
+        (mark) => mark.status === "unassessed" && mark.ratio === undefined,
+      ),
+    );
+
     const catalog = JSON.parse(
       await readFile(
         path.join(exampleDirectory, "behavior-catalog.json"),
@@ -905,6 +1066,85 @@ test(
       const page = await browser.newPage({
         viewport: { width: 1440, height: 1000 },
       });
+      const decisionEvidence = path.join(repository, "dist/decision-evidence");
+      await mkdir(decisionEvidence, { recursive: true });
+      await page.setViewportSize(decisionConfig.viewports[0]);
+      const layouts = {};
+      for (const quality of ["good", "bad"]) {
+        await page.goto(`${baseURL}/examples/decision.html?quality=${quality}`);
+        await page.waitForSelector("#decision-examples[data-ready]");
+        layouts[quality] = await page.evaluate(() => {
+          const bounds = (selector) =>
+            globalThis.document.querySelector(selector).getBoundingClientRect();
+          return {
+            height: bounds(".decision-surface").height,
+            mapWidth: bounds(".map").width,
+            mapHeight: bounds(".map").height,
+            mapShare: bounds(".map").width / bounds(".analysis").width,
+            evidence:
+              globalThis.document.querySelector(".evidence").textContent,
+            context: globalThis.document.querySelector(".context").textContent,
+            labels: [...globalThis.document.querySelectorAll(".site")].map(
+              (site) => site.textContent,
+            ),
+            textSize: globalThis.getComputedStyle(
+              globalThis.document.querySelector(".decision-text"),
+            ).fontSize,
+          };
+        });
+        assert.ok(
+          layouts[quality].mapShare > 0.45 && layouts[quality].mapShare < 0.52,
+        );
+        assert.ok(
+          layouts[quality].mapWidth >= 480 && layouts[quality].mapHeight >= 340,
+        );
+        await page
+          .locator(".decision-surface")
+          .screenshot({ path: path.join(decisionEvidence, `${quality}.png`) });
+      }
+      assert.ok(
+        layouts.good.height < layouts.bad.height * 0.7,
+        "Hierarchy should reclaim area without shrinking text or the map to a thumbnail",
+      );
+      for (const key of ["evidence", "context", "labels", "textSize"])
+        assert.deepEqual(layouts.good[key], layouts.bad[key]);
+      await writeFile(
+        path.join(decisionEvidence, "captures.json"),
+        JSON.stringify(
+          {
+            viewport: decisionConfig.viewports[0],
+            deviceScaleFactor: 1,
+            browser: browser.version(),
+            layouts: Object.fromEntries(
+              Object.entries(layouts).map(
+                ([
+                  quality,
+                  { evidence: _evidence, context: _context, ...measurements },
+                ]) => [quality, measurements],
+              ),
+            ),
+          },
+          null,
+          2,
+        ),
+      );
+      // Deployment serves the same example beneath the repository prefix.
+      await page.goto(
+        `${baseURL}/viewrule/examples/decision.html?quality=good`,
+      );
+      await page.waitForSelector("#decision-examples[data-ready]");
+      await page
+        .getByRole("button", { name: "Prepare coverage review" })
+        .click();
+      assert.match(
+        await page.locator(".action-status").textContent(),
+        /Nodes A–F/,
+      );
+      await page.locator("summary").click();
+      assert.equal(await page.locator(".analysis").isVisible(), false);
+      await page.locator("summary").click();
+      assert.equal(await page.locator(".analysis").isVisible(), true);
+      await page.setViewportSize({ width: 1440, height: 1000 });
       const pageErrors = [];
       page.on("pageerror", (error) => pageErrors.push(error.message));
       await page.goto(`${baseURL}/app/`);

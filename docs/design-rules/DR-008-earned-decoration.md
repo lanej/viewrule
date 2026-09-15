@@ -15,3 +15,9 @@ is not a reason to erase useful labels, context, or controls.
 
 **Review:** Treat excessive decoration as a design concern requiring judgment.
 An empty screen is not automatically a successful reduction of non-data ink.
+
+**Decision surfaces:** Avoid repeating the expanded item's headline summary in another
+large card. A scalar position often needs only its value and range as compact context.
+`repeated-metric` can limit declared summary identities per surface; `max-height` can
+bound explicitly selected scalar containers. Neither decides whether repetition or
+a richer visualization is justified. [Expanded decision-surface reference](https://github.com/lanej/viewrule/blob/main/docs/design-examples.md#expanded-analytical-decision-surface).

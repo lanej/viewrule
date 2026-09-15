@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>One decision, two layouts · Viewrule</title>
+    <link rel="stylesheet" href="decision.css" />
+    <script src="decision.js" defer></script>
+  </head>
+  <body>
+    <main id="decision-examples">
+      <header class="introduction">
+        <nav>
+          <a href="index.html">Examples</a> / Analytical decision surface
+        </nav>
+        <h1>One decision, two layouts</h1>
+        <p>
+          Invented operations data and schematic geography. The same evidence,
+          map detail, and type size in both versions.
+        </p>
+        <nav class="versions" aria-label="Compare layouts">
+          <a href="decision.html">Both versions</a>
+          <a href="decision.html?quality=good">Good</a>
+          <a href="decision.html?quality=bad">Bad</a>
+        </nav>
+      </header>
+      <div id="examples"></div>
+      <section class="explanation">
+        <h2>What changes, and what is measured</h2>
+        <p>
+          The good version consolidates the summary, uses compact scalar
+          context, and brings the evidence, recommendation, and action together.
+          The map keeps roughly half the evidence width so individual facilities
+          and invented localities remain distinguishable. The bad version adds
+          repeated metrics, oversized scalar tracks, empty bands, and weak
+          marks.
+        </p>
+        <p>
+          These are illustrative project boundaries: text coverage and empty
+          bands use <code>region-density</code>; declared metric identities use
+          <code>repeated-metric</code>; text distance uses
+          <code>evidence-proximity</code>; scalar height uses
+          <code>max-height</code>; solid CSS mark colors use
+          <code>mark-contrast</code>. No semantic density or universal
+          design-quality score is inferred.
+        </p>
+        <p>
+          Human review still decides relevance, justified repetition, geographic
+          detail, recommendation quality, and contrast over complex terrain or
+          imagery. The labels “good” and “bad” describe this task; they are not
+          live engine reports or human approval.
+        </p>
+        <p>
+          <a href="decision-catalog.json">Machine-readable catalog</a> ·
+          <a href="decision-rules.json">Executable rules</a> ·
+          <a href="decision-config.json">Capture configuration</a>
+        </p>
+        <p>
+          Policy:
+          <a
+            href="https://github.com/lanej/viewrule/blob/main/docs/design-rules/DR-006-related-evidence.md"
+            >DR-006</a
+          >,
+          <a
+            href="https://github.com/lanej/viewrule/blob/main/docs/design-rules/DR-007-responsive-detail.md"
+            >DR-007</a
+          >,
+          <a
+            href="https://github.com/lanej/viewrule/blob/main/docs/design-rules/DR-008-earned-decoration.md"
+            >DR-008</a
+          >,
+          <a
+            href="https://github.com/lanej/viewrule/blob/main/docs/design-rules/DR-016-semantic-color.md"
+            >DR-016</a
+          >.
+        </p>
+        <p>
+          Sources:
+          <a
+            href="https://www.edwardtufte.com/book/the-visual-display-of-quantitative-information/"
+            >Tufte: comparison, density, and graphical economy</a
+          >;
+          <a
+            href="https://www.w3.org/WAI/WCAG22/Understanding/non-text-contrast.html"
+            >W3C: non-text contrast</a
+          >. Layout thresholds are Viewrule fixture choices, not
+          source-prescribed limits.
+        </p>
+      </section>
+    </main>
+    <template id="surface-template">
+      <section class="version">
+        <h2 class="version-title"></h2>
+        <article class="decision-surface">
+          <details open>
+            <summary>
+              <span class="identity"
+                ><strong>Lumen district · Cycle K</strong
+                ><span>Coverage review · synthetic scenario</span></span
+              >
+              <span class="metric" data-metric="readiness"
+                ><span>Readiness index</span><strong>67.4 pts</strong></span
+              >
+              <span class="metric" data-metric="observations"
+                ><span>Observations</span><strong>317</strong></span
+              >
+            </summary>
+            <div class="expanded">
+              <section class="outcome" aria-label="Observation summary">
+                <div class="repeated-summary" hidden></div>
+                <div class="outcome-labels">
+                  <span>Stable <strong>203</strong></span
+                  ><span>Review <strong>114</strong></span>
+                </div>
+                <div class="outcome-track" aria-hidden="true">
+                  <span></span>
+                </div>
+              </section>
+              <div class="analysis">
+                <figure class="geography">
+                  <h3>Facility coverage</h3>
+                  <div
+                    class="map"
+                    role="img"
+                    aria-label="Invented Lumen district: six labeled facilities around three schematic localities. No real coordinates."
+                  >
+                    <svg
+                      class="boundaries"
+                      viewBox="0 0 600 380"
+                      preserveAspectRatio="none"
+                      aria-hidden="true"
+                    >
+                      <path
+                        d="M28 110 L94 34 L205 49 L289 23 L370 64 L492 31 L571 110 L555 208 L584 290 L454 349 L349 322 L246 362 L135 322 L44 258 Z"
+                      />
+                      <path
+                        d="M94 34 L163 157 L44 258 M163 157 L289 23 M163 157 L300 220 L246 362 M300 220 L370 64 M300 220 L455 173 L492 31 M455 173 L555 208 M455 173 L454 349"
+                      />
+                    </svg>
+                    <span class="locality locality-one">Nacre Hollow</span>
+                    <span class="locality locality-two">Morrow Vale</span>
+                    <span class="locality locality-three">Sable Reach</span>
+                    <span class="site site-a"
+                      ><span class="facility" data-facility="A"></span
+                      ><span>Node A</span></span
+                    >
+                    <span class="site site-b"
+                      ><span class="facility" data-facility="B"></span
+                      ><span>Node B</span></span
+                    >
+                    <span class="site site-c"
+                      ><span class="facility" data-facility="C"></span
+                      ><span>Node C</span></span
+                    >
+                    <span class="site site-d"
+                      ><span class="facility" data-facility="D"></span
+                      ><span>Node D</span></span
+                    >
+                    <span class="site site-e"
+                      ><span class="facility" data-facility="E"></span
+                      ><span>Node E</span></span
+                    >
+                    <span class="site site-f"
+                      ><span class="facility" data-facility="F"></span
+                      ><span>Node F</span></span
+                    >
+                  </div>
+                  <figcaption>
+                    Six facility marks · invented localities and boundaries ·
+                    schematic, no geographic scale.
+                  </figcaption>
+                </figure>
+                <div class="supporting">
+                  <section class="context" aria-label="Review context">
+                    <div class="scalar">
+                      <span>Review band <strong>4 of 13</strong></span>
+                      <div class="scalar-track band" aria-hidden="true">
+                        <span></span>
+                      </div>
+                    </div>
+                    <div class="scalar">
+                      <span>Active groups <strong>7 of 19</strong></span>
+                      <div class="scalar-track groups" aria-hidden="true">
+                        <span></span>
+                      </div>
+                    </div>
+                  </section>
+                  <section class="evidence">
+                    <h3>Readiness evidence</h3>
+                    <table>
+                      <caption>
+                        Cycle K · readiness points (0–100)
+                      </caption>
+                      <thead>
+                        <tr>
+                          <th scope="col">View</th>
+                          <th scope="col">Score</th>
+                          <th scope="col">Basis</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <th scope="row">Observed</th>
+                          <td>67.4</td>
+                          <td>317 observations</td>
+                        </tr>
+                        <tr>
+                          <th scope="row">Peer interval</th>
+                          <td>64.2–72.6</td>
+                          <td>28 groups</td>
+                        </tr>
+                        <tr>
+                          <th scope="row">Planning target</th>
+                          <td>76.8</td>
+                          <td>Cycle K target</td>
+                        </tr>
+                        <tr>
+                          <th scope="row">Scenario estimate</th>
+                          <td>71.3</td>
+                          <td>Simulated scenario</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                    <p class="source-note">
+                      All figures are invented; the estimate is not an
+                      observation.
+                    </p>
+                  </section>
+                  <section class="recommendation">
+                    <h3>Recommendation</h3>
+                    <p class="decision-text">
+                      Review the coverage gaps around Nacre Hollow before
+                      extending the next activity cycle.
+                    </p>
+                    <div class="action-row">
+                      <strong>Next step: review six facilities</strong
+                      ><button type="button">Prepare coverage review</button>
+                    </div>
+                    <p class="action-status" role="status">
+                      Illustrative planning only.
+                    </p>
+                  </section>
+                </div>
+              </div>
+            </div>
+          </details>
+        </article>
+      </section>
+    </template>
+  </body>
+</html>

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "baseURL": "http://127.0.0.1:4173",
+  "enforceOnStop": false,
+  "sourcePaths": ["docs/examples"],
+  "accessibility": true,
+  "pages": [
+    {
+      "name": "good",
+      "path": "/examples/decision.html?quality=good",
+      "ready": "#decision-examples[data-ready]"
+    },
+    {
+      "name": "bad",
+      "path": "/examples/decision.html?quality=bad",
+      "ready": "#decision-examples[data-ready]"
+    }
+  ],
+  "viewports": [
+    {
+      "name": "desktop",
+      "width": 1440,
+      "height": 1100
+    }
+  ],
+  "projectDocuments": ["docs/examples/decision-rationale.md"]
+}

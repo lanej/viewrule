@@ -3,7 +3,8 @@
 For a complete connected workflow, see [the mock application](mock-application.md):
 navigation, charts, search, filters, drawers, tabs, and carrier comparisons together.
 
-Each pair keeps the content and task constant and changes one design property.
+Each pair keeps the content and task constant. Component pairs change one design
+property; the analytical decision-surface pair combines several related lessons.
 “Good” means that property satisfies the stated expectation; it does not approve
 the entire interface or establish that every Viewrule check passes.
 
@@ -256,3 +257,55 @@ and [capture metadata](examples/images/behavior/captures.json) for exact state,
 viewport, and browser. Enlarged example text is not browser zoom or a complete
 accessibility test. Run the interactions to inspect behaviors a static image cannot
 establish, including focus restoration and actual undo.
+
+
+## Expanded analytical decision surface
+
+[Open both versions](examples/decision.html) · [Good](examples/decision.html?quality=good) ·
+[Bad](examples/decision.html?quality=bad) · [Catalog](examples/decision-catalog.json)
+
+![Good: large schematic map beside compact context, evidence, and recommendation.](examples/images/decision/good.png)
+
+![Bad: the same task with repeated summary metrics, tall scalar tracks, weak map marks, and a distant recommendation.](examples/images/decision/bad.png)
+
+This example is entirely invented: generic operations coverage, fictional locality
+names, schematic boundaries without real coordinates, six facilities, and synthetic
+counts and readiness scores. A single HTML template supplies both versions. It
+contains no source screenshot, source data, external map tiles, or network dependency.
+The good version retains the same evidence and action, but consolidates the headline
+summary and turns two large single-value tracks into compact context. The bad version
+repeats headline metrics and separates the recommendation with empty space.
+
+The map occupies roughly half the evidence width in both versions and remains at
+least 480×340 CSS px at the configured 1440×1100 desktop viewport. The good map is
+not a thumbnail: facilities and invented locality labels retain their reading size.
+The fixture keeps 14px minimum text, with a 16px recommendation, in both versions.
+These sizes are task-scoped examples, not universal map or density thresholds.
+
+| Lesson | Executable boundary | Human review remains necessary |
+| --- | --- | --- |
+| Region utilization | Existing `region-density`: summary text coverage ≥ 0.06 and empty vertical band ≤ 48 CSS px | Useful information and map information yield cannot be inferred from occupancy |
+| Summary duplication | `repeated-metric`: each declared headline identity occurs at most once in its own decision surface; both identities are required | Semantic equivalence, annotation completeness, and justified repetition |
+| Evidence/decision proximity | `evidence-proximity`: distance between text bounds ≤ 80 CSS px | Whether that evidence supports the recommendation; simultaneous visibility and occlusion |
+| Scalar context | Existing `max-height`: declared scalar containers ≤ 56 CSS px | Whether the display is actually a scalar; rich multi-value plots need different scope |
+| Mark visibility | `mark-contrast`: opaque CSS facility background versus its containing solid map background ≥ 3:1 | Complex terrain, gradients, image/SVG/canvas paint, sibling layers, thin marks, and palette semantics |
+
+The 3:1 threshold is informed by [W3C non-text contrast guidance](https://www.w3.org/WAI/WCAG22/Understanding/non-text-contrast.html)
+for meaningful graphical objects; this partial model does not certify WCAG conformance.
+The layout interpretations follow [Tufte's discussion of graphical economy and comparison](https://www.edwardtufte.com/book/the-visual-display-of-quantitative-information/).
+Neither source prescribes this fixture's dimensions or density targets.
+
+Use [the config](examples/decision-config.json) with [the rules](examples/decision-rules.json)
+on the local preview server. The config captures the individual versions so each
+density region resolves exactly once. Copy the JSON files to `.ui-review/config.json`
+and `.ui-review/rules.json` in a **separate scratch project**, copy the
+[rationale](examples/decision-rationale.md) to `docs/examples/decision-rationale.md`, and adapt `sourcePaths` to
+that project, and run `viewrule contract` then `viewrule check`. The combined config
+intentionally exits 1 because the bad route fails. Restrict `pages` to `good` to
+inspect its clean pass. Do not replace a real application's existing contract.
+
+The same packed-CLI regression checks both versions using unchanged rules, exact
+finding IDs and citations, required evidence, six measured contrasts, preserved map
+size/content/type, and the explicit unassessed result for unsupported paint. Captures
+are original-size evidence, not pixel snapshot assertions. `images/decision/captures.json`
+records browser version, CSS viewport, device scale, and layout measurements.

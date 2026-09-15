@@ -70,3 +70,17 @@ page overflow. Screenshots are original review evidence, not snapshot assertions
 `dist/behavior-evidence/captures.json` records browser, viewport, scale, and state.
 These examples verify their own declared interactions, not a generic engine
 journey runner, backend truth, visual hierarchy, or color semantics.
+
+
+The synthetic [analytical decision surface](../docs/examples/decision.html) extends
+this same installed workflow. One shared template uses invented operations coverage
+and schematic geography. The bad route must fail summary `region-density`, repeated
+headline identities, evidence/decision distance, scalar height, and solid mark contrast
+with exact rule IDs, measured values, and citations. The good route passes the same
+contract. Both retain map size, evidence, context, locality labels, and readable type;
+the good surface is materially shorter. A checkpoint removes required evidence and
+adds a gradient to prove missing identities/anchors and unassessed paint cannot pass.
+The rendered gallery also works below the Pages prefix, expands/collapses, and performs
+its local sample action. Native-scale captures and metadata are generated in
+`dist/decision-evidence/`. There are no image snapshot assertions. Task relevance,
+semantic density, complex map contrast, and recommendation quality remain human review.

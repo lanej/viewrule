@@ -148,6 +148,21 @@ const types = {
   },
   "min-font-size": { min: { type: "number", exclusiveMinimum: 0 } },
   "max-text-gap": { items: text, max: { type: "number", minimum: 0 } },
+  "repeated-metric": {
+    items: text,
+    keyAttribute: text,
+    requiredKeys: names,
+    maxOccurrences: positive,
+  },
+  "evidence-proximity": {
+    evidence: text,
+    decision: text,
+    maxDistance: { type: "number", minimum: 0 },
+  },
+  "mark-contrast": {
+    substrate: text,
+    minRatio: { type: "number", minimum: 1, maximum: 21 },
+  },
   style: { property: text, allowed: names },
   attribute: { attribute: text, allowed: names },
   consistent: {
