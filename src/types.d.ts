@@ -18,6 +18,10 @@ export interface ProjectDocument {
   content: string;
   headings: { id: string; line: number; title: string }[];
 }
+export interface Checkpoint {
+  name: string;
+  setup: string;
+}
 export interface ProjectConfig {
   version: 1;
   baseURL: string;
@@ -36,6 +40,7 @@ export interface ProjectConfig {
     media?: "screen" | "print";
     textScale?: number;
     viewports?: string[];
+    checkpoints?: Checkpoint[];
   }[];
   viewports: Viewport[];
 }
@@ -113,6 +118,8 @@ export type DesignPolicy = Awaited<
 >;
 export interface PageResult {
   name: string;
+  checkpoint?: string;
+  checkpointSetup?: string;
   url: string;
   viewport: Viewport;
   findings: Finding[];
