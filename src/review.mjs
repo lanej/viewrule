@@ -16,6 +16,7 @@ import { captureDetails } from "./capture.mjs";
 import { readDesignPolicy, evaluateDesign } from "./design.mjs";
 import { defaultPreferences } from "./presets.mjs";
 import { runCheckpoint } from "./checkpoints.mjs";
+import { runSourceChecks } from "./source-checks.mjs";
 
 /** @param {string} project @param {string} globalDir */
 export async function runReview(project, globalDir) {
@@ -52,6 +53,7 @@ export async function runReview(project, globalDir) {
     status: "fail",
     summary: { errors: 0, warnings: 0 },
     pages: [],
+    sourceChecks: await runSourceChecks(project, config.sourceChecks),
     designPolicy: await readDesignPolicy(),
   };
   let browser;
@@ -229,6 +231,15 @@ export async function runReview(project, globalDir) {
         f.sources = sources.get(f.rule);
       report.summary[f.severity === "error" ? "errors" : "warnings"]++;
     }
+  for (const providerResult of report.sourceChecks ?? [])
+    for (const finding of providerResult.findings) {
+      if (
+        finding.sourceCheck?.authority === "blocking" &&
+        finding.severity === "error"
+      )
+        report.summary.errors++;
+      else report.summary.warnings++;
+    }
   report.status = report.summary.errors ? "fail" : "pass";
   const feedback = await feedbackEntries(path.join(project, ".ui-review"));
   const approved = feedback.findLast(
@@ -274,16 +285,25 @@ export async function runReview(project, globalDir) {
     status: report.status,
     fingerprint: before,
     reportFile,
-    blockingFindings: report.pages
-      .flatMap((page) =>
+    blockingFindings: [
+      ...report.pages.flatMap((page) =>
         page.findings
           .filter((f) => f.severity === "error")
           .map(
             (f) =>
               `${f.designRules?.join(", ") || f.rule} · ${page.name}${page.checkpoint ? `/${page.checkpoint}` : ""}/${page.viewport.name}: ${f.message}`,
           ),
-      )
-      .slice(0, 5),
+      ),
+      ...(report.sourceChecks ?? []).flatMap((providerResult) =>
+        providerResult.findings
+          .filter(
+            (finding) =>
+              finding.sourceCheck?.authority === "blocking" &&
+              finding.severity === "error",
+          )
+          .map((finding) => `${finding.rule}: ${finding.message}`),
+      ),
+    ].slice(0, 5),
   });
   return { report, reportFile };
 }
