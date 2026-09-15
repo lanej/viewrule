@@ -23,6 +23,21 @@ const object = (properties, required) => ({
   required,
 });
 const checkpointSchema = object({ name: text, setup: text }, ["name", "setup"]);
+const sourceCheckSchema = object(
+  {
+    id: text,
+    command: names,
+    authority: { enum: ["advisory", "blocking"] },
+    enabled: { type: "boolean" },
+    version: text,
+    cwd: text,
+    severityMap: {
+      type: "object",
+      additionalProperties: { enum: ["error", "warning"] },
+    },
+  },
+  ["id", "command", "authority"],
+);
 /** @type {import("ajv").Schema} */
 export const configSchema = object(
   {
@@ -38,6 +53,11 @@ export const configSchema = object(
       items: text,
     },
     requiredDesignRules: designIds,
+    sourceChecks: {
+      type: "array",
+      uniqueItems: true,
+      items: sourceCheckSchema,
+    },
     storageState: text,
     timeoutMs: { type: "integer", minimum: 1000, maximum: 120000 },
     detailCapture: object(
@@ -193,6 +213,10 @@ export function validateConfig(config, project) {
     config.viewports.map((v) => v.name),
     "viewport name",
   );
+  unique(
+    (config.sourceChecks ?? []).map((provider) => provider.id),
+    "source-check provider ID",
+  );
   for (const p of config.pages) {
     if (new URL(p.path, url).origin !== url.origin)
       throw new Error("Page paths must stay on baseURL origin");
@@ -210,6 +234,12 @@ export function validateConfig(config, project) {
   for (const p of config.sourcePaths)
     if (path.isAbsolute(p) || p.split(/[\\/]/).includes(".."))
       throw new Error("sourcePaths must stay inside the project");
+  for (const provider of config.sourceChecks ?? [])
+    if (
+      provider.cwd &&
+      (path.isAbsolute(provider.cwd) || provider.cwd.split(/[\\/]/).includes(".."))
+    )
+      throw new Error("Source-check cwd must stay inside the project");
   return config;
 }
 export function validateRules(rules) {
