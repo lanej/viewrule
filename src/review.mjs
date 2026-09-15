@@ -209,7 +209,8 @@ export async function runReview(project, globalDir) {
           rule: "browser-error",
           severity: "error",
           message: err.message,
-          reason: "Install Chromium with viewrule install-browser.",
+          reason:
+            "Check the browser error above. If the executable is missing, run viewrule install-browser. If browser launch is denied, use an environment with permission to launch Chromium and rerun the review.",
         },
       ],
     });

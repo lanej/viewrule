@@ -1,6 +1,6 @@
 {
   "name": "viewrule",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "Build and review web UIs with executable design rules, full-resolution evidence, and human feedback.",
   "author": {
     "name": "Josh Lane"

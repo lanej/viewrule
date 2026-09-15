@@ -1,0 +1,590 @@
+{
+  "version": 1,
+  "kind": "single-agent-functional-repair-trial",
+  "date": "2026-09-15",
+  "sourceCommit": "94e41f775002eaf9280f387a1dd9d761384386ac",
+  "enginePackageVersion": "0.4.0",
+  "engineVersionNote": "Development source snapshot, not the published 0.4.0 release. Packaged bin/src/docs/presets bytes verified against sourceCommit.",
+  "agent": {
+    "context": "fresh subagent without conversation history",
+    "modelRevision": null,
+    "tokenUsage": null,
+    "providerCost": null,
+    "elapsedTime": null,
+    "repetitions": 1,
+    "controlArms": 0,
+    "sourceRepairIterations": 1,
+    "postEditCheckInvocations": 2,
+    "operationalFailures": 1
+  },
+  "environment": {
+    "platform": "darwin",
+    "architecture": "arm64",
+    "node": "v24.9.0",
+    "browser": "151.0.7922.34",
+    "viewport": {
+      "width": 1440,
+      "height": 1100
+    },
+    "deviceScaleFactor": 1
+  },
+  "frozenHashes": {
+    "rules": "83e2d59108c41187f6f665a4894777db6315000c532ef090b69c1dab76a31af1",
+    "config": "dba671822dd855fd3aea21455036f8d540a825aa541272eeff7b2b9721349c19",
+    "rationale": "b69db0c8aaecfa57d073bb0a1a6ee4ab4c990321eda53c9308c58640e14f984b",
+    "contract": "d87d8f60814e4ef0e7f256842b3781c6893d9d25497d7e600f8dc008e2ed8b8c"
+  },
+  "sourceHashes": {
+    "before": {
+      "index.html": "3ee7f3b4a5b76a7c75693399c7ad2c6f52c2f9505ee8f85d3dc59a3f2e1aec33",
+      "app.css": "7dcd4a4451a4bbad6fa3bb349a15c38d81f6b63c013acc057aef103d71393b68",
+      "app.js": "15d94d48279660de2c43a0122575cc6bdd7e2f58d72add7e6d0b414490ffb0e8"
+    },
+    "after": {
+      "index.html": "430ac5dec41812d318208ae027f3e06e7ea290362db7e115288a6001559d4147",
+      "app.css": "acb8b2ba4174464ae1d13843162a4e0844bb04b8c62c29771d6994cd25d04030",
+      "app.js": "15d94d48279660de2c43a0122575cc6bdd7e2f58d72add7e6d0b414490ffb0e8"
+    }
+  },
+  "evaluatorSha256": "3495a858b9f23fd7a6366c4b2d2019d0235873c7f17513c276a55ac4d5ccabd6",
+  "independentVerification": {
+    "status": "pass",
+    "uniqueContentPreserved": true,
+    "fontsNotReduced": true,
+    "mapNotReduced": true,
+    "facilityIdentitiesAndPositionsPreserved": true,
+    "boundaryGeometryPreserved": true,
+    "tableRowsPreserved": true,
+    "noHorizontalOverflow": true,
+    "actionAndDisclosurePreserved": true,
+    "verificationSha256": "8e0526368df76cd3e5b32f8395f515a52b9c54f02ecb3b68089d9db2b3edb004"
+  },
+  "before": {
+    "reportId": "2026-09-15T15-49-10-223Z-60bf5872",
+    "reportSha256": "65123690bb23f8398c4471cd46d5974b33a2df56fd0fe9d742f2544755f5889f",
+    "status": "fail",
+    "summary": {
+      "errors": 13,
+      "warnings": 0
+    },
+    "surfaceHeightCssPx": 1365.5625,
+    "mapCssPx": {
+      "width": 630,
+      "height": 470
+    },
+    "sampledFontSizesCssPx": {
+      "labels": [15, 15, 15, 15, 15, 15, 15, 15, 15],
+      "context": [15, 15],
+      "table": [15],
+      "recommendation": [16],
+      "caption": [14],
+      "headline": [21, 21]
+    },
+    "metrics": {
+      "viewportWidth": 1440,
+      "viewportHeight": 1100,
+      "pageHeight": 1568,
+      "evaluatedRules": 8,
+      "density": [
+        {
+          "rule": "decision-summary-density",
+          "region": ".outcome",
+          "measure": "text",
+          "coverage": 0.03361406670345589,
+          "selectedElements": 1,
+          "elementsPer100kPixels": 0.3448989446092295,
+          "largestVerticalGap": 69.4375,
+          "regionArea": 289940,
+          "coveredArea": 9746.0625
+        }
+      ],
+      "repeatedMetrics": [
+        {
+          "rule": "decision-repeated-summary",
+          "surface": "article.decision-surface",
+          "counts": {
+            "readiness": 2,
+            "observations": 2
+          }
+        }
+      ],
+      "evidenceDistances": [
+        {
+          "rule": "decision-evidence-distance",
+          "surface": "article.decision-surface",
+          "horizontalGap": 5.875,
+          "verticalGap": 296.4375,
+          "distance": 296.49571165743697
+        }
+      ],
+      "markContrasts": [
+        {
+          "rule": "decision-mark-contrast",
+          "element": "span.facility",
+          "status": "measured",
+          "foreground": "rgb(165, 185, 173)",
+          "background": "rgb(220, 232, 224)",
+          "ratio": 1.6427426844798845
+        },
+        {
+          "rule": "decision-mark-contrast",
+          "element": "span.facility",
+          "status": "measured",
+          "foreground": "rgb(165, 185, 173)",
+          "background": "rgb(220, 232, 224)",
+          "ratio": 1.6427426844798845
+        },
+        {
+          "rule": "decision-mark-contrast",
+          "element": "span.facility",
+          "status": "measured",
+          "foreground": "rgb(165, 185, 173)",
+          "background": "rgb(220, 232, 224)",
+          "ratio": 1.6427426844798845
+        },
+        {
+          "rule": "decision-mark-contrast",
+          "element": "span.facility",
+          "status": "measured",
+          "foreground": "rgb(165, 185, 173)",
+          "background": "rgb(220, 232, 224)",
+          "ratio": 1.6427426844798845
+        },
+        {
+          "rule": "decision-mark-contrast",
+          "element": "span.facility",
+          "status": "measured",
+          "foreground": "rgb(165, 185, 173)",
+          "background": "rgb(220, 232, 224)",
+          "ratio": 1.6427426844798845
+        },
+        {
+          "rule": "decision-mark-contrast",
+          "element": "span.facility",
+          "status": "measured",
+          "foreground": "rgb(165, 185, 173)",
+          "background": "rgb(220, 232, 224)",
+          "ratio": 1.6427426844798845
+        }
+      ],
+      "comparisons": [],
+      "consistency": [],
+      "evaluations": [
+        {
+          "rule": "decision-evidence-distance",
+          "matched": 1,
+          "status": "checked"
+        },
+        {
+          "rule": "decision-evidence-present",
+          "matched": 1,
+          "status": "checked"
+        },
+        {
+          "rule": "decision-map-detail",
+          "matched": 1,
+          "status": "checked"
+        },
+        {
+          "rule": "decision-mark-contrast",
+          "matched": 6,
+          "status": "checked"
+        },
+        {
+          "rule": "decision-readable-type",
+          "matched": 1,
+          "status": "checked"
+        },
+        {
+          "rule": "decision-repeated-summary",
+          "matched": 1,
+          "status": "checked"
+        },
+        {
+          "rule": "decision-scalar-height",
+          "matched": 2,
+          "status": "checked"
+        },
+        {
+          "rule": "decision-summary-density",
+          "matched": 1,
+          "status": "checked"
+        }
+      ]
+    },
+    "findings": [
+      {
+        "rule": "decision-evidence-distance",
+        "severity": "error",
+        "message": "Evidence and decision text are too far apart.",
+        "actual": {
+          "rule": "decision-evidence-distance",
+          "surface": "article.decision-surface",
+          "horizontalGap": 5.875,
+          "verticalGap": 296.4375,
+          "distance": 296.49571165743697
+        },
+        "expected": {
+          "maxDistance": 80
+        },
+        "designRules": ["DR-006"]
+      },
+      {
+        "rule": "decision-mark-contrast",
+        "severity": "error",
+        "message": "Mark contrast against the declared solid substrate is too low.",
+        "actual": {
+          "rule": "decision-mark-contrast",
+          "element": "span.facility",
+          "status": "measured",
+          "foreground": "rgb(165, 185, 173)",
+          "background": "rgb(220, 232, 224)",
+          "ratio": 1.6427426844798845
+        },
+        "expected": {
+          "minRatio": 3
+        },
+        "designRules": ["DR-007", "DR-016"]
+      },
+      {
+        "rule": "decision-mark-contrast",
+        "severity": "error",
+        "message": "Mark contrast against the declared solid substrate is too low.",
+        "actual": {
+          "rule": "decision-mark-contrast",
+          "element": "span.facility",
+          "status": "measured",
+          "foreground": "rgb(165, 185, 173)",
+          "background": "rgb(220, 232, 224)",
+          "ratio": 1.6427426844798845
+        },
+        "expected": {
+          "minRatio": 3
+        },
+        "designRules": ["DR-007", "DR-016"]
+      },
+      {
+        "rule": "decision-mark-contrast",
+        "severity": "error",
+        "message": "Mark contrast against the declared solid substrate is too low.",
+        "actual": {
+          "rule": "decision-mark-contrast",
+          "element": "span.facility",
+          "status": "measured",
+          "foreground": "rgb(165, 185, 173)",
+          "background": "rgb(220, 232, 224)",
+          "ratio": 1.6427426844798845
+        },
+        "expected": {
+          "minRatio": 3
+        },
+        "designRules": ["DR-007", "DR-016"]
+      },
+      {
+        "rule": "decision-mark-contrast",
+        "severity": "error",
+        "message": "Mark contrast against the declared solid substrate is too low.",
+        "actual": {
+          "rule": "decision-mark-contrast",
+          "element": "span.facility",
+          "status": "measured",
+          "foreground": "rgb(165, 185, 173)",
+          "background": "rgb(220, 232, 224)",
+          "ratio": 1.6427426844798845
+        },
+        "expected": {
+          "minRatio": 3
+        },
+        "designRules": ["DR-007", "DR-016"]
+      },
+      {
+        "rule": "decision-mark-contrast",
+        "severity": "error",
+        "message": "Mark contrast against the declared solid substrate is too low.",
+        "actual": {
+          "rule": "decision-mark-contrast",
+          "element": "span.facility",
+          "status": "measured",
+          "foreground": "rgb(165, 185, 173)",
+          "background": "rgb(220, 232, 224)",
+          "ratio": 1.6427426844798845
+        },
+        "expected": {
+          "minRatio": 3
+        },
+        "designRules": ["DR-007", "DR-016"]
+      },
+      {
+        "rule": "decision-mark-contrast",
+        "severity": "error",
+        "message": "Mark contrast against the declared solid substrate is too low.",
+        "actual": {
+          "rule": "decision-mark-contrast",
+          "element": "span.facility",
+          "status": "measured",
+          "foreground": "rgb(165, 185, 173)",
+          "background": "rgb(220, 232, 224)",
+          "ratio": 1.6427426844798845
+        },
+        "expected": {
+          "minRatio": 3
+        },
+        "designRules": ["DR-007", "DR-016"]
+      },
+      {
+        "rule": "decision-repeated-summary",
+        "severity": "error",
+        "message": "Metric identity repeats within the same decision surface.",
+        "actual": {
+          "key": "readiness",
+          "count": 2
+        },
+        "expected": {
+          "maxOccurrences": 1
+        },
+        "designRules": ["DR-007", "DR-008"]
+      },
+      {
+        "rule": "decision-repeated-summary",
+        "severity": "error",
+        "message": "Metric identity repeats within the same decision surface.",
+        "actual": {
+          "key": "observations",
+          "count": 2
+        },
+        "expected": {
+          "maxOccurrences": 1
+        },
+        "designRules": ["DR-007", "DR-008"]
+      },
+      {
+        "rule": "decision-scalar-height",
+        "severity": "error",
+        "message": "Height is 112px.",
+        "actual": 112,
+        "expected": 56,
+        "designRules": ["DR-007", "DR-008"]
+      },
+      {
+        "rule": "decision-scalar-height",
+        "severity": "error",
+        "message": "Height is 112px.",
+        "actual": 112,
+        "expected": 56,
+        "designRules": ["DR-007", "DR-008"]
+      },
+      {
+        "rule": "decision-summary-density",
+        "severity": "error",
+        "message": "Selected content covers 3.4% of the visible region.",
+        "actual": 0.03361406670345589,
+        "expected": 0.06,
+        "designRules": ["DR-007"]
+      },
+      {
+        "rule": "decision-summary-density",
+        "severity": "error",
+        "message": "Largest empty vertical band is 69.4px.",
+        "actual": 69.4375,
+        "expected": 48,
+        "designRules": ["DR-007"]
+      }
+    ],
+    "accessibilityNeedsReview": [
+      {
+        "id": "color-contrast",
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "targets": [
+          [".locality-one"],
+          [".locality-two"],
+          [".locality-three"],
+          [".site-a > span:nth-child(2)"],
+          [".site-b > span:nth-child(2)"],
+          [".site-c > span:nth-child(2)"],
+          [".site-d > span:nth-child(2)"],
+          [".site-e > span:nth-child(2)"],
+          [".site-f > span:nth-child(2)"]
+        ]
+      }
+    ]
+  },
+  "after": {
+    "reportId": "2026-09-15T15-52-24-520Z-aceaae1d",
+    "reportSha256": "0c8cd45f5f91ab91784655544f4ffb7c25a670ed8836b01c11563bfb94c387c7",
+    "status": "pass",
+    "summary": {
+      "errors": 0,
+      "warnings": 0
+    },
+    "surfaceHeightCssPx": 752.75,
+    "mapCssPx": {
+      "width": 630,
+      "height": 470
+    },
+    "sampledFontSizesCssPx": {
+      "labels": [15, 15, 15, 15, 15, 15, 15, 15, 15],
+      "context": [15, 15],
+      "table": [15],
+      "recommendation": [16],
+      "caption": [14],
+      "headline": [21, 21]
+    },
+    "metrics": {
+      "viewportWidth": 1440,
+      "viewportHeight": 1100,
+      "pageHeight": 1100,
+      "evaluatedRules": 8,
+      "density": [
+        {
+          "rule": "decision-summary-density",
+          "region": ".outcome",
+          "measure": "text",
+          "coverage": 0.09523843300974809,
+          "selectedElements": 1,
+          "elementsPer100kPixels": 3.2426078673773384,
+          "largestVerticalGap": 3.1875,
+          "regionArea": 30839.375,
+          "coveredArea": 2937.09375
+        }
+      ],
+      "repeatedMetrics": [
+        {
+          "rule": "decision-repeated-summary",
+          "surface": "article.decision-surface",
+          "counts": {
+            "readiness": 1,
+            "observations": 1
+          }
+        }
+      ],
+      "evidenceDistances": [
+        {
+          "rule": "decision-evidence-distance",
+          "surface": "article.decision-surface",
+          "horizontalGap": 0,
+          "verticalGap": 67.9375,
+          "distance": 67.9375
+        }
+      ],
+      "markContrasts": [
+        {
+          "rule": "decision-mark-contrast",
+          "element": "span.facility",
+          "status": "measured",
+          "foreground": "rgb(22, 63, 52)",
+          "background": "rgb(220, 232, 224)",
+          "ratio": 9.284058749795616
+        },
+        {
+          "rule": "decision-mark-contrast",
+          "element": "span.facility",
+          "status": "measured",
+          "foreground": "rgb(22, 63, 52)",
+          "background": "rgb(220, 232, 224)",
+          "ratio": 9.284058749795616
+        },
+        {
+          "rule": "decision-mark-contrast",
+          "element": "span.facility",
+          "status": "measured",
+          "foreground": "rgb(22, 63, 52)",
+          "background": "rgb(220, 232, 224)",
+          "ratio": 9.284058749795616
+        },
+        {
+          "rule": "decision-mark-contrast",
+          "element": "span.facility",
+          "status": "measured",
+          "foreground": "rgb(22, 63, 52)",
+          "background": "rgb(220, 232, 224)",
+          "ratio": 9.284058749795616
+        },
+        {
+          "rule": "decision-mark-contrast",
+          "element": "span.facility",
+          "status": "measured",
+          "foreground": "rgb(22, 63, 52)",
+          "background": "rgb(220, 232, 224)",
+          "ratio": 9.284058749795616
+        },
+        {
+          "rule": "decision-mark-contrast",
+          "element": "span.facility",
+          "status": "measured",
+          "foreground": "rgb(22, 63, 52)",
+          "background": "rgb(220, 232, 224)",
+          "ratio": 9.284058749795616
+        }
+      ],
+      "comparisons": [],
+      "consistency": [],
+      "evaluations": [
+        {
+          "rule": "decision-evidence-distance",
+          "matched": 1,
+          "status": "checked"
+        },
+        {
+          "rule": "decision-evidence-present",
+          "matched": 1,
+          "status": "checked"
+        },
+        {
+          "rule": "decision-map-detail",
+          "matched": 1,
+          "status": "checked"
+        },
+        {
+          "rule": "decision-mark-contrast",
+          "matched": 6,
+          "status": "checked"
+        },
+        {
+          "rule": "decision-readable-type",
+          "matched": 1,
+          "status": "checked"
+        },
+        {
+          "rule": "decision-repeated-summary",
+          "matched": 1,
+          "status": "checked"
+        },
+        {
+          "rule": "decision-scalar-height",
+          "matched": 2,
+          "status": "checked"
+        },
+        {
+          "rule": "decision-summary-density",
+          "matched": 1,
+          "status": "checked"
+        }
+      ]
+    },
+    "findings": [],
+    "accessibilityNeedsReview": [
+      {
+        "id": "color-contrast",
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "targets": [
+          [".locality-one"],
+          [".locality-two"],
+          [".locality-three"],
+          [".site-a > span:nth-child(2)"],
+          [".site-b > span:nth-child(2)"],
+          [".site-c > span:nth-child(2)"],
+          [".site-d > span:nth-child(2)"],
+          [".site-e > span:nth-child(2)"],
+          [".site-f > span:nth-child(2)"]
+        ]
+      }
+    ]
+  },
+  "limitations": [
+    "One instructed repair with authored rules and baseline findings; no comparative or statistical inference.",
+    "Shared-environment instruction isolation, not a security-enforced blind study.",
+    "No full transcript or replay harness committed.",
+    "Semantic density, evidence meaning, complex paint, label accessibility, and design acceptance remain review.",
+    "No user approval recorded."
+  ]
+}

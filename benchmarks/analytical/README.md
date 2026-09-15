@@ -94,7 +94,10 @@ no diagnostics in a seeded state. Emitted findings require review before scoring
 The [controlled three-arm protocol](agent-trial.md) includes an unaided baseline,
 isolation, frozen evaluation, and explicit execution prerequisites.
 
-No agent trial has been run. To measure the remaining issue #22 questions, use
+The controlled three-arm trial has not been run. A separate
+[single-agent operations repair trial](../operations-repair/README.md) exercises
+the decision-surface rules; it does not compare tools or satisfy this protocol.
+To measure the remaining issue #22 questions, use
 independent clean worktrees and the same pinned model/harness, token budget, task,
 source, viewport/state access, and product context. Give each arm its actual tool
 instructions, without the seed manifest, expected findings, or the other arm's
