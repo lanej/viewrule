@@ -815,7 +815,7 @@ export function inspectPage(rules) {
           )
             add(
               rule,
-              `Overlaps peer ${describe(els[j])}.`,
+              `Content ${JSON.stringify(els[i].textContent.trim().slice(0, 120))} overlaps peer ${describe(els[j])} ${JSON.stringify(els[j].textContent.trim().slice(0, 120))}.`,
               els[i],
               "overlap",
               "no overlap",

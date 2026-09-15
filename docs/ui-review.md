@@ -133,7 +133,7 @@ optional components, not required evidence.
 | `align` | `edge`, `tolerance` | Maximum spread of left/right/top/bottom edges, in CSS pixels; select one peer group |
 | `reading-column` | `container`, `maxWidth`, `tolerance` | Each selected box fills `min(ancestor width, maxWidth)` and is horizontally centered within its nearest matching ancestor; CSS px |
 | `vertical-order` | `groups`, `tolerance` | Ordered descendant selector groups must follow both DOM order and non-overlapping top-to-bottom box order; CSS px |
-| `no-overlap` | — | Declared peers must not overlap; ancestor/descendant pairs are excluded |
+| `no-overlap` | — | Declared peers must not overlap; ancestor/descendant pairs are excluded. Findings include bounded text excerpts to distinguish anonymous SVG peers |
 | `no-clip` | — | Element's own hidden/clip overflow must not truncate content; does not inspect ancestor clipping |
 | `visible-count` | `min` | At least this many complete element boxes fit in the initial viewport; does not detect occlusion |
 | `max-height` | `max` | Maximum element height in CSS pixels, useful for task-specific density warnings |
