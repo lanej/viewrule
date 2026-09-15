@@ -94,7 +94,14 @@ no diagnostics in a seeded state. Emitted findings require review before scoring
 The [controlled three-arm protocol](agent-trial.md) includes an unaided baseline,
 isolation, frozen evaluation, and explicit execution prerequisites.
 
-The controlled three-arm trial has not been run. A separate
+The [nine-trial exploratory pilot](pilot-2026-09-15.md) is complete: all three arms
+repaired both selected defects, with no new evaluator failures. Full agent tasks
+took roughly 3–5 minutes and showed no incremental repair benefit on these cases.
+The remaining 72 tasks and blind semantic/explanation review are deferred. The
+[container runner and recorded settings](execution.md) make the execution boundary
+reproducible. These observations do not establish product superiority.
+
+A separate
 [single-agent operations repair trial](../operations-repair/README.md) exercises
 the decision-surface rules; it does not compare tools or satisfy this protocol.
 To measure the remaining issue #22 questions, use
