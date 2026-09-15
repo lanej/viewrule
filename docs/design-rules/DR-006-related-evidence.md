@@ -22,3 +22,9 @@ adjacent within an expanded analytical item. `evidence-proximity` can enforce a
 project's declared text-distance limit; it cannot identify which evidence supports
 the decision. Inspect simultaneous visibility and preserve map detail needed for
 facility-level reading. [Expanded decision-surface reference](https://github.com/lanej/viewrule/blob/main/docs/design-examples.md#expanded-analytical-decision-surface).
+
+**Component application:** Keep identifying marks, titles, and descriptions
+visually associated. For compact discovery items, a mark can share the title's
+row while the description uses the full item width. Declare the intended relative
+placement and spacing, rather than prescribing one CSS layout technique. An
+individual missing graphic must not be concealed by other complete items.

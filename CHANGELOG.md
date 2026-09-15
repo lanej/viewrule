@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+- Add opt-in `required-elements` and `relative-position` rules for per-component
+  graphics, peer placement, and bounded spacing independent of grid/flex CSS.
+- Extend `consistent` with opt-in cross-page identity and inline SVG structure
+  comparison; preserve existing page-local and text-context behavior.
+- Generalize discovery feedback into guidance, documented examples, and the
+  installed-CLI regression. Sizes, spacing, selectors, and layout choices stay
+  application-owned; no global density or icon-size requirement is added.
+
 ## 0.5.1 — 2026-09-15
 
 - Reject empty or whitespace-only source-check output instead of treating missing

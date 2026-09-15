@@ -8,5 +8,8 @@
   "Treat these as Tufte-inspired design guidance, not quotations or universal layout requirements. Honor project design systems and explicit user feedback.",
   "Keep controls usable as density increases; start with at least 24 by 24 CSS px for ordinary controls and review actual target geometry and exceptions. (DR-007)",
   "Use bounded reading widths and natural word spacing for prose. Avoid fully justified paragraphs; adapt reading measure to the language and task. (DR-007)",
-  "Align numeric amounts and headers consistently; use suitable precision and tabular digits to support scanning. Distinguish identifiers from amounts. (DR-006)"
+  "Align numeric amounts and headers consistently; use suitable precision and tabular digits to support scanning. Distinguish identifiers from amounts. (DR-006)",
+  "Keep each component's identifying graphic, title, and description associated. Measure their relative placement and require visuals per item; a parent grid declaration or one visible icon cannot establish the whole list is correct. (DR-006, DR-008)",
+  "Reduce redundant spacing before reducing readable type. Let wrapping and enlarged text determine item height; keep exact icon sizes, gaps, and column choices in the project contract. (DR-007)",
+  "Carry an entity's visual identity from discovery to detail. Compare the actual graphic as well as its stable identity; matching symbol labels alone do not establish matching artwork. (DR-005)"
 ]

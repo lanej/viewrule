@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Component relationship fixture</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        color: #203b30;
+        background: white;
+        font: 1rem/1.6 system-ui;
+      }
+      main {
+        width: min(760px, calc(100% - 32px));
+        margin: auto;
+      }
+      .entry {
+        padding-block: 16px;
+      }
+      .heading {
+        display: grid;
+        grid-template-columns: 28px minmax(0, 1fr);
+        grid-template-areas: "icon title";
+        gap: 12px;
+        align-items: center;
+      }
+      .icon {
+        grid-area: icon;
+        width: 28px;
+        height: 28px;
+        flex: none;
+        fill: none;
+        stroke: currentColor;
+      }
+      h2 {
+        grid-area: title;
+        margin: 0;
+        font-size: 1.5rem;
+        line-height: 1.3;
+      }
+      .description {
+        width: 100%;
+        margin: 6px 0 0;
+      }
+      .flex .heading {
+        display: flex;
+      }
+      .broken .entry:first-of-type .heading {
+        display: block;
+      }
+      .broken .entry:first-of-type .description {
+        margin-top: 72px;
+        margin-left: 42px;
+        width: calc(100% - 42px);
+        font-size: 12px;
+      }
+      .broken .entry:nth-of-type(2) .icon {
+        display: none;
+      }
+    </style>
+  </head>
+  <body class="{{variant}}">
+    <main>
+      <h1>Explore the work</h1>
+      <article class="entry">
+        <header class="heading">
+          <svg
+            class="icon"
+            data-entity="routing"
+            viewBox="0 0 28 28"
+            aria-hidden="true"
+          >
+            <path d="M4 14h20M14 4v20" />
+          </svg>
+          <h2>Following a decision through a changing system</h2>
+        </header>
+        <p class="description">
+          The subject mark belongs with the title. Supporting text can use the
+          complete item width and wrap at a comfortable size.
+        </p>
+      </article>
+      <article class="entry">
+        <header class="heading">
+          <svg
+            class="icon"
+            data-entity="layout"
+            viewBox="0 0 28 28"
+            aria-hidden="true"
+          >
+            <rect x="4" y="4" width="20" height="20" />
+          </svg>
+          <h2>Making room for useful detail</h2>
+        </header>
+        <p class="description">
+          Reduce unnecessary spacing while preserving readable text. An absent
+          symbol on this item must not be concealed by the first item's symbol.
+        </p>
+      </article>
+    </main>
+    <script>
+      if (document.body.className.startsWith("detail")) {
+        document.querySelectorAll(".entry")[1].remove();
+        document.querySelector("h1").textContent = "Read the work";
+      }
+      if (document.body.classList.contains("detail-drift"))
+        document
+          .querySelector(".icon path")
+          .setAttribute("d", "M4 4l20 20M24 4L4 24");
+    </script>
+  </body>
+</html>

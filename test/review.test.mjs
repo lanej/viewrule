@@ -97,6 +97,21 @@ test(
         res.setHeader("Content-Type", types[path.extname(file)]);
         return res.end(await readFile(path.join(exampleDirectory, file)));
       }
+      if (pathname.startsWith("/components/")) {
+        const variant = pathname.split("/")[2];
+        res.setHeader("Content-Type", "text/html");
+        return res.end(
+          (
+            await readFile(
+              new URL("./templates/components.html", import.meta.url),
+              "utf8",
+            )
+          ).replace(
+            "{{variant}}",
+            /^[a-z-]+$/.test(variant) ? variant : "grid",
+          ),
+        );
+      }
       if (pathname.startsWith("/reading/")) {
         const variant = pathname.split("/")[2];
         res.setHeader("Content-Type", "text/html");
@@ -1915,6 +1930,182 @@ test(
     assert.equal(boundsFinding.expected.maximumExcess, 1);
     assert.deepEqual(boundsFinding.designRules, ["DR-006", "DR-007"]);
     assert.equal(boundsReport.pages[0].details.complete, true);
+    // Repeated components retain relationships under either grid or flex CSS.
+    // Cross-page continuity observes the actual SVG, not just its identity label.
+    const componentRules = [
+      {
+        id: "item-elements",
+        type: "required-elements",
+        selector: ".entry",
+        required: [".heading > svg", ".heading > h2", ".description"],
+      },
+      {
+        id: "icon-title",
+        type: "relative-position",
+        selector: ".heading",
+        from: "svg",
+        to: "h2",
+        relation: "left-of",
+        minGap: 8,
+        maxGap: 16,
+        tolerance: 1,
+      },
+      {
+        id: "heading-copy",
+        type: "relative-position",
+        selector: ".entry",
+        from: ".heading",
+        to: ".description",
+        relation: "above",
+        minGap: 4,
+        maxGap: 16,
+        tolerance: 1,
+      },
+      {
+        id: "copy-width",
+        type: "reading-column",
+        selector: ".description",
+        container: ".entry",
+        maxWidth: 760,
+        tolerance: 2,
+      },
+      {
+        id: "copy-size",
+        type: "min-font-size",
+        selector: ".description",
+        min: 16,
+      },
+      {
+        id: "enlarged-copy-size",
+        type: "min-font-size",
+        selector: ".description",
+        min: 32,
+        pages: ["enlarged-components"],
+      },
+      {
+        id: "symbol-continuity",
+        type: "consistent",
+        selector: ".icon",
+        keyAttribute: "data-entity",
+        properties: ["stroke"],
+        attributes: ["viewBox"],
+        compareSVG: true,
+        acrossPages: true,
+        designRules: ["DR-005"],
+      },
+      {
+        id: "local-symbols",
+        type: "consistent",
+        selector: ".icon",
+        keyAttribute: "data-entity",
+        properties: [],
+        attributes: [],
+        compareSVG: true,
+        designRules: ["DR-005"],
+      },
+    ].map((rule) => ({
+      severity: "error",
+      reason: "Keep each item readable and its identity stable.",
+      ...rule,
+    }));
+    const componentConfig = {
+      ...config(baseURL),
+      accessibility: false,
+      enforceOnStop: false,
+      pages: [
+        ...["grid", "flex", "broken", "detail", "detail-drift"].map((name) => ({
+          name,
+          path: `/components/${name}`,
+          ready: "main",
+        })),
+        {
+          name: "enlarged-components",
+          path: "/components/flex",
+          ready: "main",
+          textScale: 2,
+        },
+      ],
+    };
+    await writeFile(
+      path.join(project, ".ui-review/config.json"),
+      JSON.stringify(componentConfig),
+    );
+    await writeFile(
+      path.join(project, ".ui-review/rules.json"),
+      JSON.stringify(componentRules),
+    );
+    const components = await cli(["check"]);
+    assert.equal(components.code, 1, components.stderr || components.stdout);
+    const componentReport = JSON.parse(
+      await readFile(JSON.parse(components.stdout).report, "utf8"),
+    );
+    for (const page of componentReport.pages) {
+      assert.equal(page.details.complete, true);
+      assert.ok(
+        !page.findings.some((finding) => finding.rule === "local-symbols"),
+        "Cross-page comparison remains opt-in",
+      );
+      if (!["broken", "detail-drift"].includes(page.name))
+        assert.deepEqual(page.findings, [], page.name);
+    }
+    const componentFindings = componentReport.pages.find(
+      (page) => page.name === "broken",
+    ).findings;
+    for (const id of [
+      "item-elements",
+      "icon-title",
+      "heading-copy",
+      "copy-width",
+      "copy-size",
+    ])
+      assert.ok(
+        componentFindings.some(
+          (f) =>
+            f.rule === id &&
+            f.designRules.length &&
+            f.actual !== undefined &&
+            f.expected !== undefined,
+        ),
+        `${id} needs a cited measured failure`,
+      );
+    assert.ok(
+      componentFindings.some(
+        (f) => f.rule === "icon-title" && f.actual.crossOverlap <= 0,
+      ),
+    );
+    assert.ok(
+      componentFindings.some(
+        (f) =>
+          f.rule === "heading-copy" &&
+          f.actual.gap === 72 &&
+          f.expected.maxGap === 16,
+      ),
+    );
+    assert.ok(
+      componentFindings.some(
+        (f) =>
+          f.rule === "item-elements" &&
+          f.actual.selected === 1 &&
+          f.actual.visible === 0,
+      ),
+    );
+    const drift = componentReport.pages.find(
+      (page) => page.name === "detail-drift",
+    ).findings;
+    assert.equal(drift.length, 1);
+    assert.equal(drift[0].rule, "symbol-continuity");
+    assert.deepEqual(drift[0].designRules, ["DR-005"]);
+    assert.equal(
+      drift[0].actual["attr:viewBox"],
+      drift[0].expected["attr:viewBox"],
+    );
+    assert.notEqual(
+      drift[0].actual["svg:content"],
+      drift[0].expected["svg:content"],
+    );
+    t.diagnostic(
+      "component relationships: grid and flex pass; stacked/hidden icons, excess spacing, narrowed/shrunken copy and cross-page SVG drift fail with measured evidence",
+    );
     t.diagnostic(
       "broken → compact → sidebar (same contract) → stretched → finite → missing annotations: expected rules, measurements, and DR citations verified",
     );

@@ -25,6 +25,7 @@ or axe. Use [the detection manual](ui-review.md) for real application assessment
 
 | Example | Design rule | Detection available in Viewrule |
 | --- | --- | --- |
+| [Component relationships](component-relationships.md#rejected-and-passing-examples) | DR-005/006/007: continuity, grouping, legibility | Installed-engine fixture for per-item graphics, relative placement, readable spacing and list-to-detail SVG continuity; grid and flex satisfy the same contract |
 | [Expandable list](#expandable-list) | DR-008: framing earns its space | `max-height`, with a project-specific selector and limit |
 | [Text with a diagram](#text-with-a-diagram) | DR-007: preserve legibility | Built-in `axe:color-contrast` when accessibility is enabled |
 | [Tab bar](#tab-bar) | DR-006: keep identifying labels readable | `no-clip` scoped to the tab buttons |

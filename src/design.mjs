@@ -12,6 +12,8 @@ export const policyPaths = Object.freeze(
 );
 const defaults = {
   "within-bounds": ["DR-006", "DR-007"],
+  "required-elements": ["DR-006"],
+  "relative-position": ["DR-006", "DR-007"],
   "reading-column": ["DR-006", "DR-007"],
   "vertical-order": ["DR-006", "DR-007"],
   align: ["DR-006"],
@@ -33,6 +35,10 @@ const defaults = {
 const advice = {
   "within-bounds":
     "Reflow or resize the content and its declared container so labels remain inside the visible region. Preserve readable text and exact values.",
+  "required-elements":
+    "Restore the required text or visual in each component. Scope responsive alternatives explicitly; adding a text label cannot replace a missing graphic.",
+  "relative-position":
+    "Restore the declared peer relationship and spacing within each component. Reflow the layout while preserving readable text; grid and flex implementations may satisfy the same boundary.",
   "reading-column":
     "Center the declared content within its container and restore its bounded reading measure. Preserve readable type and use responsive gutters below the cap.",
   "vertical-order":
@@ -193,7 +199,10 @@ export function evaluateDesign(report, rules, config) {
         for (const item of page.metrics?.consistency.find(
           (entry) => entry.rule === rule.id,
         )?.items ?? []) {
-          const key = JSON.stringify([page.name, item.key]);
+          const key = JSON.stringify([
+            rule.acrossPages ? null : page.name,
+            item.key,
+          ]);
           const prior = seen.get(key);
           if (
             prior &&
@@ -202,12 +211,16 @@ export function evaluateDesign(report, rules, config) {
             add(
               page,
               rule,
-              `Inconsistent encoding for ${item.key}; reference viewport: ${prior.viewport}.`,
+              `Inconsistent encoding for ${item.key}; reference page: ${prior.page}, viewport: ${prior.viewport}.`,
               item.values,
               prior.values,
             );
           else if (!prior)
-            seen.set(key, { ...item, viewport: page.viewport.name });
+            seen.set(key, {
+              ...item,
+              page: page.name,
+              viewport: page.viewport.name,
+            });
         }
     }
   }

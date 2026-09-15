@@ -169,6 +169,80 @@ export function inspectPage(rules) {
           );
         }
       }
+    } else if (rule.type === "required-elements") {
+      for (const el of els)
+        for (const selector of rule.required) {
+          const selected = [...el.querySelectorAll(selector)];
+          const shown = selected.filter(visible);
+          if (!selected.length || shown.length !== selected.length)
+            add(
+              rule,
+              "Required component elements are absent or hidden.",
+              el,
+              { selector, selected: selected.length, visible: shown.length },
+              { minSelected: 1, visible: selected.length || 1 },
+            );
+        }
+    } else if (rule.type === "relative-position") {
+      for (const el of els) {
+        const from = [...el.querySelectorAll(rule.from)];
+        const to = [...el.querySelectorAll(rule.to)];
+        if (
+          from.length !== 1 ||
+          to.length !== 1 ||
+          !visible(from[0]) ||
+          !visible(to[0])
+        ) {
+          add(
+            rule,
+            "A relationship needs exactly one visible element at each end within its component.",
+            el,
+            {
+              from: from.length,
+              to: to.length,
+              visibleFrom: from.filter(visible).length,
+              visibleTo: to.filter(visible).length,
+            },
+            { from: 1, to: 1, visibleFrom: 1, visibleTo: 1 },
+          );
+          continue;
+        }
+        if (from[0].contains(to[0]) || to[0].contains(from[0])) {
+          add(
+            rule,
+            "A relationship needs distinct peers, not the same element or nested boxes.",
+            el,
+            "same or nested elements",
+            "distinct peers",
+          );
+          continue;
+        }
+        const a = rect(from[0]),
+          b = rect(to[0]);
+        const horizontal = rule.relation === "left-of";
+        const gap = horizontal ? b.left - a.right : b.top - a.bottom;
+        const crossOverlap = horizontal
+          ? Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top)
+          : Math.min(a.right, b.right) - Math.max(a.left, b.left);
+        if (
+          crossOverlap <= 0 ||
+          gap < rule.minGap - rule.tolerance ||
+          gap > rule.maxGap + rule.tolerance
+        )
+          add(
+            rule,
+            "Component peers must retain their declared direction, shared band, and bounded gap.",
+            to[0],
+            { relation: rule.relation, gap, crossOverlap },
+            {
+              relation: rule.relation,
+              minGap: rule.minGap,
+              maxGap: rule.maxGap,
+              tolerance: rule.tolerance,
+              crossOverlap: "> 0",
+            },
+          );
+      }
     } else if (rule.type === "reading-column") {
       for (const el of els) {
         const container = el.parentElement?.closest(rule.container);
@@ -296,6 +370,45 @@ export function inspectPage(rules) {
           for (const attribute of rule.attributes)
             values[`attr:${attribute}`] =
               el.getAttribute(attribute)?.trim() ?? "";
+          if (rule.compareSVG) {
+            // Compare authored SVG structure, not a self-reported symbol label.
+            // Ignore formatting, comments and accessibility descriptions; this
+            // remains a DOM comparison, not proof of equivalent painted output.
+            const svgNode = (node) => {
+              if (node.nodeType === Node.TEXT_NODE)
+                return node.textContent.trim() ? node.textContent : null;
+              if (
+                node.nodeType !== Node.ELEMENT_NODE ||
+                ["title", "desc", "metadata"].includes(node.localName)
+              )
+                return null;
+              return [
+                node.localName,
+                [...node.attributes]
+                  .map((attr) => [attr.name, attr.value])
+                  .sort((a, b) => a[0].localeCompare(b[0])),
+                [...node.childNodes]
+                  .map(svgNode)
+                  .filter((child) => child !== null),
+              ];
+            };
+            const content = [...el.childNodes]
+              .map(svgNode)
+              .filter((child) => child !== null);
+            if (
+              el.namespaceURI !== "http://www.w3.org/2000/svg" ||
+              el.localName !== "svg" ||
+              !content.length
+            )
+              add(
+                rule,
+                "SVG comparison needs a visible inline SVG with nonempty content.",
+                el,
+                el.localName,
+                "inline svg with content",
+              );
+            else values["svg:content"] = JSON.stringify(content);
+          }
           if (Object.values(values).some((value) => !value))
             add(
               rule,

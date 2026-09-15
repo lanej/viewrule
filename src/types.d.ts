@@ -58,6 +58,8 @@ export interface Rule {
   id: string;
   type:
     | "within-bounds"
+    | "required-elements"
+    | "relative-position"
     | "reading-column"
     | "vertical-order"
     | "align"
@@ -99,6 +101,13 @@ export interface Rule {
   keyAttribute?: string;
   properties?: string[];
   attributes?: string[];
+  acrossPages?: boolean;
+  compareSVG?: boolean;
+  from?: string;
+  to?: string;
+  relation?: "left-of" | "above";
+  minGap?: number;
+  maxGap?: number;
   requiredKeys?: string[];
   minVisibleByViewport?: Record<string, number>;
   preserveFrom?: string;

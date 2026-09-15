@@ -122,6 +122,15 @@ const types = {
     container: text,
     tolerance: { type: "number", minimum: 0, maximum: 4 },
   },
+  "required-elements": { required: names },
+  "relative-position": {
+    from: text,
+    to: text,
+    relation: { enum: ["left-of", "above"] },
+    minGap: { type: "number", minimum: 0 },
+    maxGap: { type: "number", minimum: 0 },
+    tolerance: { type: "number", minimum: 0, maximum: 4 },
+  },
   "reading-column": {
     container: text,
     maxWidth: { type: "number", exclusiveMinimum: 0 },
@@ -193,16 +202,18 @@ const types = {
     maxVerticalGap: { type: "number", minimum: 0 },
   },
 };
+const optionalFields = {
+  consistent: {
+    acrossPages: { type: "boolean" },
+    compareSVG: { type: "boolean" },
+  },
+};
 export const ruleSchema = {
   oneOf: Object.entries(types).map(([type, extra]) =>
-    object({ ...common, type: { const: type }, ...extra }, [
-      "id",
-      "type",
-      "selector",
-      "severity",
-      "reason",
-      ...Object.keys(extra),
-    ]),
+    object(
+      { ...common, type: { const: type }, ...extra, ...optionalFields[type] },
+      ["id", "type", "selector", "severity", "reason", ...Object.keys(extra)],
+    ),
   ),
 };
 const ajv = new Ajv({ allErrors: true });
@@ -273,11 +284,14 @@ export function validateRules(rules) {
     if (
       rule.type === "consistent" &&
       !rule.properties.length &&
-      !rule.attributes.length
+      !rule.attributes.length &&
+      !rule.compareSVG
     )
       throw new Error(
-        `Rule ${rule.id}: choose at least one property or attribute to compare`,
+        `Rule ${rule.id}: choose a property, attribute, or SVG content to compare`,
       );
+    else if (rule.type === "relative-position" && rule.minGap > rule.maxGap)
+      throw new Error(`Rule ${rule.id}: minGap must not exceed maxGap`);
     else if (rule.type === "attribute" && !rule.designRules)
       throw new Error(
         `Rule ${rule.id}: attribute checks must cite designRules`,

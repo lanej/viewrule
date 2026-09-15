@@ -53,6 +53,11 @@ repository gives the engine its own releases and lets any application or agent u
 Dotfiles retains personal preferences and installation choices; each application owns
 its selectors, viewport choices, and thresholds.
 
+[Component relationships](docs/component-relationships.md) cover per-item visual
+presence, bounded peer spacing independent of grid/flex CSS, and opt-in SVG
+continuity across list and detail pages. Exact sizes and layout preferences stay
+in the application contract.
+
 ## Define boundaries before building
 
 Run `viewrule contract` to inspect effective rules and configuration before changing
