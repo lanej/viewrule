@@ -29,6 +29,7 @@
     "CHANGELOG.md"
   ],
   "scripts": {
+    "benchmark": "node scripts/benchmark.mjs",
     "test": "node scripts/test-package.mjs",
     "demo": "node demo.mjs",
     "site:build": "node scripts/site.mjs",
@@ -62,6 +63,7 @@
     "esbuild": "0.28.2",
     "eslint": "10.10.0",
     "globals": "17.12.0",
+    "impeccable": "4.1.0",
     "prettier": "3.9.6",
     "react": "19.3.0",
     "react-dom": "19.3.0",

@@ -51,6 +51,22 @@ jobs:
           path: dist/viewrule-*.tgz
           if-no-files-found: error
           retention-days: 7
+      - name: Benchmark analytical detectors
+        id: benchmark
+        run: npm run benchmark
+      - name: Preserve benchmark evidence
+        if: ${{ !cancelled() && steps.benchmark.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: analytical-benchmark
+          include-hidden-files: true
+          path: |
+            dist/benchmark/results.json
+            dist/benchmark/*/page.html
+            dist/benchmark/*/checkpoint.mjs
+            dist/benchmark/*/.ui-review/
+          if-no-files-found: error
+          retention-days: 7
   release:
     needs: regression
     if: github.event_name == 'push' && github.ref == 'refs/heads/main' && contains(github.event.head_commit.message, '[release]')

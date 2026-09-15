@@ -17,6 +17,7 @@
     "bin/**/*.mjs",
     "src/**/*.mjs",
     "scripts/**/*.mjs",
+    "benchmarks/**/*.mjs",
     "test/**/*.mjs",
     "plugins/**/*.mjs",
     "test/**/*.jsx",

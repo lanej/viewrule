@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Parcel comparison benchmark</title>
+    <style>
+      :root {
+        color-scheme: light;
+        font:
+          16px/1.5 system-ui,
+          sans-serif;
+        color: #172d27;
+        background: #f6f8f7;
+      }
+      body {
+        margin: 0;
+        padding: 32px;
+      }
+      main {
+        max-width: 100%;
+      }
+      h1 {
+        margin: 0 0 8px;
+        font-size: 28px;
+      }
+      .summary {
+        margin-bottom: 20px;
+      }
+      .summary p {
+        max-width: 65ch;
+        margin: 8px 0;
+      }
+      button {
+        font: inherit;
+        color: #fff;
+        background: #165b41;
+        border: 0;
+        border-radius: 4px;
+        padding: 10px 16px;
+      }
+      table {
+        border-collapse: collapse;
+        table-layout: fixed;
+        width: 650px;
+        max-width: 100%;
+        background: #fff;
+      }
+      caption {
+        text-align: left;
+        padding: 12px 0;
+      }
+      th,
+      td {
+        text-align: left;
+        padding: 8px 12px;
+        border-bottom: 1px solid #ced8d2;
+      }
+      th:first-child {
+        width: 290px;
+      }
+      .service-label {
+        display: block;
+        white-space: nowrap;
+      }
+      .number {
+        font-variant-numeric: tabular-nums;
+        text-align: right;
+      }
+      body[data-case="hidden-alternatives"] tr[data-key]:nth-child(n + 5) {
+        display: none;
+      }
+      body[data-case="lost-context"] .period,
+      body[data-case="after-filter"][data-state="filtered"] .period {
+        display: none;
+      }
+      body[data-case="clipped-labels"] .service-label {
+        width: 90px;
+        overflow: hidden;
+      }
+      @media (max-width: 1999px) {
+        body[data-case="spacious-dashboard"] .summary {
+          height: 650px;
+        }
+      }
+      @media (min-width: 2000px) {
+        body[data-case="stretched"] table {
+          width: 100%;
+        }
+        body[data-case="cross-viewport"] tr[data-key="carrier-2"] {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body data-state="initial">
+    <main>
+      <header class="summary">
+        <h1>Compare parcel services</h1>
+        <p>
+          Synthetic quotes for one origin and destination. Compare complete
+          service names, price, and delivery estimates.
+        </p>
+        <button id="apply-filter" type="button">
+          Apply ground-service filter
+        </button>
+      </header>
+      <table id="comparison">
+        <caption>
+          Available services
+          <span class="period"
+            >· Quotes as of 15 September 2026 · USD per parcel</span
+          >
+        </caption>
+        <thead>
+          <tr>
+            <th scope="col">Service</th>
+            <th scope="col">Price</th>
+            <th scope="col">Days</th>
+            <th scope="col">On time</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </main>
+    <script>
+      const params = new URLSearchParams(location.search);
+      document.body.dataset.case = params.get("case") || "reference";
+      const names = [
+        "Aster",
+        "Beacon",
+        "Cedar",
+        "Delta",
+        "Elm",
+        "Flint",
+        "Grove",
+        "Harbor",
+        "Iris",
+        "Juniper",
+        "Kestrel",
+        "Laurel",
+      ];
+      const count = document.body.dataset.case === "finite-control" ? 4 : 12;
+      document.querySelector("tbody").innerHTML = names
+        .slice(0, count)
+        .map(
+          (name, index) =>
+            `<tr data-key="carrier-${index + 1}"><td><span class="service-label">${name} Ground / ${index % 2 ? "Economy" : "Priority"}</span></td><td class="number">$${(7 + index * 0.23).toFixed(2)}</td><td class="number">${2 + (index % 3)}</td><td class="number">${(98 - index * 0.1).toFixed(1)}%</td></tr>`,
+        )
+        .join("");
+      document.querySelector("#apply-filter").addEventListener("click", () => {
+        document.body.dataset.state = "filtered";
+      });
+      // The URL detector receives the same click-derived state as the Playwright checkpoint.
+      if (params.get("checkpoint") === "filtered")
+        document.querySelector("#apply-filter").click();
+    </script>
+  </body>
+</html>
