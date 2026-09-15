@@ -310,6 +310,10 @@ are reliable enough to avoid optimizing the wrong thing.
 
 ## Development and review
 
+The [analytical benchmark](benchmarks/analytical/README.md) compares the installed
+Viewrule CLI and pinned Impeccable detector on shared synthetic interfaces. It
+publishes the task contract, seeded cases, raw findings, and measurement limits.
+
 From a source checkout, run `npm ci`, then `npm run format` to apply Prettier and
 `npm run check` to verify formatting, ESLint, and TypeScript JavaScript analysis.
 CI runs these before the browser regression. Static checking is incremental, with

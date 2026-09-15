@@ -1,0 +1,74 @@
+[
+  {
+    "id": "reference",
+    "seed": null,
+    "expectAt": [],
+    "viewrule": [],
+    "impeccableCandidates": [],
+    "purpose": "Twelve complete alternatives in a bounded comparison; surrounding whitespace is intentional."
+  },
+  {
+    "id": "finite-control",
+    "seed": null,
+    "expectAt": [],
+    "viewrule": [],
+    "impeccableCandidates": [],
+    "purpose": "Only four alternatives exist. The declared task requires four, with no occupancy quota."
+  },
+  {
+    "id": "hidden-alternatives",
+    "seed": "Eight available alternatives disappear.",
+    "expectAt": ["desktop", "wide"],
+    "viewrule": ["alternatives", "identities"],
+    "impeccableCandidates": ["content-hidden-at-rest"],
+    "purpose": "Distinguish omitted options from an intentionally finite task."
+  },
+  {
+    "id": "lost-context",
+    "seed": "The comparison loses its reporting period.",
+    "expectAt": ["desktop", "wide"],
+    "viewrule": ["period"],
+    "impeccableCandidates": ["content-hidden-at-rest"],
+    "purpose": "Require the context needed to interpret rates."
+  },
+  {
+    "id": "stretched",
+    "seed": "The same comparison stretches at wide resolution, separating related values.",
+    "expectAt": ["wide"],
+    "viewrule": ["value-distance"],
+    "impeccableCandidates": [],
+    "purpose": "More empty table width does not add useful information."
+  },
+  {
+    "id": "clipped-labels",
+    "seed": "Service labels are clipped before distinguishing suffixes.",
+    "expectAt": ["desktop", "wide"],
+    "viewrule": ["labels"],
+    "impeccableCandidates": ["text-overflow", "text-occlusion"],
+    "purpose": "Preserve complete comparison labels."
+  },
+  {
+    "id": "spacious-dashboard",
+    "seed": "An oversized summary pushes required alternatives below the first viewport.",
+    "expectAt": ["desktop"],
+    "viewrule": ["alternatives", "identities"],
+    "impeccableCandidates": ["first-viewport-column-overflow"],
+    "purpose": "Measure the loss of visible options, not whitespace by itself."
+  },
+  {
+    "id": "cross-viewport",
+    "seed": "Carrier 2 disappears only at the wide viewport.",
+    "expectAt": ["wide"],
+    "viewrule": ["identities"],
+    "impeccableCandidates": ["content-hidden-at-rest"],
+    "purpose": "Detect lost identities even when the minimum visible count still passes."
+  },
+  {
+    "id": "after-filter",
+    "seed": "Applying a filter removes the reporting period.",
+    "expectAt": ["desktop", "wide"],
+    "viewrule": ["period"],
+    "impeccableCandidates": ["content-hidden-at-rest"],
+    "purpose": "Inspect the resulting state after a real button activation."
+  }
+]

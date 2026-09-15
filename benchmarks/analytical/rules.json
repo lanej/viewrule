@@ -1,0 +1,51 @@
+[
+  {
+    "id": "alternatives",
+    "type": "visible-count",
+    "selector": "#comparison tbody tr",
+    "min": 8,
+    "severity": "error",
+    "reason": "Eight complete available alternatives must fit in the first viewport.",
+    "designRules": ["DR-006"]
+  },
+  {
+    "id": "identities",
+    "type": "comparison-set",
+    "selector": "#comparison tbody tr",
+    "keyAttribute": "data-key",
+    "requiredKeys": [],
+    "minVisibleByViewport": { "desktop": 8, "wide": 8 },
+    "preserveFrom": "desktop",
+    "minFontSize": 16,
+    "severity": "error",
+    "reason": "Larger viewports must preserve comparison identities and legibility.",
+    "designRules": ["DR-006", "DR-007"]
+  },
+  {
+    "id": "period",
+    "type": "context",
+    "selector": "#comparison",
+    "required": [".period"],
+    "severity": "error",
+    "reason": "The quote date and units must remain visible beside the comparison.",
+    "designRules": ["DR-003"]
+  },
+  {
+    "id": "labels",
+    "type": "no-clip",
+    "selector": ".service-label",
+    "severity": "error",
+    "reason": "Read the service suffix without guessing.",
+    "designRules": ["DR-006"]
+  },
+  {
+    "id": "value-distance",
+    "type": "max-text-gap",
+    "selector": "#comparison tbody tr",
+    "items": "td.number",
+    "max": 150,
+    "severity": "error",
+    "reason": "Keep related numeric values within 150 CSS pixels.",
+    "designRules": ["DR-007"]
+  }
+]
