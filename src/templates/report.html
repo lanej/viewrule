@@ -193,6 +193,60 @@
         {{/noChangeBaseline}}
       </section>
 
+      {{#hasEvidenceChanges}}
+      <details>
+        <summary>
+          Image evidence since approval · {{changedCaptureCount}} changed
+          captures
+        </summary>
+        <p>
+          Regions group visible pixel differences above the recorded noise
+          thresholds. They do not identify defects or approve a design. Open
+          crops at original size; coordinates are CSS pixels. Incompatible
+          captures are not compared.
+        </p>
+        {{#evidenceChanges}}
+        <section>
+          <h3>{{state}} · {{status}}</h3>
+          <p>{{reason}}</p>
+          {{#omittedRegions}}
+          <p>
+            {{omittedRegions}} additional regions omitted; inspect the full
+            captures below.
+          </p>
+          {{/omittedRegions}} {{#regions}}
+          <p>
+            x={{x}}, y={{y}} · {{width}} × {{height}} · {{changedPixels}}
+            changed pixels
+          </p>
+          <div class="compare">
+            <figure>
+              <figcaption>
+                Approved region · <a href="{{before}}">Open original</a>
+              </figcaption>
+              <img
+                src="{{before}}"
+                alt="Approved region at {{x}}, {{y}}"
+                loading="lazy"
+              />
+            </figure>
+            <figure>
+              <figcaption>
+                Current region · <a href="{{after}}">Open original</a>
+              </figcaption>
+              <img
+                src="{{after}}"
+                alt="Current region at {{x}}, {{y}}"
+                loading="lazy"
+              />
+            </figure>
+          </div>
+          {{/regions}}
+        </section>
+        {{/evidenceChanges}}
+      </details>
+      {{/hasEvidenceChanges}}
+
       <p>
         Automated checks cover configured constraints.
         <a href="design-rules.html">Design-rule reference used for this run</a>.

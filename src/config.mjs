@@ -30,6 +30,7 @@ const sourceCheckSchema = object(
     authority: { enum: ["advisory", "blocking"] },
     enabled: { type: "boolean" },
     version: text,
+    format: { enum: ["viewrule", "impeccable"] },
     cwd: text,
     severityMap: {
       type: "object",

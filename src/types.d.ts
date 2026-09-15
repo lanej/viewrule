@@ -28,6 +28,7 @@ export interface SourceCheckProvider {
   authority: "advisory" | "blocking";
   enabled?: boolean;
   version?: string;
+  format?: "viewrule" | "impeccable";
   cwd?: string;
   severityMap?: Record<string, "error" | "warning">;
 }
@@ -189,6 +190,7 @@ export interface ContractSnapshot {
   projectDocuments?: ProjectDocument[];
 }
 export interface ReviewChanges {
+  evidence?: EvidenceChange[];
   comparison: "available" | "unavailable";
   baselineId: string | null;
   newFindings: FindingChange[];
@@ -204,12 +206,35 @@ export interface ReviewChanges {
   }[];
   contract: ReturnType<typeof import("./contract.mjs").compareContracts>;
 }
+export interface EvidenceChange {
+  page: string;
+  checkpoint: string | null;
+  viewport: Viewport;
+  status: "changed" | "unchanged" | "not-compared";
+  reason: string;
+  method: typeof import("./evidence-changes.mjs").evidenceMethod;
+  width?: number;
+  height?: number;
+  changedPixels?: number;
+  regionCount?: number;
+  omittedRegions?: number;
+  regions: {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    changedPixels: number;
+    before: string;
+    after: string;
+  }[];
+}
 export interface ReviewReport {
   version: 1;
   id: string;
   project: string;
   createdAt: string;
   fingerprint: string;
+  browserVersion?: string;
   status: "pass" | "fail";
   summary: { errors: number; warnings: number };
   pages: PageResult[];

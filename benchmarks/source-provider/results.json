@@ -1,0 +1,31 @@
+{
+  "provider": "impeccable",
+  "version": "4.1.0",
+  "engine": "0.1.5",
+  "sourceRevision": "73a6f51a540bc3938a2c40677d074c70b81fa5a0",
+  "command": ["impeccable", "detect", "--json", "--no-config", "<target>"],
+  "inputs": {
+    "bad.css": "body { font-family: Inter, sans-serif; font-size: 10px; }\n",
+    "good.css": "body { font-family: Georgia, serif; font-size: 18px; line-height: 1.5; }\n"
+  },
+  "runs": [
+    {
+      "target": "bad.css",
+      "exitCode": 2,
+      "stdout": "[\n  {\n    \"antipattern\": \"overused-font\",\n    \"name\": \"Overused font\",\n    \"description\": \"Inter, Roboto, Fraunces, Geist, Plus Jakarta Sans, and Space Grotesk are used on so many sites they no longer feel distinctive. Each new wave of AI-generated UIs converges on the same handful of faces. Choose a face that gives your interface personality.\",\n    \"severity\": \"warning\",\n    \"category\": \"slop\",\n    \"file\": \"/workspace/scratch/2a69df13a715/provider-fixture/bad.css\",\n    \"line\": 1,\n    \"snippet\": \"font-family: Inter\"\n  }\n]\n",
+      "stderr": ""
+    },
+    {
+      "target": "good.css",
+      "exitCode": 0,
+      "stdout": "[]\n",
+      "stderr": ""
+    },
+    {
+      "target": "missing.css",
+      "exitCode": 1,
+      "stdout": "[]\n",
+      "stderr": "Warning: cannot access missing.css\n"
+    }
+  ]
+}
