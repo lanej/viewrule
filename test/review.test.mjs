@@ -1681,7 +1681,7 @@ test(
           command: [
             process.execPath,
             "-e",
-            "console.log(require('node:fs').readFileSync('src/diagnostics.json', 'utf8'))",
+            "const output = require('node:fs').readFileSync('src/diagnostics.json', 'utf8'); process.stdout.write(output); process.exitCode = !output.trim() || JSON.parse(output).length ? 1 : 0;",
           ],
         },
       ],
@@ -1838,6 +1838,35 @@ test(
       await readFile(JSON.parse(removed.stdout).html, "utf8"),
       /Previous findings not compared/,
     );
+    // Missing provider evidence must invalidate a prior pass. Recovery requires
+    // explicit clean JSON; exit 1 with valid findings was exercised above.
+    changeConfig.sourceChecks[0].authority = "blocking";
+    await writeFile(
+      path.join(project, ".ui-review/config.json"),
+      JSON.stringify(changeConfig),
+    );
+    await writeFile(diagnosticsPath, "");
+    const emptyProvider = await cli(["check"]);
+    assert.equal(emptyProvider.code, 2, emptyProvider.stdout);
+    assert.match(
+      emptyProvider.stderr,
+      /provider tokens returned no JSON \(exit 1\)/,
+    );
+    const interrupted = JSON.parse(
+      await readFile(path.join(project, ".ui-review/latest.json"), "utf8"),
+    );
+    assert.equal(interrupted.status, "running");
+    assert.equal(interrupted.reportFile, JSON.parse(removed.stdout).report);
+    assert.equal((await hook()).decision, "block");
+
+    await writeFile(diagnosticsPath, "[]");
+    const cleanProvider = await cli(["check"]);
+    assert.equal(cleanProvider.code, 0, cleanProvider.stderr);
+    const cleanProviderReport = JSON.parse(
+      await readFile(JSON.parse(cleanProvider.stdout).report, "utf8"),
+    );
+    assert.deepEqual(cleanProviderReport.sourceChecks[0].findings, []);
+    assert.deepEqual(await hook(), {});
     t.diagnostic(
       "broken → compact → sidebar (same contract) → stretched → finite → missing annotations: expected rules, measurements, and DR citations verified",
     );

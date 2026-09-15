@@ -50,7 +50,8 @@ function normalizeFinding(provider, raw, severityMap) {
 
 /** Run configured source-check adapters. Providers are commands that emit JSON to stdout:
  * either an array of findings or { findings: [...] }. Exit 0 and 1 are accepted so
- * linters may use exit 1 to signal findings; malformed output/provider failures are errors.
+ * linters may use exit 1 to signal findings; empty/malformed output and provider
+ * failures are errors. Clean scans must explicitly emit [] or { findings: [] }.
  * @param {string} project
  * @param {import("./types.js").SourceCheckProvider[] | undefined} providers */
 export async function runSourceChecks(project, providers) {
@@ -70,9 +71,13 @@ export async function runSourceChecks(project, providers) {
       throw new Error(
         `Source-check provider ${provider.id} failed with exit ${execution.code}: ${execution.stderr.trim()}`,
       );
+    if (!execution.stdout.trim())
+      throw new Error(
+        `Source-check provider ${provider.id} returned no JSON (exit ${execution.code}). Emit [] or { findings: [] } for a clean scan.`,
+      );
     let parsed;
     try {
-      parsed = JSON.parse(execution.stdout || "[]");
+      parsed = JSON.parse(execution.stdout);
     } catch (error) {
       throw new Error(
         `Source-check provider ${provider.id} returned invalid JSON`,
