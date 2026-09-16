@@ -1,4 +1,4 @@
-# <img src="docs/brand/viewrule-logo.png" alt="Viewrule" width="420" height="140">
+# <img src="docs/brand/viewrule-logo.png" alt="" width="64" height="64"> Viewrule
 
 **Design guidance and executable UI constraints for coding agents.**
 
