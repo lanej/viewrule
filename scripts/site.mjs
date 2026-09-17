@@ -4,6 +4,7 @@ import { createServer } from "node:http";
 import { readDesignPolicy } from "../src/design.mjs";
 
 import { buildGuide } from "./guide.mjs";
+import { buildRuleDocuments } from "./rule-documents.mjs";
 
 const repository = path.resolve(import.meta.dirname, "..");
 const output = path.join(repository, "dist/site");
@@ -196,6 +197,7 @@ for (const rule of policy.rules) {
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="description" content="${escapeHtml(rule.id)} — ${escapeHtml(rule.title)}. Viewrule design requirement, enforcement mode, examples, and verification guidance." />
 <title>${escapeHtml(rule.id)} — ${escapeHtml(rule.title)} · Viewrule</title>
+<link rel="alternate" type="text/markdown" href="index.md" />
 <link rel="stylesheet" href="../rule.css" />
 <link rel="stylesheet" href="../../assets/examples/behavior.css" />
 <link rel="stylesheet" href="../../assets/examples/evidence.css" />
@@ -208,6 +210,7 @@ for (const rule of policy.rules) {
 <div class="rule-meta"><span>${rule.id}</span><span class="mode mode-${rule.enforcement}">${rule.enforcement}</span></div>
 <h1>${escapeHtml(rule.title)}</h1>
 <p class="lede">${escapeHtml(principle)}</p>
+<p><a href="index.md">Markdown</a> · <a href="../index.json">Rule index (JSON)</a></p>
 </header>
 ${sectionHtml}
 <section class="examples" aria-labelledby="examples-title">
@@ -236,11 +239,13 @@ await writeFile(
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="description" content="Viewrule design rules with enforcement modes and good/bad examples." />
 <title>Design rules · Viewrule</title>
+<link rel="alternate" type="application/json" href="index.json" />
 <link rel="stylesheet" href="rule.css" />
 </head>
 <body><main>
 <nav class="crumb"><a href="../">Viewrule</a> / Design rules</nav>
 <header><h1>Design rules</h1><p class="lede">Each rule has one canonical page with its rationale, enforcement mode, good and bad examples, exceptions, and verification guidance.</p></header>
+<p><a href="index.json">Machine-readable rule index (JSON)</a></p>
 <div class="rule-list">${ruleCards.join("\n")}</div>
 </main></body></html>`,
 );
@@ -264,6 +269,7 @@ await cp(
   path.join(repository, "docs/guide.css"),
   path.join(output, "guide.css"),
 );
+await buildRuleDocuments(output);
 await buildGuide(output);
 await writeFile(path.join(output, ".nojekyll"), "");
 console.log(

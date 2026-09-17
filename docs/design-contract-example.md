@@ -41,6 +41,12 @@ nominal screenshot. Loading must not reorder rows without explaining the new ord
 
 ### COMPARISON-001
 
+Basis: [DR-006 — Rule of Proximity](https://lanej.io/viewrule/rules/dr-006/)
+([Markdown](https://lanej.io/viewrule/rules/dr-006/index.md)). This application adopts
+the simultaneous-comparison principle, not a universal minimum number of rows.
+An implementing rule cites `designRules: ["DR-006"]` and
+`sources: ["DESIGN.md#comparison-001"]` together.
+
 Mandatory for the desktop comparison view: show the six candidate facilities from
 the selected comparison set with identity, state, and reporting period available.
 Rationale: excluding a candidate can change the analyst's decision.

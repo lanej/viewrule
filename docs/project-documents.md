@@ -109,6 +109,46 @@ contract and its fingerprints. A Markdown hyperlink by itself does not load or
 validate its target. There is no recursive link crawling, parent inheritance, or
 network fetching. Existing file-size, UTF-8, and project-boundary checks still apply.
 
+## Cite public rules without copying policy
+
+Read the compact [rule index](https://lanej.io/viewrule/rules/index.json), then only
+relevant rules. Each entry includes a stable ID, title, summary, enforcement mode,
+HTML/Markdown URLs, canonical source path and SHA-256. Public exports also include
+`markdownSHA256` for the exact published bytes, including their JSON front matter;
+`sourceSHA256` identifies the canonical file before metadata and link rewriting.
+The top-level `policySHA256` is the same policy fingerprint used in review reports.
+
+```sh
+viewrule guide rules   # index of the installed engine's policy
+viewrule guide DR-006  # exact canonical Markdown for one rule
+```
+
+The existing `guide` index links to the rule index; pattern and evidence IDs retain
+their existing meaning. These commands read local files only, without a project,
+browser, or network request. The isolated plugin delegates rule IDs to its installed
+engine; unlike bundled pattern pages, rule lookup needs explicit engine setup.
+Engines predating this change do not implement these lookups. State that limitation;
+do not silently install a newer engine or fetch a different policy during a check.
+
+For example, write a project-specific requirement under `### COMPARISON-001`, citing
+[DR-006 — Rule of Proximity](https://lanej.io/viewrule/rules/dr-006/) and its
+[Markdown](https://lanej.io/viewrule/rules/dr-006/index.md), rather than copying the
+whole rule. Then use `designRules: ["DR-006"]` alongside
+`sources: ["DESIGN.md#comparison-001"]` in the executable rule. `sources` remains a
+local-document reference, not a remote-URL field. A citation does not activate a
+check, adopt every general recommendation, or establish human approval.
+
+Public URLs track the current site, not an immutable policy revision. Record the
+consulted rule ID and `sourceSHA256`; pin a Git commit when exact historical retrieval
+matters. A hash identifies bytes, but does not archive them or prove authorship.
+The installed policy remains authoritative for checks even when the website is newer.
+
+The site build generates `/rules/index.json` and `/rules/dr-xxx/index.md` from the
+same `docs/design-rules/` files and registry used by the engine. It preserves the
+complete source body, normalizes relative inline links, and rejects unresolved
+relative links. Edit canonical rule files, not generated exports. No policy text,
+measurements, enforcement modes, or engine pin is changed by publishing them.
+
 ## Changes and approval
 
 Loaded documents are snapshotted and hashed with the contract. Changes appear in

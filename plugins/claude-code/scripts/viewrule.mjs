@@ -108,7 +108,13 @@ async function install(root, pin) {
 }
 
 async function main() {
-  if (args[0] === "guide") {
+  // Pattern/evidence pages are bundled with the isolated plugin. Design rules
+  // belong to the pinned engine and are read through its CLI after explicit setup.
+  if (
+    args[0] === "guide" &&
+    args[1] !== "rules" &&
+    !args[1]?.startsWith("DR-")
+  ) {
     const { printGuide } = await import("./guide.mjs");
     return printGuide(args.slice(1));
   }

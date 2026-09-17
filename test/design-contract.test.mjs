@@ -2,6 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
+import { createHash } from "node:crypto";
 import {
   mkdtemp,
   mkdir,
@@ -9,6 +10,8 @@ import {
   writeFile,
   readdir,
   rm,
+  cp,
+  symlink,
 } from "node:fs/promises";
 import { createServer } from "node:http";
 import { tmpdir } from "node:os";
@@ -40,13 +43,46 @@ test(
       { timeout: 120000 },
     );
     const engine = path.join(installation, "node_modules/viewrule");
+    const repository = path.resolve(import.meta.dirname, "..");
     const project = path.join(root, "application");
     await mkdir(path.join(project, "src"), { recursive: true });
     await writeFile(
       path.join(project, "src/page.html"),
       '<!doctype html><html lang="en"><title>Contract fixture</title><main><p>Compare the current facilities.</p></main></html>',
     );
-    const server = createServer(async (_req, res) => {
+    const server = createServer(async (req, res) => {
+      const pathname = new URL(req.url, "http://localhost").pathname;
+      if (pathname.startsWith("/viewrule/")) {
+        if (
+          !/^\/viewrule\/rules\/(?:index\.json|dr-\d{3}\/(?:index\.md)?)$/.test(
+            pathname,
+          )
+        ) {
+          res.writeHead(404);
+          return res.end();
+        }
+        const file = path.join(
+          repository,
+          "dist/site",
+          pathname.slice("/viewrule/".length),
+          ...(pathname.endsWith("/") ? ["index.html"] : []),
+        );
+        try {
+          const bytes = await readFile(file);
+          res.setHeader(
+            "Content-Type",
+            file.endsWith(".md")
+              ? "text/markdown; charset=utf-8"
+              : file.endsWith(".json")
+                ? "application/json"
+                : "text/html",
+          );
+          return res.end(bytes);
+        } catch {
+          res.writeHead(404);
+          return res.end();
+        }
+      }
       res.setHeader("Content-Type", "text/html");
       res.end(await readFile(path.join(project, "src/page.html")));
     });
@@ -80,6 +116,110 @@ test(
         );
         child.stdin.end(input);
       });
+
+    // Retrieve policy before project setup, with no usable browser or network URL.
+    const guide = (...args) =>
+      promisify(execFile)(
+        process.execPath,
+        [path.join(engine, "bin/viewrule.mjs"), "guide", ...args],
+        {
+          cwd: root,
+          env: { ...env, VIEWRULE_BROWSER_PATH: path.join(root, "absent") },
+        },
+      );
+    const ruleIndex = JSON.parse((await guide("rules")).stdout);
+    assert.equal(ruleIndex.schemaVersion, 1);
+    assert.equal(ruleIndex.rules.length, 16);
+    const selected = ruleIndex.rules.find((rule) => rule.id === "DR-006");
+    const rawRule = (await guide(selected.id)).stdout;
+    assert.equal(
+      rawRule,
+      await readFile(path.join(engine, selected.source), "utf8"),
+    );
+    assert.equal(
+      createHash("sha256").update(rawRule).digest("hex"),
+      selected.sourceSHA256,
+    );
+    assert.equal(
+      JSON.parse((await guide()).stdout).designRules.indexUrl,
+      "https://lanej.io/viewrule/rules/index.json",
+    );
+    await assert.rejects(guide("DR-999"), { code: 2 });
+    await assert.rejects(guide("DR-006", "extra"), { code: 2 });
+
+    // The same catalog and full documents are directly retrievable below /viewrule/.
+    const response = await fetch(`${baseURL}/viewrule/rules/index.json`);
+    assert.equal(response.status, 200);
+    const publishedIndex = await response.json();
+    assert.equal(publishedIndex.policySHA256, ruleIndex.policySHA256);
+    assert.deepEqual(
+      publishedIndex.rules.map(
+        ({ markdownSHA256: _hash, ...metadata }) => metadata,
+      ),
+      ruleIndex.rules,
+    );
+    for (const entry of publishedIndex.rules) {
+      const document = await fetch(
+        baseURL + new URL(entry.markdownUrl).pathname,
+      );
+      assert.equal(document.status, 200);
+      assert.match(document.headers.get("content-type"), /text\/markdown/);
+      const markdown = await document.text();
+      assert.equal(
+        createHash("sha256").update(markdown).digest("hex"),
+        entry.markdownSHA256,
+      );
+      const frontmatter = markdown.match(/^---\n([\s\S]*?)\n---\n\n/);
+      assert.ok(frontmatter);
+      assert.equal(JSON.parse(frontmatter[1]).sourceSHA256, entry.sourceSHA256);
+      if (entry.id === selected.id)
+        assert.equal(markdown.slice(frontmatter[0].length), rawRule);
+      const html = await fetch(baseURL + new URL(entry.htmlUrl).pathname);
+      assert.equal(html.status, 200);
+      assert.match(
+        await html.text(),
+        /rel="alternate" type="text\/markdown" href="index\.md"/,
+      );
+    }
+
+    // Isolate the plugin: no parent-repository rule reads and no implicit setup.
+    const plugin = path.join(root, "isolated-plugin");
+    await cp(path.join(repository, "plugins/claude-code"), plugin, {
+      recursive: true,
+    });
+    const runtime = path.join(root, "plugin-runtime");
+    const pluginEnv = { ...env, VIEWRULE_PLUGIN_DATA_DIR: runtime };
+    const pluginGuide = (...args) =>
+      promisify(execFile)(
+        process.execPath,
+        [path.join(plugin, "scripts/viewrule.mjs"), "guide", ...args],
+        { cwd: root, env: pluginEnv },
+      );
+    await assert.rejects(pluginGuide("DR-006"), { code: 2 });
+    await assert.rejects(readdir(runtime), { code: "ENOENT" });
+    const pin = JSON.parse(
+      await readFile(path.join(plugin, "engine.json"), "utf8"),
+    );
+    pin.version = JSON.parse(
+      await readFile(path.join(engine, "package.json"), "utf8"),
+    ).version;
+    pin.sha256 = createHash("sha256")
+      .update(await readFile(process.env.VIEWRULE_TEST_ARCHIVE))
+      .digest("hex");
+    await writeFile(path.join(plugin, "engine.json"), JSON.stringify(pin));
+    const installed = path.join(runtime, `${pin.version}-${pin.sha256}`);
+    await mkdir(path.join(installed, "node_modules"), { recursive: true });
+    await symlink(engine, path.join(installed, "node_modules/viewrule"), "dir");
+    await writeFile(
+      path.join(installed, "installed.json"),
+      JSON.stringify(pin),
+    );
+    assert.equal((await pluginGuide("DR-006")).stdout, rawRule);
+    assert.deepEqual(
+      JSON.parse((await pluginGuide("rules")).stdout),
+      ruleIndex,
+    );
+
     const init = await cli(["init", "--url", baseURL]);
     assert.equal(init.code, 0, init.stderr);
     const configPath = path.join(project, ".ui-review/config.json");
@@ -156,6 +296,10 @@ test(
     await writeFile(designPath, authored);
     const contract = await cli(["contract"]);
     assert.equal(contract.code, 0, contract.stderr);
+    assert.equal(
+      JSON.parse(contract.stdout).policySHA256,
+      ruleIndex.policySHA256,
+    );
     assert.equal(
       JSON.parse(contract.stdout).projectDocuments[0].content,
       authored,
