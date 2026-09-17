@@ -19,6 +19,7 @@ import { runCheckpoint } from "./checkpoints.mjs";
 import { runSourceChecks, sourceSummary } from "./source-checks.mjs";
 import { classifyChanges } from "./changes.mjs";
 import { compareEvidence } from "./evidence-changes.mjs";
+import { reviewStates, ruleApplies } from "./scopes.mjs";
 
 /** @param {string} project @param {string} globalDir */
 export async function runReview(project, globalDir) {
@@ -67,138 +68,125 @@ export async function runReview(project, globalDir) {
         undefined,
     });
     report.browserVersion = browser.version();
-    for (const pageConfig of config.pages) {
-      for (const viewport of config.viewports) {
-        if (
-          pageConfig.viewports &&
-          !pageConfig.viewports.includes(viewport.name)
-        )
-          continue;
-        const states = pageConfig.checkpoints?.length
-          ? pageConfig.checkpoints
-          : [null];
-        for (const checkpoint of states) {
-          const url = new URL(pageConfig.path, config.baseURL).href;
-          /** @type {import("./types.js").PageResult} */
-          const result = {
-            name: pageConfig.name,
-            ...(checkpoint
-              ? {
-                  checkpoint: checkpoint.name,
-                  checkpointSetup: checkpoint.setup,
-                }
-              : {}),
-            url,
-            viewport,
-            findings: [],
-            screenshot: null,
-          };
-          report.pages.push(result);
-          let context;
-          try {
-            context = await browser.newContext({
-              viewport: { width: viewport.width, height: viewport.height },
-              deviceScaleFactor: 1,
-              reducedMotion: "reduce",
-              colorScheme: "light",
-              storageState: config.storageState
-                ? path.resolve(project, config.storageState)
-                : undefined,
-            });
-            const page = await context.newPage();
-            if (pageConfig.media)
-              await page.emulateMedia({ media: pageConfig.media });
-            page.setDefaultTimeout(config.timeoutMs ?? 15000);
-            const response = await page.goto(url, { waitUntil: "load" });
-            if (response && !response.ok())
-              throw new Error(`HTTP ${response.status()}`);
-            if (new URL(page.url()).origin !== new URL(url).origin)
-              throw new Error(
-                "Navigation left the configured origin; check authentication.",
-              );
-            await page
-              .locator(pageConfig.ready)
-              .first()
-              .waitFor({ state: "visible" });
-            if (checkpoint)
-              await runCheckpoint(project, checkpoint, page, context);
-            await page.evaluate(() => document.fonts.ready);
-            if (pageConfig.textScale)
-              await page.evaluate((scale) => {
-                document.documentElement.style.fontSize = `${scale * 100}%`;
-              }, pageConfig.textScale);
-            await page.addStyleTag({
-              content:
-                "*,*::before,*::after{animation:none!important;transition:none!important;caret-color:transparent!important}",
-            });
-            await page.evaluate(() => window.scrollTo(0, 0));
-            result.screenshot = `capture-${report.pages.length}.png`;
-            await page.screenshot({
-              path: path.join(dir, result.screenshot),
-              fullPage: true,
-              animations: "disabled",
-            });
-            result.details = await captureDetails(
-              page,
-              dir,
-              `capture-${report.pages.length}`,
-              config.detailCapture,
-            );
-            if (!result.details.complete)
-              result.findings.push({
-                rule: "detail-coverage",
-                severity: "error",
-                message: `Captured ${result.details.capturedTiles} of ${result.details.expectedTiles} detail tiles.`,
-                reason:
-                  "Full-scale visual evidence is incomplete. Narrow the page state or increase detailCapture.maxTiles.",
-              });
-            const active = rules.filter(
-              (r) =>
-                (!r.pages || r.pages.includes(pageConfig.name)) &&
-                (!r.viewports || r.viewports.includes(viewport.name)),
-            );
-            const inspection = await page.evaluate(inspectPage, active);
-            result.findings.push(...inspection.findings);
-            result.metrics = inspection.metrics;
-            result.coverage = {
-              layoutRules: active.map((r) => r.id),
-              accessibility: config.accessibility,
-            };
-            if (config.accessibility) {
-              const axe = await new AxeBuilder({ page })
-                .withTags(["wcag2a", "wcag2aa", "wcag21aa"])
-                .analyze();
-              for (const violation of axe.violations)
-                for (const node of violation.nodes)
-                  result.findings.push({
-                    rule: `axe:${violation.id}`,
-                    severity: "error",
-                    selector: node.target.join(" "),
-                    message: violation.help,
-                    reason: node.failureSummary,
-                    actual: violation.impact,
-                    expected: "no automatically detectable violation",
-                  });
-              result.accessibilityNeedsReview = axe.incomplete.map((v) => ({
-                id: v.id,
-                help: v.help,
-                targets: v.nodes.map((n) => n.target),
-              }));
+    for (const { page: pageConfig, viewport, checkpoint } of reviewStates(
+      config,
+    )) {
+      const url = new URL(pageConfig.path, config.baseURL).href;
+      /** @type {import("./types.js").PageResult} */
+      const result = {
+        name: pageConfig.name,
+        ...(checkpoint
+          ? {
+              checkpoint: checkpoint.name,
+              checkpointSetup: checkpoint.setup,
             }
-          } catch (err) {
-            result.findings.push({
-              rule: "review-error",
-              severity: "error",
-              selector: pageConfig.ready,
-              message: err.message,
-              reason: checkpoint
-                ? `The ${checkpoint.name} checkpoint must complete before its state can be reviewed.`
-                : "The page must render and be inspectable before a review can pass.",
-            });
-          } finally {
-            await context?.close();
-          }
+          : {}),
+        url,
+        viewport,
+        findings: [],
+        screenshot: null,
+      };
+      report.pages.push(result);
+      let context;
+      try {
+        context = await browser.newContext({
+          viewport: { width: viewport.width, height: viewport.height },
+          deviceScaleFactor: 1,
+          reducedMotion: "reduce",
+          colorScheme: "light",
+          storageState: config.storageState
+            ? path.resolve(project, config.storageState)
+            : undefined,
+        });
+        const page = await context.newPage();
+        if (pageConfig.media)
+          await page.emulateMedia({ media: pageConfig.media });
+        page.setDefaultTimeout(config.timeoutMs ?? 15000);
+        const response = await page.goto(url, { waitUntil: "load" });
+        if (response && !response.ok())
+          throw new Error(`HTTP ${response.status()}`);
+        if (new URL(page.url()).origin !== new URL(url).origin)
+          throw new Error(
+            "Navigation left the configured origin; check authentication.",
+          );
+        await page
+          .locator(pageConfig.ready)
+          .first()
+          .waitFor({ state: "visible" });
+        if (checkpoint) await runCheckpoint(project, checkpoint, page, context);
+        await page.evaluate(() => document.fonts.ready);
+        if (pageConfig.textScale)
+          await page.evaluate((scale) => {
+            document.documentElement.style.fontSize = `${scale * 100}%`;
+          }, pageConfig.textScale);
+        await page.addStyleTag({
+          content:
+            "*,*::before,*::after{animation:none!important;transition:none!important;caret-color:transparent!important}",
+        });
+        await page.evaluate(() => window.scrollTo(0, 0));
+        result.screenshot = `capture-${report.pages.length}.png`;
+        await page.screenshot({
+          path: path.join(dir, result.screenshot),
+          fullPage: true,
+          animations: "disabled",
+        });
+        result.details = await captureDetails(
+          page,
+          dir,
+          `capture-${report.pages.length}`,
+          config.detailCapture,
+        );
+        if (!result.details.complete)
+          result.findings.push({
+            rule: "detail-coverage",
+            severity: "error",
+            message: `Captured ${result.details.capturedTiles} of ${result.details.expectedTiles} detail tiles.`,
+            reason:
+              "Full-scale visual evidence is incomplete. Narrow the page state or increase detailCapture.maxTiles.",
+          });
+        const active = rules.filter((r) =>
+          ruleApplies(r, pageConfig.name, viewport.name),
+        );
+        const inspection = await page.evaluate(inspectPage, active);
+        result.findings.push(...inspection.findings);
+        result.metrics = inspection.metrics;
+        result.coverage = {
+          layoutRules: active.map((r) => r.id),
+          accessibility: config.accessibility,
+        };
+        if (config.accessibility) {
+          const axe = await new AxeBuilder({ page })
+            .withTags(["wcag2a", "wcag2aa", "wcag21aa"])
+            .analyze();
+          for (const violation of axe.violations)
+            for (const node of violation.nodes)
+              result.findings.push({
+                rule: `axe:${violation.id}`,
+                severity: "error",
+                selector: node.target.join(" "),
+                message: violation.help,
+                reason: node.failureSummary,
+                actual: violation.impact,
+                expected: "no automatically detectable violation",
+              });
+          result.accessibilityNeedsReview = axe.incomplete.map((v) => ({
+            id: v.id,
+            help: v.help,
+            targets: v.nodes.map((n) => n.target),
+          }));
         }
+      } catch (err) {
+        result.findings.push({
+          rule: "review-error",
+          severity: "error",
+          selector: pageConfig.ready,
+          message: err.message,
+          reason: checkpoint
+            ? `The ${checkpoint.name} checkpoint must complete before its state can be reviewed.`
+            : "The page must render and be inspectable before a review can pass.",
+        });
+      } finally {
+        await context?.close();
       }
     }
   } catch (err) {

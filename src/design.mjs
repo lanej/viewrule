@@ -2,6 +2,7 @@ import { readFile } from "node:fs/promises";
 import { createHash } from "node:crypto";
 import path from "node:path";
 import { designRuleRegistry } from "./policy-ids.mjs";
+import { ruleApplies } from "./scopes.mjs";
 
 export const policyDirectory = path.resolve(
   import.meta.dirname,
@@ -129,8 +130,7 @@ export async function readDesignPolicy() {
  * @param {import("./types.js").ProjectConfig} config */
 export function evaluateDesign(report, rules, config) {
   const active = (rule, page) =>
-    (!rule.pages || rule.pages.includes(page.name)) &&
-    (!rule.viewports || rule.viewports.includes(page.viewport.name));
+    ruleApplies(rule, page.name, page.viewport.name);
   const add = (page, rule, message, actual, expected) =>
     page.findings.push({
       rule: rule.id,

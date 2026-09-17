@@ -1,5 +1,7 @@
 // Internal contracts for checkJs. Ajv remains authoritative for runtime input,
 // including required fields on each rule type; these declarations emit no code.
+export type Selection = string[] | { include: string[]; exclude?: string[] };
+
 export interface Viewport {
   name: string;
   width: number;
@@ -38,9 +40,9 @@ export interface ProjectConfig {
   version: 1;
   baseURL: string;
   enforceOnStop: boolean;
-  sourcePaths: string[];
+  sourcePaths: Selection;
   accessibility: boolean;
-  projectDocuments?: string[];
+  projectDocuments?: Selection;
   requiredDesignRules?: string[];
   sourceChecks?: SourceCheckProvider[];
   storageState?: string;
@@ -52,7 +54,7 @@ export interface ProjectConfig {
     ready: string;
     media?: "screen" | "print";
     textScale?: number;
-    viewports?: string[];
+    viewports?: Selection;
     checkpoints?: Checkpoint[];
   }[];
   viewports: Viewport[];
@@ -85,8 +87,8 @@ export interface Rule {
   selector: string;
   severity: "error" | "warning";
   reason: string;
-  pages?: string[];
-  viewports?: string[];
+  pages?: Selection;
+  viewports?: Selection;
   optional?: boolean;
   feedbackId?: string;
   designRules?: string[];

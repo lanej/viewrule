@@ -331,6 +331,124 @@ test(
       { code: "ENOENT" },
     );
     await rm(lintSource);
+    // Inspect one scoped app through the installed CLI without browser/provider work.
+    const scoped = path.join(project, "scoped-app");
+    await mkdir(path.join(scoped, ".ui-review"), { recursive: true });
+    await mkdir(path.join(scoped, "src/generated"), { recursive: true });
+    await mkdir(path.join(scoped, "apps/web"), { recursive: true });
+    await writeFile(
+      path.join(scoped, "src/page.tsx"),
+      "export const Page = 1;\n",
+    );
+    await writeFile(path.join(scoped, "src/.hidden.tsx"), "hidden\n");
+    await writeFile(path.join(scoped, "src/generated/page.tsx"), "generated\n");
+    await writeFile(
+      path.join(scoped, "apps/web/DESIGN.md"),
+      "# Controls\nKeep labels.\n",
+    );
+    const scopedConfig = {
+      ...config(baseURL),
+      sourcePaths: {
+        include: ["src/**/*.{ts,tsx}"],
+        exclude: ["src/generated/**"],
+      },
+      projectDocuments: { include: ["apps/*/DESIGN.md", "apps/web/DESIGN.md"] },
+      pages: [
+        { name: "admin-home", path: "/", ready: "main", viewports: ["desk*"] },
+        { name: "public-home", path: "/", ready: "main" },
+      ],
+      viewports: [
+        { name: "desktop", width: 1280, height: 800 },
+        { name: "mobile", width: 390, height: 844 },
+      ],
+      sourceChecks: [
+        {
+          id: "opaque",
+          authority: "advisory",
+          command: [process.execPath, "-e", "process.exit(77)"],
+        },
+      ],
+    };
+    const scopedConfigPath = path.join(scoped, ".ui-review/config.json");
+    await writeFile(scopedConfigPath, JSON.stringify(scopedConfig));
+    await writeFile(
+      path.join(scoped, ".ui-review/rules.json"),
+      JSON.stringify([
+        {
+          id: "scope-labels",
+          type: "min-font-size",
+          selector: "label",
+          min: 14,
+          severity: "error",
+          reason: "Labels remain readable.",
+          pages: { include: ["admin-*"], exclude: ["admin-legacy"] },
+          viewports: ["desk*"],
+          sources: ["apps/web/DESIGN.md#controls"],
+        },
+      ]),
+    );
+    env.VIEWRULE_BROWSER_PATH = path.join(project, "unavailable-browser");
+    const planned = await cli(["plan", "--project", scoped]);
+    if (savedBrowserPath === undefined) delete env.VIEWRULE_BROWSER_PATH;
+    else env.VIEWRULE_BROWSER_PATH = savedBrowserPath;
+    assert.equal(planned.code, 0, planned.stderr);
+    const plan = JSON.parse(planned.stdout);
+    assert.equal(plan.evidence, "not-assessed");
+    assert.deepEqual(
+      plan.sources.files.map((file) => file.path),
+      ["src/page.tsx"],
+    );
+    assert.equal(plan.documents.length, 1);
+    assert.equal(plan.documents[0].reasons.length, 2);
+    assert.equal(plan.sourceChecks[0].inputs, "unknown");
+    assert.equal(plan.browser.captureCount, 3);
+    assert.deepEqual(
+      plan.browser.states.map((state) => state.rules),
+      [["scope-labels"], [], []],
+    );
+    assert.deepEqual((await readdir(path.join(scoped, ".ui-review"))).sort(), [
+      "config.json",
+      "rules.json",
+    ]);
+    await writeFile(
+      scopedConfigPath,
+      JSON.stringify({ ...scopedConfig, sourcePaths: ["src"] }),
+    );
+    const legacyPlan = JSON.parse(
+      (await cli(["plan", "--project", scoped])).stdout,
+    );
+    assert.equal(
+      legacyPlan.sources.files.length,
+      3,
+      "Legacy prefixes retain hidden and generated descendants",
+    );
+    await writeFile(
+      scopedConfigPath,
+      JSON.stringify({
+        ...scopedConfig,
+        projectDocuments: ["missing/*/DESIGN.md"],
+      }),
+    );
+    const missingDocument = await cli(["plan", "--project", scoped]);
+    assert.equal(missingDocument.code, 2);
+    assert.match(missingDocument.stderr, /pattern matches no files/);
+    await writeFile(
+      scopedConfigPath,
+      JSON.stringify({
+        ...scopedConfig,
+        projectDocuments: {
+          include: ["apps/web/DESIGN.md"],
+          exclude: ["apps/**"],
+        },
+      }),
+    );
+    const excludedDocument = await cli(["plan", "--project", scoped]);
+    assert.equal(excludedDocument.code, 2);
+    assert.match(
+      excludedDocument.stderr,
+      /Required project document is excluded/,
+    );
+    await rm(scoped, { recursive: true });
     const init = await cli(["init", "--url", baseURL]);
     assert.equal(init.code, 0, init.stderr);
     assert.equal(
@@ -428,7 +546,7 @@ test(
       designRules: ["DR-001"],
       severity: "error",
       reason: "Resizing must preserve the reporting period.",
-      pages: ["comparison"],
+      pages: { include: ["compar*"], exclude: ["compar-legacy"] },
     };
     const proposal = path.join(project, "period-rule.json");
     await writeFile(proposal, JSON.stringify(periodRule));
@@ -612,6 +730,29 @@ test(
     const good = await cli(["check"]);
     assert.equal(good.code, 0, good.stderr || good.stdout);
     assert.deepEqual(await hook(), {});
+    const newlyMatched = path.join(project, "src/newly-matched.css");
+    await writeFile(newlyMatched, "/* new dependency */\n");
+    assert.equal(
+      (await hook()).decision,
+      "block",
+      "New glob matches invalidate a passing capture",
+    );
+    await rm(newlyMatched);
+    assert.deepEqual(
+      await hook(),
+      {},
+      "Removing the new match restores the original input set",
+    );
+    await mkdir(path.join(project, "src/generated"), { recursive: true });
+    await writeFile(
+      path.join(project, "src/generated/ignored.css"),
+      "/* excluded */\n",
+    );
+    assert.deepEqual(
+      await hook(),
+      {},
+      "An excluded file does not invalidate unrelated evidence",
+    );
     const output = JSON.parse(good.stdout);
     const report = JSON.parse(await readFile(output.report, "utf8"));
     assert.deepEqual(

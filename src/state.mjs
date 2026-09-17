@@ -3,7 +3,6 @@ import {
   readFile,
   writeFile,
   appendFile,
-  readdir,
   mkdir,
   rename,
   open,
@@ -11,7 +10,6 @@ import {
   cp,
   realpath,
 } from "node:fs/promises";
-import { spawnSync } from "node:child_process";
 import path from "node:path";
 import {
   readJSON,
@@ -21,10 +19,9 @@ import {
   validateRuleScopes,
 } from "./config.mjs";
 import { policyPaths } from "./design.mjs";
-import {
-  impeccableInputs,
-  impeccableContextFingerprint,
-} from "./impeccable.mjs";
+import { impeccableContextFingerprint } from "./impeccable.mjs";
+import { walkFiles } from "./scopes.mjs";
+import { resolveSourceScope } from "./source-scope.mjs";
 import {
   readProjectDocuments,
   validateDocumentSources,
@@ -36,78 +33,16 @@ export async function writeJSON(file, value) {
   await writeFile(temp, JSON.stringify(value, null, 2) + "\n", { mode: 0o600 });
   await rename(temp, file);
 }
-const excluded = new Set([
-  ".git",
-  "node_modules",
-  ".ui-review",
-  "dist",
-  "build",
-  ".next",
-  "coverage",
-  ".cache",
-]);
-async function walk(root, relative = "") {
-  const files = [];
-  for (const entry of await readdir(path.join(root, relative), {
-    withFileTypes: true,
-  })) {
-    if (excluded.has(entry.name)) continue;
-    const file = path.join(relative, entry.name);
-    if (entry.isDirectory()) files.push(...(await walk(root, file)));
-    else if (entry.isFile()) files.push(file);
-  }
-  return files;
-}
 /** @param {string} project
  * @param {import("./types.js").ProjectConfig} config
  * @param {string} globalDir
  * @param {import("./types.js").ProjectDocument[]} [documents] */
 export async function fingerprint(project, config, globalDir, documents) {
   const hash = createHash("sha256");
-  const listed = spawnSync(
-    "git",
-    [
-      "-C",
-      project,
-      "ls-files",
-      "-z",
-      "--cached",
-      "--others",
-      "--exclude-standard",
-    ],
-    { encoding: "utf8", maxBuffer: 16 * 1024 * 1024 },
-  );
-  const files =
-    listed.status === 0
-      ? [...new Set(listed.stdout.split("\0").filter(Boolean))]
-      : await walk(project);
-  const bundledProviders = (config.sourceChecks ?? []).filter(
-    (provider) =>
-      provider.enabled !== false &&
-      provider.format === "impeccable" &&
-      !provider.command,
-  );
-  const inScope = (file) =>
-    !file.split("/").some((p) => excluded.has(p)) &&
-    config.sourcePaths.some(
-      (p) =>
-        p === "." || file === p || file.startsWith(p.replace(/\/$/, "") + "/"),
-    );
-  const scopedFiles = new Set(files.filter(inScope));
-  const contextDirectories = new Set();
-  for (const provider of bundledProviders) {
-    const inputs = await impeccableInputs(
-      path.resolve(project, provider.cwd ?? "."),
-      provider.targets,
-    );
-    for (const file of inputs.files)
-      scopedFiles.add(path.relative(project, file));
-    if (!provider.noConfig)
-      for (const directory of inputs.directories)
-        contextDirectories.add(directory);
-  }
+  const scope = await resolveSourceScope(project, config);
+  const contextDirectories = scope.contextDirectories;
   hash.update(await impeccableContextFingerprint(contextDirectories));
-  for (const file of [...scopedFiles].sort()) {
+  for (const { path: file } of scope.files) {
     hash.update(file + "\0");
     try {
       hash.update(await readFile(path.join(project, file)));
@@ -140,6 +75,9 @@ export async function fingerprint(project, config, globalDir, documents) {
   // Changing the checker itself invalidates old passing runs after a Viewrule update.
   for (const file of [
     "config.mjs",
+    "scopes.mjs",
+    "source-scope.mjs",
+    "plan.mjs",
     "capture.mjs",
     "checks.mjs",
     "design.mjs",
@@ -161,9 +99,12 @@ export async function fingerprint(project, config, globalDir, documents) {
     "../npm-shrinkwrap.json",
   ])
     hash.update(await readFile(path.join(import.meta.dirname, file)));
-  for (const file of (
-    await walk(path.join(import.meta.dirname, "templates"))
-  ).sort()) {
+  const templates = [];
+  for await (const file of walkFiles(
+    path.join(import.meta.dirname, "templates"),
+  ))
+    templates.push(file);
+  for (const file of templates.sort()) {
     hash.update(`templates/${file}\0`);
     hash.update(
       await readFile(path.join(import.meta.dirname, "templates", file)),

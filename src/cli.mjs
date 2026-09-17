@@ -12,6 +12,7 @@ import {
 import { impeccableProvider } from "./impeccable.mjs";
 import { runSourceChecks, sourceSummary } from "./source-checks.mjs";
 import { readContract } from "./contract.mjs";
+import { readPlan } from "./plan.mjs";
 import { readProjectDocuments } from "./project-documents.mjs";
 import { runReview } from "./review.mjs";
 import { defaultPreferences, presetRules } from "./presets.mjs";
@@ -30,6 +31,7 @@ const help = `viewrule — rendered UI checks and a versioned design feedback lo
                                        Create config and editable starter rules (never overwrite)
                                        --documents also creates missing DESIGN.md and STYLE.md scaffolds
   preset --name baseline|analytical     Print starter rules for review or adaptation
+  plan                                 Print resolved input and browser obligations; no checks or state writes
   contract                             Print effective constraints, project documents, and changes
   schema [--type TYPE]                  Print the installed rule schema for authoring
   add-rule --rule FILE [--dry-run]      Validate and add a project rule; never replace an existing ID
@@ -135,6 +137,8 @@ try {
     console.log(
       JSON.stringify(await presetRules(args.name ?? "baseline"), null, 2),
     );
+  } else if (command === "plan") {
+    console.log(JSON.stringify(await readPlan(project, globalDir), null, 2));
   } else if (command === "contract") {
     console.log(
       JSON.stringify(await readContract(project, globalDir), null, 2),
