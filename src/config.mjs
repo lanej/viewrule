@@ -4,6 +4,13 @@ import path from "node:path";
 import { designRuleIds } from "./policy-ids.mjs";
 import { checkpointPath } from "./checkpoints.mjs";
 import {
+  pathSelection,
+  validateNames,
+  selected,
+  reviewStates,
+  ruleApplies,
+} from "./scopes.mjs";
+import {
   readProjectDocuments,
   validateDocumentSources,
 } from "./project-documents.mjs";
@@ -22,6 +29,19 @@ const object = (properties, required) => ({
   properties,
   required,
 });
+const scopeSchema = {
+  anyOf: [
+    names,
+    object({ include: names, exclude: { ...names, minItems: 0 } }, ["include"]),
+  ],
+};
+const documentNames = { ...names, minItems: 0, maxItems: 32 };
+const documentScopeSchema = {
+  anyOf: [
+    documentNames,
+    object({ include: documentNames, exclude: documentNames }, ["include"]),
+  ],
+};
 const checkpointSchema = object({ name: text, setup: text }, ["name", "setup"]);
 const sourceCheckSchema = object(
   {
@@ -63,14 +83,9 @@ export const configSchema = object(
     version: { const: 1 },
     baseURL: text,
     enforceOnStop: { type: "boolean" },
-    sourcePaths: names,
+    sourcePaths: scopeSchema,
     accessibility: { type: "boolean" },
-    projectDocuments: {
-      type: "array",
-      uniqueItems: true,
-      maxItems: 32,
-      items: text,
-    },
+    projectDocuments: documentScopeSchema,
     requiredDesignRules: designIds,
     sourceChecks: {
       type: "array",
@@ -98,7 +113,7 @@ export const configSchema = object(
           ready: text,
           media: { enum: ["screen", "print"] },
           textScale: { type: "number", minimum: 1, maximum: 4 },
-          viewports: names,
+          viewports: scopeSchema,
           checkpoints: { type: "array", minItems: 1, items: checkpointSchema },
         },
         ["name", "path", "ready"],
@@ -129,8 +144,8 @@ const common = {
   selector: text,
   severity: { enum: ["error", "warning"] },
   reason: text,
-  pages: names,
-  viewports: names,
+  pages: scopeSchema,
+  viewports: scopeSchema,
   optional: { type: "boolean" },
   feedbackId: text,
   designRules: { ...designIds, minItems: 1 },
@@ -268,9 +283,11 @@ export function validateConfig(config, project) {
   for (const p of config.pages) {
     if (new URL(p.path, url).origin !== url.origin)
       throw new Error("Page paths must stay on baseURL origin");
-    for (const name of p.viewports ?? [])
-      if (!config.viewports.some((v) => v.name === name))
-        throw new Error(`Page ${p.name}: unknown viewport ${name}`);
+    validateNames(
+      p.viewports,
+      config.viewports.map((v) => v.name),
+      `Page ${p.name}: viewport`,
+    );
     unique(
       (p.checkpoints ?? []).map((c) => c.name),
       `checkpoint name on page ${p.name}`,
@@ -279,9 +296,8 @@ export function validateConfig(config, project) {
       for (const checkpoint of p.checkpoints ?? [])
         checkpointPath(project, checkpoint.setup);
   }
-  for (const p of config.sourcePaths)
-    if (path.isAbsolute(p) || p.split(/[\\/]/).includes(".."))
-      throw new Error("sourcePaths must stay inside the project");
+  pathSelection(config.sourcePaths);
+  if (config.projectDocuments) pathSelection(config.projectDocuments);
   return config;
 }
 export function validateSourceChecks(providers) {
@@ -368,15 +384,10 @@ export async function loadProject(project, globalDir) {
     project,
     config.projectDocuments,
   );
+  const states = [...reviewStates(config)];
   const active = rules.filter((rule) =>
-    config.pages.some(
-      (page) =>
-        (!rule.pages || rule.pages.includes(page.name)) &&
-        config.viewports.some(
-          (viewport) =>
-            (!page.viewports || page.viewports.includes(viewport.name)) &&
-            (!rule.viewports || rule.viewports.includes(viewport.name)),
-        ),
+    states.some(({ page, viewport }) =>
+      ruleApplies(rule, page.name, viewport.name),
     ),
   );
   validateDocumentSources(active, projectDocuments);
@@ -385,15 +396,19 @@ export async function loadProject(project, globalDir) {
 /** @param {import("./types.js").Rule[]} rules @param {import("./types.js").ProjectConfig} config */
 export function validateRuleScopes(rules, config) {
   for (const r of rules) {
-    for (const n of r.pages ?? [])
-      if (!config.pages.some((p) => p.name === n))
-        throw new Error(`Rule ${r.id}: unknown page ${n}`);
-    for (const n of r.viewports ?? [])
-      if (!config.viewports.some((v) => v.name === n))
-        throw new Error(`Rule ${r.id}: unknown viewport ${n}`);
+    validateNames(
+      r.pages,
+      config.pages.map((p) => p.name),
+      `Rule ${r.id}: page`,
+    );
+    validateNames(
+      r.viewports,
+      config.viewports.map((v) => v.name),
+      `Rule ${r.id}: viewport`,
+    );
     if (r.type === "comparison-set") {
-      const active = config.viewports.filter(
-        (v) => !r.viewports || r.viewports.includes(v.name),
+      const active = config.viewports.filter((v) =>
+        selected(v.name, r.viewports),
       );
       if (!active.some((v) => v.name === r.preserveFrom))
         throw new Error(
