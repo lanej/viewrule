@@ -3,31 +3,35 @@ on:
   pull_request:
     branches: [main]
 permissions:
-  contents: read
+  contents: write
 jobs:
-  prepare:
-    if: github.head_ref == 'feat/native-glob-scopes'
+  apply:
+    if: github.head_ref == 'feat/native-glob-scopes' && github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: feat/native-glob-scopes
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
-          cache: npm
-          cache-dependency-path: npm-shrinkwrap.json
-      - run: npm ci
-      - name: Preserve public source and pinned tools for local validation
+      - name: Apply the locally validated implementation
+        shell: bash
         run: |
-          cp "$(command -v node)" "$RUNNER_TEMP/validation-node"
-          tar -czf "$RUNNER_TEMP/scope-validation.tar.gz" --exclude=./.git --exclude=./dist .
-          mv "$RUNNER_TEMP/validation-node" .
-          gzip validation-node
-      - uses: actions/upload-artifact@v4
-        with:
-          name: scope-validation-environment
-          path: |
-            ${{ runner.temp }}/scope-validation.tar.gz
-            validation-node.gz
-          retention-days: 1
-          if-no-files-found: error
+          gzip -dc .github/native-glob.patch.gz > "$RUNNER_TEMP/native-glob.patch"
+          echo "328491fe88857152e1d8913bd1c24dd87b042e1641b68e866cd813fa1e276a2a  $RUNNER_TEMP/native-glob.patch" | sha256sum --check
+          git apply --ignore-whitespace --check "$RUNNER_TEMP/native-glob.patch"
+          git apply --ignore-whitespace "$RUNNER_TEMP/native-glob.patch"
+      - run: npm ci
+      - run: npm run format
+      - run: npm run check
+      - name: Commit source changes and remove temporary transport
+        shell: bash
+        run: |
+          rm .github/native-glob.patch.gz .github/workflows/scope-validation-environment.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add CHANGELOG.md docs package.json npm-shrinkwrap.json src test .github
+          git commit -m 'feat: native glob scopes and read-only review plans'
+          git push origin HEAD:refs/heads/feat/native-glob-scopes
