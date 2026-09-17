@@ -20,7 +20,7 @@ jobs:
       - name: Preserve public source and pinned tools for local validation
         run: |
           cp "$(command -v node)" "$RUNNER_TEMP/validation-node"
-          tar -czf "$RUNNER_TEMP/scope-validation.tar.gz" --exclude=.git --exclude=dist .
+          tar -czf "$RUNNER_TEMP/scope-validation.tar.gz" --exclude=./.git --exclude=./dist .
           mv "$RUNNER_TEMP/validation-node" .
           gzip validation-node
       - uses: actions/upload-artifact@v4
