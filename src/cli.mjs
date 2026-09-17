@@ -27,29 +27,29 @@ const help = `viewrule — rendered UI checks and a versioned design feedback lo
 
   install-browser [--with-deps]       Install the pinned Chromium browser
   init --url http://localhost:3000 [--preset baseline|analytical] [--documents]
-                                       Create config and editable starter rules (never overwrite)
-                                       --documents also creates missing DESIGN.md and STYLE.md scaffolds
+                                       Create config, starter rules, and a missing DESIGN.md scaffold; never overwrite
+                                       New projects require an authored DESIGN.md; --documents also scaffolds STYLE.md
   preset --name baseline|analytical     Print starter rules for review or adaptation
-  contract                             Print effective constraints, project documents, and changes
+  contract                             Validate required design prose; print constraints, documents, and changes
   schema [--type TYPE]                  Print the installed rule schema for authoring
   add-rule --rule FILE [--dry-run]      Validate and add a project rule; never replace an existing ID
   lint [--target PATH ...]             Run source diagnostics as JSON; no browser, project setup, or review state
                                        --target selects bundled Impeccable; otherwise use configured providers
-  check                                Capture pages, check rules, write HTML + JSON
+  check                                Validate the contract, capture pages, check rules, write HTML + JSON
   feedback --report PATH --decision approve|adjust --note TEXT [--scope project|global]
                                        Save feedback; approval preserves screenshots
   learn --feedback ID --rule FILE [--scope project|global]
                                        Convert recorded feedback into a JSON rule
   guide [ID]                           Read the versioned guide index or one Markdown page
-  guidance                             Print project documents, built-in guidance, preferences, and feedback
+  guidance                             Read project documents (including unfinished prose), guidance, and feedback
   hook                                 Claude Stop hook; opt-in per project
 
 Common: --project DIR (default cwd), --help, --version
-Project files: DESIGN.md, STYLE.md (optional); .ui-review/config.json, rules.json, feedback.jsonl, approved/
+Project files: DESIGN.md (required for new projects), STYLE.md (optional); .ui-review/config.json, rules.json, feedback.jsonl, approved/
 Global files: $XDG_CONFIG_HOME/viewrule (default ~/.config/viewrule)
 Override: VIEWRULE_CONFIG_DIR; UI_REVIEW_GLOBAL_DIR remains supported.
 Exit codes: 0 checks pass, 1 checks fail, 2 setup/configuration/usage error.
-See docs/ui-review.md for rule types and CI use; docs/project-documents.md for project guidance.
+See docs/ui-review.md for rule types and CI use; docs/project-documents.md for authoring and explicit migration.
 `;
 try {
   const { values: args, positionals } = parseArgs({
@@ -83,6 +83,11 @@ try {
   else if (command === "init") {
     const starter = await presetRules(args.preset ?? "baseline");
     const dir = path.join(project, ".ui-review");
+    await mkdir(dir, { recursive: true });
+    const existingDocuments = await readProjectDocuments(project);
+    const includeStyle =
+      args.documents ||
+      existingDocuments.some((document) => document.role === "style");
     const config = validateConfig({
       version: 1,
       baseURL: args.url ?? "http://localhost:3000",
@@ -90,6 +95,7 @@ try {
       sourcePaths: ["."],
       sourceChecks: [impeccableProvider()],
       accessibility: true,
+      projectDocuments: ["DESIGN.md", ...(includeStyle ? ["STYLE.md"] : [])],
       pages: [{ name: "main", path: "/", ready: "main" }],
       viewports: [
         { name: "desktop", width: 1440, height: 900 },
@@ -99,7 +105,6 @@ try {
         { name: "mobile", width: 390, height: 844 },
       ],
     });
-    await mkdir(dir, { recursive: true });
     await writeFile(
       path.join(dir, "config.json"),
       JSON.stringify(config, null, 2) + "\n",
@@ -115,21 +120,20 @@ try {
         if (err.code !== "EEXIST") throw err;
       }
     }
-    if (args.documents)
-      for (const name of ["DESIGN.md", "STYLE.md"]) {
-        try {
-          await writeFile(
-            path.join(project, name),
-            await readFile(new URL(`../presets/${name}`, import.meta.url)),
-            { flag: "wx" },
-          );
-        } catch (err) {
-          if (err.code !== "EEXIST") throw err;
-        }
+    for (const name of ["DESIGN.md", ...(args.documents ? ["STYLE.md"] : [])]) {
+      try {
+        await writeFile(
+          path.join(project, name),
+          await readFile(new URL(`../presets/${name}`, import.meta.url)),
+          { flag: "wx" },
+        );
+      } catch (err) {
+        if (err.code !== "EEXIST") throw err;
       }
+    }
     const documents = await readProjectDocuments(project);
     console.log(
-      `Created ${dir}/config.json with editable ${args.preset ?? "baseline"} starter rules (existing rule files are preserved). Calibrate selectors, counts, and thresholds to the task. Stop enforcement is off until enforceOnStop is true. Project guidance: ${documents.map((document) => document.path).join(", ") || "none found"}.`,
+      `Created ${dir}/config.json with editable ${args.preset ?? "baseline"} starter rules (existing rules and documents are preserved). Author DESIGN.md before contract/check; a scaffold is not a completed contract. Use /viewrule:design or docs/project-documents.md. Calibrate selectors, counts, and thresholds to the task. Stop enforcement is off until enforceOnStop is true. Project guidance: ${documents.map((document) => document.path).join(", ")}.`,
     );
   } else if (command === "preset") {
     console.log(
