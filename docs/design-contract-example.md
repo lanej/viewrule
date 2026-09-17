@@ -58,8 +58,9 @@ geographic distinguishability with representative data; map area alone is not pr
 
 ### RECOVERY-001
 
-Mandatory during refresh failure: retain the selected facility and last result,
-mark that result as stale, and expose retry without moving focus unexpectedly.
+Proposed mandatory requirement, not yet accepted: during refresh failure, retain
+the selected facility and last result, mark that result as stale, and expose retry
+without moving focus unexpectedly.
 Application tests verify state preservation and keyboard recovery. A static rendered
 check cannot certify this sequence. Until those tests run, this remains unassessed.
 

@@ -82,7 +82,7 @@ do not establish useful density. Preserve visible comparison identities, readabl
 labels, truthful context, and task-appropriate whitespace. Full-resolution capture
 does not prove inspection, and a green exit does not certify overall design quality.
 
-Never loosen checks or rewrite DESIGN.md solely to pass. Contract acceptance is not
-screenshot approval. Record approval only from the human who reviewed that exact
-result; use `/viewrule:feedback` for supplied feedback.
+Never loosen checks, rewrite DESIGN.md, or edit evidence solely to pass. Contract
+acceptance is not screenshot approval. Record approval only from the human who
+reviewed that exact result; use `/viewrule:feedback` for supplied feedback.
 Summarize the actual checks and image inspection, link the report, and state limits.
