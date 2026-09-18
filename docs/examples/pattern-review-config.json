@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "baseURL": "http://127.0.0.1:4173",
+  "enforceOnStop": false,
+  "sourcePaths": ["docs/examples"],
+  "accessibility": true,
+  "pages": [
+    {
+      "name": "before",
+      "path": "/examples/pattern-review.html?stage=before",
+      "ready": "#pattern-review[data-ready]"
+    },
+    {
+      "name": "components",
+      "path": "/examples/pattern-review.html?stage=components",
+      "ready": "#pattern-review[data-ready]"
+    },
+    {
+      "name": "composition",
+      "path": "/examples/pattern-review.html?stage=composition",
+      "ready": "#pattern-review[data-ready]"
+    },
+    {
+      "name": "hidden",
+      "path": "/examples/pattern-review.html?stage=hidden",
+      "ready": "#pattern-review[data-ready]"
+    }
+  ],
+  "viewports": [
+    {
+      "name": "desktop",
+      "width": 1440,
+      "height": 1000
+    }
+  ],
+  "projectDocuments": ["docs/examples/pattern-review-design.md"]
+}

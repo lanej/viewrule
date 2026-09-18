@@ -50,6 +50,22 @@ reported separately. These are executable-contract tests, not claims of agent be
 Keep cases tied to concrete claims. Extend this workflow for a demonstrated omission;
 do not create a browser, viewport, or per-helper test matrix.
 
+The [screenshot-informed pattern review](../docs/examples/pattern-review.html) uses
+one synthetic DOM/data template in four states. At 1440×1000 CSS px, the packed CLI
+rejects the before header/toolbar and composition overhead, then rejects the
+component-only composition even though every component check passes. The final
+composition passes the same rules with no warnings. A compact negative control fails
+exactly the denominator/trend context requirements hidden in closed disclosures.
+Assertions check specific findings, measured heights/counts, selectors, and DR/source
+citations. Application checks preserve the concrete facts, chart geometry, readable
+type, all three ranking weights, three context-only labels, and missing-data states;
+exercise history range controls, keyboard disclosure/focus, and Q7-only local review;
+and verify assets below the Pages prefix. There is no second test suite or snapshot
+assertion. Raw CLI reports/artifacts, captures and the evidence ledger are retained in
+`dist/pattern-review-evidence/` and uploaded by PR CI. These results validate this
+authored calibration case, not agent generation quality, real scoring semantics,
+or human approval. The source screenshot never enters the repository or package.
+
 The same workflow also exercises `templates/reading.html`: bounded columns,
 DOM/visual reading order, paragraph flow, alignment and columns, plus print,
 enlarged root text, and contract/CSS mismatches. These cases replace the former

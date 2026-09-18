@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "id": "pattern-review",
+  "task": "Decide whether synthetic group Q7 warrants review using ranked evidence with separately labeled context.",
+  "provenance": "Screenshot-informed layout reconstruction; all data invented. The source image is not included.",
+  "example": "pattern-review.html",
+  "config": "pattern-review-config.json",
+  "rules": "pattern-review-rules.json",
+  "rationale": "pattern-review-design.md",
+  "componentRules": [
+    "pattern-header",
+    "pattern-toolbar",
+    "pattern-type",
+    "pattern-controls",
+    "pattern-chart",
+    "pattern-labels"
+  ],
+  "compositionRules": [
+    "pattern-overhead",
+    "pattern-ranking-visible",
+    "pattern-required"
+  ],
+  "expected": {
+    "before": [
+      "pattern-header",
+      "pattern-toolbar",
+      "pattern-overhead",
+      "pattern-ranking-visible"
+    ],
+    "components": ["pattern-overhead", "pattern-ranking-visible"],
+    "composition": [],
+    "hidden": ["pattern-required"]
+  },
+  "humanReview": [
+    "Relevance and decision sufficiency of the declared factors.",
+    "Whether framing is redundant for the actual task.",
+    "Ranking semantics and chart truth beyond this synthetic dataset.",
+    "Generality and agent outcome/cost improvement; no paired agent trial has run."
+  ]
+}

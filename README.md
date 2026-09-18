@@ -113,6 +113,12 @@ operations analysis with shared good/bad content, scoped executable checks, and
 explicit human-review limits. Its [catalog](docs/examples/decision-catalog.json)
 records the rules and expected findings.
 
+The [screenshot-informed pattern review](docs/examples/pattern-review.html) uses
+synthetic neutral data to show why component cleanup alone is insufficient:
+before → component pass → composition pass, plus a compact-but-hidden-evidence
+control. Its [task contract](docs/examples/pattern-review-design.md) and regression
+retain required ranking facts, context-only distinctions, and interaction scope.
+
 See the [new rule examples](docs/examples/behavior.html) for paired good/bad
 interaction and resilience demonstrations, shared synthetic data, cited rationales,
 and explicit native-check versus application-review coverage.

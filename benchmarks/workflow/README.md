@@ -1,9 +1,22 @@
 # Component/composition workflow evaluation
 
-Status: **not run**. This is a frozen review-case catalog and a generation-trial
-protocol, not an automated detector suite or evidence that the new workflow improves
-results. Follow the repo's existing installed workflow for executable regressions;
-do not introduce a second renderer, helper test suite, or screenshot matrix.
+Status: **executable calibration case added; paired generation trial not run**.
+The [pattern-review example](../../docs/examples/pattern-review.html) materializes
+the header, disclosure, and composition cases below from a user-supplied screenshot,
+with invented neutral data. The existing installed regression runs its before,
+component-only, composition, and hidden-evidence states under one frozen contract.
+No original screenshot or identifying/domain-specific data is retained in the repo.
+This is not evidence that the agent workflow improves generation quality or cost.
+Do not introduce a second renderer, helper test suite, or screenshot matrix.
+
+The [case contract](../../docs/examples/pattern-review-design.md) distinguishes
+component evidence, composition evidence, and remaining judgments. Local header and
+toolbar cleanup passes its component checks while cumulative card height still fails
+the composition checks. The accepted composition retains required evidence; the
+compact hidden-evidence control fails. `npm test` saves reports, native-scale captures,
+measurements, and interaction results in `dist/pattern-review-evidence/`, retained by
+PR CI. This inspected case is calibration data, **not a held-out generation task**.
+See the [recorded local measurements and limits](pattern-review-results.md).
 
 The workflow under evaluation is the plugin's
 [component/composition review](../../plugins/claude-code/skills/review/component-composition.md).
@@ -17,7 +30,8 @@ For each case, keep task, required data, typography, and available actions const
 Use the application's existing stories/fixtures or the canonical Easy UI examples;
 do not edit Viewrule's generated example bundles. A variant is a concrete fixture
 only after its source commit, route/story, state, and viewport are retained.
-The rows below specify expected judgments, not fixtures already implemented or run.
+The rows below specify expected judgments. Only the linked pattern-review subset
+is implemented here; the other case specifications remain outstanding.
 
 | Case | Accepted variant | Rejected variant | Verification boundary |
 | --- | --- | --- | --- |

@@ -98,6 +98,9 @@ test(
             "decision.html",
             "decision.js",
             "decision.css",
+            "pattern-review.html",
+            "pattern-review.js",
+            "pattern-review.css",
             "behavior.html",
             "behavior.js",
             "behavior.css",
@@ -1044,6 +1047,107 @@ test(
       JSON.parse(setup.stdout).engine,
       "docs/examples",
     );
+    // Screenshot-informed calibration: local units can pass while their parent
+    // still fails. The same contract also rejects compact-but-hidden evidence.
+    const patternCatalog = JSON.parse(
+      await readFile(
+        path.join(exampleDirectory, "pattern-review-catalog.json"),
+        "utf8",
+      ),
+    );
+    const patternRules = JSON.parse(
+      await readFile(
+        path.join(exampleDirectory, "pattern-review-rules.json"),
+        "utf8",
+      ),
+    );
+    const patternConfig = JSON.parse(
+      await readFile(
+        path.join(exampleDirectory, "pattern-review-config.json"),
+        "utf8",
+      ),
+    );
+    await mkdir(path.join(project, "docs/examples"), { recursive: true });
+    await cp(
+      path.join(exampleDirectory, "pattern-review-design.md"),
+      path.join(project, "docs/examples/pattern-review-design.md"),
+    );
+    await writeFile(rulesPath, JSON.stringify(patternRules));
+    await writeFile(
+      path.join(project, ".ui-review/config.json"),
+      JSON.stringify({ ...patternConfig, baseURL, sourcePaths: ["src"] }),
+    );
+    const patternCheck = await cli(["check"]);
+    assert.equal(
+      patternCheck.code,
+      1,
+      patternCheck.stderr || patternCheck.stdout,
+    );
+    const patternReportPath = JSON.parse(patternCheck.stdout).report;
+    const patternReport = JSON.parse(await readFile(patternReportPath, "utf8"));
+    assert.equal(patternReport.pages.length, 4);
+    const patternEvidence = path.join(
+      repository,
+      "dist/pattern-review-evidence",
+    );
+    await rm(patternEvidence, { recursive: true, force: true });
+    await cp(
+      path.dirname(patternReportPath),
+      path.join(patternEvidence, "cli"),
+      { recursive: true },
+    );
+    const patternFindings = {};
+    for (const capture of patternReport.pages) {
+      const ids = [
+        ...new Set(capture.findings.map((finding) => finding.rule)),
+      ].sort();
+      assert.deepEqual(
+        ids,
+        [...patternCatalog.expected[capture.name]].sort(),
+        JSON.stringify(capture.findings),
+      );
+      assert.equal(capture.viewport.name, "desktop");
+      assert.equal(capture.details.complete, true);
+      assert.ok(
+        capture.metrics.evaluations.every(
+          (entry) => entry.status === "checked",
+        ),
+      );
+      patternFindings[capture.name] = {
+        component: ids.filter((id) =>
+          patternCatalog.componentRules.includes(id),
+        ),
+        composition: ids.filter((id) =>
+          patternCatalog.compositionRules.includes(id),
+        ),
+      };
+      for (const finding of capture.findings) {
+        const rule = patternRules.find((rule) => rule.id === finding.rule);
+        assert.deepEqual(finding.designRules, rule.designRules);
+        assert.ok(
+          rule.sources.every((source) => finding.sources.includes(source)),
+        );
+        assert.equal(finding.selector, rule.selector);
+        if (rule.type === "max-height") {
+          assert.ok(finding.actual > rule.max);
+          assert.equal(finding.expected, rule.max);
+        }
+        if (rule.type === "visible-count") {
+          assert.equal(finding.actual, 0);
+          assert.equal(finding.expected, 3);
+        }
+      }
+      if (capture.name === "hidden")
+        assert.deepEqual(
+          capture.findings.map((finding) => finding.actual).sort(),
+          [".denominator", ".trend-value", ".trend-comparison"].sort(),
+        );
+    }
+    assert.deepEqual(patternFindings.components.component, []);
+    assert.deepEqual(patternFindings.composition, {
+      component: [],
+      composition: [],
+    });
     // One synthetic operations pair exercises declared decision surfaces through
     // the packed CLI. No proprietary reference asset enters the package.
     const decisionCatalog = JSON.parse(
@@ -1323,6 +1427,259 @@ test(
       const page = await browser.newPage({
         viewport: { width: 1440, height: 1000 },
       });
+      const patternErrors = [];
+      const recordPatternError = (error) => patternErrors.push(error.message);
+      page.on("pageerror", recordPatternError);
+      const patternLayouts = {};
+      const patternFacts = {
+        ".group-identity": "Emerging pattern — Sample group Q7",
+        ".observation-window": "Ranking window: cycles I–L",
+        ".confidence": "High confidence",
+        ".direction": "Decreasing",
+        ".rate-value": "26.4%",
+        ".denominator": "231 of 875 classified records",
+        ".trend-value": "−8.6%",
+        ".trend-comparison": "Relative change vs cycles E–H",
+        ".volume-value": "875 records",
+        ".rate-weight": "Ranking weight: 45%",
+        ".trend-weight": "Ranking weight: 35%",
+        ".volume-weight": "Ranking weight: 20%",
+        ".processing-context .context-value":
+          "Average duration: unavailableRetries observed: 2 of 7 runs",
+        ".corroboration-context .context-value":
+          "Confirmed reviews: 3 recent · 7 total",
+        ".mix-context .context-value":
+          "Subtype share: unavailable · Subgroup review rate: 47.2%",
+      };
+      for (const stage of ["before", "components", "composition", "hidden"]) {
+        // Use built Pages paths too: no root-relative asset assumptions.
+        await page.goto(
+          `${baseURL}/viewrule/examples/pattern-review.html?stage=${stage}`,
+        );
+        await page.waitForSelector(`#pattern-review[data-ready="${stage}"]`);
+        patternLayouts[stage] = await page.evaluate((selectors) => {
+          const doc = globalThis.document;
+          const bounds = (selector) =>
+            doc.querySelector(selector).getBoundingClientRect();
+          return {
+            surfaceHeight: bounds(".pattern-surface").height,
+            evidenceHeight: bounds(".evidence-panel").height,
+            headerHeight: bounds(".identity-header").height,
+            toolbarHeight: bounds(".chart-toolbar").height,
+            chartHeight: bounds(".history-chart").height,
+            chartWidth: bounds(".history-chart").width,
+            cardHeights: [...doc.querySelectorAll(".evidence-card")].map(
+              (card) => card.getBoundingClientRect().height,
+            ),
+            facts: Object.fromEntries(
+              selectors.map((selector) => [
+                selector,
+                doc
+                  .querySelector(selector)
+                  .textContent.trim()
+                  .replace(/\s+/g, " "),
+              ]),
+            ),
+            fontSizes: selectors.map(
+              (selector) =>
+                globalThis.getComputedStyle(doc.querySelector(selector))
+                  .fontSize,
+            ),
+            secondary: [...doc.querySelectorAll(".supporting-copy")].map(
+              (node) => node.textContent.trim(),
+            ),
+            chartPoints: doc
+              .querySelector(".chart-line")
+              .getAttribute("points"),
+          };
+        }, Object.keys(patternFacts));
+        // Normalize whitespace adjacent to the explicit line break separately.
+        assert.equal(
+          await page.locator(".processing-context .context-value").innerText(),
+          "Average duration: unavailable\nRetries observed: 2 of 7 runs",
+        );
+        const facts = patternLayouts[stage].facts;
+        assert.deepEqual(
+          {
+            ...facts,
+            ".processing-context .context-value": facts[
+              ".processing-context .context-value"
+            ].replace(/unavailable\s+Retries/, "unavailableRetries"),
+          },
+          patternFacts,
+        );
+        assert.equal(await page.locator(".evidence-grid > article").count(), 6);
+        assert.equal(await page.locator(".ranking-summary").count(), 3);
+        assert.deepEqual(
+          await page.locator(".context-role").allTextContents(),
+          Array(3).fill("Not used in ranking"),
+        );
+        assert.equal(
+          await page.getByText("Why flagged", { exact: true }).count(),
+          ["before", "components"].includes(stage) ? 2 : 1,
+        );
+        assert.equal(
+          await page.locator("details[open]").count(),
+          stage === "before" ? 6 : 0,
+        );
+        for (const selector of Object.keys(patternFacts)) {
+          const hidden =
+            stage === "hidden" &&
+            [".denominator", ".trend-value", ".trend-comparison"].includes(
+              selector,
+            );
+          assert.equal(
+            await page.locator(selector).isVisible(),
+            !hidden,
+            `${stage}: ${selector}`,
+          );
+        }
+        await page
+          .locator(".pattern-surface")
+          .screenshot({ path: path.join(patternEvidence, `${stage}.png`) });
+      }
+      for (const stage of ["before", "components", "hidden"]) {
+        for (const key of [
+          "chartHeight",
+          "chartWidth",
+          "fontSizes",
+          "secondary",
+          "chartPoints",
+        ])
+          assert.deepEqual(
+            patternLayouts[stage][key],
+            patternLayouts.composition[key],
+          );
+      }
+      assert.ok(
+        patternLayouts.before.cardHeights
+          .slice(0, 5)
+          .every((height) => height >= 360),
+      );
+      assert.ok(
+        patternLayouts.components.cardHeights
+          .slice(0, 5)
+          .every((height) => height >= 310),
+      );
+      assert.ok(patternLayouts.components.evidenceHeight > 360);
+      assert.ok(patternLayouts.composition.evidenceHeight <= 360);
+      assert.ok(
+        patternLayouts.composition.surfaceHeight <
+          patternLayouts.components.surfaceHeight * 0.75,
+      );
+      assert.ok(
+        patternLayouts.composition.fontSizes.every(
+          (size) => parseFloat(size) >= 14,
+        ),
+      );
+
+      await page.goto(
+        `${baseURL}/viewrule/examples/pattern-review.html?stage=composition`,
+      );
+      await page.waitForSelector("#pattern-review[data-ready]");
+      const rankingBefore = await page
+        .locator(".ranking-summary")
+        .allTextContents();
+      for (const { label, count, start } of [
+        { label: "4 cycles", count: 4, start: "I" },
+        { label: "8 cycles", count: 8, start: "E" },
+        { label: "All cycles", count: 12, start: "A" },
+      ]) {
+        await page.getByRole("button", { name: label, exact: true }).click();
+        assert.equal(
+          await page
+            .getByRole("button", { name: label, exact: true })
+            .getAttribute("aria-pressed"),
+          "true",
+        );
+        assert.equal(
+          await page.locator("button[aria-pressed=true]").count(),
+          1,
+        );
+        assert.equal(
+          await page.locator(".chart-window").textContent(),
+          `History: cycles ${start}–L`,
+        );
+        const points = (
+          await page.locator(".chart-line").getAttribute("points")
+        ).split(" ");
+        assert.equal(points.length, count);
+        assert.equal(points.at(-1), "1000,100.8");
+        assert.deepEqual(
+          await page.locator(".ranking-summary").allTextContents(),
+          rankingBefore,
+        );
+        assert.equal(
+          await page.locator(".action-status").textContent(),
+          "Not queued",
+        );
+      }
+      const disclosure = page.locator(".trend-detail summary");
+      await disclosure.focus();
+      await page.keyboard.press("Enter");
+      assert.equal(
+        await page.locator(".trend-detail").getAttribute("open"),
+        "",
+      );
+      assert.equal(
+        await page.locator(".trend-detail .supporting-copy").isVisible(),
+        true,
+      );
+      assert.equal(
+        await disclosure.evaluate(
+          (el) => el === globalThis.document.activeElement,
+        ),
+        true,
+      );
+      for (const selector of Object.keys(patternFacts))
+        assert.equal(await page.locator(selector).isVisible(), true);
+      assert.equal(
+        await page.locator(".action-status").textContent(),
+        "Not queued",
+      );
+      await page.locator(".pattern-surface").screenshot({
+        path: path.join(patternEvidence, "composition-expanded.png"),
+      });
+      await page.keyboard.press("Enter");
+      assert.equal(
+        await page.locator(".trend-detail .supporting-copy").isVisible(),
+        false,
+      );
+      await page.getByRole("button", { name: "Queue Q7 for review" }).click();
+      assert.equal(
+        await page.locator(".action-status").textContent(),
+        "Q7 queued locally · no external changes",
+      );
+      await page.getByRole("button", { name: "4 cycles", exact: true }).click();
+      await disclosure.click();
+      assert.equal(
+        await page.locator(".action-status").textContent(),
+        "Q7 queued locally · no external changes",
+      );
+      assert.deepEqual(
+        await page.locator(".ranking-summary").allTextContents(),
+        rankingBefore,
+      );
+      assert.deepEqual(patternErrors, []);
+      page.off("pageerror", recordPatternError);
+      await writeFile(
+        path.join(patternEvidence, "captures.json"),
+        JSON.stringify(
+          {
+            viewport: patternConfig.viewports[0],
+            deviceScaleFactor: 1,
+            browser: browser.version(),
+            contractHash: patternReport.contract.hash,
+            findings: patternFindings,
+            layouts: patternLayouts,
+            interactions:
+              "Passed: history range and fixed ranking scope, keyboard disclosure/focus, required facts retained, Q7-only local review action, action state retained, Pages prefix assets.",
+            unassessed: patternCatalog.humanReview,
+          },
+          null,
+          2,
+        ),
+      );
       const decisionEvidence = path.join(repository, "dist/decision-evidence");
       await mkdir(decisionEvidence, { recursive: true });
       await page.setViewportSize(decisionConfig.viewports[0]);
