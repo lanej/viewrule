@@ -1,0 +1,573 @@
+:root {
+  color-scheme: light;
+  font:
+    16px/1.45 system-ui,
+    sans-serif;
+  color: #203346;
+  background: #f8fafc;
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+}
+main {
+  max-width: 1640px;
+  margin: auto;
+  padding: 20px;
+}
+h1,
+h2,
+h3,
+h4,
+p,
+figure {
+  margin: 0;
+}
+h1 {
+  font-size: 24px;
+}
+h2 {
+  font-size: 21px;
+}
+h3 {
+  font-size: 18px;
+}
+h4 {
+  font-size: 16px;
+}
+a {
+  color: #165c8a;
+}
+button,
+summary {
+  font: inherit;
+  cursor: pointer;
+}
+button {
+  min-height: 36px;
+  border: 1px solid #9cabbc;
+  border-radius: 6px;
+  padding: 5px 12px;
+  color: inherit;
+  background: #fff;
+}
+button[aria-pressed="true"] {
+  background: #244f73;
+  color: white;
+  border-color: #244f73;
+}
+button:focus-visible,
+summary:focus-visible,
+a:focus-visible {
+  outline: 3px solid #9b4600;
+  outline-offset: 3px;
+}
+.example-header {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+.example-header > a,
+.stage-description {
+  font-size: 14px;
+}
+nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+}
+nav [aria-current] {
+  font-weight: 700;
+  text-decoration-thickness: 3px;
+}
+.pattern-surface {
+  background: #e9eef4;
+  border: 1px solid #c2cfdd;
+  border-radius: 10px;
+  padding: 18px;
+}
+.identity-header {
+  display: grid;
+  gap: 10px;
+  padding-bottom: 14px;
+}
+.identity-line,
+.status-line {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.identity-line {
+  justify-content: space-between;
+}
+.badge {
+  display: inline-block;
+  background: #d8e1ee;
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 14px;
+}
+.confidence {
+  background: #a92f39;
+  color: white;
+}
+.direction {
+  background: #006b57;
+  color: white;
+}
+.observation-window,
+.action-status {
+  font-size: 14px;
+}
+.chart-toolbar {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  flex-wrap: wrap;
+  padding: 4px 0 12px;
+}
+.chart-controls {
+  display: flex;
+  gap: 4px;
+}
+.latest-value {
+  margin-left: auto;
+  font-size: 14px;
+}
+.history-chart {
+  height: 234px;
+}
+.plot {
+  display: flex;
+  height: 204px;
+  gap: 12px;
+}
+.y-labels {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 38px;
+  flex-shrink: 0;
+  font-size: 14px;
+}
+svg {
+  display: block;
+  width: 100%;
+  height: 200px;
+  overflow: visible;
+}
+.gridlines {
+  fill: none;
+  stroke: #b5c1cf;
+  stroke-width: 1;
+}
+.chart-line {
+  fill: none;
+  stroke: #08639d;
+  stroke-width: 2;
+  vector-effect: non-scaling-stroke;
+}
+.chart-area {
+  fill: #bbd7ea;
+  fill-opacity: 0.65;
+}
+figcaption {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 14px;
+  padding-top: 6px;
+}
+.repeated-frame {
+  border: 1px solid #c2cfdd;
+  border-radius: 6px;
+  padding: 10px 14px;
+  width: fit-content;
+  font-weight: 650;
+  margin: 10px 0;
+}
+.evidence-panel {
+  border: 1px solid #c2cfdd;
+  border-radius: 8px;
+  padding: 18px;
+}
+.evidence-heading {
+  margin-bottom: 14px;
+}
+.evidence-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 14px;
+}
+.evidence-card {
+  min-height: 310px;
+  background: #dce5ef;
+  border: 1px solid #c2cfdd;
+  border-radius: 8px;
+  padding: 14px;
+}
+.evidence-card p {
+  font-size: 14px;
+  margin-top: 6px;
+}
+.evidence-card .primary-value {
+  font-size: 22px;
+  font-weight: 750;
+}
+.weight {
+  font-weight: 650;
+}
+.mix-context {
+  grid-column: 1 / -1;
+  min-height: 140px;
+}
+.secondary {
+  margin-top: 8px;
+}
+summary {
+  min-height: 32px;
+  font-size: 14px;
+  padding: 5px 0;
+}
+.supporting-copy {
+  max-width: 72ch;
+}
+.example-notes {
+  margin-top: 24px;
+  max-width: 100ch;
+  display: grid;
+  gap: 12px;
+}
+.example-notes p {
+  font-size: 14px;
+}
+.before .identity-header {
+  min-height: 176px;
+  align-content: start;
+  gap: 18px;
+}
+.before .status-line {
+  margin-top: 8px;
+}
+.before .chart-toolbar {
+  min-height: 100px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+}
+.before .chart-controls {
+  grid-row: 2;
+}
+.before .latest-value {
+  grid-column: 2;
+  grid-row: 1;
+}
+.before .evidence-card {
+  min-height: 360px;
+}
+.before .mix-context {
+  min-height: 160px;
+}
+:is(.composition, .hidden) {
+  --weight-width: 120px;
+  display: grid;
+  grid-template-columns: minmax(600px, 1.2fr) minmax(520px, 1fr);
+  grid-template-areas: "identity identity" "chart ranking" "context ranking";
+  align-items: start;
+  gap: 12px 24px;
+  background: #fff;
+}
+:is(.composition, .hidden) .identity-header {
+  grid-area: identity;
+  display: block;
+  padding: 0 0 10px;
+  border-bottom: 1px solid #d9e2ec;
+}
+:is(.composition, .hidden) .identity-line {
+  justify-content: start;
+  gap: 10px;
+}
+:is(.composition, .hidden) .group-identity {
+  margin-right: 4px;
+}
+:is(.composition, .hidden) .review-action {
+  margin-left: auto;
+}
+:is(.composition, .hidden) .badge {
+  border-radius: 999px;
+  white-space: nowrap;
+}
+:is(.composition, .hidden) .chart-section {
+  grid-area: chart;
+}
+:is(.composition, .hidden) .chart-toolbar {
+  flex-wrap: nowrap;
+  gap: 10px;
+  padding: 0 0 8px;
+}
+:is(.composition, .hidden) .chart-toolbar h3 {
+  font-size: 16px;
+  white-space: nowrap;
+}
+:is(.composition, .hidden) .chart-controls {
+  gap: 2px;
+}
+:is(.composition, .hidden) .chart-controls button {
+  padding: 4px 8px;
+  font-size: 14px;
+}
+:is(.composition, .hidden) .latest-value {
+  margin-left: 0;
+  white-space: nowrap;
+}
+:is(.composition, .hidden) .history-chart {
+  height: 150px;
+}
+:is(.composition, .hidden) .plot {
+  height: 120px;
+  gap: 8px;
+}
+:is(.composition, .hidden) .history-chart svg {
+  height: 120px;
+}
+:is(.composition, .hidden) figcaption {
+  gap: 6px;
+  padding-top: 6px;
+}
+:is(.composition, .hidden) .evidence-panel {
+  grid-area: ranking;
+  border: 0;
+  padding: 0;
+}
+:is(.composition, .hidden) .evidence-title {
+  display: flex;
+  align-items: baseline;
+  margin-bottom: 8px;
+}
+:is(.composition, .hidden) .weight-heading {
+  flex: 0 0 var(--weight-width);
+  font-size: 14px;
+  margin-left: auto;
+  white-space: nowrap;
+}
+:is(.composition, .hidden) .evidence-heading {
+  font-size: 16px;
+  line-height: 36px;
+  margin: 0;
+}
+:is(.composition, .hidden) .evidence-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0;
+}
+:is(.composition, .hidden) .evidence-card {
+  min-height: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  padding: 0;
+}
+:is(.composition, .hidden) .ranking-summary {
+  position: relative;
+  display: grid;
+  grid-template-columns: 106px minmax(0, 1fr) var(--weight-width);
+  column-gap: 8px;
+  padding: 8px 0;
+  min-height: 84px;
+  border-top: 1px solid #d9e2ec;
+  align-items: baseline;
+}
+:is(.composition, .hidden) .ranking-summary h4 {
+  grid-column: 1;
+  grid-row: 1;
+  align-self: start;
+  font-size: 14px;
+  line-height: 32px;
+}
+:is(.composition, .hidden) .ranking-summary .primary-value {
+  grid-column: 2;
+  grid-row: 1;
+  margin: 0;
+}
+:is(.composition, .hidden) .ranking-summary .weight {
+  display: grid;
+  grid-template-rows: subgrid;
+  grid-column: 3;
+  grid-row: 1 / 4;
+  align-self: stretch;
+  margin: 0;
+  font-weight: 600;
+  line-height: 20px;
+}
+.weight-value {
+  grid-row: 2;
+  align-self: end;
+}
+.weight-track {
+  display: block;
+  grid-row: 3;
+  align-self: start;
+  height: 6px;
+  margin-top: 4px;
+  background: #e3eaf1;
+}
+.weight-bar {
+  display: block;
+  height: 100%;
+  background: #60758b;
+}
+:is(.composition, .hidden) .denominator,
+:is(.composition, .hidden) .trend-comparison,
+:is(.composition, .hidden) [data-factor="volume"] > p:not([class]),
+:is(.composition, .hidden) .rate-comparison {
+  grid-column: 2;
+  margin: 2px 0 0;
+}
+:is(.composition, .hidden) .rate-comparison {
+  grid-row: 3;
+}
+:is(.composition, .hidden) .ranking-summary .secondary {
+  grid-column: 1 / -1;
+  grid-row: 4;
+  margin: 0;
+}
+:is(.composition, .hidden) .ranking-summary summary {
+  position: absolute;
+  top: 44px;
+  left: 0;
+  width: 106px;
+}
+:is(.composition, .hidden) .supporting-copy {
+  margin: 8px 0 0;
+}
+.rate-comparison {
+  margin-top: 8px;
+}
+.comparison-track {
+  position: relative;
+  height: 10px;
+  background: #e3eaf1;
+}
+.current-bar {
+  display: block;
+  height: 10px;
+  width: 52.8%;
+  background: #08639d;
+}
+.prior-marker {
+  position: absolute;
+  top: -3px;
+  bottom: -3px;
+  left: 57.75%;
+  width: 2px;
+  background: #203346;
+}
+.rate-comparison figcaption {
+  font-size: 14px;
+  display: flex;
+  justify-content: space-between;
+}
+:is(.composition, .hidden) .context-group {
+  grid-area: context;
+  border-top: 1px solid #d9e2ec;
+  padding-top: 10px;
+}
+.context-heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+.context-heading h3 {
+  font-size: 16px;
+}
+.context-rows {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr) 64px;
+  gap: 4px 12px;
+}
+:is(.composition, .hidden) .context-rows > article {
+  position: relative;
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: subgrid;
+  grid-template-rows: minmax(32px, auto) auto;
+  gap: 0 12px;
+  align-items: center;
+}
+:is(.composition, .hidden) .context-rows h4 {
+  font-size: 14px;
+  white-space: nowrap;
+}
+:is(.composition, .hidden) .context-value {
+  margin: 0;
+}
+:is(.composition, .hidden) .context-rows .secondary {
+  grid-column: 2 / -1;
+  grid-row: 2;
+  margin: 0;
+}
+:is(.composition, .hidden) .context-rows summary {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 64px;
+}
+@media (max-width: 1240px) {
+  :is(.composition, .hidden) {
+    grid-template-areas: "identity" "chart" "ranking" "context";
+    grid-template-columns: 1fr;
+  }
+  :is(.composition, .hidden) .chart-toolbar {
+    flex-wrap: wrap;
+  }
+}
+@media (max-width: 900px) {
+  main {
+    padding: 12px;
+  }
+  .pattern-surface {
+    padding: 12px;
+  }
+  .evidence-grid {
+    grid-template-columns: 1fr;
+  }
+  .evidence-card {
+    min-height: 0;
+  }
+  .latest-value {
+    margin-left: 0;
+  }
+  figcaption {
+    flex-wrap: wrap;
+  }
+  :is(.composition, .hidden) .context-rows > article {
+    grid-template-columns: 1fr;
+    grid-template-rows: none;
+    gap: 4px;
+  }
+  :is(.composition, .hidden) .context-rows h4 {
+    white-space: normal;
+  }
+  :is(.composition, .hidden) .context-rows .secondary {
+    grid-column: auto;
+    grid-row: auto;
+  }
+  :is(.composition, .hidden) .context-rows summary {
+    position: static;
+    width: auto;
+  }
+  :is(.composition, .hidden) .ranking-summary {
+    grid-template-columns: 80px minmax(0, 1fr) var(--weight-width);
+  }
+  :is(.composition, .hidden) .ranking-summary summary {
+    width: 80px;
+  }
+  .history-chart {
+    height: auto;
+    min-height: 234px;
+  }
+}

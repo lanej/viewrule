@@ -31,6 +31,12 @@ Source-only lint does not require this workflow.
    Use stable headings such as `### TASK-001` for requirements. Give each requirement
    a scope, mandatory/advisory status, rationale, and verification owner: Viewrule,
    application tests, or human review. No minimum line count or adjective checklist.
+   For affected views, sketch the composition and identify meaningful functional units.
+   Record required initial-view evidence versus disclosed support, common controls
+   versus mutation actions, and which context the parent owns. Link representative
+   states/stories and verification for both units and their assembled view; a unit's
+   pass cannot establish composition quality. Use the pattern contracts in
+   `${CLAUDE_PLUGIN_ROOT}/skills/review/component-composition.md` when relevant.
 5. Remove scaffold instructions, the `viewrule:design-template` comment, and all
    `[TODO: ...]` prompts after authoring. Ordinary open questions may remain explicit;
    unresolved material questions prevent claiming a complete design review.

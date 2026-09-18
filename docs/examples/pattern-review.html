@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Pattern review · component and composition passes</title>
+    <link rel="stylesheet" href="pattern-review.css" />
+    <script type="module" src="pattern-review.js"></script>
+  </head>
+  <body>
+    <main id="pattern-review">
+      <header class="example-header">
+        <a href="index.html">Viewrule examples</a>
+        <h1>One pattern, two review passes</h1>
+        <nav aria-label="Review stages">
+          <a href="?stage=composition">Revised composition</a>
+          <a href="?stage=before">Before · rejected</a>
+          <a href="?stage=components">Components only · rejected</a>
+          <a href="?stage=hidden">Hidden evidence · rejected</a>
+        </nav>
+        <p class="stage-description"></p>
+      </header>
+      <div id="surface"></div>
+      <section class="example-notes">
+        <h2>What this case demonstrates</h2>
+        <p>
+          The component pass fixes the header, chart toolbar, and disclosures.
+          The parent still stretches five cards and repeats the evidence
+          framing. The composition pass removes that overhead while keeping the
+          same ranking facts and context-only summaries visible. The
+          hidden-evidence control is compact but withholds the denominator and
+          trend.
+        </p>
+        <p>
+          This is an executable reconstruction of layout relationships from a
+          supplied screenshot. Every name, identifier, period, number, and chart
+          sample is synthetic. The original image is not included. Stage labels
+          are fixture expectations, not live check results or human approval.
+        </p>
+        <p>
+          <a href="pattern-review-design.md">Task and measurement contract</a> ·
+          <a href="pattern-review-rules.json">Rules</a> ·
+          <a href="pattern-review-config.json">Capture configuration</a> ·
+          <a href="pattern-review-catalog.json">Expected findings and limits</a>
+        </p>
+      </section>
+    </main>
+    <template id="pattern-template">
+      <article class="pattern-surface" aria-label="Group Q7 pattern review">
+        <header class="identity-header">
+          <div class="identity-line">
+            <h2 class="group-identity">Emerging pattern — Sample group Q7</h2>
+            <button class="review-action" type="button">
+              Queue Q7 for review
+            </button>
+          </div>
+          <div class="status-line">
+            <strong class="confidence badge">High confidence</strong>
+            <strong class="direction badge">Decreasing</strong>
+            <span class="observation-window">Ranking window: cycles I–L</span>
+            <span class="action-status" role="status">Not queued</span>
+          </div>
+          <p class="headline-copy">
+            26.4% of this group's classified records need review, decreasing
+            versus the prior window (−8.6%).
+          </p>
+        </header>
+        <section class="chart-section" aria-label="Review rate history">
+          <div class="chart-toolbar">
+            <h3>Review rate by cycle</h3>
+            <div
+              class="chart-controls"
+              role="group"
+              aria-label="History window"
+            >
+              <button type="button" data-cycles="4" aria-pressed="false">
+                4 cycles
+              </button>
+              <button type="button" data-cycles="8" aria-pressed="false">
+                8 cycles
+              </button>
+              <button type="button" data-cycles="12" aria-pressed="true">
+                All cycles
+              </button>
+            </div>
+            <span class="latest-value"
+              ><strong>24.8%</strong> latest cycle</span
+            >
+          </div>
+          <figure class="history-chart">
+            <div class="plot">
+              <div class="y-labels" aria-hidden="true">
+                <span>50%</span><span>25%</span><span>0%</span>
+              </div>
+              <svg
+                viewBox="0 0 1000 200"
+                preserveAspectRatio="none"
+                role="img"
+                aria-label="Synthetic review rates by cycle; 0 to 50 percent scale"
+              >
+                <path class="gridlines" d="M0 0H1000 M0 100H1000 M0 200H1000" />
+                <polygon class="chart-area" points="" />
+                <polyline class="chart-line" points="" />
+              </svg>
+            </div>
+            <figcaption>
+              <span class="chart-window">History: cycles A–L</span
+              ><span>Review rate · 0–50% scale · synthetic samples</span>
+            </figcaption>
+          </figure>
+        </section>
+        <p class="repeated-frame">Why flagged</p>
+        <section
+          class="evidence-panel"
+          aria-label="Ranking evidence and context"
+        >
+          <div class="evidence-title">
+            <h3 class="evidence-heading">Why flagged</h3>
+            <span id="weight-heading" class="weight-heading" hidden
+              >Weight · 0–100%</span
+            >
+          </div>
+          <div class="evidence-grid">
+            <article class="evidence-card ranking-summary" data-factor="rate">
+              <h4>Review rate</h4>
+              <p class="primary-value rate-value">26.4%</p>
+              <p class="denominator">231 of 875 classified records</p>
+              <figure
+                class="rate-comparison"
+                hidden
+                aria-label="Current review rate 26.4 percent; prior 28.875 percent in cycles E–H. Shared zero to 50 percent scale."
+              >
+                <div class="comparison-track" aria-hidden="true">
+                  <span class="current-bar"></span>
+                  <span class="prior-marker"></span>
+                </div>
+                <figcaption>
+                  <span>0%</span><span>Prior 28.875% · E–H</span
+                  ><span>50%</span>
+                </figcaption>
+              </figure>
+              <p class="weight rate-weight">Ranking weight: 45%</p>
+              <details class="secondary">
+                <summary>Rate calculation</summary>
+                <p class="supporting-copy">
+                  Records needing review divided by all classified records in
+                  cycles I–L, rounded to one decimal place.
+                </p>
+              </details>
+            </article>
+            <article class="evidence-card ranking-summary" data-factor="trend">
+              <h4>Trend</h4>
+              <p class="primary-value trend-value">−8.6%</p>
+              <p class="trend-comparison">Relative change vs cycles E–H</p>
+              <p class="weight trend-weight">Ranking weight: 35%</p>
+              <details class="secondary trend-detail">
+                <summary>Trend calculation</summary>
+                <p class="supporting-copy">
+                  Compares the current review rate with the prior four-cycle
+                  rate of 28.875%. A decrease is not an all-clear.
+                </p>
+              </details>
+            </article>
+            <article class="evidence-card ranking-summary" data-factor="volume">
+              <h4>Classified volume</h4>
+              <p class="primary-value volume-value">875 records</p>
+              <p>Cycles I–L · complete window</p>
+              <p class="weight volume-weight">Ranking weight: 20%</p>
+              <details class="secondary">
+                <summary>Volume calculation</summary>
+                <p class="supporting-copy">
+                  All classified records in this group's ranking window. Volume
+                  is separate from the 231 records needing review.
+                </p>
+              </details>
+            </article>
+            <article
+              class="evidence-card processing-context"
+              data-context="processing"
+            >
+              <h4>Processing context</h4>
+              <p class="context-role badge">Not used in ranking</p>
+              <p class="context-value">
+                Average duration: unavailable<br />Retries observed: 2 of 7 runs
+              </p>
+              <details class="secondary">
+                <summary>Processing diagnostics</summary>
+                <p class="supporting-copy">
+                  Duration samples were not collected in cycle L. Retry
+                  observations describe processing conditions only.
+                </p>
+              </details>
+            </article>
+            <article
+              class="evidence-card corroboration-context"
+              data-context="corroboration"
+            >
+              <h4>Manual corroboration</h4>
+              <p class="context-role badge">Not used in ranking</p>
+              <p class="context-value">Confirmed reviews: 3 recent · 7 total</p>
+              <details class="secondary">
+                <summary>Corroboration notes</summary>
+                <p class="supporting-copy">
+                  Confirmed manual observations provide background. They do not
+                  change the score or establish a new ranking signal.
+                </p>
+              </details>
+            </article>
+            <article class="evidence-card mix-context" data-context="mix">
+              <h4>Collection mix</h4>
+              <p class="context-role badge">Not used in ranking</p>
+              <p class="context-value">
+                Subtype share: unavailable · Subgroup review rate: 47.2%
+              </p>
+              <details class="secondary">
+                <summary>Collection notes</summary>
+                <p class="supporting-copy">
+                  The subgroup uses a different population from Q7's headline
+                  rate. It is supporting context, not an additional weighted
+                  factor.
+                </p>
+              </details>
+            </article>
+          </div>
+        </section>
+      </article>
+    </template>
+    <template id="context-template">
+      <section
+        class="context-group"
+        aria-labelledby="context-heading"
+        aria-describedby="context-role"
+      >
+        <header class="context-heading">
+          <h3 id="context-heading">Context</h3>
+          <span id="context-role" class="context-role badge"
+            >Not used in ranking</span
+          >
+        </header>
+        <div class="context-rows"></div>
+      </section>
+    </template>
+  </body>
+</html>

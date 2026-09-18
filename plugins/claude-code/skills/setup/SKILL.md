@@ -23,6 +23,10 @@ application repository; plugin installation does not itself install Node or Chro
    use `preset --name analytical` to inspect it for selective adoption in existing
    projects. Use stable data and comparison identities. A finite comparison can
    keep useful whitespace; do not manufacture content or maximize an occupancy score.
+   Cover affected functional units and their assembled task view using existing
+   stories or in-page regions, plus consequential disclosure/filter states. Do not
+   substitute isolated-component coverage for composition evidence or create another
+   rendering harness. Full review remains the default; reuse is a separate opt-in.
 4. Invoke `/viewrule:design` to author or complete DESIGN.md before UI implementation.
    A generated scaffold is not an accepted contract. Preserve existing design/style
    sources; explicitly migrate existing configurations without dropping references.
