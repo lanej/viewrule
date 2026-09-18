@@ -11,8 +11,8 @@ viewrule check --full --project .
 `plan` reads files and verifies existing evidence; it does not launch a browser,
 run a source provider, change approval, or write review state. Without
 `reviewScopes`, `--incremental` conservatively runs the full existing workflow.
-This feature is in the unreleased engine; it does not change the published plugin
-engine pin or install/upgrade anything from a hook.
+This feature ships in engine 0.7.0. The 0.7.0 Claude plugin pins that release;
+update the plugin and run setup to adopt it. Hooks never install or upgrade software.
 
 ## Declare ownership and dependencies
 

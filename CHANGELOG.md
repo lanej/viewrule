@@ -1,18 +1,42 @@
 # Changelog
 
-## Unreleased
+## 0.7.0 — 2026-09-17
 
-- Add explicit review scopes, dependency fan-out, and opt-in `check/plan --incremental`,
-  preserving full-review defaults and conservative handling of unknown inputs.
-- Reuse verified complete evidence with original provenance, bounded age, and an
-  explicit environment identity; recompute cross-state rules and enforce complete
-  coverage and evidence integrity in Stop decisions.
+- Add native include/exclude globs for source files, project documents, and
+  logical page/viewport selection, with deterministic resolution and a read-only
+  `plan` command. Preserve legacy recursive directory prefixes and exact citations.
+- Add explicit review scopes and dependency fan-out, plus opt-in
+  `plan --incremental` and `check --incremental`. Full review remains the default;
+  `check --full` always executes all configured obligations.
+- Reuse only verified complete evidence with original provenance, an explicit
+  environment identity, and bounded age. Recompute cross-state constraints over
+  fresh and reused observations; missing, corrupt, expired, and unknown evidence
+  conservatively triggers new work or blocks a pass.
+- Fix source identity for symlink retargeting, global authentication invalidation,
+  checkpoint ownership, damaged-report recovery, and canonical plan/check rule
+  ordering. Preserve byte-only checksums for copied evidence artifacts.
+- Require authored `DESIGN.md` content for newly initialized projects and explicit
+  document adoption. Add safe scaffolding and the `/viewrule:design` authoring
+  workflow without rewriting existing design prose, rules, or approvals.
+- Publish per-rule Markdown and a machine-readable public rule catalog; add
+  offline `guide rules` and `guide DR-006` lookup from the installed engine.
+- Publish the related-tools comparison and refresh the repository branding.
+- Update Claude plugin 0.7.0 to the checksummed 0.7.0 engine archive.
 
-- Add native include/exclude globs for source paths, project documents, and logical
-  page/viewport scopes, preserving legacy directory prefixes and exact citations.
-- Add read-only `plan` output using the same resolved inputs and browser obligations
-  as freshness checking and review execution; incremental execution is separately opt-in.
-- Bound document expansion and reject missing required documents or root escapes.
+Compatibility and upgrade: Node.js 22.18+ remains required; configuration/report
+schema v1, legacy aliases, and opt-in enforcement are preserved. Rerun a full
+review after upgrading because engine/input identity changes invalidate prior
+freshness. Existing projects without explicit document adoption retain optional
+discovery; explicitly configured design documents must be authored, not unfinished
+scaffolds. No application rules or human approvals are rewritten.
+
+Incremental reuse requires explicit dependency ownership and `evidenceReuse`
+settings (`environmentKey` and `maxAgeMs`). Keep the nonsecret environment key
+aligned with the running build, remote data, flags, fonts, and authentication.
+Unknown dependencies broaden execution. The recorded synthetic workload demonstrates
+avoided checks, not generalized production latency, token, or dollar-cost savings.
+See [incremental review](docs/incremental-review.md) and
+[design-document adoption](docs/project-documents.md).
 
 ## 0.6.0 — 2026-09-15
 

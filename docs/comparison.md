@@ -6,6 +6,10 @@ Use it when “looks better” is not a sufficient acceptance criterion: alterna
 
 > Reviewed September 17, 2026. Viewrule descriptions refer to source commit `d636d41eeda17968fd4f7f95997361a7ea98efb8`; the README identifies the published engine as experimental 0.6.0. Source-branch features are not necessarily in that release. Other tools are described from their official documentation, not fresh execution tests. The recorded experiments below are historical and narrowly scoped.
 
+> Release update: Viewrule 0.7.0 adds native globs, read-only planning, and opt-in
+> [dependency-aware incremental evidence reuse](incremental-review.md). The upstream
+> comparisons and historical experiments below retain their stated review scope.
+
 ## Which problem are you solving?
 
 These tools overlap, but they are not interchangeable. The relationship column describes how to choose or combine them—not a claim that another tool cannot implement a similar check.
@@ -109,7 +113,7 @@ The supported claim is that **explicit requirements make those requirements repe
 
 **The engine is experimental.** The inspected README documents release 0.6.0, GitHub-release distribution rather than npm publication, Linux CI coverage, and unvalidated macOS/Windows support. Do not treat it as an established cross-platform testing service. [Distribution and status][vr-overview]
 
-**A browser check is not a free source lint.** Viewrule has a separate browser-free `lint` path. The repair pilot found substantial overhead in complete agent tasks; its check timings are not measurements of a production application's review cost. The source changelog lists globs and `plan` as unreleased and explicitly says they do not enable incremental runs. Do not claim incremental execution or demonstrated cost savings. [Integration][vr-impeccable] · [Pilot][vr-pilot] · [Changelog][vr-changelog]
+**A browser check is not a free source lint.** Viewrule has a separate browser-free `lint` path. The repair pilot found substantial overhead in complete agent tasks; its check timings are not measurements of a production application's review cost. At the inspected commit, globs and `plan` were unreleased and did not enable incremental runs. Release 0.7.0 now adds opt-in [incremental execution](incremental-review.md); its synthetic avoided-work observations do not establish production or end-to-end agent cost savings. [Integration][vr-impeccable] · [Pilot][vr-pilot] · [Changelog][vr-changelog]
 
 **It does not replace the rest of verification.** Keep application tests for behavior, accessibility testing and human review for access needs, and design review for judgment. A document prerequisite, an automated pass, and human acceptance establish different things. [Verification boundaries][vr-documents]
 

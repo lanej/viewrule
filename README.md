@@ -12,7 +12,7 @@ opens the running app in Chromium, checks configured constraints, and reports
 violations with evidence and design-rule citations. Other agents and CI can use
 the same CLI directly.
 
-**Status:** experimental 0.6.0, distributed through
+**Status:** experimental 0.7.0, distributed through
 [GitHub Releases](https://github.com/lanej/viewrule/releases). No npm registry release
 is available yet. Node.js 22.18+ and npm are required. Linux is exercised in CI;
 macOS and Windows have not been validated.
@@ -21,7 +21,7 @@ See [how Viewrule compares with related design and UI tooling](docs/comparison.m
 for overlap, complementary uses, tradeoffs, and the evidence behind its current
 positioning.
 
-## Incremental review (unreleased)
+## Incremental review
 
 Declare explicit input/dependency scopes, then use `viewrule plan --incremental`
 and `viewrule check --incremental` to reuse verified unchanged evidence. A complete
@@ -159,14 +159,14 @@ for configuration, existing dotfiles-hook migration, updates, and removal.
 
 ### CLI, other agents, or the demo
 
-Download `viewrule-0.6.0.tgz` and `SHA256SUMS` from the
-[v0.6.0 release](https://github.com/lanej/viewrule/releases/tag/v0.6.0).
+Download `viewrule-0.7.0.tgz` and `SHA256SUMS` from the
+[v0.7.0 release](https://github.com/lanej/viewrule/releases/tag/v0.7.0).
 From that download directory, verify the checksum and install:
 
 ```sh
 # Linux; on macOS use: shasum -a 256 -c SHA256SUMS
 sha256sum -c SHA256SUMS
-npm install --global ./viewrule-0.6.0.tgz
+npm install --global ./viewrule-0.7.0.tgz
 viewrule install-browser
 viewrule --version
 ```
@@ -189,7 +189,7 @@ reports, uses illustrative data, and does not record human approval.
 
 ### Run quick source diagnostics
 
-Viewrule 0.6.0 includes pinned Impeccable source diagnostics. From a source
+Viewrule 0.7.0 includes pinned Impeccable source diagnostics. From a source
 checkout, use `node bin/viewrule.mjs lint --project /path/to/app --target src`.
 Older engines through 0.5.1 do not have `lint`; upgrade through explicit setup.
 
