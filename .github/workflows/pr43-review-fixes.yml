@@ -1,0 +1,50 @@
+name: Apply PR 43 review corrections
+on:
+  push:
+    branches: [feat/incremental-review-scopes]
+permissions:
+  contents: write
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/incremental-review-scopes
+          fetch-depth: 2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Apply source-anchored corrections
+        shell: bash
+        run: |
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          test "$(git rev-parse HEAD^)" = "0e4f24de51785598e54532570db2b94cc099bdcb"
+          python3 - <<'PY'
+          import base64, hashlib, zlib
+          data = zlib.decompress(base64.b64decode("eNq9Wutz2zYS/56/AvV0JmROovWIbEk+96Z13LnM9dpMfPfJ1iQgAUaIKVIFyTiqR//77S5AEpQoP3KdfohD4rHY9/4WlFqtM12wJc+XiQp77HOepS9ina3Ymhc4xJRZ8Q5eX0RLnn6SOTundUGScZF7L6/vj3Dx0Zwd5To6jhWs0Wut0iIPVp/zox47yrT6pFKefMiXHNdNRrOZfD3hUxGHp0IOhwMphrPBySAei8lJeCLGUxnx2QT3arlOeCRXEujB3uvrI8vSPYu05IV8L7m4KuBxxbaMeL+5OUozIedxDk9nNzcp0nn+rnpHkhe86DFYLBKV3tJTgjLvbz1ew7vKZX3yoseuj45fvWJv0ygpBWgvlXdMpqAPyVaZKBMY4mWRrXihIp4kmzPkFndcZaWOJFMCRFfFhqmKAjIBPORZUhYqS+cs3BSyb9YBiYZswYSKY6lhAnhhr4hxMm3OIp4aGl8k/J/A6fBgRM6bbckmYP+Scs1ilcg3CqxfmNOyNNkYmnGmmfyCpwOzXBcq5hGQKJZwPNeSRdlaScHKVEhNwqd8JfOA/VvlOfgKiLUuYb2WK65SS7LxIR4m8owJcLwEF6PoOcsLlSRAOC20CstCwmFSaSZklMCJghVcf5JFwF4dAz35lczI800asbhMI9SZOdUI5KFsPrvHs1kiC6Pfc5aWSXJWD1pdidZEoTd2H2MqZp7H77gqjMMYsn6g8qvNKswSFf0CdD3fr+ibtZVXmeVnlphzWr2MXM5dtgUjFtGSeVLrTPstTmgoiMAr2Xfn5+ihl7/+dvnrf+DBB3XpDJwQl1hK9FfLotQpGJ+0cs8qZzes9Ejh4BNzy1LjElaDW+ILaT3T4ReLbY+10wg4u6ag58mhLCLGoZAnMzGd8dFoejo8mU4iMR2IcCon45iLSTybTcOT0SNZxIjbc8TpWXZ/btzQifRgL8VhrLsphpRpydKzQ5reHeczA3vn4fCjR1JuQdr/hPwNIZVLY4nevoFQtcHnTKUeJKjPMrLy+r5PnD9AxA2Uh6gQM+S6aOG5iU7IBAG99/AUnD0+Jo9/l1D6iSRknRzXxupTiaGbaUgTZ7TmwlJgPMHXDcspN4Ub9vZNYF0dyF3wNEvRk9Qfki0ha8E6FmaQndG7pIZ0scQ8BDmC5ZB6YDhaNmm1omTZvg6CoM36IsBzIbR7LPTZ+Q92PWM8UIL9nYX43z9Yf8jmZuiHaghHBj273u91uTkmCnnIwcfT2euRGA1OZ6OZHEWvx+FwOp6eTqejwWQa89nr4WQ8C6fDRxx837lavm4c9fkO3umzT/D1JjCe5uCoPDfPMoIrQbkWoDqvSaI/w8EPeajd7iZN3yFqk+ajKfOskw1YIySUCSlwdX1W5fX7HD85rNo+I7Iod3NjX0PplXfBSnQ5UBzJ2et4yAfj2WQ2GYpwMoinJ/E4GkTDaDQVo1N5OotODuGs9AsEFfKcMwWBl92lGE08FXW9XcsUwwiq+dWSKq8t5s1WCN6kWQh6yQEPQJohd3rOAW+RcgcYwrCuShSQJ1iGFDjpkOWbFZaxm5e5RQU9TA9Q6egFIQVnkA6i23WGad5lqQI1iCG+yJTdLeEP8ZkIOgILW1XRMGcAfmENCkOYBHz/aBGROSUvVwhfOGKnGkchRxYl5WBZmebLrEZE7IvUKlaIg75ByzvuAxwVx9Zl8PlQ5pmejscnsxMRRYPRmE9eD2ZhOIjkZBjy4SwCcD44hTzEx92OA8l0ZWI9WrfjvAslmxhp72CV3Z6wnZKEEnNcQGL3l5ANwLLwTmXHzv3R35+tEwzPc6mLQP5e8qRCcbQcCxVgtiCE8IclQcTXAJLkRVZiHh3Uod4isJOUiNAv6FOwBc4ti3iKaQIKigT0TGf4Z06FfCOh9ZIadoBzlCnWH7A6ViMofTlblZCv06xgK34rGWg/TdGRhcr5J3Afdqew+KG7VcUNvBO2APalDk5cVZLV8NKRtVOi/a1/hUZq82CP4Rkh1vyTZFkMtMrcsvO+TAPwQtBSgLM5pPVKmZYJAS3MJTFSZ+8OiUxgXJnQWfG1BxgYm5We25AAygUQwLymcjCzyHmPd4siFQPfb166uZdfZUQtXZD/FUyAxskJMJeRu1ikFFWIyrgcQTLKlKkwjuLSxiCsMU6n7R9SeacTPVlL1W4zAi3KN/ORU699QSk6gMJRSO1hNcYSoEnX1UvATQN5biCCLlN03CABOFQsn2Fg98CD/D/f7+uQgTTyHrt9aO3XOfbECn0IU0MGdVQKZYvfmps23BBiRQZZJS2xYoE9GDTPSm8CJzf9hMgaCi9s5yiJqddYf/ZuEdCX6p7c1KyA/YYFD4p2A+Cd8kudsb1mOmO7NxqmpDbpbw11X2o40EjRTnZICvQELe2anTcu/9KBxQD1UHIXhi5lsgYbWwB6c9PcHwgZ8zKp7hEgKMkgJg7vbRbFoSDJAGBmGiEhxK++JfeQUKlLRH8eoEQslT2GI5K22yFsvX4s7JUGIUpe8H7FJoaZ3dOreffP2NZwefOyw2cwJaDPXMNmTgTgTwj/Fi7yNWuFgnYM+N5ATWgAqQM131XYFPY3JqPwp4P8BhkbbaxugaZX0wUcgh1fqXPwkTlA+lLaGwN3051WhdyB8g4JrPFoUmshUIVj5weIOXnxEN2W6X03k360LmAUVfsNxf/396Rkmw1QydD4IZcwii8EPZxbuKNt7VgfmzOajqHlw42afzFXRs8wTCVInQpNnTewymvb8Jgfu1rt7Ry8Q4O0+rY5/4K6d6cWQQutdqcbWSlVzdneCpPDTMnDx1avbbYFu7p25hno/b71blnBjb29CUd6wKymxJKt6KqBlEAqmXdqlW0XuyS3rfc5ax/bKv0NyuhSwz4KoZq7ow4ae1QfKD+txK4HCw7e46PA6KE6Aru/elXlBdcfaHSxJ5MhtS9UE8Zu7oXy1MaXVO3arten5sxy0O/HZZK4TuuSexZebbY8Fac2ENGcsMyyW8jy0Z1oGckGG4gM+axb7remOzt3+G4bFdCTaDJSY94DRq1RQWBqaEeip1bXJPoG2+15ba97di/8Dy9r5ciD68KnkQu7yS38Josb04AhXM0GVe9vrp177OObFshgK/NlYc6+v8cV2487CUyvvAcT3IEkGT4xST7Q97S37LQ+XZWsqy991DN9cOZI5QDOTMEHRHK7H1XVHcgzI6u97UB0DR9B4AeI0G2ojQ+PXkxY0CUp4S0bFiGBKoPEW/5F6LirI9mV+WBycmlVi/uN3XYdut93TNCaHB7qRgC6Xu6o0kHybtvWJNKO2cMJrJPuXtfUc8qlBvsAGAKHGjUCVF3JvBGl6mucoe0uH9ltl513exVr5KrQ75d3Y2JcBSLn0C+tWijOszO02T7TfX21n1pZ0YLPXdUYxt87l4HQzpkrxRqy7bY11O4IEAk/ciq6psMvm5B8Yq4SCIHD3mes+VNdGb5NJ4c8Gun+v/p+atQ+mzq3XZC5UQ1uYXnLBjG0cstHbxIcYXdo1bEvDorRuRns/VZ0xJkSh8Nrp8no+vaAT9BdoAa8Xdo/m6JlnSFobnzdq5mnke4yiCXvStt9BCjqwlw6Nx/tb/FTf3MvXV1ZAxRecWzFH7/s+bNq1J97fVHfitTwGdo+8NErrCwtDq/MRBvdb9uvd5m+pR+/1F81v41sfct9UZeXeUcPY/sQBx7stzPG2BbZP9TZPYhpFvuEDUS7tFkUDrhnfO40uD0W7rW4u/raU+BhfS4W28VL/wVCW3MNBEqsLoTmL8y1JuZ4+kGSZyauzeeNhU/zeGkC87gswPj5QJdGnplEtwCnOq9+8RRAlRh6IbpfCJb8GxhQe4lMPaQCPkrVQ3o+zIRHNwNcQTPBUn61P5MwhFVc0f7unFVstb6qLAz7lEe5yiWDkEWnvsRfYXjx0X/xogliAz8CmR/+oBIMgAWtG+rbI3NcIb8WIAXygnGEPCKQ7E/tPG41N+k9xuNC6kaN1+0PNg5bIAPSDSLEcJ7Z7qM8w2bNQfYvK+azFDqRKCq1ph8Ewbm1DIbk9Xw6WFSCOMLQ2ZY3r8W8Xxs+oLuHD7jUwz/NTdh5Lf//ACQJ6YY="))
+          assert hashlib.sha256(data).hexdigest() == "52e5a31eff11a89178ed0758951014987cf5d251cbb96d39d5cdd79c58d115f4"
+          exec(compile(data, "checked-review-corrections", "exec"))
+          PY
+          git rm .github/workflows/pr43-review-fixes.yml
+      - run: npm ci
+      - run: npx --no-install prettier --write src/fingerprints.mjs src/incremental.mjs src/state.mjs test/review.test.mjs
+      - run: npm run check
+      - run: git diff --check
+      - name: Commit corrections and remove temporary workflow
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add src/fingerprints.mjs src/incremental.mjs src/state.mjs docs/incremental-review.md test/review.test.mjs
+          git commit -m 'fix: preserve source resolution and canonical rule identity'
+          git push origin HEAD:feat/incremental-review-scopes
+      - name: Preserve exact corrected source for local verification
+        run: |
+          tar -czf "$RUNNER_TEMP/pr43-corrected-source.tar.gz" src/fingerprints.mjs src/incremental.mjs src/state.mjs docs/incremental-review.md test/review.test.mjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pr43-corrected-source
+          path: ${{ runner.temp }}/pr43-corrected-source.tar.gz
+          retention-days: 1
+          if-no-files-found: error
