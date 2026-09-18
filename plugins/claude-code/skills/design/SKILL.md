@@ -14,8 +14,12 @@ Source-only lint does not require this workflow.
    **observed** patterns, and **proposed** decisions. Existing code is not approval.
 2. When the engine is installed, run `docs`; read `project-documents.md` beside the
    returned rule-reference path and use `guidance` to inspect unfinished documents.
-   Older pinned engines may lack that guide or the new preflight; use only supported
-   commands and state the enforcement limit. Do not install during a review or hook.
+   Use `guide rules` for the compact policy index, then `guide DR-006` or another
+   relevant ID for canonical Markdown. Cite the public HTML/Markdown URLs and record
+   the consulted ID and source SHA-256 rather than copying general policy into DESIGN.md.
+   Older pinned engines may lack that guide, rule lookup, or the new preflight; use
+   only supported commands and state the enforcement limit. Do not install during
+   a review or hook. Public policy may be newer; checks use the installed policy.
 3. Author or amend DESIGN.md when UI changes are authorized. Cover: users/tasks;
    principles/tradeoffs; visual-system ownership; behavior/resilience/accessibility;
    scoped requirements and verification; evidence, exceptions, and unresolved decisions.
@@ -37,8 +41,9 @@ Source-only lint does not require this workflow.
    files as small pointers to the shared contract, not copies of design policy.
 7. Run `contract` before implementation and summarize its task, comparisons, boundaries,
    qualitative choices, and unresolved judgments. Use `/viewrule:add-rule` to propose
-   executable checks with `sources` pointing to stable document sections. Translation
-   from prose is reviewable, not automatic compilation; untested prose is not a pass.
+   executable checks with `designRules` citing DR IDs and `sources` pointing to stable
+   local document sections, not remote URLs. Translation from prose is reviewable,
+   not automatic compilation; untested prose is not a pass.
 
 Show contract/rule changes separately from application repairs. Never rewrite a
 requirement to make a failing implementation pass. Contract acceptance and screenshot

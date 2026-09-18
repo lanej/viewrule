@@ -44,9 +44,14 @@ if (args.length === 1 && args[0] === "hook") {
   }
 } else if (args[0] === "guide") {
   try {
-    const { printGuide } =
-      await import("../plugins/claude-code/scripts/guide.mjs");
-    await printGuide(args.slice(1));
+    if (args[1] === "rules" || args[1]?.startsWith("DR-")) {
+      const { printRuleGuide } = await import("../src/rule-guide.mjs");
+      await printRuleGuide(args.slice(1));
+    } else {
+      const { printGuide } =
+        await import("../plugins/claude-code/scripts/guide.mjs");
+      await printGuide(args.slice(1));
+    }
   } catch (err) {
     console.error(`viewrule: ${err.message}`);
     process.exitCode = 2;

@@ -38,6 +38,11 @@ export function guideIndex(pages) {
     version,
     markdown: "index.md",
     exampleSource: "examples.json",
+    designRules: {
+      indexUrl: "https://lanej.io/viewrule/rules/index.json",
+      command: "viewrule guide rules",
+      authority: "installed engine policy; public URLs track the current site",
+    },
     pages: pages
       .filter((p) => p.metadata.kind !== "template")
       .map(({ file, metadata }) => ({
