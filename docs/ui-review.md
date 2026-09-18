@@ -1,5 +1,7 @@
 # Viewrule manual
 
+For file/name glob selection and read-only workload inspection, see [scopes and `viewrule plan`](scopes.md).
+
 A small local UI quality tool: Playwright captures, deterministic layout rules,
 axe accessibility checks, HTML/JSON reports, and a versioned feedback loop.
 Tufte-inspired policy lives in `docs/design-rules.md`. Personal preferences and

@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+- Add native include/exclude globs for source paths, project documents, and logical
+  page/viewport scopes, preserving legacy directory prefixes and exact citations.
+- Add read-only `plan` output using the same resolved inputs and browser obligations
+  as freshness checking and review execution. This does not enable incremental runs.
+- Bound document expansion and reject missing required documents or root escapes.
+
 ## 0.6.0 — 2026-09-15
 
 - Bundle Impeccable CLI 4.1.0 / engine 0.1.5 and add browser-free `lint` with

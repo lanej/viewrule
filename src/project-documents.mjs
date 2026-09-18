@@ -2,9 +2,12 @@ import { createHash } from "node:crypto";
 import { isUtf8 } from "node:buffer";
 import { lstat, readFile, realpath, stat } from "node:fs/promises";
 import path from "node:path";
+import { pathSelection, hasMagic, matches, walkFiles } from "./scopes.mjs";
 
 const defaults = ["DESIGN.md", "STYLE.md"];
 const maxBytes = 1024 * 1024;
+const maxDocuments = 32;
+const maxTotalBytes = 8 * maxBytes;
 
 /** Project paths are explicit; never crawl links or inherit parent documents. */
 function localPath(value) {
@@ -68,22 +71,64 @@ function headings(content) {
   return result;
 }
 
-/** Read exact, bounded local sources without modifying them. Explicit entries
- * are required; the two conventional defaults are optional and independent.
+/** Expand only explicitly requested globs. Exact entries remain required; discovery
+ * does not prove that each application has its own required design document.
+ * @param {string} project @param {import("./types.js").Selection} configured */
+async function documentPaths(project, configured) {
+  const scope = pathSelection(configured ?? defaults);
+  const paths = new Set();
+  const patterns = [];
+  const excluded = (file) =>
+    scope.exclude.some((pattern) => matches(file, pattern));
+  for (const entry of scope.include) {
+    if (hasMagic(entry)) {
+      const literal = await lstat(path.join(project, entry)).catch((error) => {
+        if (["ENOENT", "ENOTDIR"].includes(error.code)) return null;
+        throw error;
+      });
+      if (!literal) {
+        patterns.push(entry);
+        continue;
+      }
+    }
+    if (paths.has(entry))
+      throw new Error(`Duplicate project document: ${entry}`);
+    if (excluded(entry))
+      throw new Error(`Required project document is excluded: ${entry}`);
+    paths.add(entry);
+  }
+  if (patterns.length)
+    for await (const file of walkFiles(project, true, patterns)) {
+      if (excluded(file) || !patterns.some((pattern) => matches(file, pattern)))
+        continue;
+      paths.add(file);
+      if (paths.size > maxDocuments)
+        throw new Error(
+          `Project document expansion exceeds ${maxDocuments} files; narrow the patterns`,
+        );
+    }
+  for (const pattern of patterns)
+    if (![...paths].some((file) => matches(file, pattern)))
+      throw new Error(
+        `Project document pattern matches no files after exclusions: ${pattern}`,
+      );
+  if (paths.size > maxDocuments)
+    throw new Error(`Project document expansion exceeds ${maxDocuments} files`);
+  return [...paths].sort();
+}
+
+/** Read bounded, root-contained sources without modifying them. Explicit entries
+ * and patterns are required; conventional defaults remain optional.
  * @param {string} project
- * @param {string[]} [configured]
+ * @param {import("./types.js").Selection} [configured]
  * @returns {Promise<import("./types.js").ProjectDocument[]>} */
 export async function readProjectDocuments(project, configured) {
   project = await realpath(project);
-  const requested = configured ?? defaults;
+  const requested = await documentPaths(project, configured);
   /** @type {import("./types.js").ProjectDocument[]} */
   const documents = [];
-  const seen = new Set();
-  for (const entry of requested) {
-    const relative = localPath(entry);
-    if (seen.has(relative))
-      throw new Error(`Duplicate project document: ${relative}`);
-    seen.add(relative);
+  let totalBytes = 0;
+  for (const relative of requested) {
     const file = path.join(project, relative);
     try {
       await lstat(file);
@@ -113,6 +158,11 @@ export async function readProjectDocuments(project, configured) {
     if (bytes.length > maxBytes || !isUtf8(bytes) || bytes.includes(0))
       throw new Error(
         `Project document must be UTF-8 text of at most 1 MiB: ${relative}`,
+      );
+    totalBytes += bytes.length;
+    if (totalBytes > maxTotalBytes)
+      throw new Error(
+        "Project documents exceed 8 MiB in aggregate; narrow the patterns",
       );
     const content = bytes.toString("utf8");
     const basename = path.posix.basename(relative);
