@@ -20,9 +20,19 @@ import { runSourceChecks, sourceSummary } from "./source-checks.mjs";
 import { classifyChanges } from "./changes.mjs";
 import { compareEvidence } from "./evidence-changes.mjs";
 import { reviewStates, ruleApplies } from "./scopes.mjs";
+import {
+  executionPlan,
+  executionSummary,
+  configuredStateKey,
+  reusePage,
+  reuseProvider,
+  captureManifest,
+  evidenceAgeProblem,
+} from "./incremental.mjs";
+import { fileDigest } from "./fingerprints.mjs";
 
-/** @param {string} project @param {string} globalDir */
-export async function runReview(project, globalDir) {
+/** @param {string} project @param {string} globalDir @param {boolean} [incremental] */
+export async function runReview(project, globalDir, incremental = false) {
   project = await realpath(project);
   const contract = await readContract(project, globalDir);
   const { config, rules } = contract;
@@ -32,6 +42,9 @@ export async function runReview(project, globalDir) {
     globalDir,
     contract.projectDocuments,
   );
+  const plan = config.reviewScopes?.length
+    ? await executionPlan(project, globalDir, contract, incremental)
+    : null;
   const id =
     new Date().toISOString().replace(/[:.]/g, "-") +
     "-" +
@@ -56,21 +69,62 @@ export async function runReview(project, globalDir) {
     status: "fail",
     summary: { errors: 0, warnings: 0 },
     pages: [],
-    sourceChecks: await runSourceChecks(project, config.sourceChecks),
+    sourceChecks: [],
     designPolicy: await readDesignPolicy(),
   };
+  if (plan) report.execution = executionSummary(plan);
+  for (const provider of config.sourceChecks ?? []) {
+    if (provider.enabled === false) continue;
+    const unit = plan?.units.find(
+      (entry) => entry.kind === "provider" && entry.key === provider.id,
+    );
+    if (unit?.action === "reuse")
+      report.sourceChecks.push(reuseProvider(plan, provider.id));
+    else {
+      const [result] = await runSourceChecks(project, [provider]);
+      if (plan)
+        result.evidence = {
+          kind: "fresh",
+          runId: id,
+          createdAt: new Date().toISOString(),
+        };
+      report.sourceChecks.push(result);
+    }
+  }
   let browser;
   try {
-    browser = await chromium.launch({
-      executablePath:
-        process.env.VIEWRULE_BROWSER_PATH ||
-        process.env.UI_REVIEW_BROWSER_PATH ||
-        undefined,
-    });
-    report.browserVersion = browser.version();
+    if (
+      !plan ||
+      plan.units.some((unit) => unit.kind === "page" && unit.action === "run")
+    )
+      browser = await chromium.launch({
+        executablePath:
+          plan?.executable ??
+          (process.env.VIEWRULE_BROWSER_PATH ||
+            process.env.UI_REVIEW_BROWSER_PATH ||
+            undefined),
+      });
+    report.browserVersion =
+      browser?.version() ?? plan?.cache.report?.browserVersion;
     for (const { page: pageConfig, viewport, checkpoint } of reviewStates(
       config,
     )) {
+      const key = configuredStateKey({
+        page: pageConfig,
+        viewport,
+        checkpoint,
+      });
+      if (
+        plan?.units.some(
+          (unit) =>
+            unit.kind === "page" && unit.key === key && unit.action === "reuse",
+        )
+      ) {
+        report.pages.push(
+          await reusePage(plan, key, dir, report.pages.length + 1),
+        );
+        continue;
+      }
       const url = new URL(pageConfig.path, config.baseURL).href;
       /** @type {import("./types.js").PageResult} */
       const result = {
@@ -187,6 +241,13 @@ export async function runReview(project, globalDir) {
         });
       } finally {
         await context?.close();
+        if (plan)
+          result.evidence = {
+            kind: "fresh",
+            runId: id,
+            createdAt: new Date().toISOString(),
+            browserVersion: report.browserVersion,
+          };
       }
     }
   } catch (err) {
@@ -208,13 +269,36 @@ export async function runReview(project, globalDir) {
     await browser?.close();
   }
   const after = await fingerprint(project, config, globalDir);
-  if (before !== after)
+  const afterContract = plan ? await readContract(project, globalDir) : null;
+  if (
+    before !== after ||
+    (afterContract && afterContract.hash !== contract.hash)
+  )
     report.pages[0].findings.push({
       rule: "source-changed",
       severity: "error",
       message:
         "Source, rules, project documents, or checkpoint setup changed during capture. Rerun the review.",
     });
+  if (plan) {
+    report.measurements = await captureManifest(report, plan, dir);
+    report.execution.browser.executed = report.pages.filter(
+      (page) => page.evidence?.kind === "fresh",
+    ).length;
+    report.execution.browser.reused = report.pages.filter(
+      (page) => page.evidence?.kind === "reused",
+    ).length;
+    // An incomplete loop or lost artifact can never be aggregated into a pass.
+    if (
+      report.execution.browser.executed + report.execution.browser.reused !==
+      report.execution.browser.required
+    )
+      report.pages[0].findings.push({
+        rule: "review-coverage",
+        severity: "error",
+        message: "Not all required browser obligations were assessed.",
+      });
+  }
   evaluateDesign(report, rules, config);
   const sources = new Map(rules.map((rule) => [rule.id, rule.sources]));
   for (const page of report.pages)
@@ -252,12 +336,19 @@ export async function runReview(project, globalDir) {
         }
       }
   }
+  const evidenceChanges = await compareEvidence(report, reference?.report, dir);
+  const expired = plan && evidenceAgeProblem(report, config);
+  if (expired) {
+    report.pages[0].findings.push({
+      rule: "evidence-expired",
+      severity: "error",
+      message: expired,
+    });
+    report.summary.errors++;
+    report.status = "fail";
+  }
   report.changes = classifyChanges(report, reference?.report);
-  report.changes.evidence = await compareEvidence(
-    report,
-    reference?.report,
-    dir,
-  );
+  report.changes.evidence = evidenceChanges;
   const preferences = [
     ...(await defaultPreferences()),
     ...(await readJSON(path.join(globalDir, "preferences.json"), [])),
@@ -282,6 +373,7 @@ export async function runReview(project, globalDir) {
     status: report.status,
     fingerprint: before,
     reportFile,
+    ...(plan ? { reportSHA256: await fileDigest(reportFile) } : {}),
     blockingFindings: [
       ...report.pages.flatMap((page) =>
         page.findings

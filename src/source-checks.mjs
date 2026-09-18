@@ -90,6 +90,7 @@ function impeccableFinding(raw) {
  * @param {string} project
  * @param {import("./types.js").SourceCheckProvider[] | undefined} providers */
 export async function runSourceChecks(project, providers) {
+  /** @type {(import("./types.js").SourceCheckResult)[]} */
   const results = [];
   for (const provider of providers ?? []) {
     if (provider.enabled === false) continue;

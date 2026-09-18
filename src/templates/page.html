@@ -6,7 +6,14 @@
     >{{url}}{{#checkpointSetup}} · state:
     <code>{{checkpointSetup}}</code>{{/checkpointSetup}}</small
   >
-  {{#hasDesignCoverage}}
+  {{#evidence}}
+  <p>
+    Evidence: <strong>{{kind}}</strong> · originally captured {{createdAt}} ·
+    run <code>{{runId}}</code>{{#reusedFrom}} · reused from
+    <code>{{reusedFrom}}</code>{{/reusedFrom}}. Reuse is not a new capture or
+    approval.
+  </p>
+  {{/evidence}} {{#hasDesignCoverage}}
   <details>
     <summary>Design-rule coverage · {{unassessedCount}} unassessed</summary>
     <p>
@@ -36,9 +43,9 @@
   <div class="compare">
     {{#screenshot}}
     <figure>
-      <figcaption>Current</figcaption>
+      <figcaption>{{captureLabel}}</figcaption>
       <a href="{{screenshot}}"
-        ><img src="{{screenshot}}" alt="Current {{stateName}}"
+        ><img src="{{screenshot}}" alt="{{captureLabel}} {{stateName}}"
       /></a>
     </figure>
     {{/screenshot}} {{#approved}}

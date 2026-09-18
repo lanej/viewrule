@@ -31,13 +31,13 @@ const help = `viewrule — rendered UI checks and a versioned design feedback lo
                                        Create config, starter rules, and a missing DESIGN.md scaffold; never overwrite
                                        New projects require an authored DESIGN.md; --documents also scaffolds STYLE.md
   preset --name baseline|analytical     Print starter rules for review or adaptation
-  plan                                 Print resolved input and browser obligations; no checks or state writes
+  plan [--incremental | --full]        Print resolved input and browser obligations; no checks or state writes
   contract                             Validate required design prose; print constraints, documents, and changes
   schema [--type TYPE]                  Print the installed rule schema for authoring
   add-rule --rule FILE [--dry-run]      Validate and add a project rule; never replace an existing ID
   lint [--target PATH ...]             Run source diagnostics as JSON; no browser, project setup, or review state
                                        --target selects bundled Impeccable; otherwise use configured providers
-  check                                Validate the contract, capture pages, check rules, write HTML + JSON
+  check [--incremental | --full]       Validate the contract, capture pages, check rules, write HTML + JSON
   feedback --report PATH --decision approve|adjust --note TEXT [--scope project|global]
                                        Save feedback; approval preserves screenshots
   learn --feedback ID --rule FILE [--scope project|global]
@@ -71,12 +71,20 @@ try {
       target: { type: "string", multiple: true },
       documents: { type: "boolean" },
       "dry-run": { type: "boolean" },
+      incremental: { type: "boolean" },
+      full: { type: "boolean" },
       help: { type: "boolean" },
     },
   });
   const command = positionals[0];
   const project = path.resolve(args.project ?? process.cwd());
   const globalDir = globalConfigDir();
+  if ((args.incremental || args.full) && !["check", "plan"].includes(command))
+    throw new Error(
+      "--incremental and --full are only supported by check and plan",
+    );
+  if (args.incremental && args.full)
+    throw new Error("Choose --incremental or --full, not both");
   if (args.target?.length && command !== "lint")
     throw new Error("--target is only supported by lint");
   if (args.help || !command) console.log(help);
@@ -142,7 +150,13 @@ try {
       JSON.stringify(await presetRules(args.name ?? "baseline"), null, 2),
     );
   } else if (command === "plan") {
-    console.log(JSON.stringify(await readPlan(project, globalDir), null, 2));
+    console.log(
+      JSON.stringify(
+        await readPlan(project, globalDir, Boolean(args.incremental)),
+        null,
+        2,
+      ),
+    );
   } else if (command === "contract") {
     console.log(
       JSON.stringify(await readContract(project, globalDir), null, 2),
@@ -205,7 +219,11 @@ try {
     );
     process.exitCode = summary.errors ? 1 : 0;
   } else if (command === "check") {
-    const result = await runReview(project, globalDir);
+    const result = await runReview(
+      project,
+      globalDir,
+      Boolean(args.incremental),
+    );
     console.log(
       JSON.stringify({
         status: result.report.status,

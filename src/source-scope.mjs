@@ -12,7 +12,7 @@ import {
 
 /** Check the nearest existing ancestor too, so a missing target below an escaping
  * symlink cannot make discovery leave the project. Deleted inputs remain valid. */
-async function contained(project, file) {
+export async function contained(project, file) {
   let candidate = path.resolve(project, file);
   while (true) {
     try {
@@ -76,7 +76,31 @@ export async function resolveSourceScope(project, config) {
   for (const file of sourceFiles)
     for (const pattern of scope.include)
       if (matches(file, pattern, true)) add(file, `sourcePaths:${pattern}`);
+  // Explicit scope inputs are additional freshness obligations, never narrowed by
+  // the top-level sourcePaths selection or its exclusions.
+  for (const reviewScope of config.reviewScopes ?? []) {
+    const selection = pathSelection(reviewScope.sourcePaths);
+    for (const file of candidates)
+      if (
+        !file.split("/").some((part) => excludedDirectories.has(part)) &&
+        selected(file, selection, true)
+      )
+        add(file, `reviewScope:${reviewScope.name}`);
+  }
+  // Setup and authentication files can be outside source globs or Git's inventory.
+  for (const file of config.reviewScopes?.length
+    ? [
+        config.storageState,
+        ...config.pages.flatMap((page) =>
+          (page.checkpoints ?? []).map((checkpoint) => checkpoint.setup),
+        ),
+      ].filter(Boolean)
+    : []) {
+    const relative = pathSelection([file]).include[0];
+    add(relative, "runtime-setup");
+  }
   const contextDirectories = new Set();
+  const providerContexts = new Map();
   const providers = [];
   for (const provider of config.sourceChecks ?? []) {
     const enabled = provider.enabled !== false;
@@ -93,6 +117,10 @@ export async function resolveSourceScope(project, config) {
         add(relative, `sourceCheck:${provider.id}`);
         providerFiles.push(relative);
       }
+      providerContexts.set(
+        provider.id,
+        provider.noConfig ? new Set() : inputs.directories,
+      );
       if (!provider.noConfig)
         for (const directory of inputs.directories)
           contextDirectories.add(directory);
@@ -125,5 +153,6 @@ export async function resolveSourceScope(project, config) {
       .map(([file, reasons]) => ({ path: file, reasons: [...reasons].sort() })),
     providers,
     contextDirectories,
+    providerContexts,
   };
 }

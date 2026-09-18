@@ -8,6 +8,7 @@ import {
   readdir,
   rm,
   cp,
+  symlink,
 } from "node:fs/promises";
 import { createHash } from "node:crypto";
 import { tmpdir } from "node:os";
@@ -26,7 +27,7 @@ import {
 // One user workflow through the installed entrypoint; no helper/edge-case matrix.
 test(
   "Installed presets reject broken and stretched comparisons, accept distinct React layouts under one contract, and preserve feedback",
-  { timeout: 180000 },
+  { timeout: 240000 },
   async (t) => {
     const project = await mkdtemp(path.join(tmpdir(), "ui-review-"));
     t.after(() => rm(project, { recursive: true, force: true }));
@@ -47,6 +48,24 @@ test(
     const server = createServer(async (req, res) => {
       const pathname = new URL(req.url, "http://localhost").pathname;
       // Exercise deployment below a project prefix, including relative assets.
+      if (pathname.startsWith("/incremental/")) {
+        const relative = pathname.slice("/incremental/".length);
+        if (
+          !["a/index.html", "b/index.html", "shared/tokens.css"].includes(
+            relative,
+          )
+        ) {
+          res.writeHead(404);
+          return res.end();
+        }
+        res.setHeader(
+          "Content-Type",
+          relative.endsWith(".css") ? "text/css" : "text/html",
+        );
+        return res.end(
+          await readFile(path.join(project, "incremental-app/src", relative)),
+        );
+      }
       if (pathname.startsWith("/viewrule/")) {
         const siteRoot = path.resolve(import.meta.dirname, "../dist/site");
         const file = path.resolve(
@@ -2745,6 +2764,594 @@ test(
     );
     t.diagnostic(
       "broken → compact → sidebar (same contract) → stretched → finite → missing annotations: expected rules, measurements, and DR citations verified",
+    );
+    // One two-scope installed workflow verifies real execution, not mock evidence.
+    const incrementalProject = path.join(project, "incremental-app");
+    for (const directory of [".ui-review", "src/a", "src/b", "src/shared"])
+      await mkdir(path.join(incrementalProject, directory), {
+        recursive: true,
+      });
+    await writeFile(path.join(globalDir, "rules.json"), "[]");
+    const incrementalHTML = (title, encoding = "same") =>
+      `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>${title}</title><link rel="stylesheet" href="/incremental/shared/tokens.css"></head><body><main><h1>${title}</h1><p class="mark" data-encoding="${encoding}">Scope observation</p></main></body></html>`;
+    const sharedCSS = "main { padding: 16px; }";
+    const designText =
+      "# Design intent\nKeep the task heading visible and shared encodings consistent.\n";
+    await writeFile(path.join(incrementalProject, "DESIGN.md"), designText);
+    await writeFile(
+      path.join(incrementalProject, "src/shared/tokens.css"),
+      sharedCSS,
+    );
+    for (const name of ["a", "b"]) {
+      await writeFile(
+        path.join(incrementalProject, `src/${name}/index.html`),
+        incrementalHTML(name),
+      );
+      await writeFile(
+        path.join(incrementalProject, `src/${name}/DESIGN.md`),
+        designText,
+      );
+    }
+    const incrementalSetup =
+      'export default async ({page}) => { await page.locator("main").waitFor(); };\n';
+    const incrementalSetupFile = path.join(
+      incrementalProject,
+      "src/b/setup.mjs",
+    );
+    await writeFile(incrementalSetupFile, incrementalSetup);
+    const incrementalStorageFile = path.join(
+      incrementalProject,
+      "src/a/storage.json",
+    );
+    const incrementalStorage = JSON.stringify({ cookies: [], origins: [] });
+    await writeFile(incrementalStorageFile, incrementalStorage);
+    const incrementalConfig = {
+      ...config(baseURL),
+      accessibility: false,
+      storageState: "src/a/storage.json",
+      pages: [
+        {
+          name: "a",
+          path: "/incremental/a/index.html",
+          ready: "main",
+          checkpoints: [{ name: "ready", setup: "src/b/setup.mjs" }],
+        },
+        { name: "b", path: "/incremental/b/index.html", ready: "main" },
+      ],
+      projectDocuments: ["DESIGN.md", "src/*/DESIGN.md"],
+      sourceChecks: ["a", "b"].map((name) => ({
+        id: name,
+        format: "impeccable",
+        targets: [`src/${name}`],
+        noConfig: true,
+        authority: "advisory",
+      })),
+      reviewScopes: [
+        { name: "shared", sourcePaths: ["src/shared/**"] },
+        ...["a", "b"].map((name) => ({
+          name,
+          sourcePaths: [`src/${name}/**`],
+          dependsOn: ["shared"],
+          pages: [name],
+          sourceChecks: [name],
+          requiredDocuments: [`src/${name}/DESIGN.md`],
+        })),
+      ],
+      evidenceReuse: {
+        environmentKey: "synthetic-local-app-v1",
+        maxAgeMs: 3600000,
+      },
+    };
+    const incrementalConfigFile = path.join(
+      incrementalProject,
+      ".ui-review/config.json",
+    );
+    /** @type {(value?: unknown) => Promise<void>} */
+    const writeIncrementalConfig = (value = incrementalConfig) =>
+      writeFile(incrementalConfigFile, JSON.stringify(value));
+    await writeIncrementalConfig();
+    await writeFile(
+      path.join(incrementalProject, ".ui-review/rules.json"),
+      JSON.stringify([
+        {
+          id: "z-scope-heading",
+          type: "required-elements",
+          selector: "main",
+          required: ["h1"],
+          severity: "error",
+          reason: "Identify the current task",
+        },
+        {
+          id: "shared-encoding",
+          type: "consistent",
+          selector: ".mark",
+          keyAttribute: "class",
+          properties: [],
+          attributes: ["data-encoding"],
+          acrossPages: true,
+          severity: "error",
+          reason: "Shared identities preserve encoding",
+          designRules: ["DR-005"],
+        },
+      ]),
+    );
+    const scopeCLI = (...args) =>
+      cli([...args, "--project", incrementalProject]);
+    const scopePlan = async () => {
+      const result = await scopeCLI("plan", "--incremental");
+      assert.equal(result.code, 0, result.stderr);
+      return JSON.parse(result.stdout);
+    };
+    const workloads = [];
+    const scopeCheck = async (label, mode = "--incremental", expected = 0) => {
+      const started = performance.now();
+      const result = await scopeCLI("check", mode);
+      const elapsedMs = Math.round(performance.now() - started);
+      assert.equal(result.code, expected, result.stderr || result.stdout);
+      const reportFile = JSON.parse(result.stdout).report;
+      const report = JSON.parse(await readFile(reportFile, "utf8"));
+      workloads.push({
+        label,
+        elapsedMs,
+        status: report.status,
+        execution: report.execution,
+      });
+      return { report, reportFile };
+    };
+    const fullScopeRun = await scopeCheck("full", "--full");
+    assert.deepEqual(fullScopeRun.report.execution.browser, {
+      required: 2,
+      executed: 2,
+      reused: 0,
+    });
+    assert.deepEqual(fullScopeRun.report.execution.sourceChecks, {
+      required: 2,
+      executed: 2,
+      reused: 0,
+    });
+    assert.deepEqual(await hook({ cwd: incrementalProject }), {});
+    const scopeLatest = path.join(incrementalProject, ".ui-review/latest.json");
+    const beforePlan = await readFile(scopeLatest, "utf8");
+    const runsBeforePlan = await readdir(
+      path.join(incrementalProject, ".ui-review/runs"),
+    );
+    // Deliberately unsorted rule IDs must not make planning disagree with check.
+    const unchangedScopePlan = await scopePlan();
+    assert.equal(unchangedScopePlan.browser.captureCount, 0);
+    assert.equal(await readFile(scopeLatest, "utf8"), beforePlan);
+    assert.deepEqual(
+      await readdir(path.join(incrementalProject, ".ui-review/runs")),
+      runsBeforePlan,
+    );
+    const reusedScopeRun = await scopeCheck("unchanged");
+    assert.deepEqual(reusedScopeRun.report.execution.browser, {
+      required: 2,
+      executed: 0,
+      reused: 2,
+    });
+    assert.deepEqual(reusedScopeRun.report.execution.sourceChecks, {
+      required: 2,
+      executed: 0,
+      reused: 2,
+    });
+    assert.deepEqual(
+      unchangedScopePlan.reviewScopes.map(({ name, fingerprint }) => ({
+        name,
+        fingerprint,
+      })),
+      reusedScopeRun.report.execution.scopes.map(({ name, fingerprint }) => ({
+        name,
+        fingerprint,
+      })),
+      "Plan and check share canonical rule ordering and scope fingerprints",
+    );
+    assert.equal(
+      unchangedScopePlan.browser.captureCount,
+      reusedScopeRun.report.execution.browser.executed,
+    );
+    assert.equal(
+      unchangedScopePlan.sourceChecks.filter(
+        (provider) => provider.action === "run",
+      ).length,
+      reusedScopeRun.report.execution.sourceChecks.executed,
+    );
+    for (const page of reusedScopeRun.report.pages) {
+      assert.equal(page.evidence.runId, fullScopeRun.report.id);
+      assert.equal(
+        page.evidence.createdAt,
+        fullScopeRun.report.pages.find((entry) => entry.name === page.name)
+          .evidence.createdAt,
+      );
+      assert.deepEqual(page.findings, []);
+    }
+    const reusedHTML = await readFile(
+      path.join(path.dirname(reusedScopeRun.reportFile), "index.html"),
+      "utf8",
+    );
+    assert.match(reusedHTML, /Reused capture/);
+    assert.ok(reusedHTML.includes(fullScopeRun.report.id));
+    // Runtime bindings outrank incidental source ownership: authentication is
+    // global, and a checkpoint belongs to the states that actually execute it.
+    await writeFile(incrementalStorageFile, `${incrementalStorage}\n`);
+    const authPlan = await scopePlan();
+    assert.equal(authPlan.browser.captureCount, 2);
+    assert.ok(authPlan.globalInputs.includes("src/a/storage.json"));
+    assert.ok(
+      authPlan.sourceChecks.every((provider) => provider.action === "run"),
+    );
+    assert.equal((await hook({ cwd: incrementalProject })).decision, "block");
+    await writeFile(incrementalStorageFile, incrementalStorage);
+    await writeFile(incrementalSetupFile, `${incrementalSetup}\n`);
+    const setupPlan = await scopePlan();
+    assert.equal(
+      setupPlan.browser.states.find((state) => state.page === "a").action,
+      "run",
+    );
+    await writeFile(incrementalSetupFile, incrementalSetup);
+    assert.equal((await scopePlan()).browser.captureCount, 0);
+    await writeFile(
+      path.join(incrementalProject, "src/a/new.css"),
+      "h1 { font-weight: bold; }",
+    );
+    const addedPlan = await scopePlan();
+    assert.equal(
+      addedPlan.browser.captureCount,
+      1,
+      "A new glob match only invalidates its owners",
+    );
+    assert.equal(
+      addedPlan.browser.states.find((state) => state.page === "b").action,
+      "reuse",
+    );
+    await rm(path.join(incrementalProject, "src/a/new.css"));
+    await writeFile(
+      path.join(incrementalProject, "src/a/index.html"),
+      incrementalHTML("a changed"),
+    );
+    await writeFile(
+      path.join(incrementalProject, "src/a/DESIGN.md"),
+      `${designText}\nKeep the amended heading visible.\n`,
+    );
+    assert.equal((await scopePlan()).browser.captureCount, 1);
+    await writeFile(
+      path.join(incrementalProject, "src/shared/tokens.css"),
+      `${sharedCSS}\nmain { margin: 8px; }`,
+    );
+    assert.equal(
+      (await scopePlan()).browser.captureCount,
+      2,
+      "Shared dependencies fan out",
+    );
+    await writeFile(
+      path.join(incrementalProject, "src/shared/tokens.css"),
+      sharedCSS,
+    );
+    await writeFile(
+      path.join(incrementalProject, "src/unowned.js"),
+      "// unknown owner\n",
+    );
+    assert.equal(
+      (await scopePlan()).browser.captureCount,
+      2,
+      "Unowned inputs invalidate every scope",
+    );
+    await rm(path.join(incrementalProject, "src/unowned.js"));
+    await writeIncrementalConfig({
+      ...incrementalConfig,
+      evidenceReuse: {
+        ...incrementalConfig.evidenceReuse,
+        environmentKey: "changed-data",
+      },
+    });
+    assert.equal((await scopePlan()).browser.captureCount, 2);
+    await writeIncrementalConfig({
+      ...incrementalConfig,
+      reviewScopes: incrementalConfig.reviewScopes.filter(
+        (scope) => scope.name !== "b",
+      ),
+    });
+    const removedScope = await scopePlan();
+    assert.equal(removedScope.browser.captureCount, 2);
+    assert.match(
+      removedScope.browser.states.find((state) => state.page === "b").reason,
+      /Unassigned/,
+    );
+    await writeIncrementalConfig({
+      ...incrementalConfig,
+      reviewScopes: [
+        { ...incrementalConfig.reviewScopes[0], dependsOn: ["a"] },
+        ...incrementalConfig.reviewScopes.slice(1),
+      ],
+    });
+    assert.equal(
+      (await scopeCLI("plan")).code,
+      2,
+      "Dependency cycles must be rejected before execution",
+    );
+    await writeIncrementalConfig({
+      ...incrementalConfig,
+      evidenceReuse: undefined,
+    });
+    assert.ok(
+      (await scopePlan()).reviewScopes.every(
+        (scope) => scope.status === "unknown",
+      ),
+    );
+    await writeIncrementalConfig({
+      ...incrementalConfig,
+      sourceChecks: [
+        ...incrementalConfig.sourceChecks,
+        {
+          id: "opaque",
+          command: [process.execPath, "-e", "process.stdout.write('[]')"],
+          authority: "advisory",
+        },
+      ],
+      reviewScopes: incrementalConfig.reviewScopes.map((scope) =>
+        scope.name === "a"
+          ? { ...scope, sourceChecks: ["a", "opaque"] }
+          : scope,
+      ),
+    });
+    assert.equal(
+      (await scopePlan()).reviewScopes.find((scope) => scope.name === "a")
+        .status,
+      "unknown",
+    );
+    await writeIncrementalConfig();
+    const savedDesign = await readFile(
+      path.join(incrementalProject, "src/b/DESIGN.md"),
+      "utf8",
+    );
+    await rm(path.join(incrementalProject, "src/b/DESIGN.md"));
+    const missingScopeDocument = await scopeCLI("plan");
+    assert.equal(missingScopeDocument.code, 2);
+    assert.match(
+      missingScopeDocument.stderr,
+      /missing required project document/,
+    );
+    await writeFile(
+      path.join(incrementalProject, "src/b/DESIGN.md"),
+      savedDesign,
+    );
+    const localScopeRun = await scopeCheck("local-change");
+    assert.deepEqual(localScopeRun.report.execution.browser, {
+      required: 2,
+      executed: 1,
+      reused: 1,
+    });
+    assert.deepEqual(localScopeRun.report.execution.sourceChecks, {
+      required: 2,
+      executed: 1,
+      reused: 1,
+    });
+    assert.equal(
+      localScopeRun.report.pages.find((page) => page.name === "b").evidence
+        .runId,
+      fullScopeRun.report.id,
+    );
+    assert.deepEqual(await hook({ cwd: incrementalProject }), {});
+    await writeFile(
+      path.join(incrementalProject, "src/a/index.html"),
+      incrementalHTML("a changed", "different"),
+    );
+    const crossScopeFailure = await scopeCheck(
+      "cross-page-regression",
+      "--incremental",
+      1,
+    );
+    const reusedFailure = crossScopeFailure.report.pages.find(
+      (page) => page.name === "b",
+    );
+    assert.equal(reusedFailure.evidence.kind, "reused");
+    assert.ok(
+      reusedFailure.findings.some(
+        (finding) => finding.rule === "shared-encoding",
+      ),
+      "Cross-page rules must reevaluate reused observations against changed pages",
+    );
+    assert.equal((await hook({ cwd: incrementalProject })).decision, "block");
+    await writeFile(
+      path.join(incrementalProject, "src/a/index.html"),
+      incrementalHTML("a changed"),
+    );
+    const recoveredScopeRun = await scopeCheck("recover-after-failure");
+    assert.equal(
+      recoveredScopeRun.report.execution.browser.executed,
+      2,
+      "A failed previous run is not reused",
+    );
+    const corruptedPage = recoveredScopeRun.report.pages.find(
+      (page) => page.name === "b",
+    );
+    await writeFile(
+      path.join(
+        path.dirname(recoveredScopeRun.reportFile),
+        corruptedPage.screenshot,
+      ),
+      "corrupt evidence",
+    );
+    assert.equal((await hook({ cwd: incrementalProject })).decision, "block");
+    assert.equal(
+      (await scopePlan()).browser.captureCount,
+      1,
+      "Damaged evidence invalidates its owning scope",
+    );
+    const restoredEvidence = await scopeCheck("recover-missing-evidence");
+    assert.deepEqual(restoredEvidence.report.execution.browser, {
+      required: 2,
+      executed: 1,
+      reused: 1,
+    });
+    assert.ok(
+      restoredEvidence.report.pages.every((page) => !page.findings.length),
+    );
+    // Damaged comparison history must not prevent a new complete review.
+    await writeFile(restoredEvidence.reportFile, "{invalid report");
+    assert.equal((await hook({ cwd: incrementalProject })).decision, "block");
+    assert.equal((await scopePlan()).browser.captureCount, 2);
+    const repairedReport = await scopeCheck("recover-invalid-report");
+    assert.equal(repairedReport.report.execution.browser.executed, 2);
+    assert.equal(repairedReport.report.execution.sourceChecks.executed, 2);
+    assert.deepEqual(await hook({ cwd: incrementalProject }), {});
+    // Both destinations and all relative imports are declared inputs. Only the
+    // checkpoint link changes; identical module bytes must not preserve a pass.
+    const linkedSetup =
+      'import { encoding } from "./helper.mjs";\nexport default async ({ page }) => { await page.locator(".mark").evaluate((element, value) => element.setAttribute("data-encoding", value), encoding); };\n';
+    for (const name of ["a", "b"]) {
+      const directory = path.join(incrementalProject, "checkpoints", name);
+      await mkdir(directory, { recursive: true });
+      await writeFile(path.join(directory, "setup.mjs"), linkedSetup);
+      await writeFile(
+        path.join(directory, "helper.mjs"),
+        `export const encoding = "${name === "a" ? "same" : "different"}";\n`,
+      );
+    }
+    const checkpointLink = path.join(incrementalProject, "checkpoint.mjs");
+    await symlink("checkpoints/a/setup.mjs", checkpointLink);
+    await writeIncrementalConfig({
+      ...incrementalConfig,
+      pages: incrementalConfig.pages.map((page) =>
+        page.name === "a"
+          ? {
+              ...page,
+              checkpoints: [{ name: "ready", setup: "checkpoint.mjs" }],
+            }
+          : page,
+      ),
+      reviewScopes: incrementalConfig.reviewScopes.map((scope) =>
+        scope.name === "a"
+          ? { ...scope, sourcePaths: ["src/a/**", "checkpoints/**"] }
+          : scope,
+      ),
+    });
+    const linkedRun = await scopeCheck("checkpoint-link", "--full");
+    const linkedPlan = await scopePlan();
+    assert.equal(linkedPlan.browser.captureCount, 0);
+    assert.deepEqual(await hook({ cwd: incrementalProject }), {});
+    const linkedInputs = linkedPlan.reviewScopes.find(
+      (scope) => scope.name === "a",
+    ).inputs;
+    for (const file of [
+      "checkpoint.mjs",
+      "checkpoints/a/setup.mjs",
+      "checkpoints/a/helper.mjs",
+      "checkpoints/b/setup.mjs",
+      "checkpoints/b/helper.mjs",
+    ])
+      assert.ok(linkedInputs.includes(file), `Declared input missing: ${file}`);
+    await rm(checkpointLink);
+    await symlink("checkpoints/b/setup.mjs", checkpointLink);
+    assert.equal(await readFile(checkpointLink, "utf8"), linkedSetup);
+    assert.equal((await hook({ cwd: incrementalProject })).decision, "block");
+    const retargetedPlan = await scopePlan();
+    assert.equal(retargetedPlan.browser.captureCount, 1);
+    assert.equal(
+      retargetedPlan.browser.states.find((state) => state.page === "b").action,
+      "reuse",
+    );
+    const retargetedRun = await scopeCheck(
+      "retargeted-checkpoint",
+      "--incremental",
+      1,
+    );
+    assert.notEqual(
+      retargetedRun.report.fingerprint,
+      linkedRun.report.fingerprint,
+    );
+    assert.deepEqual(retargetedRun.report.execution.browser, {
+      required: 2,
+      executed: 1,
+      reused: 1,
+    });
+    assert.ok(
+      retargetedRun.report.pages
+        .find((page) => page.name === "b")
+        .findings.some((finding) => finding.rule === "shared-encoding"),
+      "Retargeting runs the different relative import and detects its rendered failure",
+    );
+    const linkedB = linkedRun.report.pages.find((page) => page.name === "b");
+    const retargetedB = retargetedRun.report.pages.find(
+      (page) => page.name === "b",
+    );
+    assert.equal(
+      retargetedRun.report.pages.find((page) => page.name === "a").evidence
+        .kind,
+      "fresh",
+    );
+    assert.equal(retargetedB.evidence.kind, "reused");
+    assert.equal(retargetedB.evidence.runId, linkedRun.report.id);
+    assert.deepEqual(
+      await readFile(
+        path.join(path.dirname(linkedRun.reportFile), linkedB.screenshot),
+      ),
+      await readFile(
+        path.join(
+          path.dirname(retargetedRun.reportFile),
+          retargetedB.screenshot,
+        ),
+      ),
+      "Copied artifacts keep byte-only checksum semantics",
+    );
+    assert.equal((await hook({ cwd: incrementalProject })).decision, "block");
+    // Real elapsed time, without editing a passing report to manufacture expiry.
+    await writeIncrementalConfig({
+      ...incrementalConfig,
+      evidenceReuse: { ...incrementalConfig.evidenceReuse, maxAgeMs: 5000 },
+    });
+    const forcedFull = await scopeCheck("forced-full", "--full");
+    assert.equal(forcedFull.report.execution.browser.executed, 2);
+    const lastCapture = Math.max(
+      ...forcedFull.report.pages.map((page) =>
+        Date.parse(page.evidence.createdAt),
+      ),
+      ...forcedFull.report.sourceChecks.map((provider) =>
+        Date.parse(provider.evidence.createdAt),
+      ),
+    );
+    await new Promise((resolve) =>
+      setTimeout(resolve, Math.max(0, lastCapture + 5100 - Date.now())),
+    );
+    const expiredPlan = await scopePlan();
+    assert.equal(expiredPlan.browser.captureCount, 2);
+    assert.ok(
+      expiredPlan.reviewScopes
+        .filter((scope) => scope.name !== "shared")
+        .every((scope) => /expired/.test(scope.reason)),
+    );
+    assert.match((await hook({ cwd: incrementalProject })).reason, /expired/);
+    const workloadDirectory = path.join(repository, "dist/review-evidence");
+    await mkdir(workloadDirectory, { recursive: true });
+    await writeFile(
+      path.join(workloadDirectory, "incremental-workload.json"),
+      JSON.stringify(
+        {
+          description:
+            "Synthetic two-page, two-provider installed CLI workflow. Observed elapsed times are not a generalized speedup or token/cost estimate.",
+          node: process.version,
+          browser: fullScopeRun.report.browserVersion,
+          config: incrementalConfig,
+          inputs: {
+            a: incrementalHTML("a"),
+            b: incrementalHTML("b"),
+            sharedCSS,
+            designText,
+            checkpointSetup: incrementalSetup,
+            storageState: incrementalStorage,
+            symlinkCheckpoint: {
+              setup: linkedSetup,
+              targets: ["checkpoints/a/setup.mjs", "checkpoints/b/setup.mjs"],
+              helperEncodings: { a: "same", b: "different" },
+            },
+          },
+          workloads,
+        },
+        null,
+        2,
+      ),
+    );
+    t.diagnostic(
+      `incremental workload: ${JSON.stringify(workloads.map(({ label, elapsedMs, execution }) => ({ label, elapsedMs, browser: execution.browser, sourceChecks: execution.sourceChecks })))}`,
     );
   },
 );

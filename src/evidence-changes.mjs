@@ -178,6 +178,13 @@ export async function compareEvidence(report, baseline, directory) {
           "Page, checkpoint, or viewport is absent from one review.",
         );
       if (
+        page.evidence?.kind === "reused" &&
+        Date.parse(page.evidence.createdAt) < Date.parse(baseline.createdAt)
+      )
+        throw new Error(
+          "Reused capture predates the approved baseline; it is not new visual evidence.",
+        );
+      if (
         !report.browserVersion ||
         report.browserVersion !== baseline.browserVersion
       )

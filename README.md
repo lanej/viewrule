@@ -21,6 +21,15 @@ See [how Viewrule compares with related design and UI tooling](docs/comparison.m
 for overlap, complementary uses, tradeoffs, and the evidence behind its current
 positioning.
 
+## Incremental review (unreleased)
+
+Declare explicit input/dependency scopes, then use `viewrule plan --incremental`
+and `viewrule check --incremental` to reuse verified unchanged evidence. A complete
+report still covers every required page, viewport, checkpoint, and source provider;
+shared changes invalidate dependents. `check --full` always captures again.
+Reuse requires a nonsecret environment identity and an explicit maximum age.
+See [configuration, evidence provenance, and conservative fallbacks](docs/incremental-review.md).
+
 ## Why it exists
 
 A UI can look polished while making a decision harder: too few alternatives fit on

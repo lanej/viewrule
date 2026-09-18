@@ -1,3 +1,5 @@
+import { executionPlan, configuredStateKey } from "./incremental.mjs";
+import { readDesignPolicy } from "./design.mjs";
 import { realpath } from "node:fs/promises";
 import { loadProject } from "./config.mjs";
 import { resolveSourceScope } from "./source-scope.mjs";
@@ -9,19 +11,46 @@ import {
 } from "./scopes.mjs";
 
 /** Read-only resolved obligations, not evidence, approval, or an incremental pass.
- * @param {string} project @param {string} globalDir */
-export async function readPlan(project, globalDir) {
+ * @param {string} project @param {string} globalDir @param {boolean} [incremental] */
+export async function readPlan(project, globalDir, incremental = false) {
   project = await realpath(project);
   const { config, rules, projectDocuments } = await loadProject(
     project,
     globalDir,
   );
   const sources = await resolveSourceScope(project, config);
+  const plan = config.reviewScopes?.length
+    ? await executionPlan(
+        project,
+        globalDir,
+        {
+          config,
+          rules,
+          projectDocuments,
+          policySHA256: (await readDesignPolicy()).sha256,
+        },
+        incremental,
+        sources,
+      )
+    : null;
   const documents = pathSelection(
     config.projectDocuments ?? ["DESIGN.md", "STYLE.md"],
   );
   const states = [...reviewStates(config)].map(
     ({ page, viewport, checkpoint }) => ({
+      reason: page.viewports
+        ? "Configured page and matching viewport selection."
+        : "Configured page and all configured viewports.",
+      ...((unit) =>
+        unit
+          ? { action: unit.action, reason: unit.reason, scopes: unit.scopes }
+          : {})(
+        plan?.units.find(
+          (unit) =>
+            unit.kind === "page" &&
+            unit.key === configuredStateKey({ page, viewport, checkpoint }),
+        ),
+      ),
       page: page.name,
       path: page.path,
       viewport: viewport.name,
@@ -32,7 +61,7 @@ export async function readPlan(project, globalDir) {
         .map((rule) => rule.id)
         .sort(),
       accessibility: config.accessibility,
-      reason: page.viewports
+      selectionReason: page.viewports
         ? "Configured page and matching viewport selection."
         : "Configured page and all configured viewports.",
     }),
@@ -40,7 +69,14 @@ export async function readPlan(project, globalDir) {
   return {
     version: 1,
     project,
-    execution: "full",
+    execution: plan?.mode ?? "full",
+    ...(plan
+      ? {
+          reviewScopes: plan.scopes,
+          globalInputs: plan.globalInputs,
+          globalDocuments: plan.globalDocuments,
+        }
+      : {}),
     evidence: "not-assessed",
     sources: {
       selection: pathSelection(config.sourcePaths),
@@ -56,11 +92,28 @@ export async function readPlan(project, globalDir) {
         .filter((pattern) => matches(document.path, pattern))
         .map((pattern) => `projectDocuments:${pattern}`),
     })),
-    sourceChecks: sources.providers,
-    browser: { states, captureCount: states.length },
+    sourceChecks: sources.providers.map((provider) => ({
+      ...provider,
+      ...((unit) =>
+        unit
+          ? { action: unit.action, reason: unit.reason, scopes: unit.scopes }
+          : {})(
+        plan?.units.find(
+          (unit) => unit.kind === "provider" && unit.key === provider.id,
+        ),
+      ),
+    })),
+    browser: {
+      states,
+      captureCount: states.filter((state) => state.action !== "reuse").length,
+      requiredCount: states.length,
+      reuseCount: states.filter((state) => state.action === "reuse").length,
+    },
     notes: [
       "No browser or source provider was run; no review state was written.",
-      "All configured browser states remain required. Source globs do not infer page dependencies or enable incremental execution.",
+      plan
+        ? "All obligations remain required. Unassigned obligations run; unowned inputs invalidate every scope. Reuse is conditional evidence, not a new capture or approval."
+        : "No reviewScopes configured: all browser states run, including with --incremental.",
       "Freshness also includes configuration, rules, preferences, engine, design policy, and bundled-provider context candidates.",
     ],
   };
