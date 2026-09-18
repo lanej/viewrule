@@ -5,12 +5,14 @@ const descriptions = {
   components:
     "Component pass only · units pass; the assembled evidence panel still fails.",
   composition:
-    "Composition pass · accepted for this task; required evidence remains visible.",
+    "Revised composition · shared context, aligned evidence, compact charts.",
   hidden:
     "Negative control · rejected: compact, but required evidence is hidden.",
 };
 const requested = new URLSearchParams(location.search).get("stage");
-const stage = Object.hasOwn(descriptions, requested) ? requested : "before";
+const stage = Object.hasOwn(descriptions, requested)
+  ? requested
+  : "composition";
 const template = /** @type {HTMLTemplateElement} */ (
   document.querySelector("#pattern-template")
 );
@@ -28,6 +30,36 @@ if (["composition", "hidden"].includes(stage)) {
   // Shared context belongs to the parent; remove duplicate framing from the DOM.
   surface.querySelector(".headline-copy").remove();
   surface.querySelector(".repeated-frame").remove();
+  const identity = surface.querySelector(".identity-line");
+  const action = surface.querySelector(".review-action");
+  identity.insertBefore(surface.querySelector(".confidence"), action);
+  identity.insertBefore(surface.querySelector(".direction"), action);
+  identity.insertBefore(surface.querySelector(".observation-window"), action);
+  identity.append(surface.querySelector(".action-status"));
+  surface.querySelector(".status-line").remove();
+
+  const contextTemplate = /** @type {HTMLTemplateElement} */ (
+    document.querySelector("#context-template")
+  );
+  surface.append(contextTemplate.content.cloneNode(true));
+  for (const context of surface.querySelectorAll("[data-context]")) {
+    context.querySelector(".context-role").remove();
+    context.setAttribute("aria-describedby", "context-role");
+    surface.querySelector(".context-rows").append(context);
+  }
+  // Inline processing values share the same row as the other context summaries.
+  surface.querySelector(".processing-context br").replaceWith(" · ");
+  surface.querySelector(".rate-comparison").removeAttribute("hidden");
+  surface.querySelector(".weight-heading").removeAttribute("hidden");
+  for (const weight of surface.querySelectorAll(".weight")) {
+    weight.setAttribute("aria-label", weight.textContent);
+    weight.textContent = weight.textContent.replace("Ranking weight: ", "");
+  }
+  surface.querySelector('[data-factor="volume"] h4').textContent = "Volume";
+  for (const summary of surface.querySelectorAll("summary")) {
+    summary.setAttribute("aria-label", summary.textContent);
+    summary.textContent = "Details";
+  }
 }
 if (stage === "hidden") {
   surface

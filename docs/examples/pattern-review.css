@@ -271,45 +271,218 @@ summary {
 .before .mix-context {
   min-height: 160px;
 }
-.composition .headline-copy,
-.hidden .headline-copy {
-  display: none;
+:is(.composition, .hidden) {
+  display: grid;
+  grid-template-columns: minmax(600px, 1.2fr) minmax(520px, 1fr);
+  grid-template-areas: "identity identity" "chart ranking" "context ranking";
+  align-items: start;
+  gap: 12px 24px;
+  background: #fff;
 }
-.composition .repeated-frame,
-.hidden .repeated-frame {
-  display: none;
+:is(.composition, .hidden) .identity-header {
+  grid-area: identity;
+  display: block;
+  padding: 0 0 10px;
+  border-bottom: 1px solid #d9e2ec;
 }
-.composition .evidence-panel,
-.hidden .evidence-panel {
+:is(.composition, .hidden) .identity-line {
+  justify-content: start;
+  gap: 10px;
+}
+:is(.composition, .hidden) .group-identity {
+  margin-right: 4px;
+}
+:is(.composition, .hidden) .review-action {
+  margin-left: auto;
+}
+:is(.composition, .hidden) .badge {
+  border-radius: 999px;
+  white-space: nowrap;
+}
+:is(.composition, .hidden) .chart-section {
+  grid-area: chart;
+}
+:is(.composition, .hidden) .chart-toolbar {
+  flex-wrap: nowrap;
+  gap: 10px;
+  padding: 0 0 8px;
+}
+:is(.composition, .hidden) .chart-toolbar h3 {
+  font-size: 16px;
+  white-space: nowrap;
+}
+:is(.composition, .hidden) .chart-controls {
+  gap: 2px;
+}
+:is(.composition, .hidden) .chart-controls button {
+  padding: 4px 8px;
+  font-size: 14px;
+}
+:is(.composition, .hidden) .latest-value {
+  margin-left: 0;
+  white-space: nowrap;
+}
+:is(.composition, .hidden) .history-chart {
+  height: 150px;
+}
+:is(.composition, .hidden) .plot {
+  height: 120px;
+  gap: 8px;
+}
+:is(.composition, .hidden) .history-chart svg {
+  height: 120px;
+}
+:is(.composition, .hidden) figcaption {
+  gap: 6px;
+  padding-top: 6px;
+}
+:is(.composition, .hidden) .evidence-panel {
+  grid-area: ranking;
   border: 0;
-  padding: 10px 0 0;
+  padding: 0;
 }
-.composition .evidence-grid,
-.hidden .evidence-grid {
-  gap: 12px;
-}
-.composition .evidence-card,
-.hidden .evidence-card {
-  min-height: 0;
-  background: transparent;
-  border: 0;
-  border-left: 2px solid #c2cfdd;
-  border-radius: 0;
-  padding: 0 12px;
-}
-.composition .mix-context,
-.hidden .mix-context {
+:is(.composition, .hidden) .evidence-title {
   display: flex;
-  flex-wrap: wrap;
   align-items: baseline;
-  gap: 4px 12px;
-  border-left: 0;
-  border-top: 1px solid #c2cfdd;
-  padding: 10px 0 0;
+  margin-bottom: 8px;
 }
-.composition .mix-context .secondary,
-.hidden .mix-context .secondary {
+:is(.composition, .hidden) .weight-heading {
+  font-size: 14px;
+  margin-left: auto;
+  margin-right: 74px;
+}
+:is(.composition, .hidden) .evidence-heading {
+  font-size: 16px;
+  line-height: 36px;
   margin: 0;
+}
+:is(.composition, .hidden) .evidence-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0;
+}
+:is(.composition, .hidden) .evidence-card {
+  min-height: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  padding: 0;
+}
+:is(.composition, .hidden) .ranking-summary {
+  position: relative;
+  display: grid;
+  grid-template-columns: 106px minmax(0, 1fr) 40px;
+  column-gap: 8px;
+  padding: 8px 66px 8px 0;
+  border-top: 1px solid #d9e2ec;
+  align-items: baseline;
+}
+:is(.composition, .hidden) .ranking-summary h4 {
+  grid-column: 1;
+  grid-row: 1;
+  font-size: 14px;
+}
+:is(.composition, .hidden) .ranking-summary .primary-value {
+  grid-column: 2;
+  grid-row: 1;
+  margin: 0;
+}
+:is(.composition, .hidden) .ranking-summary .weight {
+  grid-column: 3;
+  grid-row: 1;
+  margin: 0;
+  font-weight: 600;
+}
+:is(.composition, .hidden) .denominator,
+:is(.composition, .hidden) .trend-comparison,
+:is(.composition, .hidden) [data-factor="volume"] > p:not([class]),
+:is(.composition, .hidden) .rate-comparison {
+  grid-column: 2;
+  margin: 2px 0 0;
+}
+:is(.composition, .hidden) .ranking-summary .secondary {
+  grid-column: 1 / -1;
+  margin: 0;
+}
+:is(.composition, .hidden) .ranking-summary summary {
+  position: absolute;
+  top: 8px;
+  right: 0;
+}
+:is(.composition, .hidden) .supporting-copy {
+  margin: 8px 0 0;
+}
+.rate-comparison {
+  margin-top: 8px;
+}
+.comparison-track {
+  position: relative;
+  height: 10px;
+  background: #e3eaf1;
+}
+.current-bar {
+  display: block;
+  height: 10px;
+  width: 52.8%;
+  background: #08639d;
+}
+.prior-marker {
+  position: absolute;
+  top: -3px;
+  bottom: -3px;
+  left: 57.75%;
+  width: 2px;
+  background: #203346;
+}
+.rate-comparison figcaption {
+  font-size: 14px;
+  display: flex;
+  justify-content: space-between;
+}
+:is(.composition, .hidden) .context-group {
+  grid-area: context;
+  border-top: 1px solid #d9e2ec;
+  padding-top: 10px;
+}
+.context-heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+.context-heading h3 {
+  font-size: 16px;
+}
+.context-rows {
+  display: grid;
+  gap: 4px;
+}
+:is(.composition, .hidden) .context-rows > article {
+  display: grid;
+  grid-template-columns: 164px minmax(0, 1fr) 64px;
+  gap: 0 12px;
+  align-items: baseline;
+}
+:is(.composition, .hidden) .context-rows h4 {
+  font-size: 14px;
+}
+:is(.composition, .hidden) .context-value {
+  margin: 0;
+}
+:is(.composition, .hidden) .context-rows .secondary {
+  margin: 0;
+}
+:is(.composition, .hidden) .context-rows .secondary[open] {
+  grid-column: 2 / -1;
+}
+@media (max-width: 1240px) {
+  :is(.composition, .hidden) {
+    grid-template-areas: "identity" "chart" "ranking" "context";
+    grid-template-columns: 1fr;
+  }
+  :is(.composition, .hidden) .chart-toolbar {
+    flex-wrap: wrap;
+  }
 }
 @media (max-width: 900px) {
   main {
@@ -329,6 +502,16 @@ summary {
   }
   figcaption {
     flex-wrap: wrap;
+  }
+  :is(.composition, .hidden) .context-rows > article {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+  :is(.composition, .hidden) .context-rows .secondary[open] {
+    grid-column: auto;
+  }
+  :is(.composition, .hidden) .ranking-summary {
+    grid-template-columns: 80px minmax(0, 1fr) 36px;
   }
   .history-chart {
     height: auto;

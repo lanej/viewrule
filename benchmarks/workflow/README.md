@@ -4,7 +4,7 @@ Status: **executable calibration case added; paired generation trial not run**.
 The [pattern-review example](../../docs/examples/pattern-review.html) materializes
 the header, disclosure, and composition cases below from a user-supplied screenshot,
 with invented neutral data. The existing installed regression runs its before,
-component-only, composition, and hidden-evidence states under one frozen contract.
+component-only, composition, and hidden-evidence states under one explicitly authored contract per revision.
 No original screenshot or identifying/domain-specific data is retained in the repo.
 This is not evidence that the agent workflow improves generation quality or cost.
 Do not introduce a second renderer, helper test suite, or screenshot matrix.
@@ -16,7 +16,9 @@ the composition checks. The accepted composition retains required evidence; the
 compact hidden-evidence control fails. `npm test` saves reports, native-scale captures,
 measurements, and interaction results in `dist/pattern-review-evidence/`, retained by
 PR CI. This inspected case is calibration data, **not a held-out generation task**.
-See the [recorded local measurements and limits](pattern-review-results.md).
+The no-query route opens the revised composition. User feedback tightens header,
+chart and total-surface budgets, and adds aligned one-line context and shared-pill
+checks. See the [recorded measurements and contract revision](pattern-review-results.md).
 
 The workflow under evaluation is the plugin's
 [component/composition review](../../plugins/claude-code/skills/review/component-composition.md).

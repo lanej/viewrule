@@ -48,11 +48,11 @@
     "id": "pattern-chart",
     "type": "min-size",
     "selector": ".history-chart",
-    "minHeight": 200,
+    "minHeight": 120,
     "minWidth": 600,
     "viewports": ["desktop"],
     "severity": "error",
-    "reason": "Preserve history plot detail in every stage.",
+    "reason": "Retain readable labeled history after the user-requested chart compaction; the fixed domain and samples are checked by the application regression.",
     "designRules": ["DR-007"],
     "sources": ["docs/examples/pattern-review-design.md#executable-boundaries"]
   },
@@ -109,17 +109,54 @@
       ".rate-weight",
       ".trend-weight",
       ".volume-weight",
-      ".processing-context .context-role",
       ".processing-context .context-value",
-      ".corroboration-context .context-role",
       ".corroboration-context .context-value",
-      ".mix-context .context-role",
-      ".mix-context .context-value"
+      ".mix-context .context-value",
+      ".context-role"
     ],
     "viewports": ["desktop"],
     "severity": "error",
     "reason": "Required decision facts and context-only qualifications remain visible without opening supporting detail.",
     "designRules": ["DR-003", "DR-006"],
     "sources": ["docs/examples/pattern-review-design.md#executable-boundaries"]
+  },
+  {
+    "id": "pattern-inline-header",
+    "type": "max-height",
+    "selector": ".identity-header",
+    "max": 56,
+    "viewports": ["desktop"],
+    "severity": "error",
+    "reason": "Title and status share the compact desktop header.",
+    "designRules": ["DR-007", "DR-008"],
+    "sources": [
+      "docs/examples/pattern-review-design.md#explicit-contract-revision-after-user-feedback"
+    ]
+  },
+  {
+    "id": "pattern-chart-overhead",
+    "type": "max-height",
+    "selector": ".history-chart",
+    "max": 160,
+    "viewports": ["desktop"],
+    "severity": "error",
+    "reason": "Bound the history figure without shrinking its labels or changing its domain.",
+    "designRules": ["DR-007", "DR-008"],
+    "sources": [
+      "docs/examples/pattern-review-design.md#explicit-contract-revision-after-user-feedback"
+    ]
+  },
+  {
+    "id": "pattern-surface-overhead",
+    "type": "max-height",
+    "selector": ".pattern-surface",
+    "max": 560,
+    "viewports": ["desktop"],
+    "severity": "error",
+    "reason": "The full initial view includes ranking evidence and context without cumulative vertical overhead.",
+    "designRules": ["DR-007", "DR-008"],
+    "sources": [
+      "docs/examples/pattern-review-design.md#explicit-contract-revision-after-user-feedback"
+    ]
   }
 ]

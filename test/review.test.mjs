@@ -1445,7 +1445,7 @@ test(
         ".trend-weight": "Ranking weight: 35%",
         ".volume-weight": "Ranking weight: 20%",
         ".processing-context .context-value":
-          "Average duration: unavailableRetries observed: 2 of 7 runs",
+          "Average duration: unavailable · Retries observed: 2 of 7 runs",
         ".corroboration-context .context-value":
           "Confirmed reviews: 3 recent · 7 total",
         ".mix-context .context-value":
@@ -1474,9 +1474,15 @@ test(
             facts: Object.fromEntries(
               selectors.map((selector) => [
                 selector,
-                doc
-                  .querySelector(selector)
-                  .textContent.trim()
+                (
+                  doc.querySelector(selector).getAttribute("aria-label") ||
+                  [...doc.querySelector(selector).childNodes]
+                    .map((node) =>
+                      node.nodeName === "BR" ? " · " : node.textContent,
+                    )
+                    .join("")
+                )
+                  .trim()
                   .replace(/\s+/g, " "),
               ]),
             ),
@@ -1493,26 +1499,16 @@ test(
               .getAttribute("points"),
           };
         }, Object.keys(patternFacts));
-        // Normalize whitespace adjacent to the explicit line break separately.
+        assert.deepEqual(patternLayouts[stage].facts, patternFacts);
+        const revised = ["composition", "hidden"].includes(stage);
         assert.equal(
-          await page.locator(".processing-context .context-value").innerText(),
-          "Average duration: unavailable\nRetries observed: 2 of 7 runs",
+          await page.locator(".evidence-grid > article").count(),
+          revised ? 3 : 6,
         );
-        const facts = patternLayouts[stage].facts;
-        assert.deepEqual(
-          {
-            ...facts,
-            ".processing-context .context-value": facts[
-              ".processing-context .context-value"
-            ].replace(/unavailable\s+Retries/, "unavailableRetries"),
-          },
-          patternFacts,
-        );
-        assert.equal(await page.locator(".evidence-grid > article").count(), 6);
         assert.equal(await page.locator(".ranking-summary").count(), 3);
         assert.deepEqual(
           await page.locator(".context-role").allTextContents(),
-          Array(3).fill("Not used in ranking"),
+          Array(revised ? 1 : 3).fill("Not used in ranking"),
         );
         assert.equal(
           await page.getByText("Why flagged", { exact: true }).count(),
@@ -1534,18 +1530,91 @@ test(
             `${stage}: ${selector}`,
           );
         }
+        if (revised) {
+          const compositionGeometry = await page.evaluate(() => {
+            const doc = globalThis.document;
+            const box = (selector) =>
+              doc.querySelector(selector).getBoundingClientRect();
+            const center = (selector) => {
+              const b = box(selector);
+              return b.y + b.height / 2;
+            };
+            const track = box(".comparison-track");
+            return {
+              titleCenters: [
+                ".group-identity",
+                ".confidence",
+                ".direction",
+              ].map(center),
+              controlCenters: [".chart-controls", ".latest-value"].map(center),
+              latestGap:
+                box(".latest-value").left - box(".chart-controls").right,
+              contextRows: [
+                ...doc.querySelectorAll(".context-rows > article"),
+              ].map((row) => ({
+                height: row.getBoundingClientRect().height,
+                labelLeft: row.querySelector("h4").getBoundingClientRect().left,
+                labelHeight: row.querySelector("h4").getBoundingClientRect()
+                  .height,
+                valueHeight: row
+                  .querySelector(".context-value")
+                  .getBoundingClientRect().height,
+                role: row.getAttribute("aria-describedby"),
+              })),
+              currentRatio: box(".current-bar").width / track.width,
+              priorRatio:
+                (box(".prior-marker").left - track.left) / track.width,
+            };
+          });
+          for (const centers of [
+            compositionGeometry.titleCenters,
+            compositionGeometry.controlCenters,
+          ])
+            assert.ok(
+              Math.max(...centers) - Math.min(...centers) <= 1,
+              "Related header/toolbar items share a centerline",
+            );
+          assert.ok(
+            compositionGeometry.latestGap >= 0 &&
+              compositionGeometry.latestGap <= 12,
+          );
+          assert.equal(compositionGeometry.contextRows.length, 3);
+          assert.equal(
+            new Set(compositionGeometry.contextRows.map((row) => row.labelLeft))
+              .size,
+            1,
+          );
+          for (const row of compositionGeometry.contextRows) {
+            assert.ok(
+              row.height <= 36 &&
+                row.labelHeight <= 21 &&
+                row.valueHeight <= 21,
+              "Context labels, values and Details fit on one aligned line",
+            );
+            assert.equal(row.role, "context-role");
+          }
+          assert.equal(
+            await page.locator("#context-role").textContent(),
+            "Not used in ranking",
+          );
+          assert.equal(
+            await page.locator(".weight-heading").textContent(),
+            "Weight",
+          );
+          assert.ok(
+            Math.abs(compositionGeometry.currentRatio - 26.4 / 50) < 0.001,
+          );
+          assert.ok(
+            Math.abs(compositionGeometry.priorRatio - 28.875 / 50) < 0.001,
+          );
+          patternLayouts[stage].compositionGeometry = compositionGeometry;
+        }
         await page
           .locator(".pattern-surface")
           .screenshot({ path: path.join(patternEvidence, `${stage}.png`) });
       }
       for (const stage of ["before", "components", "hidden"]) {
-        for (const key of [
-          "chartHeight",
-          "chartWidth",
-          "fontSizes",
-          "secondary",
-          "chartPoints",
-        ])
+        for (const key of ["fontSizes", "secondary", "chartPoints"])
           assert.deepEqual(
             patternLayouts[stage][key],
             patternLayouts.composition[key],
@@ -1563,6 +1632,18 @@ test(
       );
       assert.ok(patternLayouts.components.evidenceHeight > 360);
       assert.ok(patternLayouts.composition.evidenceHeight <= 360);
+      assert.ok(patternLayouts.composition.headerHeight <= 56);
+      assert.ok(
+        patternLayouts.composition.chartHeight >= 120 &&
+          patternLayouts.composition.chartHeight <= 160,
+      );
+      assert.ok(patternLayouts.composition.chartWidth >= 600);
+      assert.ok(patternLayouts.composition.surfaceHeight <= 560);
+      assert.ok(
+        patternLayouts.composition.surfaceHeight <
+          patternLayouts.components.surfaceHeight * 0.5,
+      );
+
       assert.ok(
         patternLayouts.composition.surfaceHeight <
           patternLayouts.components.surfaceHeight * 0.75,
@@ -1573,10 +1654,8 @@ test(
         ),
       );
 
-      await page.goto(
-        `${baseURL}/viewrule/examples/pattern-review.html?stage=composition`,
-      );
-      await page.waitForSelector("#pattern-review[data-ready]");
+      await page.goto(`${baseURL}/viewrule/examples/pattern-review.html`);
+      await page.waitForSelector('#pattern-review[data-ready="composition"]');
       const rankingBefore = await page
         .locator(".ranking-summary")
         .allTextContents();
@@ -1673,7 +1752,7 @@ test(
             findings: patternFindings,
             layouts: patternLayouts,
             interactions:
-              "Passed: history range and fixed ranking scope, keyboard disclosure/focus, required facts retained, Q7-only local review action, action state retained, Pages prefix assets.",
+              "Passed: revised default route, inline header and chart controls, aligned one-line context rows with a shared pill, correct current/prior chart geometry, history range and fixed ranking scope, keyboard disclosure/focus, required facts retained, Q7-only local action, retained action state, Pages prefix assets.",
             unassessed: patternCatalog.humanReview,
           },
           null,

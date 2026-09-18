@@ -13,10 +13,10 @@
         <a href="index.html">Viewrule examples</a>
         <h1>One pattern, two review passes</h1>
         <nav aria-label="Review stages">
-          <a href="?stage=before">Before</a>
-          <a href="?stage=components">Component pass only</a>
-          <a href="?stage=composition">Composition pass</a>
-          <a href="?stage=hidden">Hidden evidence control</a>
+          <a href="?stage=composition">Revised composition</a>
+          <a href="?stage=before">Before · rejected</a>
+          <a href="?stage=components">Components only · rejected</a>
+          <a href="?stage=hidden">Hidden evidence · rejected</a>
         </nav>
         <p class="stage-description"></p>
       </header>
@@ -114,12 +114,29 @@
           class="evidence-panel"
           aria-label="Ranking evidence and context"
         >
-          <h3 class="evidence-heading">Why flagged</h3>
+          <div class="evidence-title">
+            <h3 class="evidence-heading">Why flagged</h3>
+            <span class="weight-heading" hidden>Weight</span>
+          </div>
           <div class="evidence-grid">
             <article class="evidence-card ranking-summary" data-factor="rate">
               <h4>Review rate</h4>
               <p class="primary-value rate-value">26.4%</p>
               <p class="denominator">231 of 875 classified records</p>
+              <figure
+                class="rate-comparison"
+                hidden
+                aria-label="Current review rate 26.4 percent; prior 28.875 percent in cycles E–H. Shared zero to 50 percent scale."
+              >
+                <div class="comparison-track" aria-hidden="true">
+                  <span class="current-bar"></span>
+                  <span class="prior-marker"></span>
+                </div>
+                <figcaption>
+                  <span>0%</span><span>Prior 28.875% · E–H</span
+                  ><span>50%</span>
+                </figcaption>
+              </figure>
               <p class="weight rate-weight">Ranking weight: 45%</p>
               <details class="secondary">
                 <summary>Rate calculation</summary>
@@ -205,6 +222,21 @@
           </div>
         </section>
       </article>
+    </template>
+    <template id="context-template">
+      <section
+        class="context-group"
+        aria-labelledby="context-heading"
+        aria-describedby="context-role"
+      >
+        <header class="context-heading">
+          <h3 id="context-heading">Context</h3>
+          <span id="context-role" class="context-role badge"
+            >Not used in ranking</span
+          >
+        </header>
+        <div class="context-rows"></div>
+      </section>
     </template>
   </body>
 </html>

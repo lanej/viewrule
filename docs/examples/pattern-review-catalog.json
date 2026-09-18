@@ -18,16 +18,28 @@
   "compositionRules": [
     "pattern-overhead",
     "pattern-ranking-visible",
-    "pattern-required"
+    "pattern-required",
+    "pattern-inline-header",
+    "pattern-chart-overhead",
+    "pattern-surface-overhead"
   ],
   "expected": {
     "before": [
       "pattern-header",
       "pattern-toolbar",
       "pattern-overhead",
-      "pattern-ranking-visible"
+      "pattern-ranking-visible",
+      "pattern-inline-header",
+      "pattern-chart-overhead",
+      "pattern-surface-overhead"
     ],
-    "components": ["pattern-overhead", "pattern-ranking-visible"],
+    "components": [
+      "pattern-overhead",
+      "pattern-ranking-visible",
+      "pattern-inline-header",
+      "pattern-chart-overhead",
+      "pattern-surface-overhead"
+    ],
     "composition": [],
     "hidden": ["pattern-required"]
   },
