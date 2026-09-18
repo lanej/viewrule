@@ -2791,19 +2791,29 @@ test(
         designText,
       );
     }
-    await writeFile(
-      path.join(incrementalProject, "setup.mjs"),
-      'export default async ({page}) => { await page.locator("main").waitFor(); };\n',
+    const incrementalSetup =
+      'export default async ({page}) => { await page.locator("main").waitFor(); };\n';
+    const incrementalSetupFile = path.join(
+      incrementalProject,
+      "src/b/setup.mjs",
     );
+    await writeFile(incrementalSetupFile, incrementalSetup);
+    const incrementalStorageFile = path.join(
+      incrementalProject,
+      "src/a/storage.json",
+    );
+    const incrementalStorage = JSON.stringify({ cookies: [], origins: [] });
+    await writeFile(incrementalStorageFile, incrementalStorage);
     const incrementalConfig = {
       ...config(baseURL),
       accessibility: false,
+      storageState: "src/a/storage.json",
       pages: [
         {
           name: "a",
           path: "/incremental/a/index.html",
           ready: "main",
-          checkpoints: [{ name: "ready", setup: "setup.mjs" }],
+          checkpoints: [{ name: "ready", setup: "src/b/setup.mjs" }],
         },
         { name: "b", path: "/incremental/b/index.html", ready: "main" },
       ],
@@ -2936,6 +2946,25 @@ test(
     );
     assert.match(reusedHTML, /Reused capture/);
     assert.ok(reusedHTML.includes(fullScopeRun.report.id));
+    // Runtime bindings outrank incidental source ownership: authentication is
+    // global, and a checkpoint belongs to the states that actually execute it.
+    await writeFile(incrementalStorageFile, `${incrementalStorage}\n`);
+    const authPlan = await scopePlan();
+    assert.equal(authPlan.browser.captureCount, 2);
+    assert.ok(authPlan.globalInputs.includes("src/a/storage.json"));
+    assert.ok(
+      authPlan.sourceChecks.every((provider) => provider.action === "run"),
+    );
+    assert.equal((await hook({ cwd: incrementalProject })).decision, "block");
+    await writeFile(incrementalStorageFile, incrementalStorage);
+    await writeFile(incrementalSetupFile, `${incrementalSetup}\n`);
+    const setupPlan = await scopePlan();
+    assert.equal(
+      setupPlan.browser.states.find((state) => state.page === "a").action,
+      "run",
+    );
+    await writeFile(incrementalSetupFile, incrementalSetup);
+    assert.equal((await scopePlan()).browser.captureCount, 0);
     await writeFile(
       path.join(incrementalProject, "src/a/new.css"),
       "h1 { font-weight: bold; }",
@@ -3183,6 +3212,8 @@ test(
             b: incrementalHTML("b"),
             sharedCSS,
             designText,
+            checkpointSetup: incrementalSetup,
+            storageState: incrementalStorage,
           },
           workloads,
         },

@@ -92,8 +92,11 @@ preferences, engine/dependency files, platform, Node version, and browser identi
 are conservatively global. Scope document content and bundled-provider input,
 context, and binary identities participate in the relevant scope fingerprints.
 Checkpoint setup and storage-state files are included even outside source globs or
-Git's inventory, and must remain inside the project for scoped reviews. Declare
-setup-module imports, build inputs, assets, and application dependencies in the
+Git's inventory, and must remain inside the project for scoped reviews. Storage
+state is always global, even when its path matches one application's source scope.
+A checkpoint's setup file also belongs to every scope owning that checkpoint's
+browser state, regardless of its source directory. Declare setup-module imports,
+build inputs, assets, and application dependencies in the
 appropriate input scope or the global fallback. There is no import-graph inference.
 
 `environmentKey` is a **nonsecret, operator-supplied identity** for everything file

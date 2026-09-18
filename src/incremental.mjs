@@ -255,6 +255,15 @@ export async function executionPlan(
       const documents = projectDocuments
         .filter((document) => ownsDocument(scope, document.path))
         .map((document) => document.path);
+      const setupFiles = new Set(
+        [...reviewStates(config)]
+          .filter(({ page, viewport }) =>
+            ownsState(scope, page.name, viewport.name),
+          )
+          .map(({ checkpoint }) => checkpoint?.setup)
+          .filter(Boolean)
+          .map((file) => pathSelection([file]).include[0]),
+      );
       return [
         scope.name,
         {
@@ -262,6 +271,7 @@ export async function executionPlan(
             (file) =>
               selected(file, scopePaths, true) ||
               providerFiles.has(file) ||
+              setupFiles.has(file) ||
               documents.includes(file),
           ),
           documents,
@@ -269,8 +279,15 @@ export async function executionPlan(
       ];
     }),
   );
+  // Top-level authentication is used by every browser context, regardless of
+  // which application's source directory happens to contain it.
+  const storageState = config.storageState
+    ? pathSelection([config.storageState]).include[0]
+    : null;
   const globalInputs = [...fileHashes.keys()].filter(
-    (file) => ![...direct.values()].some((scope) => scope.files.includes(file)),
+    (file) =>
+      file === storageState ||
+      ![...direct.values()].some((scope) => scope.files.includes(file)),
   );
   const globalDocuments = projectDocuments.filter(
     (document) =>
