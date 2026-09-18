@@ -455,16 +455,19 @@ summary {
 }
 .context-rows {
   display: grid;
-  gap: 4px;
+  grid-template-columns: max-content minmax(0, 1fr) 64px;
+  gap: 4px 12px;
 }
 :is(.composition, .hidden) .context-rows > article {
   display: grid;
-  grid-template-columns: 164px minmax(0, 1fr) 64px;
+  grid-column: 1 / -1;
+  grid-template-columns: subgrid;
   gap: 0 12px;
   align-items: baseline;
 }
 :is(.composition, .hidden) .context-rows h4 {
   font-size: 14px;
+  white-space: nowrap;
 }
 :is(.composition, .hidden) .context-value {
   margin: 0;
@@ -506,6 +509,9 @@ summary {
   :is(.composition, .hidden) .context-rows > article {
     grid-template-columns: 1fr;
     gap: 4px;
+  }
+  :is(.composition, .hidden) .context-rows h4 {
+    white-space: normal;
   }
   :is(.composition, .hidden) .context-rows .secondary[open] {
     grid-column: auto;
