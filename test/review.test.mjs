@@ -1564,6 +1564,10 @@ test(
               currentRatio: box(".current-bar").width / track.width,
               priorRatio:
                 (box(".prior-marker").left - track.left) / track.width,
+              rateBarCenters: [
+                ".current-bar",
+                '[data-factor="rate"] .weight-track',
+              ].map(center),
               weights: [...doc.querySelectorAll(".ranking-summary")].map(
                 (row) => {
                   const weight = row.querySelector(".weight");
@@ -1576,14 +1580,23 @@ test(
                   const detail = row
                     .querySelector("summary")
                     .getBoundingClientRect();
+                  const subject = row
+                    .querySelector("h4")
+                    .getBoundingClientRect();
                   return {
                     percent: parseFloat(weight.textContent),
                     ratio: bar.width / track.width,
                     left: track.left,
                     width: track.width,
                     height: bar.height,
+                    valueGap:
+                      track.top -
+                      row.querySelector(".weight-value").getBoundingClientRect()
+                        .bottom,
+                    subjectLeft: subject.left,
+                    rowLeft: row.getBoundingClientRect().left,
                     detailLeft: detail.left,
-                    detailGap: detail.top - track.bottom,
+                    detailGap: detail.top - subject.bottom,
                     scale: weight.getAttribute("aria-describedby"),
                   };
                 },
@@ -1640,14 +1653,22 @@ test(
           for (const weight of compositionGeometry.weights) {
             assert.ok(Math.abs(weight.ratio - weight.percent / 100) < 0.001);
             assert.ok(weight.width >= 100 && weight.height >= 6);
+            assert.ok(weight.valueGap >= 4 && weight.valueGap <= 8);
             assert.ok(
-              Math.abs(weight.detailLeft - weight.left) <= 1 &&
+              Math.abs(weight.detailLeft - weight.subjectLeft) <= 1 &&
+                Math.abs(weight.detailLeft - weight.rowLeft) <= 1 &&
                 weight.detailGap >= 4 &&
                 weight.detailGap <= 12,
-              "Each Details control is aligned directly below its weight bar",
+              "Each Details control is aligned below its subject at the far left",
             );
             assert.equal(weight.scale, "weight-heading");
           }
+          assert.ok(
+            Math.max(...compositionGeometry.rateBarCenters) -
+              Math.min(...compositionGeometry.rateBarCenters) <=
+              1,
+            "Review-rate and weight bars share a horizontal centerline",
+          );
           assert.ok(
             Math.abs(compositionGeometry.currentRatio - 26.4 / 50) < 0.001,
           );
@@ -1761,7 +1782,7 @@ test(
             .getBoundingClientRect();
           return copy.top >= summary.bottom;
         }),
-        "Expanded supporting text stays below the weight and Details control",
+        "Expanded supporting text stays below the row and its left-hand Details control",
       );
       assert.equal(
         await disclosure.evaluate(
@@ -1811,7 +1832,7 @@ test(
             findings: patternFindings,
             layouts: patternLayouts,
             interactions:
-              "Passed: revised default route, inline header and chart controls, aligned one-line context rows with a shared pill, correct current/prior chart geometry, proportional weights on shared tracks with Details below, history range and fixed ranking scope, keyboard disclosure/focus, required facts retained, Q7-only local action, retained action state, Pages prefix assets.",
+              "Passed: revised default route, inline header and chart controls, aligned one-line context rows with a shared pill, correct current/prior chart geometry, proportional weights on shared tracks, aligned review-rate and weight bars, Details below left-hand row subjects, history range and fixed ranking scope, keyboard disclosure/focus, required facts retained, Q7-only local action, retained action state, Pages prefix assets.",
             unassessed: patternCatalog.humanReview,
           },
           null,

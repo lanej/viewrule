@@ -55,6 +55,9 @@ if (["composition", "hidden"].includes(stage)) {
     weight.setAttribute("aria-label", weight.textContent);
     weight.setAttribute("aria-describedby", "weight-heading");
     weight.textContent = weight.textContent.replace("Ranking weight: ", "");
+    const value = document.createElement("span");
+    value.className = "weight-value";
+    value.textContent = weight.textContent;
     const track = document.createElement("span");
     track.className = "weight-track";
     track.setAttribute("aria-hidden", "true");
@@ -62,7 +65,7 @@ if (["composition", "hidden"].includes(stage)) {
     bar.className = "weight-bar";
     bar.style.width = weight.textContent;
     track.append(bar);
-    weight.append(track);
+    weight.replaceChildren(value, track);
   }
   surface.querySelector('[data-factor="volume"] h4').textContent = "Volume";
   for (const summary of surface.querySelectorAll("summary")) {

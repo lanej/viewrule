@@ -46,9 +46,12 @@ trend, weights, missing-value states, and secondary explanations.
 
 After follow-up feedback, the three ranking weights also use horizontal bars on
 aligned, equal-width 0–100% tracks, retaining exact 45%, 35%, and 20% labels. They
-encode comparable shares of the ranking score. Each Details control sits below
-its weight bar; expanded supporting text remains below that control. Application
-assertions check rendered proportions, shared tracks, and disclosure placement.
+encode comparable shares of the total assigned weight. Each Details control sits
+under its row's subject label at the left. The review-rate comparison and weight
+bar share a horizontal centerline; distinct colors and labeled domains keep their
+different meanings clear. Expanded supporting text remains below the control.
+Application assertions check proportions, shared tracks, bar alignment, and
+disclosure placement.
 
 The user's feedback explicitly changes the earlier chart-size assumption: retain
 the 0–50% scale and samples in a 120–160 px figure, not an arbitrary 234 px area.

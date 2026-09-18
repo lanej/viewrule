@@ -376,13 +376,16 @@ summary {
   grid-template-columns: 106px minmax(0, 1fr) var(--weight-width);
   column-gap: 8px;
   padding: 8px 0;
+  min-height: 84px;
   border-top: 1px solid #d9e2ec;
   align-items: baseline;
 }
 :is(.composition, .hidden) .ranking-summary h4 {
   grid-column: 1;
   grid-row: 1;
+  align-self: start;
   font-size: 14px;
+  line-height: 32px;
 }
 :is(.composition, .hidden) .ranking-summary .primary-value {
   grid-column: 2;
@@ -390,16 +393,23 @@ summary {
   margin: 0;
 }
 :is(.composition, .hidden) .ranking-summary .weight {
+  display: grid;
+  grid-template-rows: subgrid;
   grid-column: 3;
   grid-row: 1 / 4;
-  align-self: start;
-  min-height: 68px;
+  align-self: stretch;
   margin: 0;
   font-weight: 600;
   line-height: 20px;
 }
+.weight-value {
+  grid-row: 2;
+  align-self: end;
+}
 .weight-track {
   display: block;
+  grid-row: 3;
+  align-self: start;
   height: 6px;
   margin-top: 4px;
   background: #e3eaf1;
@@ -407,7 +417,7 @@ summary {
 .weight-bar {
   display: block;
   height: 100%;
-  background: #08639d;
+  background: #60758b;
 }
 :is(.composition, .hidden) .denominator,
 :is(.composition, .hidden) .trend-comparison,
@@ -415,6 +425,9 @@ summary {
 :is(.composition, .hidden) .rate-comparison {
   grid-column: 2;
   margin: 2px 0 0;
+}
+:is(.composition, .hidden) .rate-comparison {
+  grid-row: 3;
 }
 :is(.composition, .hidden) .ranking-summary .secondary {
   grid-column: 1 / -1;
@@ -424,8 +437,8 @@ summary {
 :is(.composition, .hidden) .ranking-summary summary {
   position: absolute;
   top: 44px;
-  right: 0;
-  width: var(--weight-width);
+  left: 0;
+  width: 106px;
 }
 :is(.composition, .hidden) .supporting-copy {
   margin: 8px 0 0;
@@ -536,6 +549,9 @@ summary {
   }
   :is(.composition, .hidden) .ranking-summary {
     grid-template-columns: 80px minmax(0, 1fr) var(--weight-width);
+  }
+  :is(.composition, .hidden) .ranking-summary summary {
+    width: 80px;
   }
   .history-chart {
     height: auto;
