@@ -490,11 +490,13 @@ summary {
   gap: 4px 12px;
 }
 :is(.composition, .hidden) .context-rows > article {
+  position: relative;
   display: grid;
   grid-column: 1 / -1;
   grid-template-columns: subgrid;
+  grid-template-rows: minmax(32px, auto) auto;
   gap: 0 12px;
-  align-items: baseline;
+  align-items: center;
 }
 :is(.composition, .hidden) .context-rows h4 {
   font-size: 14px;
@@ -504,10 +506,15 @@ summary {
   margin: 0;
 }
 :is(.composition, .hidden) .context-rows .secondary {
+  grid-column: 2 / -1;
+  grid-row: 2;
   margin: 0;
 }
-:is(.composition, .hidden) .context-rows .secondary[open] {
-  grid-column: 2 / -1;
+:is(.composition, .hidden) .context-rows summary {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 64px;
 }
 @media (max-width: 1240px) {
   :is(.composition, .hidden) {
@@ -539,13 +546,19 @@ summary {
   }
   :is(.composition, .hidden) .context-rows > article {
     grid-template-columns: 1fr;
+    grid-template-rows: none;
     gap: 4px;
   }
   :is(.composition, .hidden) .context-rows h4 {
     white-space: normal;
   }
-  :is(.composition, .hidden) .context-rows .secondary[open] {
+  :is(.composition, .hidden) .context-rows .secondary {
     grid-column: auto;
+    grid-row: auto;
+  }
+  :is(.composition, .hidden) .context-rows summary {
+    position: static;
+    width: auto;
   }
   :is(.composition, .hidden) .ranking-summary {
     grid-template-columns: 80px minmax(0, 1fr) var(--weight-width);

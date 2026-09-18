@@ -1724,6 +1724,38 @@ test(
 
       await page.goto(`${baseURL}/viewrule/examples/pattern-review.html`);
       await page.waitForSelector('#pattern-review[data-ready="composition"]');
+      const disclosureNames = [
+        "Details: Rate calculation",
+        "Details: Trend calculation",
+        "Details: Volume calculation",
+        "Details: Processing diagnostics",
+        "Details: Corroboration notes",
+        "Details: Collection notes",
+      ];
+      assert.equal(
+        await page.locator("summary").count(),
+        disclosureNames.length,
+      );
+      for (const name of disclosureNames) {
+        const summary = page.getByLabel(name, { exact: true });
+        assert.equal(await summary.textContent(), "Details");
+      }
+      // Chromium exposes native summaries as DisclosureTriangle nodes; the
+      // generic ARIA text snapshot omits their computed names.
+      const accessibilitySession = await page.context().newCDPSession(page);
+      const { nodes: accessibilityNodes } = await accessibilitySession.send(
+        "Accessibility.getFullAXTree",
+      );
+      await accessibilitySession.detach();
+      assert.deepEqual(
+        accessibilityNodes
+          .filter(
+            (node) =>
+              !node.ignored && node.role?.value === "DisclosureTriangle",
+          )
+          .map((node) => node.name?.value),
+        disclosureNames,
+      );
       const rankingBefore = await page
         .locator(".ranking-summary")
         .allTextContents();
@@ -1804,6 +1836,67 @@ test(
         await page.locator(".trend-detail .supporting-copy").isVisible(),
         false,
       );
+      const contextDisclosures = [];
+      for (const context of ["processing", "corroboration", "mix"]) {
+        const row = page.locator(`.context-rows [data-context="${context}"]`);
+        const detail = row.locator("details");
+        const summary = detail.locator("summary");
+        const before = await summary.boundingBox();
+        await summary.focus();
+        await page.keyboard.press("Enter");
+        assert.equal(await detail.getAttribute("open"), "");
+        assert.equal(
+          await detail.locator(".supporting-copy").isVisible(),
+          true,
+        );
+        const expanded = await summary.boundingBox();
+        const content = await detail.locator(".supporting-copy").boundingBox();
+        assert.ok(content.y >= expanded.y + expanded.height);
+        assert.equal(await row.locator(".context-value").isVisible(), true);
+        assert.equal(
+          await summary.evaluate(
+            (el) => el === globalThis.document.activeElement,
+          ),
+          true,
+        );
+        if (context === "processing")
+          await page.locator(".pattern-surface").screenshot({
+            path: path.join(
+              patternEvidence,
+              "composition-context-expanded.png",
+            ),
+          });
+        await page.keyboard.press("Enter");
+        assert.equal(await detail.getAttribute("open"), null);
+        assert.equal(
+          await detail.locator(".supporting-copy").isVisible(),
+          false,
+        );
+        assert.equal(
+          await summary.evaluate(
+            (el) => el === globalThis.document.activeElement,
+          ),
+          true,
+        );
+        const closed = await summary.boundingBox();
+        for (const bounds of [expanded, closed])
+          for (const key of ["x", "y", "width", "height"])
+            assert.ok(
+              Math.abs(bounds[key] - before[key]) <= 1,
+              `${context}: Details retains its position and target size through disclosure`,
+            );
+        contextDisclosures.push({ context, before, expanded, closed });
+      }
+      for (const selector of Object.keys(patternFacts))
+        assert.equal(await page.locator(selector).isVisible(), true);
+      assert.equal(
+        await page.locator(".chart-window").textContent(),
+        "History: cycles A–L",
+      );
+      assert.equal(
+        await page.locator(".action-status").textContent(),
+        "Not queued",
+      );
       await page.getByRole("button", { name: "Queue Q7 for review" }).click();
       assert.equal(
         await page.locator(".action-status").textContent(),
@@ -1831,8 +1924,10 @@ test(
             contractHash: patternReport.contract.hash,
             findings: patternFindings,
             layouts: patternLayouts,
+            disclosureNames,
+            contextDisclosures,
             interactions:
-              "Passed: revised default route, inline header and chart controls, aligned one-line context rows with a shared pill, correct current/prior chart geometry, proportional weights on shared tracks, aligned review-rate and weight bars, Details below left-hand row subjects, history range and fixed ranking scope, keyboard disclosure/focus, required facts retained, Q7-only local action, retained action state, Pages prefix assets.",
+              "Passed: revised default route, inline header and chart controls, aligned one-line context rows with a shared pill, correct current/prior chart geometry, proportional weights on shared tracks, aligned review-rate and weight bars, Details below left-hand row subjects, visible disclosure labels retained in accessible names, stationary context controls through expansion/collapse, history range and fixed ranking scope, keyboard disclosure/focus, required facts retained, Q7-only local action, retained action state, Pages prefix assets.",
             unassessed: patternCatalog.humanReview,
           },
           null,

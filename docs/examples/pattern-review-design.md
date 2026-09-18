@@ -25,6 +25,10 @@ One parent owns the group/window context. Chart range controls change only the
 history window, not the ranking window or review state. Queueing a review targets
 Q7 only. Explanations, collection diagnostics, and sample values are secondary;
 disclosure must preserve the required evidence, chart selection, and action state.
+Every disclosure's accessible name includes its visible label, **Details**, plus
+the subject. Context disclosure controls stay in their original column and row
+when opened; only the supporting text expands below. Opening and closing preserves
+keyboard focus and the visible context summary (DR-010).
 If those diagnostics become routine decision factors, change this contract first.
 
 ## Frozen states
@@ -75,6 +79,9 @@ control scope, and the local review action. The no-query route opens composition
 Weight assertions compare rendered lengths to 45%, 35%, and 20% on the common
 track, align the review-rate and weight bars, and check that each disclosure sits
 beneath its row's subject label.
+The application regression also verifies the six accessible disclosure names and
+each context control's position, expanded-text placement, and focus through open
+and close interactions.
 
 ## Explicit contract revision after user feedback
 

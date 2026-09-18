@@ -53,6 +53,12 @@ different meanings clear. Expanded supporting text remains below the control.
 Application assertions check proportions, shared tracks, bar alignment, and
 disclosure placement.
 
+Disclosure names now retain the visible word **Details** alongside each subject.
+Context controls remain anchored in their original column while their supporting
+text expands below. The existing application walkthrough checks all six accessible
+names and opens/closes each context disclosure, retaining coordinates, keyboard
+focus, and required evidence. It also retains one expanded-context capture.
+
 The user's feedback explicitly changes the earlier chart-size assumption: retain
 the 0–50% scale and samples in a 120–160 px figure, not an arbitrary 234 px area.
 Additional checks cap the full surface at 560 px and the title/status header at

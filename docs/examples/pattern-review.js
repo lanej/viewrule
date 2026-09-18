@@ -69,7 +69,10 @@ if (["composition", "hidden"].includes(stage)) {
   }
   surface.querySelector('[data-factor="volume"] h4').textContent = "Volume";
   for (const summary of surface.querySelectorAll("summary")) {
-    summary.setAttribute("aria-label", summary.textContent);
+    summary.setAttribute(
+      "aria-label",
+      `Details: ${summary.textContent.trim()}`,
+    );
     summary.textContent = "Details";
   }
 }
