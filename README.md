@@ -17,6 +17,10 @@ the same CLI directly.
 is available yet. Node.js 22.18+ and npm are required. Linux is exercised in CI;
 macOS and Windows have not been validated.
 
+See [how Viewrule compares with related design and UI tooling](docs/comparison.md)
+for overlap, complementary uses, tradeoffs, and the evidence behind its current
+positioning.
+
 ## Incremental review (unreleased)
 
 Declare explicit input/dependency scopes, then use `viewrule plan --incremental`
