@@ -115,3 +115,7 @@ and checkpoint-symlink retargeting between byte-identical modules with distinct
 relative imports. Every possible target and helper is a declared input. Retargeting
 must invalidate Stop enforcement, rerun the affected page, and detect the changed
 rendered encoding while preserving the other page's verified reused capture.
+
+The expanded installed workflow has a 240-second test-harness budget. This bounds
+the combined regression workload, not individual application captures or provider
+execution. Production timeout settings and all evidence assertions are unchanged.
