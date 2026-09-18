@@ -23,8 +23,6 @@ positioning.
 
 ## Why it exists
 
-## Why it exists
-
 A UI can look polished while making a decision harder: too few alternatives fit on
 screen, related values sit far apart, chart context disappears, or a larger window
 adds empty space while hiding useful detail. Telling a coding agent to “make it
