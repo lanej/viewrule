@@ -44,13 +44,19 @@ preference. A passing check does not establish a useful design. Consult, inspect
 examples/evidence, implement, then measure. For checks, if the engine or project is
 unconfigured, follow `/viewrule:setup` within the task's scope.
 
-Before making UI decisions, run `contract`, `guidance`, and `docs`. Read the policy at the returned
-path, relevant measurement definitions, project rules, and applicable approved
-references. Identify what the user needs to compare or decide. Cite DR IDs when
-translating that task into constraints; use stable selectors and CSS-pixel viewports.
+Before making UI decisions, read DESIGN.md. When it is absent, unfinished, or lacks
+intent needed for the task, invoke `/viewrule:design` before substantive UI work.
+For read-only review, report the contract gap without authoring or migrating files.
+A linter cannot establish that the document is complete or its decisions are good;
+keep unresolved material requirements and unassessed verification explicit.
+Run `contract`, `guidance`, and `docs`. Read the policy at the returned path, relevant
+measurement definitions, project rules, and applicable approved references.
+Identify what the user needs to compare or decide. Cite DR IDs when translating
+that task into constraints; use stable selectors and CSS-pixel viewports.
 Summarize the task, critical comparisons, blocking boundaries, warnings, and qualitative
 choices before choosing the layout. Use `/viewrule:add-rule` for requested new boundaries.
-The contract shows effective merged rules and any changes since the previous report.
+The contract shows effective merged rules, document hashes, and changes since the
+previous report. Use stable DESIGN.md section references in authored rule `sources`.
 
 After implementation, with the intended app state running:
 
@@ -60,8 +66,9 @@ After implementation, with the intended app state running:
    Inspect representative text and comparison regions at each configured viewport,
    including the largest. Follow `details.tiles[].file` relative to the report folder.
    If an image tool resizes a tile or cannot inspect it, disclose that limitation.
-3. Review `contract.changes` and configuration/policy changes separately from app
-   repairs. A passing run does not approve a changed boundary. For each material finding, connect the rule ID and DR citation to the page,
+3. Review `contract.changes`, `contract.documentChanges`, and configuration/policy changes
+   separately from app repairs. A passing run does not approve a changed boundary.
+   For each material finding, connect the rule ID and DR citation to the page,
    viewport, selector, observed value, expected value, and suggested correction.
    Distinguish measurements from visual judgment and unassessed requirements.
 4. When repairs are within the user's task, change the application and rerun after
@@ -75,6 +82,7 @@ do not establish useful density. Preserve visible comparison identities, readabl
 labels, truthful context, and task-appropriate whitespace. Full-resolution capture
 does not prove inspection, and a green exit does not certify overall design quality.
 
-Never loosen checks or edit evidence solely to pass. Record approval only from the
-human who reviewed that exact result; use `/viewrule:feedback` for supplied feedback.
+Never loosen checks, rewrite DESIGN.md, or edit evidence solely to pass. Contract
+acceptance is not screenshot approval. Record approval only from the human who
+reviewed that exact result; use `/viewrule:feedback` for supplied feedback.
 Summarize the actual checks and image inspection, link the report, and state limits.

@@ -18,6 +18,68 @@ function canonical(value) {
 const same = (a, b) =>
   JSON.stringify(canonical(a)) === JSON.stringify(canonical(b));
 
+/** Reject scaffolds, not design judgments. Front matter and fenced code do not
+ * explain UI intent. No required headings, token schema, or prose-length score.
+ * @param {import("./types.js").ProjectDocument[]} documents */
+function validateAuthoredDesign(documents) {
+  for (const document of documents.filter((entry) => entry.role === "design")) {
+    const lines = document.content
+      .replace(/^\uFEFF/, "")
+      .replace(/<!--(?:[\s\S]*?-->|[\s\S]*$)/g, (comment) =>
+        comment === "<!-- viewrule:design-template -->" ? comment : "",
+      )
+      .split(/\r?\n/);
+    let frontmatter = lines[0]?.trim() === "---";
+    let fence = "";
+    const body = [];
+    for (let index = 0; index < lines.length; index++) {
+      const line = lines[index];
+      if (frontmatter) {
+        if (index > 0 && /^(---|\.\.\.)\s*$/.test(line)) frontmatter = false;
+        continue;
+      }
+      const marker = line.match(/^ {0,3}(`{3,}|~{3,})(.*)$/);
+      if (marker) {
+        if (!fence) fence = marker[1];
+        else if (
+          marker[1][0] === fence[0] &&
+          marker[1].length >= fence.length &&
+          !marker[2].trim()
+        )
+          fence = "";
+        continue;
+      }
+      if (!fence) body.push(line);
+    }
+    const visible = body.join("\n");
+    const prose = visible
+      .replace(/<!--(?:[\s\S]*?-->|[\s\S]*$)/g, "")
+      .split("\n")
+      .filter((line, index, all) => {
+        const text = line.trim();
+        return (
+          text &&
+          !/^#{1,6}(?:\s|$)/.test(text) &&
+          !/^(?:[-*_]\s*){3,}$|^=+$/.test(text) &&
+          !/^\s*(?:=+|-+)\s*$/.test(all[index + 1] ?? "") &&
+          !/^(?:[-*+>]\s*)?(?:TODO|TBD)[.!:]?$/i.test(text)
+        );
+      })
+      .join("\n");
+    if (
+      /^\s*<!-- viewrule:design-template -->\s*$/m.test(visible) ||
+      /\[TODO:[^\]]*\]/i.test(prose)
+    )
+      throw new Error(
+        `Design contract ${document.path} is still a template. Author its decisions and remove the template marker and [TODO: ...] prompts; use /viewrule:design or docs/project-documents.md.`,
+      );
+    if (!prose.trim())
+      throw new Error(
+        `Design contract ${document.path} has no authored prose. Record UI intent and verification expectations; headings, comments, front matter, and fenced code alone are not a design contract.`,
+      );
+  }
+}
+
 /** Read the effective constraints before opening a browser or changing application code.
  * @param {string} project
  * @param {string} globalDir */
@@ -27,6 +89,10 @@ export async function readContract(project, globalDir) {
     project,
     globalDir,
   );
+  // Explicit documents opt in. Legacy optional discovery is not silently migrated.
+  // guidance remains readable while authoring; check calls this before any writes.
+  if (config.projectDocuments !== undefined)
+    validateAuthoredDesign(projectDocuments);
   const policy = await readDesignPolicy();
   const snapshot = {
     config,

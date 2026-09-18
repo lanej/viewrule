@@ -6,7 +6,7 @@ description: Set up Viewrule's pinned UI measurement engine and configure an app
 Use this when the user wants Viewrule installed or configured. Run commands in the
 application repository; plugin installation does not itself install Node or Chromium.
 
-1. Check Node.js 22+ and npm. Run:
+1. Check Node.js 22.18+ and npm. Run:
    `node "${CLAUDE_PLUGIN_ROOT}/scripts/viewrule.mjs" setup`
    This verifies and installs the pinned engine and its Chromium browser. Use
    `--with-deps` only when Linux system dependencies need installation; it can require
@@ -23,8 +23,13 @@ application repository; plugin installation does not itself install Node or Chro
    use `preset --name analytical` to inspect it for selective adoption in existing
    projects. Use stable data and comparison identities. A finite comparison can
    keep useful whitespace; do not manufacture content or maximize an occupancy score.
-4. Run `contract` and summarize the effective boundaries before UI implementation.
-   Use `/viewrule:add-rule` for requested new constraints. Leave `enforceOnStop` false unless the user has requested completion enforcement.
+4. Invoke `/viewrule:design` to author or complete DESIGN.md before UI implementation.
+   A generated scaffold is not an accepted contract. Preserve existing design/style
+   sources; explicitly migrate existing configurations without dropping references.
+   Read-only audits report missing intent rather than creating it to clear a finding.
+   Run `contract` and summarize the effective boundaries. Use `/viewrule:add-rule`
+   for requested new constraints. Leave `enforceOnStop` false unless the user has
+   requested completion enforcement.
    When adopting the plugin, remove only a confirmed duplicate Viewrule Stop entry
    from the user's existing hook configuration; preserve unrelated hooks. See the
    `${CLAUDE_PLUGIN_ROOT}/README.md` for dotfiles preference configuration and migration.

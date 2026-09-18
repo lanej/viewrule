@@ -4,7 +4,7 @@ import { createHash } from "node:crypto";
 import { tmpdir } from "node:os";
 import path from "node:path";
 
-// One workflow installs the packed engine through the isolated Claude plugin.
+// Exercise the packed engine's installed review and contract-authoring workflows.
 const dir = await mkdtemp(path.join(tmpdir(), "viewrule-package-"));
 const root = path.resolve(import.meta.dirname, "..");
 try {
@@ -33,11 +33,20 @@ try {
     throw new Error(
       `Plugin pin does not match packed engine: expected ${pin.sha256}, packed ${digest}. Update the pin from the tested archive.`,
     );
-  execFileSync(process.execPath, ["--test", "test/review.test.mjs"], {
-    cwd: root,
-    stdio: "inherit",
-    env: { ...process.env, VIEWRULE_TEST_ARCHIVE: archive },
-  });
+  execFileSync(
+    process.execPath,
+    [
+      "--test",
+      "--test-concurrency=1",
+      "test/design-contract.test.mjs",
+      "test/review.test.mjs",
+    ],
+    {
+      cwd: root,
+      stdio: "inherit",
+      env: { ...process.env, VIEWRULE_TEST_ARCHIVE: archive },
+    },
+  );
   // Release CI publishes precisely the archive that passed, not a second pack.
   await mkdir(path.join(root, "dist"), { recursive: true });
   await copyFile(archive, path.join(root, "dist", packed.filename));
