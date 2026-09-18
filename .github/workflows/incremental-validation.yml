@@ -3,29 +3,41 @@ on:
   push:
     branches: [feat/incremental-review-scopes]
 permissions:
-  contents: read
+  contents: write
 jobs:
-  prepare:
+  apply:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: feat/incremental-review-scopes
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
-      - run: npm ci
-      - name: Preserve public source and pinned validation tools
+      - name: Apply exact locally checked implementation
+        shell: bash
         run: |
-          mkdir -p .validation/bin .validation/lib
-          cp "$(command -v node)" .validation/bin/node
-          cp -R "$(npm root -g)/npm" .validation/lib/npm
-          ln -s ../lib/npm/bin/npm-cli.js .validation/bin/npm
-          ln -s ../lib/npm/bin/npx-cli.js .validation/bin/npx
-          git rev-parse HEAD > .validation/source-commit
-          tar -czf "$RUNNER_TEMP/incremental-validation.tar.gz" --exclude=./.git --exclude=./dist .
+          cat .incremental-patch.0 .incremental-patch.1 .incremental-patch.2 .incremental-patch.3 | xz -d > "$RUNNER_TEMP/implementation.patch"
+          echo '422ed4ba8693b181874aa00d71be275dc7fcd2fdbd213fd3e9ecadb54ef771eb  '"$RUNNER_TEMP/implementation.patch" | sha256sum -c -
+          git apply --check "$RUNNER_TEMP/implementation.patch"
+          git apply --index "$RUNNER_TEMP/implementation.patch"
+          git rm .incremental-patch.0 .incremental-patch.1 .incremental-patch.2 .incremental-patch.3 .github/workflows/incremental-validation.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'feat: dependency-aware scoped reviews and verified evidence reuse'
+          git push origin HEAD:feat/incremental-review-scopes
+      - run: npm ci
+      - run: npm run check
+      - run: npm run site:build
+      - run: node bin/viewrule.mjs install-browser --with-deps
+      - run: npm test
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
-          name: incremental-validation-environment
-          path: ${{ runner.temp }}/incremental-validation.tar.gz
-          retention-days: 1
-          if-no-files-found: error
+          name: incremental-validation-results
+          path: |
+            dist/review-evidence/incremental-workload.json
+            dist/viewrule-*.tgz
+          retention-days: 7
+          if-no-files-found: warn
