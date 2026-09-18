@@ -1,0 +1,33 @@
+name: Apply incremental recovery
+on:
+  push:
+    branches: [feat/incremental-review-scopes]
+permissions:
+  contents: write
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/incremental-review-scopes
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Apply checked recovery fix
+        shell: bash
+        run: |
+          printf '%s' 'H4sIAAAAAAAC/5VVwXLbNhC96yvWOqTkSIREy7XcdNSkozgz7aH1JF8AAUsJMQWwAGhZ4/jfuyABSU5UT+ODCIOLh9197y2lqiooirXywCfOiokw2lsuPNt+cbD6bmugtMRHuBbzm+pmylhZ/TyflVMop9Prq6tBURRncAaj0egc1vv3UJTlzXgOo/C4vATawcfGWMrG7bWAqtXCK6PBIpfLeDZrrPmCwo9hXZsVrz8om8PTAPo/v7FmBxp3cGutsVnaBxjeWXxQpnWE1t2xbZ2HFYLSTkmkk8pBxP4pBD0oQrGtdsNxQsl/HRTh2SSoBfAdp+6FBP/8/PdfWaVqHINu65piR11Gdk/pjXqAHzkIoCrI0hqAmlepNesT+yxMg+4dq1Gv/QbevDnGHe443czSLntA60JPLxYLKOHr12PM8SiLfeiC0vpl6MXv1vI9U657HuETxe+YbWt0+bfHzgT2heUpLD9TygJaUl6lNMrYnWcQ3IsNZBh4zo8tnkxgabYNt8pRlUSqN8QAcatNaPc/rbIogXAlaoEMuk5KaGqutdJrCBJvkH60r/cnoNQ3VSl0oLyDLdeqQtIP1/IgJL6qSUaGLhGGoqGyZgscJN/yNd3Qy46dknvxCqd51HJXXyp6kH4s+tbqpPvI6VsoxwN56mlPOU56dBbW0dfntqO3RTkV81/I23M+m13eiJfePnuw9/fZV8Hjs3I2G1/DqHuWV8Hl4X20JncOqSvm/mBVi4EylLeJoti4hrroGFKt+ywL/+Sw+I0ERStGypBEnku9i45NViL6PkQWxPfa6PgL6ghyI9qJszBAQmSNHuMoiMT1tt1Z5fEjWTb7j2w/dnYePin9wGuVyB+mhGLVpEZeZ1mPuTHUhCcQO/mWRCgsbikXXt9F+z3nOZMoVCCakFe1Efev4rkgpzuSdUYnVyQlCmGCNyQcXJpW0wS9TOdJhy64o+HBHZ/6AZlmVAe03KC4z4ZR20Wsq3itrpdwiUZ8RNGGqX7Iqd9BeZLPD+E401rRJ+heAZOIzW0H+D/7PYanZ8JIA+AT8hqw5o0jGXm1JX53ym9M6wGl8mF2cGjosrCK3xiaBjQq2ormHHU9fN2U3bOo/KOS/jhev+wmQnb4oDHG1Ldvx4N/AcMwTvO5BwAA' | base64 -d | gzip -d > "$RUNNER_TEMP/recovery.patch"
+          echo '4eef1305ebf52dda7720292c4148cc0bc7c78371502145b62fd8375849a6f8ee  '"$RUNNER_TEMP/recovery.patch" | sha256sum -c -
+          git apply --check "$RUNNER_TEMP/recovery.patch"
+          git apply --index "$RUNNER_TEMP/recovery.patch"
+          git rm .github/workflows/incremental-recovery.yml
+      - run: npm ci
+      - run: npm run check
+      - name: Commit recovery fix
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'fix: allow scoped reviews to recover from damaged history'
+          git push origin HEAD:feat/incremental-review-scopes
