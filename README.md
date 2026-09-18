@@ -17,6 +17,12 @@ the same CLI directly.
 is available yet. Node.js 22.18+ and npm are required. Linux is exercised in CI;
 macOS and Windows have not been validated.
 
+See [how Viewrule compares with related design and UI tooling](docs/comparison.md)
+for overlap, complementary uses, tradeoffs, and the evidence behind its current
+positioning.
+
+## Why it exists
+
 ## Why it exists
 
 A UI can look polished while making a decision harder: too few alternatives fit on
