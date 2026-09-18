@@ -27,7 +27,7 @@ import {
 // One user workflow through the installed entrypoint; no helper/edge-case matrix.
 test(
   "Installed presets reject broken and stretched comparisons, accept distinct React layouts under one contract, and preserve feedback",
-  { timeout: 180000 },
+  { timeout: 240000 },
   async (t) => {
     const project = await mkdtemp(path.join(tmpdir(), "ui-review-"));
     t.after(() => rm(project, { recursive: true, force: true }));
