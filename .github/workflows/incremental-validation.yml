@@ -22,7 +22,7 @@ jobs:
           ln -s ../lib/npm/bin/npm-cli.js .validation/bin/npm
           ln -s ../lib/npm/bin/npx-cli.js .validation/bin/npx
           git rev-parse HEAD > .validation/source-commit
-          tar -czf "$RUNNER_TEMP/incremental-validation.tar.gz" --exclude=.git --exclude=dist .
+          tar -czf "$RUNNER_TEMP/incremental-validation.tar.gz" --exclude=./.git --exclude=./dist .
       - uses: actions/upload-artifact@v4
         with:
           name: incremental-validation-environment
