@@ -21,8 +21,11 @@ In Claude Code:
 Setup installs the checksummed engine release in `engine.json` and its Playwright
 Chromium browser. It then helps configure your running application. Installing the
 plugin alone makes no engine or browser download, and does not enable enforcement.
-Version 0.6.0 pins the 0.6.0 engine, including bundled Impeccable source diagnostics,
-`lint`, decision-surface checks, project design/style contracts, and interaction checkpoints.
+Version 0.7.0 pins the 0.7.0 engine, including native globs, read-only planning,
+opt-in incremental evidence reuse, authored design contracts, and offline rule lookup.
+Bundled Impeccable source diagnostics, `lint`, decision-surface checks, and interaction
+checkpoints remain available. Full review is still the default; see the engine
+[scope and reuse configuration](../../docs/incremental-review.md) before enabling reuse.
 The default baseline checks readable text and flags clipping/oversized headers;
 the analytical preset adds comparison counts, labels, context, proximity, and alignment.
 The expanded defaults add control-size and prose warnings plus declared numeric alignment.
@@ -34,6 +37,7 @@ project rules remain unchanged. The launcher's `docs` output includes the defaul
 | Skill | Use |
 | --- | --- |
 | `/viewrule:setup` | Install the engine/browser and configure the application's routes, viewports, and expectations |
+| `/viewrule:design` | Author the project design contract before substantive UI implementation |
 | `/viewrule:review` | Apply design rules before UI work; measure and inspect the result; repair within the requested scope |
 | `/viewrule:add-rule` | Read the active contract, author a scoped rule, preview/add it, and establish accepted/rejected evidence |
 | `/viewrule:feedback` | Record your feedback against a specific report and translate measurable expectations into scoped rules |
@@ -53,7 +57,9 @@ The engine package includes the same canonical corpus and exposes
 
 Guide/evidence Markdown is local to the plugin. Gallery examples and measurement
 manuals live in the source/package `docs/` (find an installed package through `docs`)
-or the published site. The pinned 0.6.0 engine includes the gallery assets.
+or the published site. The pinned 0.7.0 engine includes the gallery assets and canonical rule Markdown.
+Use `viewrule guide rules` for the rule index and `viewrule guide DR-006` for an
+individual rule after setup.
 The new guide's written examples and evidence summaries are bundled offline. Public routes are `https://lanej.io/viewrule/guide/v1/index.json` and the linked
 `.md` pages, produced by the existing Pages build. A PR/local build does not mean those
 new routes are deployed. The human pages and raw Markdown come from the same source.
