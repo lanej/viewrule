@@ -14,6 +14,11 @@ comparison window, volume, and all three ranking weights. Keep three context-onl
 summaries visible under one shared **Not used in ranking** pill, including unavailable
 values. The pill must visibly and accessibly own all three context rows. Context corroborates investigation; it must not silently become a score.
 
+The three weights are comparable shares of the same ranking score, totaling 100%.
+In the revised composition, show their exact percentages and horizontal bars on
+equal-width, aligned **0–100%** tracks. Place each factor's Details control below
+its weight bar. Keep weight distinct from the measured review rate and trend.
+
 One parent owns the group/window context. Chart range controls change only the
 history window, not the ranking window or review state. Queueing a review targets
 Q7 only. Explanations, collection diagnostics, and sample values are secondary;
@@ -65,6 +70,8 @@ independently check concrete text/data, unique framing, same-row header/toolbar
 centers, aligned context labels, one-line collection mix, readable chart labels and
 unchanged samples/domain, current/prior bar geometry, keyboard disclosure, chart
 control scope, and the local review action. The no-query route opens composition.
+Weight assertions compare rendered lengths to 45%, 35%, and 20% on the common
+track and check that each disclosure sits beneath its own weight.
 
 ## Explicit contract revision after user feedback
 

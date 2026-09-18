@@ -44,6 +44,12 @@ sit side by side, with context directly below the chart. A current/prior bullet
 comparison replaces the redundant narrative while preserving the denominator,
 trend, weights, missing-value states, and secondary explanations.
 
+After follow-up feedback, the three ranking weights also use horizontal bars on
+aligned, equal-width 0–100% tracks, retaining exact 45%, 35%, and 20% labels. They
+encode comparable shares of the ranking score. Each Details control sits below
+its weight bar; expanded supporting text remains below that control. Application
+assertions check rendered proportions, shared tracks, and disclosure placement.
+
 The user's feedback explicitly changes the earlier chart-size assumption: retain
 the 0–50% scale and samples in a 120–160 px figure, not an arbitrary 234 px area.
 Additional checks cap the full surface at 560 px and the title/status header at

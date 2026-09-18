@@ -272,6 +272,7 @@ summary {
   min-height: 160px;
 }
 :is(.composition, .hidden) {
+  --weight-width: 120px;
   display: grid;
   grid-template-columns: minmax(600px, 1.2fr) minmax(520px, 1fr);
   grid-template-areas: "identity identity" "chart ranking" "context ranking";
@@ -347,9 +348,10 @@ summary {
   margin-bottom: 8px;
 }
 :is(.composition, .hidden) .weight-heading {
+  flex: 0 0 var(--weight-width);
   font-size: 14px;
   margin-left: auto;
-  margin-right: 74px;
+  white-space: nowrap;
 }
 :is(.composition, .hidden) .evidence-heading {
   font-size: 16px;
@@ -371,9 +373,9 @@ summary {
 :is(.composition, .hidden) .ranking-summary {
   position: relative;
   display: grid;
-  grid-template-columns: 106px minmax(0, 1fr) 40px;
+  grid-template-columns: 106px minmax(0, 1fr) var(--weight-width);
   column-gap: 8px;
-  padding: 8px 66px 8px 0;
+  padding: 8px 0;
   border-top: 1px solid #d9e2ec;
   align-items: baseline;
 }
@@ -389,9 +391,23 @@ summary {
 }
 :is(.composition, .hidden) .ranking-summary .weight {
   grid-column: 3;
-  grid-row: 1;
+  grid-row: 1 / 4;
+  align-self: start;
+  min-height: 68px;
   margin: 0;
   font-weight: 600;
+  line-height: 20px;
+}
+.weight-track {
+  display: block;
+  height: 6px;
+  margin-top: 4px;
+  background: #e3eaf1;
+}
+.weight-bar {
+  display: block;
+  height: 100%;
+  background: #08639d;
 }
 :is(.composition, .hidden) .denominator,
 :is(.composition, .hidden) .trend-comparison,
@@ -402,12 +418,14 @@ summary {
 }
 :is(.composition, .hidden) .ranking-summary .secondary {
   grid-column: 1 / -1;
+  grid-row: 4;
   margin: 0;
 }
 :is(.composition, .hidden) .ranking-summary summary {
   position: absolute;
-  top: 8px;
+  top: 44px;
   right: 0;
+  width: var(--weight-width);
 }
 :is(.composition, .hidden) .supporting-copy {
   margin: 8px 0 0;
@@ -517,7 +535,7 @@ summary {
     grid-column: auto;
   }
   :is(.composition, .hidden) .ranking-summary {
-    grid-template-columns: 80px minmax(0, 1fr) 36px;
+    grid-template-columns: 80px minmax(0, 1fr) var(--weight-width);
   }
   .history-chart {
     height: auto;

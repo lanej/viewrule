@@ -1564,6 +1564,30 @@ test(
               currentRatio: box(".current-bar").width / track.width,
               priorRatio:
                 (box(".prior-marker").left - track.left) / track.width,
+              weights: [...doc.querySelectorAll(".ranking-summary")].map(
+                (row) => {
+                  const weight = row.querySelector(".weight");
+                  const track = row
+                    .querySelector(".weight-track")
+                    .getBoundingClientRect();
+                  const bar = row
+                    .querySelector(".weight-bar")
+                    .getBoundingClientRect();
+                  const detail = row
+                    .querySelector("summary")
+                    .getBoundingClientRect();
+                  return {
+                    percent: parseFloat(weight.textContent),
+                    ratio: bar.width / track.width,
+                    left: track.left,
+                    width: track.width,
+                    height: bar.height,
+                    detailLeft: detail.left,
+                    detailGap: detail.top - track.bottom,
+                    scale: weight.getAttribute("aria-describedby"),
+                  };
+                },
+              ),
             };
           });
           for (const centers of [
@@ -1599,8 +1623,31 @@ test(
           );
           assert.equal(
             await page.locator(".weight-heading").textContent(),
-            "Weight",
+            "Weight · 0–100%",
           );
+          assert.deepEqual(
+            compositionGeometry.weights.map((weight) => weight.percent),
+            [45, 35, 20],
+          );
+          for (const property of ["left", "width"])
+            assert.equal(
+              new Set(
+                compositionGeometry.weights.map((weight) => weight[property]),
+              ).size,
+              1,
+              "Ranking weights share aligned, equal-width 0–100% tracks",
+            );
+          for (const weight of compositionGeometry.weights) {
+            assert.ok(Math.abs(weight.ratio - weight.percent / 100) < 0.001);
+            assert.ok(weight.width >= 100 && weight.height >= 6);
+            assert.ok(
+              Math.abs(weight.detailLeft - weight.left) <= 1 &&
+                weight.detailGap >= 4 &&
+                weight.detailGap <= 12,
+              "Each Details control is aligned directly below its weight bar",
+            );
+            assert.equal(weight.scale, "weight-heading");
+          }
           assert.ok(
             Math.abs(compositionGeometry.currentRatio - 26.4 / 50) < 0.001,
           );
@@ -1704,6 +1751,18 @@ test(
         await page.locator(".trend-detail .supporting-copy").isVisible(),
         true,
       );
+      assert.ok(
+        await page.locator(".trend-detail").evaluate((detail) => {
+          const summary = detail
+            .querySelector("summary")
+            .getBoundingClientRect();
+          const copy = detail
+            .querySelector(".supporting-copy")
+            .getBoundingClientRect();
+          return copy.top >= summary.bottom;
+        }),
+        "Expanded supporting text stays below the weight and Details control",
+      );
       assert.equal(
         await disclosure.evaluate(
           (el) => el === globalThis.document.activeElement,
@@ -1752,7 +1811,7 @@ test(
             findings: patternFindings,
             layouts: patternLayouts,
             interactions:
-              "Passed: revised default route, inline header and chart controls, aligned one-line context rows with a shared pill, correct current/prior chart geometry, history range and fixed ranking scope, keyboard disclosure/focus, required facts retained, Q7-only local action, retained action state, Pages prefix assets.",
+              "Passed: revised default route, inline header and chart controls, aligned one-line context rows with a shared pill, correct current/prior chart geometry, proportional weights on shared tracks with Details below, history range and fixed ranking scope, keyboard disclosure/focus, required facts retained, Q7-only local action, retained action state, Pages prefix assets.",
             unassessed: patternCatalog.humanReview,
           },
           null,
