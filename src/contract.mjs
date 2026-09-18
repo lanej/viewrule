@@ -118,7 +118,22 @@ export async function readContract(project, globalDir) {
       throw new Error(
         "Previous report must be inside this project's review runs",
       );
-    previous = await readJSON(file, null);
+    try {
+      previous = await readJSON(file, null);
+      if (
+        config.reviewScopes?.length &&
+        previous &&
+        (previous.version !== 1 ||
+          previous.project !== project ||
+          !Array.isArray(previous.contract?.rules) ||
+          !previous.contract?.config)
+      )
+        previous = undefined;
+    } catch (error) {
+      // Comparison history is not required evidence. Scoped planning independently
+      // verifies its manifest and must be able to recover from a damaged report.
+      if (!config.reviewScopes?.length) throw error;
+    }
   }
   return {
     version: 1,

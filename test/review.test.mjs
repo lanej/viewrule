@@ -3133,6 +3133,14 @@ test(
     assert.ok(
       restoredEvidence.report.pages.every((page) => !page.findings.length),
     );
+    // Damaged comparison history must not prevent a new complete review.
+    await writeFile(restoredEvidence.reportFile, "{invalid report");
+    assert.equal((await hook({ cwd: incrementalProject })).decision, "block");
+    assert.equal((await scopePlan()).browser.captureCount, 2);
+    const repairedReport = await scopeCheck("recover-invalid-report");
+    assert.equal(repairedReport.report.execution.browser.executed, 2);
+    assert.equal(repairedReport.report.execution.sourceChecks.executed, 2);
+    assert.deepEqual(await hook({ cwd: incrementalProject }), {});
     // Real elapsed time, without editing a passing report to manufacture expiry.
     await writeIncrementalConfig({
       ...incrementalConfig,
