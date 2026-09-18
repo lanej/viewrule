@@ -82,7 +82,10 @@ global. Scoped documents inherit the existing expansion and byte limits.
 ## What invalidates evidence
 
 A local input addition, deletion, rename, content change, or newly matched glob
-invalidates its owners and their dependents. Shared inputs invalidate all dependent
+invalidates its owners and their dependents. Input identity includes the resolved
+path and a file symlink's target, so retargeting a checkpoint invalidates evidence
+even when its old and new modules contain identical bytes. Artifact checksums stay
+byte-only so copied screenshots remain verifiable. Shared inputs invalidate all dependent
 scopes. Any inventoried input with no declared owner is a **global fallback**:
 its membership or content change invalidates every scope. The plan lists these
 inputs explicitly instead of assuming they cannot matter.

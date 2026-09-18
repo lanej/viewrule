@@ -3,7 +3,12 @@ import { readFile, lstat, copyFile } from "node:fs/promises";
 import path from "node:path";
 import { chromium } from "playwright";
 import { readJSON } from "./config.mjs";
-import { digest, fileDigest, engineFingerprint } from "./fingerprints.mjs";
+import {
+  digest,
+  fileDigest,
+  inputDigest,
+  engineFingerprint,
+} from "./fingerprints.mjs";
 import { resolveSourceScope, contained } from "./source-scope.mjs";
 import { selected, pathSelection, reviewStates } from "./scopes.mjs";
 import { dependencyNames, ownsState, ownsDocument } from "./review-scopes.mjs";
@@ -216,7 +221,7 @@ export async function executionPlan(
   const cache = await readCache(project);
   const fileHashes = new Map();
   for (const { path: file } of source.files)
-    fileHashes.set(file, await fileDigest(path.join(project, file)));
+    fileHashes.set(file, await inputDigest(path.join(project, file)));
   const executable = browserExecutable();
   let browserHash;
   try {
@@ -298,7 +303,11 @@ export async function executionPlan(
   );
   const common = digest({
     config,
-    rules: contract.rules,
+    // readPlan receives configured order; readContract already sorts by ID.
+    // Canonicalize here so both callers share the same cache identity.
+    rules: [...contract.rules].sort((a, b) =>
+      a.id < b.id ? -1 : a.id > b.id ? 1 : 0,
+    ),
     policy: contract.policySHA256,
     engine: await engineFingerprint(),
     platform: [process.platform, process.arch, process.versions.node],

@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
 import { createReadStream } from "node:fs";
+import { lstat, readlink, realpath } from "node:fs/promises";
 import path from "node:path";
 import { walkFiles } from "./scopes.mjs";
 import { policyPaths } from "./design.mjs";
@@ -29,6 +30,21 @@ export async function fileDigest(file) {
     if (error.code === "ENOENT") return null;
     throw error;
   }
+}
+/** Source identity includes link resolution: byte-identical modules at different
+ * real paths can resolve relative imports differently. Keep fileDigest byte-only
+ * for evidence artifacts that are copied under new names. Missing inputs remain
+ * fingerprintable; dangling links still contribute their declared target. */
+export async function inputDigest(file) {
+  let link = null;
+  let resolved = null;
+  try {
+    if ((await lstat(file)).isSymbolicLink()) link = await readlink(file);
+    resolved = await realpath(file);
+  } catch (error) {
+    if (error.code !== "ENOENT") throw error;
+  }
+  return digest({ link, resolved, content: await fileDigest(file) });
 }
 /** Includes new engine modules automatically; a release cannot preserve stale evidence
  * merely because someone forgot to extend a manually maintained filename list. */

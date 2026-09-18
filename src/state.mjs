@@ -18,7 +18,12 @@ import {
   validateConfig,
   validateRuleScopes,
 } from "./config.mjs";
-import { engineFingerprint, fileDigest, digest } from "./fingerprints.mjs";
+import {
+  engineFingerprint,
+  fileDigest,
+  inputDigest,
+  digest,
+} from "./fingerprints.mjs";
 import { impeccableContextFingerprint } from "./impeccable.mjs";
 import { resolveSourceScope } from "./source-scope.mjs";
 import {
@@ -43,12 +48,7 @@ export async function fingerprint(project, config, globalDir, documents) {
   hash.update(await impeccableContextFingerprint(contextDirectories));
   for (const { path: file } of scope.files) {
     hash.update(file + "\0");
-    try {
-      hash.update(await readFile(path.join(project, file)));
-    } catch (err) {
-      if (err.code !== "ENOENT") throw err;
-      hash.update("deleted");
-    }
+    hash.update(await inputDigest(path.join(project, file)));
   }
   for (const file of [
     path.join(project, ".ui-review/config.json"),

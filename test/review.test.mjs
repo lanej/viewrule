@@ -8,6 +8,7 @@ import {
   readdir,
   rm,
   cp,
+  symlink,
 } from "node:fs/promises";
 import { createHash } from "node:crypto";
 import { tmpdir } from "node:os";
@@ -2853,7 +2854,7 @@ test(
       path.join(incrementalProject, ".ui-review/rules.json"),
       JSON.stringify([
         {
-          id: "scope-heading",
+          id: "z-scope-heading",
           type: "required-elements",
           selector: "main",
           required: ["h1"],
@@ -2914,7 +2915,9 @@ test(
     const runsBeforePlan = await readdir(
       path.join(incrementalProject, ".ui-review/runs"),
     );
-    assert.equal((await scopePlan()).browser.captureCount, 0);
+    // Deliberately unsorted rule IDs must not make planning disagree with check.
+    const unchangedScopePlan = await scopePlan();
+    assert.equal(unchangedScopePlan.browser.captureCount, 0);
     assert.equal(await readFile(scopeLatest, "utf8"), beforePlan);
     assert.deepEqual(
       await readdir(path.join(incrementalProject, ".ui-review/runs")),
@@ -2931,6 +2934,27 @@ test(
       executed: 0,
       reused: 2,
     });
+    assert.deepEqual(
+      unchangedScopePlan.reviewScopes.map(({ name, fingerprint }) => ({
+        name,
+        fingerprint,
+      })),
+      reusedScopeRun.report.execution.scopes.map(({ name, fingerprint }) => ({
+        name,
+        fingerprint,
+      })),
+      "Plan and check share canonical rule ordering and scope fingerprints",
+    );
+    assert.equal(
+      unchangedScopePlan.browser.captureCount,
+      reusedScopeRun.report.execution.browser.executed,
+    );
+    assert.equal(
+      unchangedScopePlan.sourceChecks.filter(
+        (provider) => provider.action === "run",
+      ).length,
+      reusedScopeRun.report.execution.sourceChecks.executed,
+    );
     for (const page of reusedScopeRun.report.pages) {
       assert.equal(page.evidence.runId, fullScopeRun.report.id);
       assert.equal(
@@ -3170,6 +3194,106 @@ test(
     assert.equal(repairedReport.report.execution.browser.executed, 2);
     assert.equal(repairedReport.report.execution.sourceChecks.executed, 2);
     assert.deepEqual(await hook({ cwd: incrementalProject }), {});
+    // Both destinations and all relative imports are declared inputs. Only the
+    // checkpoint link changes; identical module bytes must not preserve a pass.
+    const linkedSetup =
+      'import { encoding } from "./helper.mjs";\nexport default async ({ page }) => { await page.locator(".mark").evaluate((element, value) => element.setAttribute("data-encoding", value), encoding); };\n';
+    for (const name of ["a", "b"]) {
+      const directory = path.join(incrementalProject, "checkpoints", name);
+      await mkdir(directory, { recursive: true });
+      await writeFile(path.join(directory, "setup.mjs"), linkedSetup);
+      await writeFile(
+        path.join(directory, "helper.mjs"),
+        `export const encoding = "${name === "a" ? "same" : "different"}";\n`,
+      );
+    }
+    const checkpointLink = path.join(incrementalProject, "checkpoint.mjs");
+    await symlink("checkpoints/a/setup.mjs", checkpointLink);
+    await writeIncrementalConfig({
+      ...incrementalConfig,
+      pages: incrementalConfig.pages.map((page) =>
+        page.name === "a"
+          ? {
+              ...page,
+              checkpoints: [{ name: "ready", setup: "checkpoint.mjs" }],
+            }
+          : page,
+      ),
+      reviewScopes: incrementalConfig.reviewScopes.map((scope) =>
+        scope.name === "a"
+          ? { ...scope, sourcePaths: ["src/a/**", "checkpoints/**"] }
+          : scope,
+      ),
+    });
+    const linkedRun = await scopeCheck("checkpoint-link", "--full");
+    const linkedPlan = await scopePlan();
+    assert.equal(linkedPlan.browser.captureCount, 0);
+    assert.deepEqual(await hook({ cwd: incrementalProject }), {});
+    const linkedInputs = linkedPlan.reviewScopes.find(
+      (scope) => scope.name === "a",
+    ).inputs;
+    for (const file of [
+      "checkpoint.mjs",
+      "checkpoints/a/setup.mjs",
+      "checkpoints/a/helper.mjs",
+      "checkpoints/b/setup.mjs",
+      "checkpoints/b/helper.mjs",
+    ])
+      assert.ok(linkedInputs.includes(file), `Declared input missing: ${file}`);
+    await rm(checkpointLink);
+    await symlink("checkpoints/b/setup.mjs", checkpointLink);
+    assert.equal(await readFile(checkpointLink, "utf8"), linkedSetup);
+    assert.equal((await hook({ cwd: incrementalProject })).decision, "block");
+    const retargetedPlan = await scopePlan();
+    assert.equal(retargetedPlan.browser.captureCount, 1);
+    assert.equal(
+      retargetedPlan.browser.states.find((state) => state.page === "b").action,
+      "reuse",
+    );
+    const retargetedRun = await scopeCheck(
+      "retargeted-checkpoint",
+      "--incremental",
+      1,
+    );
+    assert.notEqual(
+      retargetedRun.report.fingerprint,
+      linkedRun.report.fingerprint,
+    );
+    assert.deepEqual(retargetedRun.report.execution.browser, {
+      required: 2,
+      executed: 1,
+      reused: 1,
+    });
+    assert.ok(
+      retargetedRun.report.pages
+        .find((page) => page.name === "b")
+        .findings.some((finding) => finding.rule === "shared-encoding"),
+      "Retargeting runs the different relative import and detects its rendered failure",
+    );
+    const linkedB = linkedRun.report.pages.find((page) => page.name === "b");
+    const retargetedB = retargetedRun.report.pages.find(
+      (page) => page.name === "b",
+    );
+    assert.equal(
+      retargetedRun.report.pages.find((page) => page.name === "a").evidence
+        .kind,
+      "fresh",
+    );
+    assert.equal(retargetedB.evidence.kind, "reused");
+    assert.equal(retargetedB.evidence.runId, linkedRun.report.id);
+    assert.deepEqual(
+      await readFile(
+        path.join(path.dirname(linkedRun.reportFile), linkedB.screenshot),
+      ),
+      await readFile(
+        path.join(
+          path.dirname(retargetedRun.reportFile),
+          retargetedB.screenshot,
+        ),
+      ),
+      "Copied artifacts keep byte-only checksum semantics",
+    );
+    assert.equal((await hook({ cwd: incrementalProject })).decision, "block");
     // Real elapsed time, without editing a passing report to manufacture expiry.
     await writeIncrementalConfig({
       ...incrementalConfig,
@@ -3214,6 +3338,11 @@ test(
             designText,
             checkpointSetup: incrementalSetup,
             storageState: incrementalStorage,
+            symlinkCheckpoint: {
+              setup: linkedSetup,
+              targets: ["checkpoints/a/setup.mjs", "checkpoints/b/setup.mjs"],
+              helperEncodings: { a: "same", b: "different" },
+            },
           },
           workloads,
         },
