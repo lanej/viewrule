@@ -110,3 +110,8 @@ failures involving reused evidence, provenance, damaged artifacts, full fallback
 expiry, and Stop enforcement. Captures are observations, not snapshots. Actual
 workload counts/timings and inputs are retained in
 `dist/review-evidence/incremental-workload.json`; they are not agent-cost estimates.
+The same workflow verifies plan/check agreement with deliberately unsorted rule IDs
+and checkpoint-symlink retargeting between byte-identical modules with distinct
+relative imports. Every possible target and helper is a declared input. Retargeting
+must invalidate Stop enforcement, rerun the affected page, and detect the changed
+rendered encoding while preserving the other page's verified reused capture.
