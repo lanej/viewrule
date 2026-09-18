@@ -1,0 +1,46 @@
+import { createHash } from "node:crypto";
+import { createReadStream } from "node:fs";
+import path from "node:path";
+import { walkFiles } from "./scopes.mjs";
+import { policyPaths } from "./design.mjs";
+
+function canonical(value) {
+  if (Array.isArray(value)) return value.map(canonical);
+  if (value && typeof value === "object")
+    return Object.fromEntries(
+      Object.keys(value)
+        .sort()
+        .map((key) => [key, canonical(value[key])]),
+    );
+  return value;
+}
+export function digest(value) {
+  return createHash("sha256")
+    .update(JSON.stringify(canonical(value)))
+    .digest("hex");
+}
+/** Stream large source/browser inputs instead of buffering an executable in memory. */
+export async function fileDigest(file) {
+  const hash = createHash("sha256");
+  try {
+    for await (const bytes of createReadStream(file)) hash.update(bytes);
+    return hash.digest("hex");
+  } catch (error) {
+    if (error.code === "ENOENT") return null;
+    throw error;
+  }
+}
+/** Includes new engine modules automatically; a release cannot preserve stale evidence
+ * merely because someone forgot to extend a manually maintained filename list. */
+export async function engineFingerprint() {
+  const root = path.resolve(import.meta.dirname, "..");
+  const files = new Set(["package.json", "npm-shrinkwrap.json"]);
+  for (const directory of ["src", "bin", "presets"])
+    for await (const file of walkFiles(path.join(root, directory)))
+      files.add(`${directory}/${file}`);
+  for (const file of policyPaths) files.add(path.relative(root, file));
+  const inputs = [];
+  for (const file of [...files].sort())
+    inputs.push([file, await fileDigest(path.join(root, file))]);
+  return digest(inputs);
+}

@@ -17,6 +17,15 @@ the same CLI directly.
 is available yet. Node.js 22.18+ and npm are required. Linux is exercised in CI;
 macOS and Windows have not been validated.
 
+## Incremental review (unreleased)
+
+Declare explicit input/dependency scopes, then use `viewrule plan --incremental`
+and `viewrule check --incremental` to reuse verified unchanged evidence. A complete
+report still covers every required page, viewport, checkpoint, and source provider;
+shared changes invalidate dependents. `check --full` always captures again.
+Reuse requires a nonsecret environment identity and an explicit maximum age.
+See [configuration, evidence provenance, and conservative fallbacks](docs/incremental-review.md).
+
 ## Why it exists
 
 A UI can look polished while making a decision harder: too few alternatives fit on

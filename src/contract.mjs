@@ -91,7 +91,10 @@ export async function readContract(project, globalDir) {
   );
   // Explicit documents opt in. Legacy optional discovery is not silently migrated.
   // guidance remains readable while authoring; check calls this before any writes.
-  if (config.projectDocuments !== undefined)
+  if (
+    config.projectDocuments !== undefined ||
+    config.reviewScopes?.some((scope) => scope.requiredDocuments?.length)
+  )
     validateAuthoredDesign(projectDocuments);
   const policy = await readDesignPolicy();
   const snapshot = {

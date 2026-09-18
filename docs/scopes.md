@@ -3,8 +3,9 @@
 Run `viewrule plan --project <directory>` to inspect the resolved workload as JSON.
 It reads configuration and local files but does not launch a browser, execute source
 providers, write review state, or grant approval. `check` still reviews the complete
-configured browser matrix; globs do not infer source-to-page dependencies or enable
-incremental evidence reuse.
+configured browser matrix. Globs do not infer source-to-page dependencies.
+Explicit [review scopes and incremental reuse](incremental-review.md) are available
+separately through `plan --incremental` and `check --incremental`.
 
 ## File selection
 

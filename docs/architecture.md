@@ -154,3 +154,17 @@ Fingerprints cover configured source, local/global rules and preferences, engine
 files, package manifest, shrinkwrap, and design policy. They do not cover changing
 remote data, browser binaries, operating-system fonts, or a modified live server.
 Recheck after those change. A fingerprint is a freshness aid, not an attestation.
+
+## Incremental execution
+
+Opt-in `reviewScopes` connect file/document inputs to configured browser states and
+source providers through explicit dependencies. `review-scopes.mjs` validates the
+graph; `incremental.mjs` compiles affected obligations and verifies/copies reusable
+evidence; `fingerprints.mjs` centralizes file and engine identities. The runner
+always aggregates every required obligation and recomputes cross-state rules.
+Legacy `check` remains full; see [validity, provenance, and limits](incremental-review.md).
+
+For scoped reviews only, freshness also covers browser/provider binaries, runtime
+setup files, an explicit environment identity, evidence integrity, and bounded age.
+Remote data and OS fonts are not automatically observed; the operator must update
+the nonsecret environment key or force a full review when they change.

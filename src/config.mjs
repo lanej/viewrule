@@ -15,6 +15,8 @@ import {
   validateDocumentSources,
 } from "./project-documents.mjs";
 
+import { validateReviewScopes } from "./review-scopes.mjs";
+
 const text = { type: "string", minLength: 1 };
 const names = { type: "array", minItems: 1, uniqueItems: true, items: text };
 const positive = { type: "integer", minimum: 1 };
@@ -84,6 +86,31 @@ export const configSchema = object(
     baseURL: text,
     enforceOnStop: { type: "boolean" },
     sourcePaths: scopeSchema,
+    reviewScopes: {
+      type: "array",
+      minItems: 1,
+      maxItems: 128,
+      items: object(
+        {
+          name: text,
+          sourcePaths: scopeSchema,
+          dependsOn: { ...names, minItems: 0 },
+          pages: scopeSchema,
+          viewports: scopeSchema,
+          documents: scopeSchema,
+          requiredDocuments: { ...names, minItems: 0, maxItems: 32 },
+          sourceChecks: { ...names, minItems: 0 },
+        },
+        ["name", "sourcePaths"],
+      ),
+    },
+    evidenceReuse: object(
+      {
+        environmentKey: text,
+        maxAgeMs: { type: "integer", minimum: 1000, maximum: 86400000 },
+      },
+      ["environmentKey", "maxAgeMs"],
+    ),
     accessibility: { type: "boolean" },
     projectDocuments: documentScopeSchema,
     requiredDesignRules: designIds,
@@ -298,6 +325,7 @@ export function validateConfig(config, project) {
   }
   pathSelection(config.sourcePaths);
   if (config.projectDocuments) pathSelection(config.projectDocuments);
+  validateReviewScopes(config);
   return config;
 }
 export function validateSourceChecks(providers) {
@@ -384,6 +412,7 @@ export async function loadProject(project, globalDir) {
     project,
     config.projectDocuments,
   );
+  validateReviewScopes(config, projectDocuments);
   const states = [...reviewStates(config)];
   const active = rules.filter((rule) =>
     states.some(({ page, viewport }) =>

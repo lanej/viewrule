@@ -86,12 +86,55 @@
       <h1>UI review · <span class="{{status}}">{{status}}</span></h1>
       <p>
         {{summary.errors}} errors · {{summary.warnings}} warnings ·
-        {{captureCount}} captures
+        {{captureCount}} browser states
       </p>
       <small
         >{{createdAt}} · <a href="report.json">JSON report</a> · {{id}}</small
       >
 
+      {{#execution}}
+      <section>
+        <h2>Execution · {{mode}}</h2>
+        <p>
+          {{browser.executed}} browser states executed · {{browser.reused}}
+          reused · {{browser.required}} required. {{sourceChecks.executed}}
+          source providers executed · {{sourceChecks.reused}} reused ·
+          {{sourceChecks.required}} required.
+        </p>
+        <p>
+          Every required obligation must have valid evidence. Reused
+          observations retain their original capture time; cross-state
+          constraints are reevaluated over the complete report.
+        </p>
+        <details>
+          <summary>Scope decisions</summary>
+          <table>
+            <thead>
+              <tr>
+                <th>Scope</th>
+                <th>Input status</th>
+                <th>Reason</th>
+              </tr>
+            </thead>
+            <tbody>
+              {{#scopes}}
+              <tr>
+                <td>{{name}}</td>
+                <td>{{status}}</td>
+                <td>{{reason}}</td>
+              </tr>
+              {{/scopes}}
+            </tbody>
+          </table>
+        </details>
+      </section>
+      {{/execution}} {{#sourceChecks}}{{#evidence}}
+      <p>
+        Source provider <code>{{provider.id}}</code>: {{kind}} evidence from
+        {{createdAt}}, run <code>{{runId}}</code>{{#reusedFrom}}; reused from
+        <code>{{reusedFrom}}</code>{{/reusedFrom}}.
+      </p>
+      {{/evidence}}{{/sourceChecks}}
       <section>
         <h2>Since the approved review</h2>
         {{#hasChangeBaseline}}

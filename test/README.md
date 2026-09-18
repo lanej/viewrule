@@ -100,3 +100,13 @@ rescaled panels; truthful area and position examples pass that declaration check
 The browser interaction checks expansion, retained identity, local action state,
 return focus, and reset. These tests do not prove decision sufficiency, actual SVG
 truth, or Claude's autonomous skill selection. No separate suite was added.
+
+## Scoped execution
+
+The installed review workflow ends with a two-scope application, shared inputs,
+a checkpoint, two real bundled providers, and required design documents. It
+verifies unchanged reuse, local invalidation, shared/global fan-out, cross-page
+failures involving reused evidence, provenance, damaged artifacts, full fallback,
+expiry, and Stop enforcement. Captures are observations, not snapshots. Actual
+workload counts/timings and inputs are retained in
+`dist/review-evidence/incremental-workload.json`; they are not agent-cost estimates.

@@ -36,11 +36,74 @@ export interface SourceCheckProvider {
   cwd?: string;
   severityMap?: Record<string, "error" | "warning">;
 }
+export interface ReviewScope {
+  name: string;
+  sourcePaths: Selection;
+  dependsOn?: string[];
+  pages?: Selection;
+  viewports?: Selection;
+  documents?: Selection;
+  requiredDocuments?: string[];
+  sourceChecks?: string[];
+}
+export interface EvidenceProvenance {
+  kind: "fresh" | "reused";
+  runId: string;
+  createdAt: string;
+  reusedFrom?: string;
+  browserVersion?: string;
+}
+export interface MeasurementRecord {
+  key: string;
+  fingerprint: string;
+  evidence: EvidenceProvenance;
+  rawFindings?: Finding[];
+  artifacts?: Record<string, string>;
+}
+export interface ScopeStatus {
+  name: string;
+  fingerprint: string;
+  status: "dirty" | "reusable" | "unknown";
+  reason: string;
+  dependsOn: string[];
+  inputs: string[];
+  documents: string[];
+}
+export interface ExecutionSummary {
+  mode: "full" | "incremental";
+  scopes: ScopeStatus[];
+  browser: { required: number; executed: number; reused: number };
+  sourceChecks: { required: number; executed: number; reused: number };
+}
+export interface SourceCheckResult {
+  evidence?: EvidenceProvenance;
+  provider: {
+    id: string;
+    version: string | null;
+    authority: "advisory" | "blocking";
+    command: string[];
+    cwd: string;
+    format: string;
+    engineVersion?: string;
+    binarySHA256?: string;
+    targets?: string[];
+    noConfig?: boolean;
+  };
+  execution: {
+    code: number;
+    stdout: string;
+    stderr: string;
+    elapsedMs: number;
+  };
+  findings: Finding[];
+}
 export interface ProjectConfig {
   version: 1;
   baseURL: string;
   enforceOnStop: boolean;
   sourcePaths: Selection;
+  reviewScopes?: ReviewScope[];
+  evidenceReuse?: { environmentKey: string; maxAgeMs: number };
   accessibility: boolean;
   projectDocuments?: Selection;
   requiredDesignRules?: string[];
@@ -159,6 +222,7 @@ export type DesignPolicy = Awaited<
   ReturnType<typeof import("./design.mjs").readDesignPolicy>
 >;
 export interface PageResult {
+  evidence?: EvidenceProvenance;
   name: string;
   checkpoint?: string;
   checkpointSetup?: string;
@@ -233,6 +297,12 @@ export interface EvidenceChange {
   }[];
 }
 export interface ReviewReport {
+  execution?: ExecutionSummary;
+  measurements?: {
+    version: 1;
+    pages: MeasurementRecord[];
+    sourceChecks: MeasurementRecord[];
+  };
   version: 1;
   id: string;
   project: string;
@@ -242,9 +312,7 @@ export interface ReviewReport {
   status: "pass" | "fail";
   summary: { errors: number; warnings: number };
   pages: PageResult[];
-  sourceChecks?: Awaited<
-    ReturnType<typeof import("./source-checks.mjs").runSourceChecks>
-  >;
+  sourceChecks?: SourceCheckResult[];
   changes?: ReviewChanges;
   designPolicy: DesignPolicy;
   contract: Awaited<ReturnType<typeof import("./contract.mjs").readContract>>;

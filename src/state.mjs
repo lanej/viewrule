@@ -18,9 +18,8 @@ import {
   validateConfig,
   validateRuleScopes,
 } from "./config.mjs";
-import { policyPaths } from "./design.mjs";
+import { engineFingerprint, fileDigest, digest } from "./fingerprints.mjs";
 import { impeccableContextFingerprint } from "./impeccable.mjs";
-import { walkFiles } from "./scopes.mjs";
 import { resolveSourceScope } from "./source-scope.mjs";
 import {
   readProjectDocuments,
@@ -72,47 +71,29 @@ export async function fingerprint(project, config, globalDir, documents) {
         (await readProjectDocuments(project, config.projectDocuments)),
     ),
   );
-  // Changing the checker itself invalidates old passing runs after a Viewrule update.
-  for (const file of [
-    "config.mjs",
-    "scopes.mjs",
-    "source-scope.mjs",
-    "plan.mjs",
-    "capture.mjs",
-    "checks.mjs",
-    "design.mjs",
-    "review.mjs",
-    "state.mjs",
-    "paths.mjs",
-    "cli.mjs",
-    "report.mjs",
-    "presets.mjs",
-    "contract.mjs",
-    "project-documents.mjs",
-    "source-checks.mjs",
-    "impeccable.mjs",
-    "../presets/preferences.json",
-    "../presets/baseline.json",
-    "../presets/analytical.json",
-    "../bin/viewrule.mjs",
-    "../package.json",
-    "../npm-shrinkwrap.json",
-  ])
-    hash.update(await readFile(path.join(import.meta.dirname, file)));
-  const templates = [];
-  for await (const file of walkFiles(
-    path.join(import.meta.dirname, "templates"),
-  ))
-    templates.push(file);
-  for (const file of templates.sort()) {
-    hash.update(`templates/${file}\0`);
+  hash.update(await engineFingerprint());
+  if (config.reviewScopes?.length) {
+    const { browserExecutable } = await import("./incremental.mjs");
     hash.update(
-      await readFile(path.join(import.meta.dirname, "templates", file)),
+      digest([
+        process.platform,
+        process.arch,
+        process.versions.node,
+        browserExecutable(),
+        await fileDigest(browserExecutable()),
+      ]),
     );
-  }
-  for (const file of policyPaths) {
-    hash.update(file + "\0");
-    hash.update(await readFile(file));
+    if (
+      (config.sourceChecks ?? []).some(
+        (provider) =>
+          provider.enabled !== false &&
+          provider.format === "impeccable" &&
+          !provider.command,
+      )
+    ) {
+      const { installedImpeccable } = await import("./impeccable.mjs");
+      hash.update(digest(await installedImpeccable()));
+    }
   }
   return hash.digest("hex");
 }
@@ -290,8 +271,18 @@ export async function hookDecision(payload, globalDir) {
     if (
       latest?.status === "pass" &&
       latest.fingerprint === (await fingerprint(project, config, globalDir))
-    )
+    ) {
+      if (config.reviewScopes?.length) {
+        const { storedEvidenceProblem } = await import("./incremental.mjs");
+        const problem = await storedEvidenceProblem(project, config);
+        if (problem)
+          return {
+            decision: "block",
+            reason: `${problem} Run viewrule check --incremental or --full.`,
+          };
+      }
       return {};
+    }
     return {
       decision: "block",
       reason:

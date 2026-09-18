@@ -77,6 +77,8 @@ function pageView(page, reference, documents) {
   }));
   return {
     ...page,
+    captureLabel:
+      page.evidence?.kind === "reused" ? "Reused capture" : "Current capture",
     stateName: page.checkpoint
       ? `${page.name} · ${page.checkpoint}`
       : page.name,

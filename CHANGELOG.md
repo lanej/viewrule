@@ -2,10 +2,16 @@
 
 ## Unreleased
 
+- Add explicit review scopes, dependency fan-out, and opt-in `check/plan --incremental`,
+  preserving full-review defaults and conservative handling of unknown inputs.
+- Reuse verified complete evidence with original provenance, bounded age, and an
+  explicit environment identity; recompute cross-state rules and enforce complete
+  coverage and evidence integrity in Stop decisions.
+
 - Add native include/exclude globs for source paths, project documents, and logical
   page/viewport scopes, preserving legacy directory prefixes and exact citations.
 - Add read-only `plan` output using the same resolved inputs and browser obligations
-  as freshness checking and review execution. This does not enable incremental runs.
+  as freshness checking and review execution; incremental execution is separately opt-in.
 - Bound document expansion and reject missing required documents or root escapes.
 
 ## 0.6.0 — 2026-09-15

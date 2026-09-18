@@ -60,8 +60,9 @@ function flatten(report) {
 
 /** @param {import("./types.js").FindingChange} entry
  * @param {import("./types.js").ReviewReport} report
- * @param {ReturnType<typeof compareContracts>} contract */
-function comparisonGap(entry, report, contract) {
+ * @param {ReturnType<typeof compareContracts>} contract
+ * @param {import("./types.js").ReviewReport} baseline */
+function comparisonGap(entry, report, contract, baseline) {
   if (contract.comparison !== "available")
     return "The approved contract is unavailable.";
   if (contract.configurationChange || contract.policyChanged)
@@ -75,18 +76,26 @@ function comparisonGap(entry, report, contract) {
   )
     return "Source changed during capture.";
   const provider = entry.finding.sourceCheck?.provider;
-  if (provider)
-    return report.sourceChecks?.some(
+  const predatesBaseline = (evidence) =>
+    evidence?.kind === "reused" &&
+    Date.parse(evidence.createdAt) < Date.parse(baseline.createdAt);
+  if (provider) {
+    const result = report.sourceChecks?.find(
       (result) => result.provider.id === provider,
-    )
-      ? null
-      : "The source provider was not run.";
+    );
+    if (!result) return "The source provider has no evidence.";
+    return predatesBaseline(result.evidence)
+      ? "Reused source evidence predates the approved baseline."
+      : null;
+  }
   const page = report.pages.find(
     (candidate) =>
       identity(pageKey(candidate)) ===
       identity(pageKey({ name: entry.page, ...entry })),
   );
   if (!page) return "The page, checkpoint, or viewport was not reviewed.";
+  if (predatesBaseline(page.evidence))
+    return "Reused page evidence predates the approved baseline.";
   if (
     !page.coverage ||
     page.findings.some((finding) =>
@@ -136,7 +145,7 @@ export function classifyChanges(report, baseline) {
   const resolvedFindings = [],
     notComparedFindings = [];
   for (const entry of previous.filter((entry) => !currentIds.has(entry.id))) {
-    const reason = comparisonGap(entry, report, contract);
+    const reason = comparisonGap(entry, report, contract, baseline);
     if (reason) notComparedFindings.push({ ...entry, reason });
     else resolvedFindings.push(entry);
   }
