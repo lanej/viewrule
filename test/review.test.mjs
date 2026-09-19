@@ -2237,7 +2237,17 @@ test(
         );
         assert.equal(
           await role(quality, "error").textContent(),
-          "Enter a reduction from 0% through 6%. Correct the proposal and try again.",
+          "Enter 6% or less.",
+        );
+        assert.equal(
+          await role(quality, "proposal").evaluate(
+            (el) => el === el.ownerDocument.activeElement,
+          ),
+          true,
+        );
+        assert.equal(
+          await role(quality, "help").textContent(),
+          "Allowed range: 0–6%",
         );
       }
       await screenshot("DR-012", "rejected");
