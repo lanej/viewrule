@@ -1361,11 +1361,12 @@ test(
           ),
         );
         assert.ok(
-          ["pass", "fail", "review", "not-applicable"].includes(
-            assessment.bad,
-          ),
+          ["pass", "fail", "review", "not-applicable"].includes(assessment.bad),
         );
-        assert.ok(assessment.evidence?.trim(), `${example.id}/${id} needs evidence`);
+        assert.ok(
+          assessment.evidence?.trim(),
+          `${example.id}/${id} needs evidence`,
+        );
         assert.notEqual(
           assessment.good,
           "fail",
