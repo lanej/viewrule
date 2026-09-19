@@ -43,9 +43,9 @@ jobs:
           git commit -m "Apply Prettier formatting"
           git push origin "HEAD:$HEAD_REF"
           echo "pushed=true" >> "$GITHUB_OUTPUT"
-      - name: Stop superseded formatting run
+      - name: Formatting commit pushed
         if: steps.format-commit.outputs.pushed == 'true'
-        run: exit 1
+        run: echo "A formatting-only commit was pushed; expensive validation continues on the new PR head."
       - name: Check lint
         if: ${{ !cancelled() && steps.dependencies.outcome == 'success' && steps.format-commit.outputs.pushed != 'true' }}
         run: npm run lint
