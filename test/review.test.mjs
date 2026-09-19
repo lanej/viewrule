@@ -2287,7 +2287,7 @@ test(
         );
         assert.equal(
           await role(quality, "error").textContent(),
-          "Enter 6% or less.",
+          "Entered value is outside the allowed range.",
         );
         assert.equal(
           await role(quality, "help").textContent(),
@@ -2357,7 +2357,7 @@ test(
         });
       for (const quality of ["good", "bad"])
         await role(quality, "error").evaluate((node) => {
-          node.textContent = "Enter 6% or less.";
+          node.textContent = "Entered value is outside the allowed range.";
         });
       for (const quality of ["good", "bad"]) {
         await role(quality, "proposal").fill("6");
