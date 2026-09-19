@@ -2302,21 +2302,57 @@ test(
         "The most recently rejected variant retains focus on its proposal field",
       );
       await screenshot("DR-012", "rejected");
-      for (const quality of ["good", "bad"]) {
-        const file = `dr-012-rejected-${quality}.png`;
+      const captureDr012Panel = async (quality, viewport) => {
+        const file = `dr-012-rejected-${quality}-${viewport}.png`;
         await page.locator(`#${quality} .sample`).screenshot({
           path: path.join(evidenceDirectory, file),
         });
         captures.push({
           id: "DR-012",
-          state: `rejected-${quality}`,
+          state: `rejected-${quality}-${viewport}`,
           file,
           viewport: page.viewportSize(),
           colorScheme: "light",
           deviceScaleFactor: 1,
           fullPage: false,
         });
+      };
+      for (const quality of ["good", "bad"])
+        await captureDr012Panel(quality, "desktop");
+
+      await page.setViewportSize({ width: 390, height: 844 });
+      await page.locator("#good .sample, #bad .sample").evaluateAll((samples) => {
+        for (const sample of samples) sample.dataset.enlarged = "true";
+      });
+      for (const quality of ["good", "bad"])
+        await role(quality, "error").evaluate((node) => {
+          node.textContent =
+            "This proposal cannot be reviewed until the entered reduction is within the allowed range for these 12 lanes.";
+        });
+      const mobileWidth = await page.locator("html").evaluate((element) => ({
+        content: element.scrollWidth,
+        viewport: element.ownerDocument.defaultView.innerWidth,
+      }));
+      assert.ok(
+        mobileWidth.content <= mobileWidth.viewport,
+        `DR-012 mobile evidence must not add page-level horizontal overflow: ${JSON.stringify(mobileWidth)}`,
+      );
+      for (const quality of ["good", "bad"]) {
+        assert.equal(await role(quality, "error").isVisible(), true);
+        assert.equal(
+          await page.locator(`#${quality} button[type="submit"]`).isVisible(),
+          true,
+        );
+        await captureDr012Panel(quality, "mobile");
       }
+      await page.setViewportSize({ width: 1200, height: 1000 });
+      await page.locator("#good .sample, #bad .sample").evaluateAll((samples) => {
+        for (const sample of samples) sample.dataset.enlarged = "false";
+      });
+      for (const quality of ["good", "bad"])
+        await role(quality, "error").evaluate((node) => {
+          node.textContent = "Enter 6% or less.";
+        });
       for (const quality of ["good", "bad"]) {
         await role(quality, "proposal").fill("6");
         await page.locator(`#${quality} button[type="submit"]`).click();
