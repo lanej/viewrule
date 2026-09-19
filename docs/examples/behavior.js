@@ -316,7 +316,7 @@ async function start() {
         find(sample, "approved").textContent = `${approved}%`;
         find(sample, "result").textContent =
           `Applied ${approved}% reduction to the 12 selected lanes.`;
-        find(sample, "undo").hidden = !good;
+        find(sample, "undo").hidden = false;
       };
       find(sample, "form").onsubmit = (event) => {
         event.preventDefault();
@@ -328,9 +328,8 @@ async function start() {
           value > 6
         ) {
           error.hidden = false;
-          error.textContent = good
-            ? "Enter a reduction from 0% through 6%. Your proposal has been retained."
-            : "Something went wrong.";
+          error.textContent =
+            "Enter a reduction from 0% through 6%. Correct the proposal and try again.";
           input.setAttribute("aria-invalid", "true");
           if (!good) input.value = "";
           return;
@@ -338,11 +337,9 @@ async function start() {
         error.hidden = true;
         input.removeAttribute("aria-invalid");
         proposed = value;
-        if (good) {
-          find(sample, "review").textContent =
-            `Change the approved reduction from ${approved}% to ${proposed}% for 12 selected lanes.`;
-          dialog.showModal();
-        } else commit();
+        find(sample, "review").textContent =
+          `Change the approved reduction from ${approved}% to ${proposed}% for 12 selected lanes.`;
+        dialog.showModal();
       };
       find(sample, "cancel").onclick = () => dialog.close();
       find(sample, "confirm").onclick = () => {
