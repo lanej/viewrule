@@ -2331,13 +2331,13 @@ test(
           node.textContent =
             "This proposal cannot be reviewed until the entered reduction is within the allowed range for these 12 lanes.";
         });
-      const mobileWidth = await page.locator("html").evaluate((element) => ({
+      const dr012MobileWidth = await page.locator("html").evaluate((element) => ({
         content: element.scrollWidth,
         viewport: element.ownerDocument.defaultView.innerWidth,
       }));
       assert.ok(
-        mobileWidth.content <= mobileWidth.viewport,
-        `DR-012 mobile evidence must not add page-level horizontal overflow: ${JSON.stringify(mobileWidth)}`,
+        dr012MobileWidth.content <= dr012MobileWidth.viewport,
+        `DR-012 mobile evidence must not add page-level horizontal overflow: ${JSON.stringify(dr012MobileWidth)}`,
       );
       for (const quality of ["good", "bad"]) {
         assert.equal(await role(quality, "error").isVisible(), true);
