@@ -9,7 +9,7 @@
       "enforcement": "behavioral",
       "task": "Decide whether the shipment count is usable after a refresh fails.",
       "good": "Retain 12 with its stale qualifier and original as-of time; keep failure and retry local.",
-      "bad": "A failed request becomes zero shipments and claims to be current.",
+      "bad": "Keep the same polished component and recovery path, but promote the failed refresh to a current zero observation.",
       "alternatives": [
         "Replace the metric with an explicit unavailable state when retained data is not useful."
       ],
@@ -22,7 +22,7 @@
         "min-size",
         "align"
       ],
-      "verification": "Native checks require visible context, adjacent state and as-of labels, aligned content-sized cards, readable type, and a local retry target. Pause retry response to inspect retained data while pending, return another failure, then retry and return the 18-shipment response. These controlled application transitions are not backend verification or a general hierarchy verdict.",
+      "verification": "Native checks require both variants to preserve the same visible context, layout, readable type, and local retry target. The application checkpoint asserts those invariants, then verifies that only the bad variant promotes a failed refresh to a current zero. Pause retry response to inspect retained data while pending, return another failure, then retry and return the 18-shipment response. These controlled application transitions are not backend verification or a general hierarchy verdict.",
       "sources": [
         "https://www.nngroup.com/articles/visibility-system-status/",
         "https://www.w3.org/WAI/WCAG22/Understanding/status-messages.html"
@@ -37,11 +37,15 @@
       "task": "Inspect EP 1042, return to the queue, and continue the Seattle comparison.",
       "good": "The filter, selected shipment identity, and invoking control survive the detail round trip.",
       "bad": "Closing detail clears the filter, substitutes EP 1043, and moves focus elsewhere.",
-      "alternatives": ["Keep a persistent detail panel beside the queue."],
+      "alternatives": [
+        "Keep a persistent detail panel beside the queue."
+      ],
       "exception": "A deleted item needs an explained transition and a useful surviving focus target.",
       "nativeChecks": [],
       "verification": "Application assertions compare the real input value, selected identity, and focus across opening and closing. Generic journey and scroll preservation are not engine checks.",
-      "sources": ["https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/"],
+      "sources": [
+        "https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/"
+      ],
       "example": "behavior.html?rule=DR-010",
       "policyAnchor": "dr-010--interactions-preserve-the-working-context"
     },
@@ -56,7 +60,9 @@
         "Use a shorter label when an adjacent persistent heading makes scope unambiguous."
       ],
       "exception": "Familiar icons can work with accessible names; no universal requirement for long button text.",
-      "nativeChecks": ["context"],
+      "nativeChecks": [
+        "context"
+      ],
       "verification": "Review the label against the simulated effect. A scoped context check can require scope text; it cannot decide whether the wording is understandable.",
       "sources": [
         "https://jnd.org/signifiers-not-affordances/",
@@ -76,7 +82,9 @@
         "Use actual reversal without a modal for a genuinely low-risk operation."
       ],
       "exception": "Do not offer Undo for an irreversible action; explain safe re-entry requirements.",
-      "nativeChecks": ["context"],
+      "nativeChecks": [
+        "context"
+      ],
       "verification": "The fixture checks rejection, correction, cancellation, review, and actual local-model reversal. It does not prove remote transaction rollback or financial compliance.",
       "sources": [
         "https://www.w3.org/WAI/WCAG22/Understanding/error-prevention-legal-financial-data.html",
@@ -136,7 +144,9 @@
         "Use an accessible detail control or a labeled local scroll region when wrapping is inappropriate."
       ],
       "exception": "Truncation is acceptable when the task does not depend on the omitted distinction and full text is accessible.",
-      "nativeChecks": ["no-clip"],
+      "nativeChecks": [
+        "no-clip"
+      ],
       "verification": "Native no-clip measures the actual clipped labels. Fixture enlargement is not browser zoom; meaning and untested locales still need review.",
       "sources": [
         "https://www.w3.org/WAI/WCAG22/Understanding/resize-text.html",
@@ -158,7 +168,9 @@
       "exception": "An explicitly ordered category set can justify a different encoding when explained.",
       "nativeChecks": [],
       "verification": "Human semantic review of the variable and palette. Attribute equality or an arbitrary data-palette declaration is not evidence that color meaning is appropriate.",
-      "sources": ["https://colorbrewer2.org/learnmore/schemes_full.html"],
+      "sources": [
+        "https://colorbrewer2.org/learnmore/schemes_full.html"
+      ],
       "example": "behavior.html?rule=DR-016",
       "policyAnchor": "dr-016--color-scales-match-the-structure-of-the-data"
     }
