@@ -102,7 +102,8 @@ async function start() {
       // failure evidence, and recovery action. Only the state interpretation is
       // wrong: a failed refresh is promoted to a current zero observation.
       count.textContent = "0";
-      status.textContent = state === "retrying" ? "current · retrying" : "current";
+      status.textContent =
+        state === "retrying" ? "current · retrying" : "current";
       asOf.textContent = `Data as of ${attempt}`;
     }
     retry.onclick = async () => {
