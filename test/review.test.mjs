@@ -1343,6 +1343,49 @@ test(
       contextSchema.properties.designRules.items.enum.slice(8),
       additions,
     );
+    const conformance = JSON.parse(
+      await readFile(
+        path.join(exampleDirectory, "conformance-matrix.json"),
+        "utf8",
+      ),
+    );
+    const registeredRules = catalog.rules.map((rule) => rule.id);
+    for (const example of conformance.examples) {
+      assert.equal(example.target, example.id);
+      assert.deepEqual(Object.keys(example.rules), registeredRules);
+      const failures = [];
+      for (const [id, assessment] of Object.entries(example.rules)) {
+        assert.ok(
+          ["pass", "fail", "review", "not-applicable"].includes(
+            assessment.good,
+          ),
+        );
+        assert.ok(
+          ["pass", "fail", "review", "not-applicable"].includes(
+            assessment.bad,
+          ),
+        );
+        assert.ok(assessment.evidence?.trim(), `${example.id}/${id} needs evidence`);
+        assert.notEqual(
+          assessment.good,
+          "fail",
+          `${example.id} Good must not fail ${id}`,
+        );
+        if (assessment.bad === "fail") failures.push(id);
+        else
+          assert.equal(
+            assessment.bad,
+            assessment.good,
+            `${example.id} non-target ${id} must match Good`,
+          );
+      }
+      assert.deepEqual(
+        failures,
+        [example.target],
+        `${example.id} Bad must fail exactly its target rule`,
+      );
+    }
+
     const behaviorConfig = JSON.parse(
       await readFile(
         path.join(exampleDirectory, "behavior-config.json"),
