@@ -2331,10 +2331,12 @@ test(
           node.textContent =
             "This proposal cannot be reviewed until the entered reduction is within the allowed range for these 12 lanes.";
         });
-      const dr012MobileWidth = await page.locator("html").evaluate((element) => ({
-        content: element.scrollWidth,
-        viewport: element.ownerDocument.defaultView.innerWidth,
-      }));
+      const dr012MobileWidth = await page
+        .locator("html")
+        .evaluate((element) => ({
+          content: element.scrollWidth,
+          viewport: element.ownerDocument.defaultView.innerWidth,
+        }));
       assert.ok(
         dr012MobileWidth.content <= dr012MobileWidth.viewport,
         `DR-012 mobile evidence must not add page-level horizontal overflow: ${JSON.stringify(dr012MobileWidth)}`,
