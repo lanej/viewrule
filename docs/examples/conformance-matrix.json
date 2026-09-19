@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "examples": [
+    {
+      "id": "DR-012",
+      "target": "DR-012",
+      "rules": {
+        "DR-001": {"good":"not-applicable","bad":"not-applicable","evidence":"No chart scale comparison."},
+        "DR-002": {"good":"not-applicable","bad":"not-applicable","evidence":"No graphical magnitude encoding."},
+        "DR-003": {"good":"pass","bad":"pass","evidence":"Reduction values have percent units and shared 12-lane scope."},
+        "DR-004": {"good":"pass","bad":"pass","evidence":"An empty input is not presented as an observed zero."},
+        "DR-005": {"good":"pass","bad":"pass","evidence":"Both variants share visual and interaction encodings."},
+        "DR-006": {"good":"pass","bad":"pass","evidence":"Constraint and validation stay adjacent to the proposed value."},
+        "DR-007": {"good":"pass","bad":"pass","evidence":"Compact form preserves readable type and usable controls."},
+        "DR-008": {"good":"review","bad":"review","evidence":"Review: decoration does not compete with the editing task."},
+        "DR-009": {"good":"pass","bad":"pass","evidence":"Operational states are not overstated."},
+        "DR-010": {"good":"pass","bad":"pass","evidence":"Review cancellation preserves proposal, scope, and current value; rejection recovery is DR-012's boundary."},
+        "DR-011": {"good":"pass","bad":"pass","evidence":"Allowed reduction is exposed before commitment and review exposes scope."},
+        "DR-012": {"good":"pass","bad":"fail","evidence":"Only Bad discards the rejected proposal; guidance and downstream recovery remain identical."},
+        "DR-013": {"good":"review","bad":"review","evidence":"Review: proposal, validation, and corrective action lead the rejected state."},
+        "DR-014": {"good":"pass","bad":"pass","evidence":"Native labeled controls, focus recovery, associated validation, and keyboard dialog are shared."},
+        "DR-015": {"good":"review","bad":"review","evidence":"Review enlarged text and content variation; no fixed-height task container."},
+        "DR-016": {"good":"not-applicable","bad":"not-applicable","evidence":"Color does not encode a data variable."}
+      }
+    }
+  ]
+}
