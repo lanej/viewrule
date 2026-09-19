@@ -1355,12 +1355,8 @@ test(
       assert.deepEqual(Object.keys(example.rules), registeredRules);
       const failures = [];
       for (const [id, assessment] of Object.entries(example.rules)) {
-        assert.ok(
-          ["pass", "fail", "not-applicable"].includes(assessment.good),
-        );
-        assert.ok(
-          ["pass", "fail", "not-applicable"].includes(assessment.bad),
-        );
+        assert.ok(["pass", "fail", "not-applicable"].includes(assessment.good));
+        assert.ok(["pass", "fail", "not-applicable"].includes(assessment.bad));
         assert.ok(
           assessment.evidence?.trim(),
           `${example.id}/${id} needs evidence`,
