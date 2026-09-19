@@ -64,7 +64,8 @@ async function start() {
       queued: "Queued — not yet completed",
       completed: "Completed",
     };
-    count.textContent = state === "filtered" ? "0" : String(snapshot?.count ?? "—");
+    count.textContent =
+      state === "filtered" ? "0" : String(snapshot?.count ?? "—");
     status.textContent = copy[state];
     status.id = `shipment-status-${good ? "good" : "bad"}`;
     asOf.id = `shipment-as-of-${good ? "good" : "bad"}`;
@@ -81,16 +82,25 @@ async function start() {
         : busy
           ? `Refresh requested at ${attempt}`
           : `Response received at ${attempt}`;
-    retry.hidden = !snapshot || ["submitting", "queued", "completed"].includes(state);
+    retry.hidden =
+      !snapshot || ["submitting", "queued", "completed"].includes(state);
     retry.textContent = busy
-      ? state === "retrying" ? "Retrying…" : "Refreshing…"
-      : state === "failed" ? "Retry" : "Refresh";
+      ? state === "retrying"
+        ? "Retrying…"
+        : "Refreshing…"
+      : state === "failed"
+        ? "Retry"
+        : "Refresh";
     // Keep the invoking button focused while preventing duplicate requests.
     retry.setAttribute("aria-disabled", String(busy));
     sample.dataset.state = state;
-    find(sample, "count").closest(".metric").setAttribute("aria-busy", String(busy));
+    find(sample, "count")
+      .closest(".metric")
+      .setAttribute("aria-busy", String(busy));
     if (!good) {
-      if (["failed", "loading", "filtered", "empty", "retrying"].includes(state))
+      if (
+        ["failed", "loading", "filtered", "empty", "retrying"].includes(state)
+      )
         count.textContent = "0";
       status.textContent = ["submitting", "queued", "completed"].includes(state)
         ? "Published"
@@ -103,7 +113,8 @@ async function start() {
       if (["refreshing", "retrying"].includes(statePicker.value)) return;
       const currentRequest = ++request;
       attempt = "09:06";
-      statePicker.value = statePicker.value === "failed" ? "retrying" : "refreshing";
+      statePicker.value =
+        statePicker.value === "failed" ? "retrying" : "refreshing";
       paintShipments();
       // The fixture can resolve immediately or be held for deterministic review.
       // Reset or selecting another fixture invalidates an outstanding response.
@@ -125,7 +136,10 @@ async function start() {
 
   function paintShipments() {
     for (const quality of ["good", "bad"])
-      paintShipment(document.querySelector(`#${quality} .sample`), quality === "good");
+      paintShipment(
+        document.querySelector(`#${quality} .sample`),
+        quality === "good",
+      );
     root.dataset.shipmentState = statePicker.value;
   }
 
@@ -135,8 +149,10 @@ async function start() {
     // A fixture-response control is about to disappear; return to the local action.
     find(document.querySelector("#good .sample"), "retry").focus();
   }
-  document.getElementById("resolve-failure").onclick = () => settleResponse(null);
-  document.getElementById("resolve-success").onclick = () => settleResponse(recoveredSnapshot);
+  document.getElementById("resolve-failure").onclick = () =>
+    settleResponse(null);
+  document.getElementById("resolve-success").onclick = () =>
+    settleResponse(recoveredSnapshot);
 
   function render() {
     const rule = catalog.rules.find((entry) => entry.id === picker.value);
@@ -147,13 +163,14 @@ async function start() {
     resolveResponse?.(null);
     resolveResponse = null;
     responseControls.hidden = true;
-    snapshot = statePicker.value === "loading"
-      ? null
-      : statePicker.value === "loaded"
-        ? recoveredSnapshot
-        : statePicker.value === "empty"
-          ? { count: 0, asOf: "09:05" }
-          : initialSnapshot;
+    snapshot =
+      statePicker.value === "loading"
+        ? null
+        : statePicker.value === "loaded"
+          ? recoveredSnapshot
+          : statePicker.value === "empty"
+            ? { count: 0, asOf: "09:05" }
+            : initialSnapshot;
     attempt = "09:05";
     const stateExample = rule.id === "DR-009";
     const controls = document.querySelector(".example-controls");
@@ -166,7 +183,8 @@ async function start() {
       heading = replacement;
     }
     const pair = document.querySelector(".behavior-pair");
-    if (stateExample && pair.nextElementSibling !== controls) pair.after(controls);
+    if (stateExample && pair.nextElementSibling !== controls)
+      pair.after(controls);
     else if (!stateExample && controls.nextElementSibling !== heading)
       heading.before(controls);
     document.getElementById("request-control").hidden = !stateExample;
@@ -175,19 +193,27 @@ async function start() {
       document.querySelector(".review-notes")
     );
     notes.open = !stateExample;
-    document.querySelector("#rule-heading").textContent =
-      stateExample ? "A failed refresh is not zero shipments." : `${rule.id} — ${rule.title}`;
+    document.querySelector("#rule-heading").textContent = stateExample
+      ? "A failed refresh is not zero shipments."
+      : `${rule.id} — ${rule.title}`;
     const sharedFacts = {
-      failed: "At 09:00, both views received 12 shipments. The 09:05 refresh failed.",
+      failed:
+        "At 09:00, both views received 12 shipments. The 09:05 refresh failed.",
       loading: "Both views are waiting for their first shipment response.",
-      refreshing: "Both views retain 12 shipments from 09:00 while a refresh is pending.",
-      retrying: "Both views retain the same 09:00 snapshot while retrying a failed refresh.",
-      loaded: "Both views received a successful response: 18 shipments as of 09:05.",
+      refreshing:
+        "Both views retain 12 shipments from 09:00 while a refresh is pending.",
+      retrying:
+        "Both views retain the same 09:00 snapshot while retrying a failed refresh.",
+      loaded:
+        "Both views received a successful response: 18 shipments as of 09:05.",
       empty: "Both views received an observed empty snapshot as of 09:05.",
-      filtered: "The snapshot contains 12 shipments; none match the Seattle filter.",
-      submitting: "The publication request has been submitted but not yet queued.",
+      filtered:
+        "The snapshot contains 12 shipments; none match the Seattle filter.",
+      submitting:
+        "The publication request has been submitted but not yet queued.",
       queued: "The publication has been queued but has not completed.",
-      completed: "The publication has completed, confirmed by the response fixture.",
+      completed:
+        "The publication has completed, confirmed by the response fixture.",
     };
     document.querySelector("#task").textContent = stateExample
       ? sharedFacts[statePicker.value]

@@ -9,7 +9,9 @@ export default async function ({ page }) {
     assert.equal(await role("as-of").textContent(), `Data as of ${time}`);
   };
   const settled = async (name) => {
-    await page.locator(`#behavior-examples[data-shipment-state="${name}"]`).waitFor();
+    await page
+      .locator(`#behavior-examples[data-shipment-state="${name}"]`)
+      .waitFor();
   };
   await page.locator("#reset").click();
   await expectSnapshot("12", "09:00");
@@ -18,7 +20,10 @@ export default async function ({ page }) {
   await settled("retrying");
   await expectSnapshot("12", "09:00");
   assert.equal(await role("retry").getAttribute("aria-disabled"), "true");
-  assert.equal(await role("retry").evaluate((el) => el === el.ownerDocument.activeElement), true);
+  assert.equal(
+    await role("retry").evaluate((el) => el === el.ownerDocument.activeElement),
+    true,
+  );
   await page.locator("#resolve-failure").click();
   await settled("failed");
   await expectSnapshot("12", "09:00");
@@ -29,7 +34,10 @@ export default async function ({ page }) {
   await page.locator("#resolve-success").click();
   await settled("loaded");
   await expectSnapshot("18", "09:05");
-  assert.equal(await role("retry").evaluate((el) => el === el.ownerDocument.activeElement), true);
+  assert.equal(
+    await role("retry").evaluate((el) => el === el.ownerDocument.activeElement),
+    true,
+  );
 
   // Refreshing known data retains it too; abandoning the request cannot recover it.
   await role("retry").click();
@@ -56,5 +64,8 @@ export default async function ({ page }) {
   assert.equal(await role("refresh-at").isVisible(), true);
   await page.keyboard.press("Enter");
   assert.equal(await page.locator("#verification").isVisible(), false);
-  assert.equal(await summary.evaluate((el) => el === el.ownerDocument.activeElement), true);
+  assert.equal(
+    await summary.evaluate((el) => el === el.ownerDocument.activeElement),
+    true,
+  );
 }
