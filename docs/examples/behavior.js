@@ -30,13 +30,168 @@ async function start() {
     ? requested
     : "DR-009";
 
+  // Snapshot and request state are separate: a request cannot manufacture data.
+  const initialSnapshot = { count: 12, asOf: "09:00" };
+  const recoveredSnapshot = { count: 18, asOf: "09:05" };
+  /** @type {{ count: number; asOf: string } | null} */
+  let snapshot = initialSnapshot;
+  let attempt = "09:05";
+  let request = 0;
+  /** @type {((value: typeof snapshot) => void) | null} */
+  let resolveResponse = null;
+  const pauseResponse = /** @type {HTMLInputElement} */ (
+    document.getElementById("pause-response")
+  );
+  const responseControls = document.getElementById("response-controls");
+
+  function paintShipment(sample, good) {
+    const state = statePicker.value;
+    const busy = ["refreshing", "retrying"].includes(state);
+    const count = find(sample, "count");
+    const status = find(sample, "status");
+    const asOf = find(sample, "as-of");
+    const refreshAt = find(sample, "refresh-at");
+    const retry = find(sample, "retry");
+    const copy = {
+      failed: "stale",
+      loading: "Loading — no result yet",
+      refreshing: "Refreshing",
+      retrying: "stale · retrying",
+      loaded: "Loaded",
+      empty: "Observed empty",
+      filtered: "Filtered out",
+      submitting: "Submitting — not yet queued",
+      queued: "Queued — not yet completed",
+      completed: "Completed",
+    };
+    count.textContent = state === "filtered" ? "0" : String(snapshot?.count ?? "—");
+    status.textContent = copy[state];
+    status.id = `shipment-status-${good ? "good" : "bad"}`;
+    asOf.id = `shipment-as-of-${good ? "good" : "bad"}`;
+    count.setAttribute(
+      "aria-describedby",
+      good && snapshot ? `${status.id} ${asOf.id}` : status.id,
+    );
+    asOf.textContent = snapshot ? `Data as of ${snapshot.asOf}` : "";
+    asOf.hidden = !snapshot;
+    refreshAt.hidden = !snapshot;
+    refreshAt.textContent =
+      state === "failed"
+        ? `Refresh failed at ${attempt}`
+        : busy
+          ? `Refresh requested at ${attempt}`
+          : `Response received at ${attempt}`;
+    retry.hidden = !snapshot || ["submitting", "queued", "completed"].includes(state);
+    retry.textContent = busy
+      ? state === "retrying" ? "Retrying…" : "Refreshing…"
+      : state === "failed" ? "Retry" : "Refresh";
+    // Keep the invoking button focused while preventing duplicate requests.
+    retry.setAttribute("aria-disabled", String(busy));
+    sample.dataset.state = state;
+    find(sample, "count").closest(".metric").setAttribute("aria-busy", String(busy));
+    if (!good) {
+      if (["failed", "loading", "filtered", "empty", "retrying"].includes(state))
+        count.textContent = "0";
+      status.textContent = ["submitting", "queued", "completed"].includes(state)
+        ? "Published"
+        : "Up to date";
+      asOf.hidden = true;
+      refreshAt.hidden = true;
+      retry.hidden = true;
+    }
+    retry.onclick = async () => {
+      if (["refreshing", "retrying"].includes(statePicker.value)) return;
+      const currentRequest = ++request;
+      attempt = "09:06";
+      statePicker.value = statePicker.value === "failed" ? "retrying" : "refreshing";
+      paintShipments();
+      // The fixture can resolve immediately or be held for deterministic review.
+      // Reset or selecting another fixture invalidates an outstanding response.
+      /** @type {typeof snapshot} */
+      const result = pauseResponse.checked
+        ? await new Promise((resolve) => {
+            resolveResponse = resolve;
+            responseControls.hidden = false;
+          })
+        : await Promise.resolve(recoveredSnapshot);
+      if (currentRequest !== request) return;
+      resolveResponse = null;
+      responseControls.hidden = true;
+      if (result) snapshot = result;
+      statePicker.value = result ? "loaded" : "failed";
+      paintShipments();
+    };
+  }
+
+  function paintShipments() {
+    for (const quality of ["good", "bad"])
+      paintShipment(document.querySelector(`#${quality} .sample`), quality === "good");
+    root.dataset.shipmentState = statePicker.value;
+  }
+
+  function settleResponse(result) {
+    if (!resolveResponse) return;
+    resolveResponse(result);
+    // A fixture-response control is about to disappear; return to the local action.
+    find(document.querySelector("#good .sample"), "retry").focus();
+  }
+  document.getElementById("resolve-failure").onclick = () => settleResponse(null);
+  document.getElementById("resolve-success").onclick = () => settleResponse(recoveredSnapshot);
+
   function render() {
     const rule = catalog.rules.find((entry) => entry.id === picker.value);
     root.removeAttribute("data-ready");
     root.dataset.rule = rule.id;
+    document.body.dataset.behaviorRule = rule.id;
+    request += 1;
+    resolveResponse?.(null);
+    resolveResponse = null;
+    responseControls.hidden = true;
+    snapshot = statePicker.value === "loading"
+      ? null
+      : statePicker.value === "loaded"
+        ? recoveredSnapshot
+        : statePicker.value === "empty"
+          ? { count: 0, asOf: "09:05" }
+          : initialSnapshot;
+    attempt = "09:05";
+    const stateExample = rule.id === "DR-009";
+    const controls = document.querySelector(".example-controls");
+    let heading = document.querySelector("#rule-heading");
+    const headingTag = stateExample && !root.dataset.fixedRule ? "H1" : "H2";
+    if (heading.tagName !== headingTag) {
+      const replacement = document.createElement(headingTag.toLowerCase());
+      replacement.id = heading.id;
+      heading.replaceWith(replacement);
+      heading = replacement;
+    }
+    const pair = document.querySelector(".behavior-pair");
+    if (stateExample && pair.nextElementSibling !== controls) pair.after(controls);
+    else if (!stateExample && controls.nextElementSibling !== heading)
+      heading.before(controls);
+    document.getElementById("request-control").hidden = !stateExample;
+    document.getElementById("example-limit").hidden = !stateExample;
+    const notes = /** @type {HTMLDetailsElement} */ (
+      document.querySelector(".review-notes")
+    );
+    notes.open = !stateExample;
     document.querySelector("#rule-heading").textContent =
-      `${rule.id} — ${rule.title}`;
-    document.querySelector("#task").textContent = rule.task;
+      stateExample ? "A failed refresh is not zero shipments." : `${rule.id} — ${rule.title}`;
+    const sharedFacts = {
+      failed: "At 09:00, both views received 12 shipments. The 09:05 refresh failed.",
+      loading: "Both views are waiting for their first shipment response.",
+      refreshing: "Both views retain 12 shipments from 09:00 while a refresh is pending.",
+      retrying: "Both views retain the same 09:00 snapshot while retrying a failed refresh.",
+      loaded: "Both views received a successful response: 18 shipments as of 09:05.",
+      empty: "Both views received an observed empty snapshot as of 09:05.",
+      filtered: "The snapshot contains 12 shipments; none match the Seattle filter.",
+      submitting: "The publication request has been submitted but not yet queued.",
+      queued: "The publication has been queued but has not completed.",
+      completed: "The publication has completed, confirmed by the response fixture.",
+    };
+    document.querySelector("#task").textContent = stateExample
+      ? sharedFacts[statePicker.value]
+      : rule.task;
     document.querySelector("#verification").textContent = rule.verification;
     document.querySelector("#alternatives").textContent =
       rule.alternatives.join(" ");
@@ -80,55 +235,12 @@ async function start() {
     const url = new URL(location.href);
     url.searchParams.set("rule", rule.id);
     if (!root.dataset.fixedRule) history.replaceState(null, "", url);
+    root.dataset.shipmentState = statePicker.value;
     root.dataset.ready = "true";
   }
 
   function configure(sample, id, good) {
-    if (id === "DR-009") {
-      const state = statePicker.value;
-      const count = find(sample, "count");
-      const status = find(sample, "status");
-      const copy = {
-        failed:
-          "Refresh failed — showing a stale snapshot. Retry is available.",
-        loading: "Loading shipment data — no result yet.",
-        loaded: "Shipment snapshot loaded.",
-        empty: "No shipments in this observed snapshot.",
-        filtered: "No shipments match the Seattle filter.",
-        submitting: "Submitting publication — not yet queued.",
-        queued: "Publication queued — not yet completed.",
-        completed: "Publication completed.",
-      };
-      count.textContent = ["empty", "filtered"].includes(state)
-        ? "0"
-        : state === "loading"
-          ? "—"
-          : "12";
-      status.textContent = copy[state];
-      find(sample, "as-of").textContent =
-        `Snapshot as of ${state === "loaded" ? "09:05" : "09:00"}`;
-      find(sample, "as-of").hidden = state === "loading";
-      find(sample, "retry").hidden = state !== "failed";
-      if (!good) {
-        if (["failed", "loading", "filtered", "empty"].includes(state))
-          count.textContent = "0";
-        status.textContent = ["submitting", "queued", "completed"].includes(
-          state,
-        )
-          ? "Published"
-          : "Up to date";
-        // No false label can turn this into a valid snapshot. The missing as-of
-        // and refresh-at context is the narrow difference the native rule checks.
-        find(sample, "as-of").hidden = true;
-        find(sample, "refresh-at").hidden = true;
-        find(sample, "retry").hidden = true;
-      }
-      find(sample, "retry").onclick = () => {
-        statePicker.value = "loaded";
-        render();
-        statePicker.focus();
-      };
-    }
+    if (id === "DR-009") paintShipment(sample, good);
     if (id === "DR-010") {
       const dialog = find(sample, "dialog");
       const open = find(sample, "open");
@@ -257,6 +369,7 @@ async function start() {
   largerText.addEventListener("change", render);
   document.querySelector("#reset").addEventListener("click", () => {
     statePicker.value = "failed";
+    pauseResponse.checked = false;
     largerText.checked = false;
     render();
   });
