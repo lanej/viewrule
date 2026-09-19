@@ -28,7 +28,9 @@
           >Shared response fixture
           <select id="state-picker">
             <option value="failed">Refresh failed</option>
-            <option value="loading">Loading</option>
+            <option value="loading">Initial loading</option>
+            <option value="refreshing">Refreshing known data</option>
+            <option value="retrying">Retrying stale data</option>
             <option value="loaded">Loaded</option>
             <option value="empty">Observed empty</option>
             <option value="filtered">Filtered out</option>
@@ -37,6 +39,16 @@
             <option value="completed">Completed</option>
           </select>
         </label>
+        <label id="request-control" hidden
+          ><input type="checkbox" id="pause-response" /> Pause retry
+          response</label
+        >
+        <div id="response-controls" hidden>
+          <button id="resolve-failure" type="button">Return failure</button>
+          <button id="resolve-success" type="button">
+            Return 18 shipments
+          </button>
+        </div>
         <label id="text-control" hidden
           ><input type="checkbox" id="large-text" /> Enlarge example text to
           200%</label
@@ -45,6 +57,9 @@
       </div>
       <h2 id="rule-heading"></h2>
       <p id="task"></p>
+      <p id="example-limit" hidden>
+        DR-009 · Illustrative comparison—not an engine verdict.
+      </p>
       <div class="behavior-pair">
         <section class="example" id="good" aria-labelledby="good-heading">
           <h3 id="good-heading">Good for this task</h3>
@@ -57,7 +72,8 @@
           <div class="sample"></div>
         </section>
       </div>
-      <section class="review-notes" aria-labelledby="verification-heading">
+      <details class="review-notes" open>
+        <summary>Review notes and sources</summary>
         <h2 id="verification-heading">What this example establishes</h2>
         <p id="verification"></p>
         <p>
@@ -71,7 +87,7 @@
         <p id="exception"></p>
         <h3>Sources and scope</h3>
         <ul id="sources"></ul>
-      </section>
+      </details>
     </main>
     <p id="load-error" role="alert" hidden>
       Examples could not load. Serve this directory over HTTP and reload; the
@@ -80,14 +96,18 @@
 
     <template id="scene-DR-009">
       <section class="metric" aria-label="Shipment state">
-        <h4>Shipment snapshot</h4>
+        <h4>Shipments</h4>
         <p class="metric-value">
-          <span data-role="count">12</span> <span class="unit">shipments</span>
+          <span data-role="count">12</span>
+          <span class="state-label" data-role="status" role="status"></span>
         </p>
-        <p class="state-label" data-role="status" role="status"></p>
-        <p class="as-of" data-role="as-of">Snapshot as of 09:00</p>
-        <p class="refresh-at" data-role="refresh-at">Refresh attempted 09:05</p>
-        <button data-role="retry" type="button">Retry refresh</button>
+        <p class="as-of" data-role="as-of">Data as of 09:00</p>
+        <div class="recovery">
+          <p class="refresh-at" data-role="refresh-at">
+            Refresh failed at 09:05
+          </p>
+          <button data-role="retry" type="button">Retry</button>
+        </div>
       </section>
     </template>
     <template id="scene-DR-010">

@@ -19,6 +19,13 @@ below the project's readable type scale. Preserve usable controls as density cha
 For prose, use bounded reading widths and natural word spacing; avoid fully justified
 paragraphs. The default control-size and prose checks are scoped review warnings.
 
+**Finite comparisons:** Align peer headings and sample surfaces through shared
+layout relationships rather than fixed-height explanation slots or empty panel
+allowances. Let wrapped content determine the required height. A scoped ceiling
+may catch a known regression at one declared viewport and state; pair it with
+legibility and required-context checks, and do not apply it unchanged to enlarged
+text, different content, or narrower layouts.
+
 **Exception:** A finite comparison or focused task may already show all useful
 evidence. Retain useful whitespace and bounded reading widths in that case;
 do not manufacture content to meet an occupancy target.

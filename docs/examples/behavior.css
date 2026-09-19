@@ -204,3 +204,100 @@ dialog::backdrop {
     align-items: stretch;
   }
 }
+
+/* DR-009: the lesson and its evidence lead; fixture controls are supporting UI. */
+body.behavior-gallery[data-behavior-rule="DR-009"] .gallery-heading {
+  margin-bottom: 1rem;
+}
+body.behavior-gallery[data-behavior-rule="DR-009"] .gallery-heading h1,
+body.behavior-gallery[data-behavior-rule="DR-009"] .gallery-heading p,
+[data-rule="DR-009"] .explanation {
+  display: none;
+}
+[data-rule="DR-009"] #rule-heading {
+  font-size: 1.75rem;
+  line-height: 1.2;
+  margin: 0 0 0.75rem;
+}
+[data-rule="DR-009"] #example-limit {
+  font-size: 0.875rem;
+  color: light-dark(#4c6256, #b5c8bc);
+}
+[data-rule="DR-009"] .behavior-pair {
+  row-gap: 0.75rem;
+}
+[data-rule="DR-009"] .example {
+  display: grid;
+  grid-template-rows: subgrid;
+  grid-row: span 2;
+}
+[data-rule="DR-009"] .example h3 {
+  margin: 0.75rem 0 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+[data-rule="DR-009"] .sample {
+  min-height: 0;
+}
+[data-rule="DR-009"] .metric-value {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin: 0.5rem 0;
+}
+[data-rule="DR-009"] .state-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: light-dark(#4c6256, #b5c8bc);
+}
+[data-rule="DR-009"] .state-label::before {
+  content: "· ";
+}
+[data-rule="DR-009"] #good [data-state="failed"] .state-label,
+[data-rule="DR-009"] #good [data-state="retrying"] .state-label {
+  color: light-dark(#6b4b16, #f2d79f);
+}
+[data-rule="DR-009"] .as-of {
+  margin: 0;
+}
+[data-rule="DR-009"] .recovery {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+[data-rule="DR-009"] .refresh-at {
+  margin: 0;
+}
+[data-rule="DR-009"] button {
+  min-height: 2.75rem;
+  min-width: 2.75rem;
+}
+[data-rule="DR-009"] button[aria-disabled="true"] {
+  cursor: progress;
+}
+[data-rule="DR-009"] .example-controls {
+  margin-top: 0.25rem;
+  padding-block: 0.5rem;
+  border-top: 1px solid light-dark(#d1dbd4, #405348);
+  font-size: 0.8125rem;
+  color: light-dark(#4c6256, #b5c8bc);
+}
+[data-rule="DR-009"] #request-control {
+  display: flex;
+  align-items: center;
+}
+[data-rule="DR-009"] .review-notes {
+  margin-top: 0.75rem;
+  padding-top: 0;
+}
+[data-rule="DR-009"] .review-notes > summary {
+  padding-block: 0.75rem;
+  cursor: pointer;
+}
+[data-rule]:not([data-rule="DR-009"]) .review-notes > summary {
+  display: none;
+}

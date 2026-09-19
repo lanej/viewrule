@@ -8,14 +8,21 @@
       "title": "Rule of State Honesty",
       "enforcement": "behavioral",
       "task": "Decide whether the shipment count is usable after a refresh fails.",
-      "good": "Retain the known snapshot, distinguish its age from the refresh attempt, and explain retry.",
-      "bad": "A failed request becomes zero shipments and claims to be current.",
+      "good": "Retain 12 with its stale qualifier and original as-of time; keep failure and retry local.",
+      "bad": "Keep the same polished component and recovery path, but promote the failed refresh to a current zero observation.",
       "alternatives": [
         "Replace the metric with an explicit unavailable state when retained data is not useful."
       ],
       "exception": "Do not announce every background update; distinguish states when they affect this task.",
-      "nativeChecks": ["context"],
-      "verification": "Native context checks verify visible labels in the failed-response fixture. The response-to-state transition is an application assertion, not backend verification.",
+      "nativeChecks": [
+        "context",
+        "relative-position",
+        "max-height",
+        "min-font-size",
+        "min-size",
+        "align"
+      ],
+      "verification": "Native checks require both variants to preserve the same visible context, layout, readable type, and local retry target. The application checkpoint asserts those invariants, then verifies that only the bad variant promotes a failed refresh to a current zero. Pause retry response to inspect retained data while pending, return another failure, then retry and return the 18-shipment response. These controlled application transitions are not backend verification or a general hierarchy verdict.",
       "sources": [
         "https://www.nngroup.com/articles/visibility-system-status/",
         "https://www.w3.org/WAI/WCAG22/Understanding/status-messages.html"

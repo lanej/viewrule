@@ -15,6 +15,14 @@ complements DR-008; removing decoration does not by itself establish useful emph
 their required response while keeping summary totals available but subordinate.
 The same dataset may need a different hierarchy in a planning or reporting task.
 
+**Teaching comparisons:** Lead with the distinction the reader must recognize and
+the shared facts needed to judge it. Keep fixture navigation and verification notes
+subordinate. Inspect the example without its explanatory paragraphs: those
+paragraphs must not compensate for an unclear value, state, or action in the
+interface itself. Keep both alternatives comparably polished so unrelated styling
+does not reveal the intended answer. These are Viewrule authoring conventions,
+not experimentally established thresholds.
+
 **Exception:** Navigation, orientation, or a safety-critical alert may appropriately
 outrank the page's ordinary primary task. There is no universal KPI count, occupancy
 score, or rule requiring exactly one primary button on every page.

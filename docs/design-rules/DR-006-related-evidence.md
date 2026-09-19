@@ -17,6 +17,13 @@ precision and tabular digits where supported; identifiers need not follow numeri
 amount formatting. Small screens may use an explicit selection or comparison mode;
 the reduced view must keep the identity and context of each alternative clear.
 
+**Meaning-changing context:** A qualifier that changes how a value should be used
+belongs with that value, not in an explanation or collapsed disclosure elsewhere.
+Keep stale status and snapshot age visible with retained data. Source methodology
+and verification detail can be deferred; the facts needed to interpret the number
+cannot. Declare the required relationship before choosing a badge, sentence, or
+other presentation.
+
 **Decision surfaces:** Keep the supporting evidence, recommendation, and next action
 adjacent within an expanded analytical item. `evidence-proximity` can enforce a
 project's declared text-distance limit; it cannot identify which evidence supports

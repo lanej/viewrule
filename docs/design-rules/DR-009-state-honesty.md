@@ -19,6 +19,13 @@ refresh; offer retry. Show submitting, queued, and completed according to actual
 operation evidence. Announce meaningful status changes without unnecessarily moving
 focus or making every update an interrupting alert.
 
+**Snapshot application:** Present the value, its stale qualifier, and its as-of
+context as one reading unit. Keep the refresh attempt separate. A pending retry
+or another failure must not replace a known snapshot with zero, advance its as-of
+time, or imply recovery. Only the returned successful snapshot updates its value
+and time. Initial loading has no retained snapshot to display. Keep recovery local
+and preserve focus on the invoking control while the request resolves.
+
 **Exception:** Omit distinctions that do not affect this task, but never claim a
 stronger state than the available evidence supports. Optimistic UI must expose
 pending status or support truthful reconciliation and failure recovery.
