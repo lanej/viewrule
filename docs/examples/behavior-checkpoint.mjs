@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 // Application-owned controlled response evidence, not a generic state detector.
 export default async function ({ page }) {
   const role = (name) => page.locator(`#good [data-role="${name}"]`);
+  const badRole = (name) => page.locator(`#bad [data-role="${name}"]`);
   const state = page.locator("#state-picker");
   const expectSnapshot = async (count, time) => {
     assert.equal(await role("count").textContent(), count);
@@ -15,6 +16,35 @@ export default async function ({ page }) {
   };
   await page.locator("#reset").click();
   await expectSnapshot("12", "09:00");
+
+  // The pair is one strong component with one controlled DR-009 defect.
+  assert.equal(await badRole("count").textContent(), "0");
+  assert.equal(await badRole("status").textContent(), "current");
+  assert.equal(await badRole("as-of").textContent(), "Data as of 09:05");
+  assert.equal(
+    await badRole("refresh-at").textContent(),
+    await role("refresh-at").textContent(),
+  );
+  assert.equal(await badRole("retry").textContent(), await role("retry").textContent());
+  assert.equal(await badRole("retry").isVisible(), true);
+  const pairGeometry = await page.locator(".metric").evaluateAll((metrics) =>
+    metrics.map((metric) => {
+      const box = metric.getBoundingClientRect();
+      const retry = metric.querySelector('[data-role="retry"]').getBoundingClientRect();
+      return {
+        width: box.width,
+        height: box.height,
+        retryWidth: retry.width,
+        retryHeight: retry.height,
+      };
+    }),
+  );
+  assert.equal(pairGeometry.length, 2);
+  for (const key of ["width", "height", "retryWidth", "retryHeight"])
+    assert.ok(
+      Math.abs(pairGeometry[0][key] - pairGeometry[1][key]) <= 1,
+      `DR-009 pair must preserve ${key}`,
+    );
   await page.locator("#pause-response").check();
   await role("retry").click();
   await settled("retrying");
