@@ -23,40 +23,45 @@ jobs:
         id: formatting
         run: npm run format
       - name: Commit formatting-only changes
+        id: format-commit
         if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
         shell: bash
         env:
           HEAD_REF: ${{ github.head_ref }}
         run: |
-          if git diff --quiet; then exit 0; fi
+          if git diff --quiet; then
+            echo "pushed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -u
-          git diff --cached --exit-code --quiet && exit 0
+          git diff --cached --exit-code --quiet && {
+            echo "pushed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          }
           git commit -m "Apply Prettier formatting"
           git push origin "HEAD:$HEAD_REF"
-      - name: Stop after formatting push
-        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
-        shell: bash
-        run: |
-          git diff --quiet
-          if git log -1 --pretty=%an | grep -qx 'github-actions\[bot\]'; then
-            echo "Formatting commit is now the PR head; the pushed commit will receive a fresh CI run."
-          fi
+          echo "pushed=true" >> "$GITHUB_OUTPUT"
+      - name: Stop superseded formatting run
+        if: steps.format-commit.outputs.pushed == 'true'
+        run: exit 1
       - name: Check lint
-        if: ${{ !cancelled() && steps.dependencies.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.dependencies.outcome == 'success' && steps.format-commit.outputs.pushed != 'true' }}
         run: npm run lint
       - name: Check types
-        if: ${{ !cancelled() && steps.dependencies.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.dependencies.outcome == 'success' && steps.format-commit.outputs.pushed != 'true' }}
         run: npm run analyze
       - name: Check guide and example sources
-        if: ${{ !cancelled() && steps.dependencies.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.dependencies.outcome == 'success' && steps.format-commit.outputs.pushed != 'true' }}
         run: npm run guide:check
       - name: Build public site
-        if: ${{ !cancelled() && steps.dependencies.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.dependencies.outcome == 'success' && steps.format-commit.outputs.pushed != 'true' }}
         run: npm run site:build
-      - run: node bin/viewrule.mjs install-browser --with-deps
-      - run: npm test
+      - if: steps.format-commit.outputs.pushed != 'true'
+        run: node bin/viewrule.mjs install-browser --with-deps
+      - if: steps.format-commit.outputs.pushed != 'true'
+        run: npm test
         env:
           VIEWRULE_VERIFY_PLUGIN_PIN: ${{ contains(github.event.pull_request.title, '[release]') || contains(github.event.head_commit.message, '[release]') }}
       - uses: actions/upload-artifact@v4
