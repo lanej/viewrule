@@ -77,7 +77,7 @@
       ],
       "exception": "Do not offer Undo for an irreversible action; explain safe re-entry requirements.",
       "nativeChecks": ["context"],
-      "verification": "The controlled pair holds validation guidance, review, confirmation, Undo, scope, and presentation invariant. Application assertions verify that rejection marks both inputs invalid with the same specific guidance, while only the bad variant clears the rejected proposal. Both variants then complete the same corrected review and reversal flow. This fixture does not prove remote transaction rollback or financial compliance.",
+      "verification": "The controlled pair holds persistent range guidance, specific validation, focus recovery, review, confirmation, Undo, scope, and presentation invariant. Application assertions verify that rejection focuses and marks both inputs invalid with the same \"Enter 6% or less.\" guidance, while only the bad variant clears the rejected proposal. Both variants then complete the same corrected review and reversal flow. This fixture does not prove remote transaction rollback or financial compliance.",
       "sources": [
         "https://www.w3.org/WAI/WCAG22/Understanding/error-prevention-legal-financial-data.html",
         "https://www.w3.org/WAI/WCAG22/Understanding/error-identification.html"
