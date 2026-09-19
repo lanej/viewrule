@@ -97,17 +97,13 @@ async function start() {
     find(sample, "count")
       .closest(".metric")
       .setAttribute("aria-busy", String(busy));
-    if (!good) {
-      if (
-        ["failed", "loading", "filtered", "empty", "retrying"].includes(state)
-      )
-        count.textContent = "0";
-      status.textContent = ["submitting", "queued", "completed"].includes(state)
-        ? "Published"
-        : "Updated just now";
-      asOf.hidden = true;
-      refreshAt.hidden = true;
-      retry.hidden = true;
+    if (!good && ["failed", "retrying"].includes(state)) {
+      // Controlled counterexample: preserve the same polished component,
+      // failure evidence, and recovery action. Only the state interpretation is
+      // wrong: a failed refresh is promoted to a current zero observation.
+      count.textContent = "0";
+      status.textContent = state === "retrying" ? "current · retrying" : "current";
+      asOf.textContent = `Data as of ${attempt}`;
     }
     retry.onclick = async () => {
       if (["refreshing", "retrying"].includes(statePicker.value)) return;
