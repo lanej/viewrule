@@ -2172,7 +2172,11 @@ test(
         await role("good", "status").textContent(),
         /not yet completed/,
       );
-      assert.equal(await role("bad", "status").textContent(), "Published");
+      assert.equal(
+        await role("bad", "status").textContent(),
+        await role("good", "status").textContent(),
+        "Non-target queued state must remain invariant across the DR-009 pair",
+      );
 
       await choose("DR-010");
       for (const quality of ["good", "bad"]) {
