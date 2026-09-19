@@ -13,7 +13,7 @@ good/bad example. Otherwise delete them. -->
 
 ## Canonical example
 
-**Target DR:** DR-___
+**Target DR:** [DR-___ — Rule name](../blob/main/docs/design-rules/DR-___-filename.md)
 
 **Intentional Good → Bad mutation:**  
 Describe the single change that causes the Bad variant to violate the target rule.
@@ -36,15 +36,15 @@ Describe the single change that causes the Bad variant to violate the target rul
 Checking the box is the review attestation: checked means reviewed and passed.
 If it does not pass, leave it unchecked and fix the example. Delete unused rows. -->
 
-- [ ] **DR-___ — Rule name:** Paste the rule's principle or the concrete review question here so the reviewer does not need to recall the rule from memory.
-- [ ] **DR-___ — Rule name:** State what must be true in this example for the rule to pass.
+- [ ] **[DR-___ — Rule name](../blob/main/docs/design-rules/DR-___-filename.md):** Paste the rule's principle or concrete review question here so the reviewer does not need to recall it from memory.
+- [ ] **[DR-___ — Rule name](../blob/main/docs/design-rules/DR-___-filename.md):** State what must be true in this example for the rule to pass.
 
 ### Isolation
 
 <!-- The first three conformance claims are derived from CI plus the checked human-review
 attestations above; do not add redundant manual checkboxes for them. -->
 
-**Machine-verified isolation:** CI verifies that Good passes every applicable rule, Bad passes every applicable non-target rule, Bad fails the target rule, and every `not-applicable` cell includes a rationale.
+**Conformance isolation:** regression CI verifies the machine/behavioral evidence; the lightweight **Canonical example review** check runs on PR body edits and requires every matrix-declared human-review checkbox plus separate inline Good and Bad images. Configure both checks as required before merge.
 
 - [ ] Every human-review rule above has been reviewed.
 - [ ] Good and Bad images show the state that demonstrates the controlled difference.
