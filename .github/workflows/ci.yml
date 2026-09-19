@@ -57,6 +57,14 @@ jobs:
           path: dist/viewrule-*.tgz
           if-no-files-found: error
           retention-days: 7
+      - name: Preserve behavior example evidence
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: behavior-example-evidence
+          path: dist/behavior-evidence/
+          if-no-files-found: warn
+          retention-days: 7
       - name: Preserve pattern review evidence
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v4
