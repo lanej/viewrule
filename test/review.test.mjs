@@ -1392,7 +1392,9 @@ test(
           "The DR-009 counterexample must not acquire unrelated native defects; its intentional state-model violation is exercised by the application checkpoint.",
         );
       } else {
-        assert.ok(findings.every((finding) => finding.designRules.includes(dr)));
+        assert.ok(
+          findings.every((finding) => finding.designRules.includes(dr)),
+        );
         assert.ok(
           findings.every(
             (finding) =>
