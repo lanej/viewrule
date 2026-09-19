@@ -47,23 +47,21 @@ jobs:
           echo "pushed=true" >> "$GITHUB_OUTPUT"
       - name: Formatting commit pushed
         if: steps.format-commit.outputs.pushed == 'true'
-        run: echo "A formatting-only commit was pushed; expensive validation continues on the new PR head."
+        run: echo "Formatting-only changes were committed to the PR branch; continue validating this already-formatted working tree without restarting CI."
       - name: Check lint
-        if: ${{ !cancelled() && steps.dependencies.outcome == 'success' && steps.format-commit.outputs.pushed != 'true' }}
+        if: ${{ !cancelled() && steps.dependencies.outcome == 'success'  }}
         run: npm run lint
       - name: Check types
-        if: ${{ !cancelled() && steps.dependencies.outcome == 'success' && steps.format-commit.outputs.pushed != 'true' }}
+        if: ${{ !cancelled() && steps.dependencies.outcome == 'success'  }}
         run: npm run analyze
       - name: Check guide and example sources
-        if: ${{ !cancelled() && steps.dependencies.outcome == 'success' && steps.format-commit.outputs.pushed != 'true' }}
+        if: ${{ !cancelled() && steps.dependencies.outcome == 'success'  }}
         run: npm run guide:check
       - name: Build public site
-        if: ${{ !cancelled() && steps.dependencies.outcome == 'success' && steps.format-commit.outputs.pushed != 'true' }}
+        if: ${{ !cancelled() && steps.dependencies.outcome == 'success'  }}
         run: npm run site:build
-      - if: steps.format-commit.outputs.pushed != 'true'
-        run: node bin/viewrule.mjs install-browser --with-deps
-      - if: steps.format-commit.outputs.pushed != 'true'
-        run: npm test
+      - run: node bin/viewrule.mjs install-browser --with-deps
+      - run: npm test
         env:
           VIEWRULE_VERIFY_PLUGIN_PIN: ${{ contains(github.event.pull_request.title, '[release]') || contains(github.event.head_commit.message, '[release]') }}
       - uses: actions/upload-artifact@v4
