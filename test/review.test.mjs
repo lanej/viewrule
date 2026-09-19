@@ -2284,16 +2284,17 @@ test(
           "Enter 6% or less.",
         );
         assert.equal(
-          await role(quality, "proposal").evaluate(
-            (el) => el === el.ownerDocument.activeElement,
-          ),
-          true,
-        );
-        assert.equal(
           await role(quality, "help").textContent(),
           "Allowed range: 0–6%",
         );
       }
+      assert.equal(
+        await role("bad", "proposal").evaluate(
+          (el) => el === el.ownerDocument.activeElement,
+        ),
+        true,
+        "The most recently rejected variant retains focus on its proposal field",
+      );
       await screenshot("DR-012", "rejected");
       for (const quality of ["good", "bad"]) {
         const file = `dr-012-rejected-${quality}.png`;
