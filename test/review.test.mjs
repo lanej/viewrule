@@ -2242,6 +2242,21 @@ test(
       }
       await screenshot("DR-012", "rejected");
       for (const quality of ["good", "bad"]) {
+        const file = `dr-012-rejected-${quality}.png`;
+        await page.locator(`#${quality} .sample`).screenshot({
+          path: path.join(evidenceDirectory, file),
+        });
+        captures.push({
+          id: "DR-012",
+          state: `rejected-${quality}`,
+          file,
+          viewport: page.viewportSize(),
+          colorScheme: "light",
+          deviceScaleFactor: 1,
+          fullPage: false,
+        });
+      }
+      for (const quality of ["good", "bad"]) {
         await role(quality, "proposal").fill("6");
         await page.locator(`#${quality} button[type="submit"]`).click();
         assert.equal(await role(quality, "dialog").isVisible(), true);
