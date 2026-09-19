@@ -316,6 +316,7 @@ async function start() {
         previous = approved;
         approved = proposed;
         find(sample, "approved").textContent = `${approved}%`;
+        find(sample, "result").hidden = false;
         find(sample, "result").textContent =
           `Applied ${approved}% reduction to the 12 selected lanes.`;
         find(sample, "undo").hidden = false;
@@ -330,7 +331,7 @@ async function start() {
           value > 6
         ) {
           error.hidden = false;
-          error.textContent = "Enter 6% or less.";
+          error.textContent = "Entered value is outside the allowed range.";
           input.setAttribute("aria-invalid", "true");
           if (!good) input.value = "";
           input.focus();
@@ -351,6 +352,7 @@ async function start() {
       find(sample, "undo").onclick = () => {
         approved = previous;
         find(sample, "approved").textContent = `${approved}%`;
+        find(sample, "result").hidden = false;
         find(sample, "result").textContent =
           `Restored the approved reduction to ${approved}%.`;
         find(sample, "undo").hidden = true;
