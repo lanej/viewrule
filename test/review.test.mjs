@@ -1380,20 +1380,26 @@ test(
         (finding) => finding.rule !== "design-coverage",
       );
       const dr = capture.name === "failed-refresh" ? "DR-009" : "DR-015";
-      assert.equal(findings.length, 2, JSON.stringify(capture.findings));
-      assert.ok(findings.every((finding) => finding.designRules.includes(dr)));
-      if (dr === "DR-009")
-        assert.deepEqual(findings.map((finding) => finding.actual).sort(), [
-          ".as-of",
-          ".refresh-at",
-        ]);
-      else
+      assert.equal(
+        findings.length,
+        dr === "DR-009" ? 0 : 2,
+        JSON.stringify(capture.findings),
+      );
+      if (dr === "DR-009") {
+        assert.deepEqual(
+          findings,
+          [],
+          "The DR-009 counterexample must not acquire unrelated native defects; its intentional state-model violation is exercised by the application checkpoint.",
+        );
+      } else {
+        assert.ok(findings.every((finding) => finding.designRules.includes(dr)));
         assert.ok(
           findings.every(
             (finding) =>
               finding.actual.scrollWidth > finding.actual.clientWidth + 1,
           ),
         );
+      }
       assert.equal(
         capture.designCoverage.find((rule) => rule.id === "DR-016").status,
         "unassessed",
