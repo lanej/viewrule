@@ -1343,6 +1343,56 @@ test(
       contextSchema.properties.designRules.items.enum.slice(8),
       additions,
     );
+    const conformance = JSON.parse(
+      await readFile(
+        path.join(exampleDirectory, "conformance-matrix.json"),
+        "utf8",
+      ),
+    );
+    const registeredRules = contextSchema.properties.designRules.items.enum;
+    for (const example of conformance.examples) {
+      assert.equal(example.target, example.id);
+      assert.deepEqual(Object.keys(example.rules), registeredRules);
+      const failures = [];
+      for (const [id, assessment] of Object.entries(example.rules)) {
+        assert.ok(["pass", "fail", "not-applicable"].includes(assessment.good));
+        assert.ok(["pass", "fail", "not-applicable"].includes(assessment.bad));
+        assert.ok(
+          assessment.evidence?.trim(),
+          `${example.id}/${id} needs evidence`,
+        );
+        assert.ok(
+          ["automated", "behavioral", "human-review", "rationale"].includes(
+            assessment.evidenceType,
+          ),
+          `${example.id}/${id} needs a valid evidenceType`,
+        );
+        if (assessment.good === "not-applicable")
+          assert.equal(
+            assessment.evidenceType,
+            "rationale",
+            `${example.id}/${id} not-applicable needs rationale evidence`,
+          );
+        assert.notEqual(
+          assessment.good,
+          "fail",
+          `${example.id} Good must not fail ${id}`,
+        );
+        if (assessment.bad === "fail") failures.push(id);
+        else
+          assert.equal(
+            assessment.bad,
+            assessment.good,
+            `${example.id} non-target ${id} must match Good`,
+          );
+      }
+      assert.deepEqual(
+        failures,
+        [example.target],
+        `${example.id} Bad must fail exactly its target rule`,
+      );
+    }
+
     const behaviorConfig = JSON.parse(
       await readFile(
         path.join(exampleDirectory, "behavior-config.json"),
@@ -2230,21 +2280,103 @@ test(
         await page.locator(`#${quality} button[type="submit"]`).click();
       assert.equal(await role("good", "proposal").inputValue(), "7.5");
       assert.equal(await role("bad", "proposal").inputValue(), "");
+      for (const quality of ["good", "bad"]) {
+        assert.equal(
+          await role(quality, "proposal").getAttribute("aria-invalid"),
+          "true",
+        );
+        assert.equal(
+          await role(quality, "error").textContent(),
+          "Entered value is outside the allowed range.",
+        );
+        assert.equal(
+          await role(quality, "help").textContent(),
+          "Allowed range: 0–6%",
+        );
+      }
       assert.equal(
-        await role("good", "proposal").getAttribute("aria-invalid"),
-        "true",
+        await role("bad", "proposal").evaluate(
+          (el) => el === el.ownerDocument.activeElement,
+        ),
+        true,
+        "The most recently rejected variant retains focus on its proposal field",
       );
       await screenshot("DR-012", "rejected");
-      await role("good", "proposal").fill("6");
-      await page.locator('#good button[type="submit"]').click();
-      await role("good", "cancel").click();
-      assert.equal(await role("good", "approved").textContent(), "5%");
-      assert.equal(await role("good", "proposal").inputValue(), "6");
-      await page.locator('#good button[type="submit"]').click();
-      await role("good", "confirm").click();
-      assert.equal(await role("good", "approved").textContent(), "6%");
-      await role("good", "undo").click();
-      assert.equal(await role("good", "approved").textContent(), "5%");
+      const captureDr012Panel = async (quality, viewport) => {
+        const file = `dr-012-rejected-${quality}-${viewport}.png`;
+        await page.locator(`#${quality} .sample`).screenshot({
+          path: path.join(evidenceDirectory, file),
+        });
+        captures.push({
+          id: "DR-012",
+          state: `rejected-${quality}-${viewport}`,
+          file,
+          viewport: page.viewportSize(),
+          colorScheme: "light",
+          deviceScaleFactor: 1,
+          fullPage: false,
+        });
+      };
+      for (const quality of ["good", "bad"])
+        await captureDr012Panel(quality, "desktop");
+
+      await page.setViewportSize({ width: 390, height: 844 });
+      await page
+        .locator("#good .sample, #bad .sample")
+        .evaluateAll((samples) => {
+          for (const sample of samples) sample.dataset.enlarged = "true";
+        });
+      for (const quality of ["good", "bad"])
+        await role(quality, "error").evaluate((node) => {
+          node.textContent =
+            "This proposal cannot be reviewed until the entered reduction is within the allowed range for these 12 lanes.";
+        });
+      const dr012MobileWidth = await page
+        .locator("html")
+        .evaluate((element) => ({
+          content: element.scrollWidth,
+          viewport: element.ownerDocument.defaultView.innerWidth,
+        }));
+      assert.ok(
+        dr012MobileWidth.content <= dr012MobileWidth.viewport,
+        `DR-012 mobile evidence must not add page-level horizontal overflow: ${JSON.stringify(dr012MobileWidth)}`,
+      );
+      for (const quality of ["good", "bad"]) {
+        assert.equal(await role(quality, "error").isVisible(), true);
+        assert.equal(
+          await page.locator(`#${quality} button[type="submit"]`).isVisible(),
+          true,
+        );
+        await captureDr012Panel(quality, "mobile");
+      }
+      await page.setViewportSize({ width: 1200, height: 1000 });
+      await page
+        .locator("#good .sample, #bad .sample")
+        .evaluateAll((samples) => {
+          for (const sample of samples) sample.dataset.enlarged = "false";
+        });
+      for (const quality of ["good", "bad"])
+        await role(quality, "error").evaluate((node) => {
+          node.textContent = "Entered value is outside the allowed range.";
+        });
+      for (const quality of ["good", "bad"]) {
+        await role(quality, "proposal").fill("6");
+        await page.locator(`#${quality} button[type="submit"]`).click();
+        assert.equal(await role(quality, "dialog").isVisible(), true);
+        assert.match(
+          await role(quality, "review").textContent(),
+          /5% to 6% for 12 selected lanes/,
+        );
+        await role(quality, "cancel").click();
+        assert.equal(await role(quality, "approved").textContent(), "5%");
+        assert.equal(await role(quality, "proposal").inputValue(), "6");
+        await page.locator(`#${quality} button[type="submit"]`).click();
+        await role(quality, "confirm").click();
+        assert.equal(await role(quality, "approved").textContent(), "6%");
+        assert.equal(await role(quality, "undo").isVisible(), true);
+        await role(quality, "undo").click();
+        assert.equal(await role(quality, "approved").textContent(), "5%");
+      }
 
       await choose("DR-013");
       assert.equal(

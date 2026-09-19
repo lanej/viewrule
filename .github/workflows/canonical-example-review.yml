@@ -1,0 +1,113 @@
+name: Canonical example review
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  review:
+    name: Canonical example review
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Validate canonical example attestations
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            const body = pr.body || "";
+            const marker = "## Canonical example";
+            if (!body.includes(marker)) {
+              core.info("No canonical example section; nothing to attest.");
+              return;
+            }
+
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const ref = pr.head.sha;
+            const path = "docs/examples/conformance-matrix.json";
+            let matrix;
+            try {
+              const response = await github.rest.repos.getContent({
+                owner, repo, path, ref,
+              });
+              if (Array.isArray(response.data) || response.data.type !== "file")
+                throw new Error(`${path} is not a file`);
+              matrix = JSON.parse(
+                Buffer.from(response.data.content, response.data.encoding).toString("utf8"),
+              );
+            } catch (error) {
+              core.setFailed(`Canonical example PR requires readable ${path} at PR head: ${error.message}`);
+              return;
+            }
+
+            const targetMatch = body.match(/\*\*Target DR:\*\*\s*\[?(DR-\d{3})/);
+            if (!targetMatch) {
+              core.setFailed("Canonical example section must declare **Target DR:** DR-NNN.");
+              return;
+            }
+            const target = targetMatch[1];
+            const example = matrix.examples?.find((entry) => entry.id === target);
+            if (!example) {
+              core.setFailed(`No conformance matrix entry found for ${target}.`);
+              return;
+            }
+
+            const expected = Object.entries(example.rules || {})
+              .filter(([, assessment]) => assessment.evidenceType === "human-review")
+              .map(([id]) => id)
+              .sort();
+
+            const start = body.indexOf("### Human review");
+            const end = body.indexOf("### ", start + 4);
+            if (start < 0) {
+              core.setFailed("Canonical example PR requires a ### Human review section.");
+              return;
+            }
+            const section = body.slice(start, end < 0 ? body.length : end);
+            const checkboxPattern = /^- \[([ xX])\].*?(DR-\d{3})\b/gm;
+            const found = [];
+            const checked = [];
+            for (const match of section.matchAll(checkboxPattern)) {
+              found.push(match[2]);
+              if (match[1].toLowerCase() === "x") checked.push(match[2]);
+            }
+            found.sort();
+            checked.sort();
+
+            const same = (a, b) =>
+              a.length === b.length && a.every((value, index) => value === b[index]);
+
+            if (!same(found, expected)) {
+              core.setFailed(
+                `Human-review checklist must exactly match matrix requirements. Expected: ${expected.join(", ") || "(none)"}; found: ${found.join(", ") || "(none)"}.`,
+              );
+              return;
+            }
+            if (!same(checked, expected)) {
+              const missing = expected.filter((id) => !checked.includes(id));
+              core.setFailed(`Outstanding human review: ${missing.join(", ")}.`);
+              return;
+            }
+
+            const imageSectionStart = body.indexOf("### Visual evidence");
+            const imageSectionEnd = body.indexOf("### ", imageSectionStart + 4);
+            if (imageSectionStart < 0) {
+              core.setFailed("Canonical example PR requires a ### Visual evidence section.");
+              return;
+            }
+            const imageSection = body.slice(
+              imageSectionStart,
+              imageSectionEnd < 0 ? body.length : imageSectionEnd,
+            );
+            const images = [...imageSection.matchAll(/!\[[^\]]*\]\(([^)]+)\)/g)];
+            if (images.length < 2) {
+              core.setFailed("Visual evidence must contain separate inline Good and Bad images.");
+              return;
+            }
+
+            core.info(`Canonical example ${target}: all ${expected.length} human-review attestations and separate visual evidence are present.`);

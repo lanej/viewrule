@@ -306,7 +306,9 @@ async function start() {
       const error = find(sample, "error");
       const dialog = find(sample, "dialog");
       error.id = `proposal-error-${good ? "good" : "bad"}`;
-      input.setAttribute("aria-describedby", error.id);
+      const help = find(sample, "help");
+      help.id = `proposal-help-${good ? "good" : "bad"}`;
+      input.setAttribute("aria-describedby", `${help.id} ${error.id}`);
       let approved = 5;
       let previous = 5;
       let proposed = null;
@@ -314,9 +316,10 @@ async function start() {
         previous = approved;
         approved = proposed;
         find(sample, "approved").textContent = `${approved}%`;
+        find(sample, "result").hidden = false;
         find(sample, "result").textContent =
           `Applied ${approved}% reduction to the 12 selected lanes.`;
-        find(sample, "undo").hidden = !good;
+        find(sample, "undo").hidden = false;
       };
       find(sample, "form").onsubmit = (event) => {
         event.preventDefault();
@@ -328,21 +331,18 @@ async function start() {
           value > 6
         ) {
           error.hidden = false;
-          error.textContent = good
-            ? "Enter a reduction from 0% through 6%. Your proposal has been retained."
-            : "Something went wrong.";
+          error.textContent = "Entered value is outside the allowed range.";
           input.setAttribute("aria-invalid", "true");
           if (!good) input.value = "";
+          input.focus();
           return;
         }
         error.hidden = true;
         input.removeAttribute("aria-invalid");
         proposed = value;
-        if (good) {
-          find(sample, "review").textContent =
-            `Change the approved reduction from ${approved}% to ${proposed}% for 12 selected lanes.`;
-          dialog.showModal();
-        } else commit();
+        find(sample, "review").textContent =
+          `Change the approved reduction from ${approved}% to ${proposed}% for 12 selected lanes.`;
+        dialog.showModal();
       };
       find(sample, "cancel").onclick = () => dialog.close();
       find(sample, "confirm").onclick = () => {
@@ -352,6 +352,7 @@ async function start() {
       find(sample, "undo").onclick = () => {
         approved = previous;
         find(sample, "approved").textContent = `${approved}%`;
+        find(sample, "result").hidden = false;
         find(sample, "result").textContent =
           `Restored the approved reduction to ${approved}%.`;
         find(sample, "undo").hidden = true;

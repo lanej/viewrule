@@ -301,3 +301,105 @@ body.behavior-gallery[data-behavior-rule="DR-009"] .gallery-heading p,
 [data-rule]:not([data-rule="DR-009"]) .review-notes > summary {
   display: none;
 }
+
+/* DR-012: compact production-plausible rate editing surface. */
+[data-rule="DR-012"] .rate-reduction-form {
+  max-width: 30rem;
+}
+[data-rule="DR-012"] .rate-reduction-heading {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid light-dark(#d1dbd4, #405348);
+}
+[data-rule="DR-012"] .rate-reduction-heading h4,
+[data-rule="DR-012"] .rate-reduction-heading p,
+[data-rule="DR-012"] .approved-value {
+  margin: 0;
+}
+[data-rule="DR-012"] .rate-reduction-heading p,
+[data-rule="DR-012"] .approved-value span,
+[data-rule="DR-012"] .field-help,
+[data-rule="DR-012"] .form-result {
+  color: light-dark(#4c6256, #b5c8bc);
+}
+[data-rule="DR-012"] .approved-value {
+  display: grid;
+  justify-items: end;
+  gap: 0.125rem;
+  white-space: nowrap;
+}
+[data-rule="DR-012"] .approved-value strong {
+  font-size: 1.25rem;
+}
+[data-rule="DR-012"] .proposal-field {
+  margin-top: 1rem;
+  font-weight: 600;
+}
+[data-rule="DR-012"] .percentage-input {
+  display: flex;
+  align-items: center;
+  width: 10rem;
+  margin-top: 0.375rem;
+  background: light-dark(#ffffff, #17241f);
+  border: 1px solid light-dark(#8a9d91, #70877a);
+  border-radius: 0.25rem;
+}
+[data-rule="DR-012"] .percentage-input input {
+  width: 100%;
+  border: 0;
+  background: transparent;
+}
+[data-rule="DR-012"] .percentage-input span {
+  padding-right: 0.75rem;
+}
+[data-rule="DR-012"]
+  .proposal-field:has(input[aria-invalid="true"])
+  .percentage-input {
+  border-width: 2px;
+  border-color: light-dark(#9a3412, #fdba74);
+}
+[data-rule="DR-012"] .field-help,
+[data-rule="DR-012"] .field-error {
+  margin: 0.375rem 0 0;
+  font-size: 0.875rem;
+}
+[data-rule="DR-012"] .field-error {
+  color: light-dark(#9a3412, #fdba74);
+}
+[data-rule="DR-012"] .form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+[data-rule="DR-012"] .form-result {
+  margin-bottom: 0;
+  font-size: 0.875rem;
+}
+
+@media (max-width: 700px) {
+  [data-rule="DR-012"] .rate-reduction-heading {
+    display: grid;
+    gap: 0.75rem;
+  }
+  [data-rule="DR-012"] .approved-value {
+    justify-items: start;
+  }
+  [data-rule="DR-012"] .rate-reduction-heading h4,
+  [data-rule="DR-012"] .rate-reduction-heading p,
+  [data-rule="DR-012"] .proposal-field,
+  [data-rule="DR-012"] .field-help,
+  [data-rule="DR-012"] .field-error {
+    overflow-wrap: normal;
+    word-break: normal;
+  }
+  [data-rule="DR-012"] .percentage-input {
+    width: min(10rem, 100%);
+  }
+  [data-rule="DR-012"] .form-actions button {
+    width: auto;
+  }
+}
