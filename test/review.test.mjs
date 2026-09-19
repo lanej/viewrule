@@ -2230,21 +2230,35 @@ test(
         await page.locator(`#${quality} button[type="submit"]`).click();
       assert.equal(await role("good", "proposal").inputValue(), "7.5");
       assert.equal(await role("bad", "proposal").inputValue(), "");
-      assert.equal(
-        await role("good", "proposal").getAttribute("aria-invalid"),
-        "true",
-      );
+      for (const quality of ["good", "bad"]) {
+        assert.equal(
+          await role(quality, "proposal").getAttribute("aria-invalid"),
+          "true",
+        );
+        assert.equal(
+          await role(quality, "error").textContent(),
+          "Enter a reduction from 0% through 6%. Correct the proposal and try again.",
+        );
+      }
       await screenshot("DR-012", "rejected");
-      await role("good", "proposal").fill("6");
-      await page.locator('#good button[type="submit"]').click();
-      await role("good", "cancel").click();
-      assert.equal(await role("good", "approved").textContent(), "5%");
-      assert.equal(await role("good", "proposal").inputValue(), "6");
-      await page.locator('#good button[type="submit"]').click();
-      await role("good", "confirm").click();
-      assert.equal(await role("good", "approved").textContent(), "6%");
-      await role("good", "undo").click();
-      assert.equal(await role("good", "approved").textContent(), "5%");
+      for (const quality of ["good", "bad"]) {
+        await role(quality, "proposal").fill("6");
+        await page.locator(`#${quality} button[type="submit"]`).click();
+        assert.equal(await role(quality, "dialog").isVisible(), true);
+        assert.match(
+          await role(quality, "review").textContent(),
+          /5% to 6% for 12 selected lanes/,
+        );
+        await role(quality, "cancel").click();
+        assert.equal(await role(quality, "approved").textContent(), "5%");
+        assert.equal(await role(quality, "proposal").inputValue(), "6");
+        await page.locator(`#${quality} button[type="submit"]`).click();
+        await role(quality, "confirm").click();
+        assert.equal(await role(quality, "approved").textContent(), "6%");
+        assert.equal(await role(quality, "undo").isVisible(), true);
+        await role(quality, "undo").click();
+        assert.equal(await role(quality, "approved").textContent(), "5%");
+      }
 
       await choose("DR-013");
       assert.equal(
