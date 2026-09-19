@@ -2,6 +2,19 @@
 
 These instructions apply to every example under `docs/examples/`.
 
+## Build the baseline before the counterexample
+
+Do not begin with an existing bad example and repair it just enough to create a pair.
+
+1. Design the strongest production-plausible implementation of the stated task.
+2. Review that baseline against every applicable Viewrule, not only the rule being illustrated.
+3. Resolve material non-target defects in the baseline.
+4. Clone the approved baseline.
+5. Introduce exactly the minimum change needed to violate the target rule.
+6. Assert machine-observable invariants between the pair and document any necessary semantic dependency.
+
+The good example is the source of truth; the bad example is a controlled mutation of it.
+
 ## Isolate the rule under test
 
 A canonical good/bad pair is a controlled comparison, not a good design beside a generally bad design.
