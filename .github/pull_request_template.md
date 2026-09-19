@@ -36,15 +36,16 @@ Describe the single change that causes the Bad variant to violate the target rul
 Checking the box is the review attestation: checked means reviewed and passed.
 If it does not pass, leave it unchecked and fix the example. Delete unused rows. -->
 
-- [ ] DR-___ — Rule name
-- [ ] DR-___ — Rule name
+- [ ] **DR-___ — Rule name:** Paste the rule's principle or the concrete review question here so the reviewer does not need to recall the rule from memory.
+- [ ] **DR-___ — Rule name:** State what must be true in this example for the rule to pass.
 
 ### Isolation
 
-- [ ] Good passes every applicable design rule.
-- [ ] Bad passes every applicable design rule except the target DR.
-- [ ] Bad fails the target DR.
-- [ ] Every `not-applicable` rule has a rationale in the conformance matrix.
+<!-- The first three conformance claims are derived from CI plus the checked human-review
+attestations above; do not add redundant manual checkboxes for them. -->
+
+**Machine-verified isolation:** CI verifies that Good passes every applicable rule, Bad passes every applicable non-target rule, Bad fails the target rule, and every `not-applicable` cell includes a rationale.
+
 - [ ] Every human-review rule above has been reviewed.
 - [ ] Good and Bad images show the state that demonstrates the controlled difference.
 
