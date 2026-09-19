@@ -1349,7 +1349,7 @@ test(
         "utf8",
       ),
     );
-    const registeredRules = catalog.rules.map((rule) => rule.id);
+    const registeredRules = contextSchema.properties.designRules.items.enum;
     for (const example of conformance.examples) {
       assert.equal(example.target, example.id);
       assert.deepEqual(Object.keys(example.rules), registeredRules);
