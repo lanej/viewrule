@@ -104,7 +104,7 @@ async function start() {
         count.textContent = "0";
       status.textContent = ["submitting", "queued", "completed"].includes(state)
         ? "Published"
-        : "Up to date";
+        : "Updated just now";
       asOf.hidden = true;
       refreshAt.hidden = true;
       retry.hidden = true;
@@ -188,7 +188,7 @@ async function start() {
     else if (!stateExample && controls.nextElementSibling !== heading)
       heading.before(controls);
     document.getElementById("request-control").hidden = !stateExample;
-    document.getElementById("example-limit").hidden = !stateExample;
+    document.getElementById("example-limit").hidden = true;
     const notes = /** @type {HTMLDetailsElement} */ (
       document.querySelector(".review-notes")
     );
@@ -196,6 +196,12 @@ async function start() {
     document.querySelector("#rule-heading").textContent = stateExample
       ? "A failed refresh is not zero shipments."
       : `${rule.id} — ${rule.title}`;
+    document.querySelector("#good-heading").textContent = stateExample
+      ? "Keeps known state"
+      : "Good for this task";
+    document.querySelector("#bad-heading").textContent = stateExample
+      ? "Overwrites known state"
+      : "Bad for this task";
     const sharedFacts = {
       failed:
         "At 09:00, both views received 12 shipments. The 09:05 refresh failed.",
