@@ -41,6 +41,8 @@ jobs:
             exit 0
           }
           git commit -m "Apply Prettier formatting"
+          git fetch origin "$HEAD_REF"
+          git rebase "origin/$HEAD_REF"
           git push origin "HEAD:$HEAD_REF"
           echo "pushed=true" >> "$GITHUB_OUTPUT"
       - name: Formatting commit pushed
