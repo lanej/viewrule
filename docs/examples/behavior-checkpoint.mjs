@@ -25,12 +25,17 @@ export default async function ({ page }) {
     await badRole("refresh-at").textContent(),
     await role("refresh-at").textContent(),
   );
-  assert.equal(await badRole("retry").textContent(), await role("retry").textContent());
+  assert.equal(
+    await badRole("retry").textContent(),
+    await role("retry").textContent(),
+  );
   assert.equal(await badRole("retry").isVisible(), true);
   const pairGeometry = await page.locator(".metric").evaluateAll((metrics) =>
     metrics.map((metric) => {
       const box = metric.getBoundingClientRect();
-      const retry = metric.querySelector('[data-role="retry"]').getBoundingClientRect();
+      const retry = metric
+        .querySelector('[data-role="retry"]')
+        .getBoundingClientRect();
       return {
         width: box.width,
         height: box.height,
