@@ -306,7 +306,9 @@ async function start() {
       const error = find(sample, "error");
       const dialog = find(sample, "dialog");
       error.id = `proposal-error-${good ? "good" : "bad"}`;
-      input.setAttribute("aria-describedby", error.id);
+      const help = find(sample, "help");
+      help.id = `proposal-help-${good ? "good" : "bad"}`;
+      input.setAttribute("aria-describedby", `${help.id} ${error.id}`);
       let approved = 5;
       let previous = 5;
       let proposed = null;
@@ -328,10 +330,10 @@ async function start() {
           value > 6
         ) {
           error.hidden = false;
-          error.textContent =
-            "Enter a reduction from 0% through 6%. Correct the proposal and try again.";
+          error.textContent = "Enter 6% or less.";
           input.setAttribute("aria-invalid", "true");
           if (!good) input.value = "";
+          input.focus();
           return;
         }
         error.hidden = true;
