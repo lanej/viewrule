@@ -355,7 +355,9 @@ body.behavior-gallery[data-behavior-rule="DR-009"] .gallery-heading p,
 [data-rule="DR-012"] .percentage-input span {
   padding-right: 0.75rem;
 }
-[data-rule="DR-012"] .proposal-field:has(input[aria-invalid="true"]) .percentage-input {
+[data-rule="DR-012"]
+  .proposal-field:has(input[aria-invalid="true"])
+  .percentage-input {
   border-width: 2px;
   border-color: light-dark(#9a3412, #fdba74);
 }
