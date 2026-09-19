@@ -1356,17 +1356,27 @@ test(
       const failures = [];
       for (const [id, assessment] of Object.entries(example.rules)) {
         assert.ok(
-          ["pass", "fail", "review", "not-applicable"].includes(
-            assessment.good,
-          ),
+          ["pass", "fail", "not-applicable"].includes(assessment.good),
         );
         assert.ok(
-          ["pass", "fail", "review", "not-applicable"].includes(assessment.bad),
+          ["pass", "fail", "not-applicable"].includes(assessment.bad),
         );
         assert.ok(
           assessment.evidence?.trim(),
           `${example.id}/${id} needs evidence`,
         );
+        assert.ok(
+          ["automated", "behavioral", "human-review", "rationale"].includes(
+            assessment.evidenceType,
+          ),
+          `${example.id}/${id} needs a valid evidenceType`,
+        );
+        if (assessment.good === "not-applicable")
+          assert.equal(
+            assessment.evidenceType,
+            "rationale",
+            `${example.id}/${id} not-applicable needs rationale evidence`,
+          );
         assert.notEqual(
           assessment.good,
           "fail",
