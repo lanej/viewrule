@@ -8,6 +8,46 @@ List the validation actually performed and its result. Use the existing represen
 regression for behavior changes; use example/link/diff checks for documentation.
 State unavailable validation without implying a pass. Do not attach private app data.
 
+<!-- Complete the sections below when this PR materially changes a canonical
+good/bad example. Otherwise delete them. -->
+
+## Canonical example
+
+**Target DR:** DR-___
+
+**Intentional Good → Bad mutation:**  
+Describe the single change that causes the Bad variant to violate the target rule.
+
+### Visual evidence
+
+<!-- Embed the actual rendered images inline. Do not substitute filenames or artifact links. -->
+
+**Good**
+
+<!-- ![Good rendered example](...) -->
+
+**Bad**
+
+<!-- ![Bad rendered example](...) -->
+
+### Human review
+
+<!-- Include every applicable DR whose conformance evidence is human-review.
+Checking the box is the review attestation: checked means reviewed and passed.
+If it does not pass, leave it unchecked and fix the example. Delete unused rows. -->
+
+- [ ] DR-___ — Rule name
+- [ ] DR-___ — Rule name
+
+### Isolation
+
+- [ ] Good passes every applicable design rule.
+- [ ] Bad passes every applicable design rule except the target DR.
+- [ ] Bad fails the target DR.
+- [ ] Every `not-applicable` rule has a rationale in the conformance matrix.
+- [ ] Every human-review rule above has been reviewed.
+- [ ] Good and Bad images show the state that demonstrates the controlled difference.
+
 ## Limits and compatibility
 
 Describe material measurement limits, changed contracts, or migration needs. Use
