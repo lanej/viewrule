@@ -248,14 +248,15 @@ body.behavior-gallery[data-behavior-rule="DR-009"] .gallery-heading p,
 }
 [data-rule="DR-009"] .state-label {
   font-size: 0.875rem;
-  padding: 0.125rem 0.5rem;
-  border-radius: 0.25rem;
-  background: light-dark(#e7eee9, #2c4335);
+  font-weight: 500;
+  color: light-dark(#4c6256, #b5c8bc);
+}
+[data-rule="DR-009"] .state-label::before {
+  content: "· ";
 }
 [data-rule="DR-009"] #good [data-state="failed"] .state-label,
 [data-rule="DR-009"] #good [data-state="retrying"] .state-label {
   color: light-dark(#6b4b16, #f2d79f);
-  background: light-dark(#fff0cf, #483c24);
 }
 [data-rule="DR-009"] .as-of {
   margin: 0;
@@ -266,7 +267,7 @@ body.behavior-gallery[data-behavior-rule="DR-009"] .gallery-heading p,
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 0.75rem;
-  margin-top: 1rem;
+  margin-top: 0.5rem;
 }
 [data-rule="DR-009"] .refresh-at {
   margin: 0;
@@ -279,8 +280,11 @@ body.behavior-gallery[data-behavior-rule="DR-009"] .gallery-heading p,
   cursor: progress;
 }
 [data-rule="DR-009"] .example-controls {
-  padding-block: 0.75rem;
-  font-size: 0.875rem;
+  margin-top: 0.25rem;
+  padding-block: 0.5rem;
+  border-top: 1px solid light-dark(#d1dbd4, #405348);
+  font-size: 0.8125rem;
+  color: light-dark(#4c6256, #b5c8bc);
 }
 [data-rule="DR-009"] #request-control {
   display: flex;
