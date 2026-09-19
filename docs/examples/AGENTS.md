@@ -15,6 +15,10 @@ Do not begin with an existing bad example and repair it just enough to create a 
 
 The good example is the source of truth; the bad example is a controlled mutation of it.
 
+## Conformance matrix
+
+Every canonical example must declare every registered design rule for both variants as `pass`, `fail`, `review`, or `not-applicable`, with evidence. Good has no failures. Bad has exactly one failure: the target rule. Non-target outcomes must match. CI validates machine-observable claims; subjective review stays explicit rather than becoming a manufactured detector pass.
+
 ## Isolate the rule under test
 
 A canonical good/bad pair is a controlled comparison, not a good design beside a generally bad design.
