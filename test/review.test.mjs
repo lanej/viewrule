@@ -2321,9 +2321,11 @@ test(
         await captureDr012Panel(quality, "desktop");
 
       await page.setViewportSize({ width: 390, height: 844 });
-      await page.locator("#good .sample, #bad .sample").evaluateAll((samples) => {
-        for (const sample of samples) sample.dataset.enlarged = "true";
-      });
+      await page
+        .locator("#good .sample, #bad .sample")
+        .evaluateAll((samples) => {
+          for (const sample of samples) sample.dataset.enlarged = "true";
+        });
       for (const quality of ["good", "bad"])
         await role(quality, "error").evaluate((node) => {
           node.textContent =
@@ -2346,9 +2348,11 @@ test(
         await captureDr012Panel(quality, "mobile");
       }
       await page.setViewportSize({ width: 1200, height: 1000 });
-      await page.locator("#good .sample, #bad .sample").evaluateAll((samples) => {
-        for (const sample of samples) sample.dataset.enlarged = "false";
-      });
+      await page
+        .locator("#good .sample, #bad .sample")
+        .evaluateAll((samples) => {
+          for (const sample of samples) sample.dataset.enlarged = "false";
+        });
       for (const quality of ["good", "bad"])
         await role(quality, "error").evaluate((node) => {
           node.textContent = "Enter 6% or less.";
