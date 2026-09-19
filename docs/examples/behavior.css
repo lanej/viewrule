@@ -379,3 +379,27 @@ body.behavior-gallery[data-behavior-rule="DR-009"] .gallery-heading p,
   margin-bottom: 0;
   font-size: 0.875rem;
 }
+
+@media (max-width: 700px) {
+  [data-rule="DR-012"] .rate-reduction-heading {
+    display: grid;
+    gap: 0.75rem;
+  }
+  [data-rule="DR-012"] .approved-value {
+    justify-items: start;
+  }
+  [data-rule="DR-012"] .rate-reduction-heading h4,
+  [data-rule="DR-012"] .rate-reduction-heading p,
+  [data-rule="DR-012"] .proposal-field,
+  [data-rule="DR-012"] .field-help,
+  [data-rule="DR-012"] .field-error {
+    overflow-wrap: normal;
+    word-break: normal;
+  }
+  [data-rule="DR-012"] .percentage-input {
+    width: min(10rem, 100%);
+  }
+  [data-rule="DR-012"] .form-actions button {
+    width: auto;
+  }
+}
