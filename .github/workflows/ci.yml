@@ -64,6 +64,33 @@ jobs:
       - run: npm test
         env:
           VIEWRULE_VERIFY_PLUGIN_PIN: ${{ contains(github.event.pull_request.title, '[release]') || contains(github.event.head_commit.message, '[release]') }}
+      - name: Publish canonical example images
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+        shell: bash
+        env:
+          HEAD_REF: ${{ github.head_ref }}
+        run: |
+          evidence="dist/behavior-evidence"
+          destination="docs/examples/images/behavior/review"
+          files=(
+            dr-012-rejected-good-desktop.png
+            dr-012-rejected-bad-desktop.png
+            dr-012-rejected-good-mobile.png
+            dr-012-rejected-bad-mobile.png
+          )
+          mkdir -p "$destination"
+          for file in "${files[@]}"; do
+            test -f "$evidence/$file"
+            cp "$evidence/$file" "$destination/$file"
+          done
+          git add "$destination"
+          if git diff --cached --quiet; then exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Update canonical example evidence"
+          git fetch origin "$HEAD_REF"
+          git rebase "origin/$HEAD_REF"
+          git push origin "HEAD:$HEAD_REF"
       - uses: actions/upload-artifact@v4
         with:
           name: tested-package
