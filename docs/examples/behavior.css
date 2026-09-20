@@ -403,3 +403,7 @@ body.behavior-gallery[data-behavior-rule="DR-009"] .gallery-heading p,
     width: auto;
   }
 }
+
+[data-rule="DR-012"] .sample[data-enlarged="true"] {
+  font-size: 1.25rem;
+}
