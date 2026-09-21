@@ -70,14 +70,14 @@
       "title": "Rule of Recovery",
       "enforcement": "behavioral",
       "task": "Correct a rejected 7.5% proposal without losing work; review a valid change and undo it.",
-      "good": "Rejection preserves input with specific guidance. A valid proposal is reviewed; Undo restores the previously approved rate.",
-      "bad": "Rejection clears the proposal and gives a generic error; a later valid proposal applies without review.",
+      "good": "The polished baseline exposes the allowed range before submission, preserves rejected 7.5% input with local corrective guidance and focus, then supports review, confirmation, and actual Undo.",
+      "bad": "Use the same baseline, guidance, focus, review, confirmation, and Undo flow, but clear the rejected 7.5% proposal and force re-entry.",
       "alternatives": [
         "Use actual reversal without a modal for a genuinely low-risk operation."
       ],
       "exception": "Do not offer Undo for an irreversible action; explain safe re-entry requirements.",
       "nativeChecks": ["context"],
-      "verification": "The fixture checks rejection, correction, cancellation, review, and actual local-model reversal. It does not prove remote transaction rollback or financial compliance.",
+      "verification": "The controlled pair holds persistent range guidance, specific validation, focus recovery, review, confirmation, Undo, scope, and presentation invariant. Application assertions verify that rejection focuses and marks both inputs invalid with the same \"Enter 6% or less.\" guidance, while only the bad variant clears the rejected proposal. Both variants then complete the same corrected review and reversal flow. This fixture does not prove remote transaction rollback or financial compliance.",
       "sources": [
         "https://www.w3.org/WAI/WCAG22/Understanding/error-prevention-legal-financial-data.html",
         "https://www.w3.org/WAI/WCAG22/Understanding/error-identification.html"

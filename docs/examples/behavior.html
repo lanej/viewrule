@@ -145,17 +145,40 @@
       </dialog>
     </template>
     <template id="scene-DR-012">
-      <form data-role="form" novalidate>
-        <p>Approved reduction: <strong data-role="approved">5%</strong></p>
-        <label
-          >Proposed reduction (%)
-          <input data-role="proposal" type="number" step="0.1" value="7.5"
-        /></label>
-        <p>Fixture limit: 6%. The first submission will be rejected.</p>
-        <p data-role="error" class="error" role="alert" hidden></p>
-        <button type="submit">Review change</button>
-        <button type="button" data-role="undo" hidden>Undo last change</button>
-        <p data-role="result" role="status">No changes applied.</p>
+      <form data-role="form" class="rate-reduction-form" novalidate>
+        <div class="rate-reduction-heading">
+          <div>
+            <h4>Rate reduction</h4>
+            <p>12 selected lanes</p>
+          </div>
+          <p class="approved-value">
+            <span>Current approved</span>
+            <strong data-role="approved">5%</strong>
+          </p>
+        </div>
+        <label class="proposal-field"
+          ><span>Proposed reduction</span>
+          <span class="percentage-input"
+            ><input
+              data-role="proposal"
+              type="number"
+              step="0.1"
+              min="0"
+              max="6"
+              value="7.5"
+              inputmode="decimal"
+            /><span aria-hidden="true">%</span></span
+          >
+        </label>
+        <p data-role="help" class="field-help">Allowed range: 0–6%</p>
+        <p data-role="error" class="error field-error" role="alert" hidden></p>
+        <div class="form-actions">
+          <button type="submit">Review change</button>
+          <button type="button" data-role="undo" hidden>
+            Undo last change
+          </button>
+        </div>
+        <p data-role="result" class="form-result" role="status" hidden></p>
       </form>
       <dialog data-role="dialog" aria-label="Review rate reduction">
         <h4>Review rate reduction</h4>

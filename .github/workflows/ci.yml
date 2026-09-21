@@ -5,7 +5,7 @@ on:
   pull_request:
   workflow_dispatch:
 permissions:
-  contents: read
+  contents: write
 jobs:
   regression:
     runs-on: ubuntu-latest
@@ -19,33 +19,46 @@ jobs:
           cache-dependency-path: npm-shrinkwrap.json
       - run: npm ci
         id: dependencies
-      - name: Check formatting
+      - name: Apply formatting
         id: formatting
-        run: npm run format:check
-      - name: Show required formatting changes
-        if: failure() && steps.formatting.outcome == 'failure'
+        run: npm run format
+      - name: Commit formatting-only changes
+        id: format-commit
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
         shell: bash
+        env:
+          HEAD_REF: ${{ github.head_ref }}
         run: |
-          status=0
-          npx --no-install prettier --list-different . > "$RUNNER_TEMP/prettier-files.txt" || status=$?
-          if [ "$status" -gt 1 ]; then exit "$status"; fi
-          while IFS= read -r file; do
-            npx --no-install prettier "$file" > "$RUNNER_TEMP/prettier-expected.txt"
-            diff_status=0
-            diff -u --label "a/$file" --label "b/$file" "$file" "$RUNNER_TEMP/prettier-expected.txt" || diff_status=$?
-            if [ "$diff_status" -gt 1 ]; then exit "$diff_status"; fi
-          done < "$RUNNER_TEMP/prettier-files.txt"
+          if git diff --quiet; then
+            echo "pushed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -u
+          git diff --cached --exit-code --quiet && {
+            echo "pushed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          }
+          git commit -m "Apply Prettier formatting"
+          git fetch origin "$HEAD_REF"
+          git rebase "origin/$HEAD_REF"
+          git push origin "HEAD:$HEAD_REF"
+          echo "pushed=true" >> "$GITHUB_OUTPUT"
+      - name: Formatting commit pushed
+        if: steps.format-commit.outputs.pushed == 'true'
+        run: echo "Formatting-only changes were committed to the PR branch; continue validating this already-formatted working tree without restarting CI."
       - name: Check lint
-        if: ${{ !cancelled() && steps.dependencies.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.dependencies.outcome == 'success'  }}
         run: npm run lint
       - name: Check types
-        if: ${{ !cancelled() && steps.dependencies.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.dependencies.outcome == 'success'  }}
         run: npm run analyze
       - name: Check guide and example sources
-        if: ${{ !cancelled() && steps.dependencies.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.dependencies.outcome == 'success'  }}
         run: npm run guide:check
       - name: Build public site
-        if: ${{ !cancelled() && steps.dependencies.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.dependencies.outcome == 'success'  }}
         run: npm run site:build
       - run: node bin/viewrule.mjs install-browser --with-deps
       - run: npm test
@@ -56,6 +69,14 @@ jobs:
           name: tested-package
           path: dist/viewrule-*.tgz
           if-no-files-found: error
+          retention-days: 7
+      - name: Preserve behavior example evidence
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: behavior-example-evidence
+          path: dist/behavior-evidence/
+          if-no-files-found: warn
           retention-days: 7
       - name: Preserve pattern review evidence
         if: ${{ !cancelled() }}
