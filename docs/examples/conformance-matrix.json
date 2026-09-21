@@ -5,102 +5,44 @@
       "id": "DR-012",
       "target": "DR-012",
       "rules": {
-        "DR-001": {
-          "good": "not-applicable",
-          "bad": "not-applicable",
-          "evidence": "No chart scale comparison.",
-          "evidenceType": "rationale"
-        },
-        "DR-002": {
-          "good": "not-applicable",
-          "bad": "not-applicable",
-          "evidence": "No graphical magnitude encoding.",
-          "evidenceType": "rationale"
-        },
-        "DR-003": {
-          "good": "pass",
-          "bad": "pass",
-          "evidence": "Reduction values have percent units and shared 12-lane scope.",
-          "evidenceType": "automated"
-        },
-        "DR-004": {
-          "good": "pass",
-          "bad": "pass",
-          "evidence": "An empty input is not presented as an observed zero.",
-          "evidenceType": "automated"
-        },
-        "DR-005": {
-          "good": "pass",
-          "bad": "pass",
-          "evidence": "Both variants share visual and interaction encodings.",
-          "evidenceType": "automated"
-        },
-        "DR-006": {
-          "good": "pass",
-          "bad": "pass",
-          "evidence": "Constraint and validation stay adjacent to the proposed value.",
-          "evidenceType": "automated"
-        },
-        "DR-007": {
-          "good": "pass",
-          "bad": "pass",
-          "evidence": "Compact form preserves readable type and usable controls.",
-          "evidenceType": "automated"
-        },
-        "DR-008": {
-          "good": "pass",
-          "bad": "pass",
-          "evidence": "Review: decoration does not compete with the editing task.",
-          "evidenceType": "human-review"
-        },
-        "DR-009": {
-          "good": "pass",
-          "bad": "pass",
-          "evidence": "Operational states are not overstated.",
-          "evidenceType": "automated"
-        },
-        "DR-010": {
-          "good": "pass",
-          "bad": "pass",
-          "evidence": "Review cancellation preserves proposal, scope, and current value; rejection recovery is DR-012's boundary.",
-          "evidenceType": "automated"
-        },
-        "DR-011": {
-          "good": "pass",
-          "bad": "pass",
-          "evidence": "Allowed reduction is exposed before commitment and review exposes scope.",
-          "evidenceType": "automated"
-        },
-        "DR-012": {
-          "good": "pass",
-          "bad": "fail",
-          "evidence": "Only Bad discards the rejected proposal; guidance and downstream recovery remain identical.",
-          "evidenceType": "behavioral"
-        },
-        "DR-013": {
-          "good": "pass",
-          "bad": "pass",
-          "evidence": "Review: proposal, validation, and corrective action lead the rejected state.",
-          "evidenceType": "human-review"
-        },
-        "DR-014": {
-          "good": "pass",
-          "bad": "pass",
-          "evidence": "Native labeled controls, focus recovery, associated validation, and keyboard dialog are shared.",
-          "evidenceType": "automated"
-        },
-        "DR-015": {
-          "good": "pass",
-          "bad": "pass",
-          "evidence": "Review enlarged text and content variation; no fixed-height task container.",
-          "evidenceType": "human-review"
-        },
-        "DR-016": {
-          "good": "not-applicable",
-          "bad": "not-applicable",
-          "evidence": "Color does not encode a data variable.",
-          "evidenceType": "rationale"
-        }
+        "DR-001": {"good":"not-applicable","bad":"not-applicable","evidence":"No chart scale comparison.","evidenceType":"rationale"},
+        "DR-002": {"good":"not-applicable","bad":"not-applicable","evidence":"No graphical magnitude encoding.","evidenceType":"rationale"},
+        "DR-003": {"good":"pass","bad":"pass","evidence":"Reduction values have percent units and shared 12-lane scope.","evidenceType":"automated"},
+        "DR-004": {"good":"pass","bad":"pass","evidence":"An empty input is not presented as an observed zero.","evidenceType":"automated"},
+        "DR-005": {"good":"pass","bad":"pass","evidence":"Both variants share visual and interaction encodings.","evidenceType":"automated"},
+        "DR-006": {"good":"pass","bad":"pass","evidence":"Constraint and validation stay adjacent to the proposed value.","evidenceType":"automated"},
+        "DR-007": {"good":"pass","bad":"pass","evidence":"Compact form preserves readable type and usable controls.","evidenceType":"automated"},
+        "DR-008": {"good":"pass","bad":"pass","evidence":"Review: decoration does not compete with the editing task.","evidenceType":"human-review"},
+        "DR-009": {"good":"pass","bad":"pass","evidence":"Operational states are not overstated.","evidenceType":"automated"},
+        "DR-010": {"good":"pass","bad":"pass","evidence":"Review cancellation preserves proposal, scope, and current value; rejection recovery is DR-012's boundary.","evidenceType":"automated"},
+        "DR-011": {"good":"pass","bad":"pass","evidence":"Allowed reduction is exposed before commitment and review exposes scope.","evidenceType":"automated"},
+        "DR-012": {"good":"pass","bad":"fail","evidence":"Only Bad discards the rejected proposal; guidance and downstream recovery remain identical.","evidenceType":"behavioral"},
+        "DR-013": {"good":"pass","bad":"pass","evidence":"Review: proposal, validation, and corrective action lead the rejected state.","evidenceType":"human-review"},
+        "DR-014": {"good":"pass","bad":"pass","evidence":"Native labeled controls, focus recovery, associated validation, and keyboard dialog are shared.","evidenceType":"automated"},
+        "DR-015": {"good":"pass","bad":"pass","evidence":"Review enlarged text and content variation; no fixed-height task container.","evidenceType":"human-review"},
+        "DR-016": {"good":"not-applicable","bad":"not-applicable","evidence":"Color does not encode a data variable.","evidenceType":"rationale"}
+      }
+    },
+    {
+      "id": "DR-013",
+      "target": "DR-013",
+      "rules": {
+        "DR-001": {"good":"not-applicable","bad":"not-applicable","evidence":"No charts, scale domains, or time-series comparison.","evidenceType":"rationale","rule":"../design-rules/DR-001-comparable-scales.md"},
+        "DR-002": {"good":"not-applicable","bad":"not-applicable","evidence":"No graphical magnitude encoding; quantities are text.","evidenceType":"rationale","rule":"../design-rules/DR-002-proportional-magnitude.md"},
+        "DR-003": {"good":"pass","bad":"pass","evidence":"Fixed fixture labels expose the measure, day, snapshot time, population and units. The same known counts appear in both variants.","evidenceType":"automated","rule":"../design-rules/DR-003-quantity-context.md","checks":["context","shared-content"]},
+        "DR-004": {"good":"not-applicable","bad":"not-applicable","evidence":"This fixture has only known observed counts, with no missing or estimated values.","evidenceType":"rationale","rule":"../design-rules/DR-004-missing-estimated-values.md"},
+        "DR-005": {"good":"pass","bad":"pass","evidence":"Corresponding component styles and content remain identical in both layouts.","evidenceType":"automated","rule":"../design-rules/DR-005-consistent-meanings.md","checks":["shared-styles","shared-content"]},
+        "DR-006": {"good":"pass","bad":"pass","evidence":"Both comparison sections are visible together on desktop; each label and its evidence travel as an intact section.","evidenceType":"automated","rule":"../design-rules/DR-006-related-evidence.md","checks":["shared-geometry","no-clipping"]},
+        "DR-007": {"good":"pass","bad":"pass","evidence":"Review bounded widths, legibility and control size. Narrow evidence uses 125% component text, not browser zoom; geometry checks are supporting evidence.","evidenceType":"human-review","rule":"../design-rules/DR-007-responsive-detail.md"},
+        "DR-008": {"good":"pass","bad":"pass","evidence":"Confirm both surfaces are restrained; neither uses exaggerated type, missing information, decorative noise or oversized controls to reveal the answer.","evidenceType":"human-review","rule":"../design-rules/DR-008-earned-decoration.md"},
+        "DR-009": {"good":"pass","bad":"pass","evidence":"Disclosure shows the actual three fixture identities awaiting correction; it does not claim the shipments were corrected or dispatched.","evidenceType":"behavioral","rule":"../design-rules/DR-009-state-honesty.md","checks":["keyboard-disclosure","context"]},
+        "DR-010": {"good":"pass","bad":"pass","evidence":"Opening and dismissing details preserves counts, scope and invoking focus in both variants.","evidenceType":"behavioral","rule":"../design-rules/DR-010-context-continuity.md","checks":["continuity","keyboard-disclosure"]},
+        "DR-011": {"good":"pass","bad":"pass","evidence":"Confirm Review 3 exceptions communicates a read-only inspection action and its scope; visible detail does not imply an address edit or completed fix.","evidenceType":"human-review","rule":"../design-rules/DR-011-action-scope.md"},
+        "DR-012": {"good":"not-applicable","bad":"not-applicable","evidence":"Read-only inspection; no editable proposal, consequential submission or failure recovery. Disclosure dismissal is covered by continuity and access.","evidenceType":"rationale","rule":"../design-rules/DR-012-recovery-safeguards.md"},
+        "DR-013": {"good":"pass","bad":"fail","evidence":"For the declared before-dispatch response task, Good leads with actionable exceptions and Bad leads with the daily total. The checkpoint proves the order-only mutation; a reviewer must judge the priority difference.","evidenceType":"human-review","rule":"../design-rules/DR-013-task-emphasis.md"},
+        "DR-014": {"good":"pass","bad":"pass","evidence":"Actual Tab, Enter and Escape traversal exercises both native disclosures, visible focus and related ARIA state. Not a complete accessibility certification.","evidenceType":"behavioral","rule":"../design-rules/DR-014-keyboard-access.md","checks":["keyboard-disclosure"]},
+        "DR-015": {"good":"pass","bad":"pass","evidence":"Review both 1200px and 390px captures. The narrow scenario uses 125% component text and longer address guidance. The no-clipping checks do not certify all locales, zoom settings or assistive technology.","evidenceType":"human-review","rule":"../design-rules/DR-015-content-resilience.md"},
+        "DR-016": {"good":"not-applicable","bad":"not-applicable","evidence":"No ordered or categorical data is encoded by color. Text, boundaries and focus indication still require legibility.","evidenceType":"rationale","rule":"../design-rules/DR-016-semantic-color.md"}
       }
     }
   ]
