@@ -1,0 +1,54 @@
+name: One-off DR-013 evidence
+on:
+  pull_request:
+    types: [opened]
+permissions:
+  contents: read
+jobs:
+  capture:
+    if: github.event.pull_request.head.repo.full_name == github.repository && github.head_ref == 'refine/dr-013-example-isolation'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: npm-shrinkwrap.json
+      - run: npm ci
+      - run: node bin/viewrule.mjs install-browser --with-deps
+      - name: Capture current branch and publish once
+        shell: bash
+        env:
+          HEAD_REF: ${{ github.head_ref }}
+        run: |
+          set -euo pipefail
+          git fetch origin "$HEAD_REF"
+          git diff --exit-code HEAD FETCH_HEAD -- package.json npm-shrinkwrap.json
+          git checkout --detach FETCH_HEAD
+          node docs/examples/priority-checkpoint.mjs
+          destination=docs/examples/images/behavior/review
+          mkdir -p "$destination"
+          for name in good-desktop bad-desktop good-mobile bad-mobile; do
+            cp "dist/behavior-evidence/dr-013-$name.png" "$destination/dr-013-$name.png"
+          done
+          cp dist/behavior-evidence/dr-013-evidence.json "$destination/dr-013-evidence.json"
+          git add "$destination/dr-013-good-desktop.png" "$destination/dr-013-bad-desktop.png" "$destination/dr-013-good-mobile.png" "$destination/dr-013-bad-mobile.png" "$destination/dr-013-evidence.json"
+          if git diff --cached --quiet; then exit 0; fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'Publish reviewed DR-013 capture set'
+          git push origin "HEAD:$HEAD_REF"
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: dr-013-capture
+          path: dist/behavior-evidence/dr-013-*
+          if-no-files-found: warn
+          retention-days: 7
