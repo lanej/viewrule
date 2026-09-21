@@ -10,7 +10,14 @@ import { validateRules } from "../src/config.mjs";
 const dir = await mkdtemp(path.join(tmpdir(), "viewrule-package-"));
 const root = path.resolve(import.meta.dirname, "..");
 try {
-  validateRules(JSON.parse(await readFile(path.join(root, "docs/examples/priority-rules.json"), "utf8")));
+  validateRules(
+    JSON.parse(
+      await readFile(
+        path.join(root, "docs/examples/priority-rules.json"),
+        "utf8",
+      ),
+    ),
+  );
   await runPriorityCheckpoint(root);
   execFileSync(process.execPath, ["scripts/site.mjs"], {
     cwd: root,

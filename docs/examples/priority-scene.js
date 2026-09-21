@@ -2,7 +2,8 @@
 export function configurePriority(sample, good) {
   // One mutation: assign the shared primary treatment to the wrong subject.
   // Both variants keep the same DOM order, facts, and action behavior.
-  sample.querySelector(good ? ".exceptions" : ".volume")
+  sample
+    .querySelector(good ? ".exceptions" : ".volume")
     .classList.add("priority-primary");
   const trigger = sample.querySelector('[data-role="respond"]');
   const result = sample.querySelector('[data-role="result"]');
