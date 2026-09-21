@@ -1,0 +1,83 @@
+[
+  {
+    "id": "priority-response-type",
+    "type": "style",
+    "selector": ".exceptions h5",
+    "property": "font-size",
+    "allowed": ["24px", "30px"],
+    "severity": "error",
+    "designRules": ["DR-013"],
+    "reason": "For dispatch review, the actionable exception heading receives the primary type scale (24px; 30px at 125% text). This is a scoped design contract, not a universal hierarchy threshold."
+  },
+  {
+    "id": "priority-response-surface",
+    "type": "style",
+    "selector": ".exceptions",
+    "property": "background-color",
+    "allowed": ["rgb(234, 241, 255)", "rgb(32, 49, 75)"],
+    "severity": "error",
+    "designRules": ["DR-013"],
+    "reason": "The response task receives the accent surface. Inspect the rendered background, not a primary class or metadata claim. Accent denotes attention, not warning severity."
+  },
+  {
+    "id": "priority-total-type",
+    "type": "style",
+    "selector": ".volume strong",
+    "property": "font-size",
+    "allowed": ["16px", "20px"],
+    "severity": "error",
+    "designRules": ["DR-013"],
+    "reason": "The daily total uses the supporting type scale (16px; 20px at 125% text) instead of outranking the response task."
+  },
+  {
+    "id": "priority-total-surface",
+    "type": "style",
+    "selector": ".volume",
+    "property": "background-color",
+    "allowed": ["rgb(255, 255, 255)", "rgb(21, 33, 49)"],
+    "severity": "error",
+    "designRules": ["DR-013"],
+    "reason": "Supporting shipment volume stays on the neutral surface rather than competing for the accent."
+  },
+  {
+    "id": "priority-context",
+    "type": "context",
+    "selector": ".priority-view",
+    "required": [
+      ".priority-heading p",
+      ".exceptions h5",
+      "[data-role=reason]",
+      ".volume strong"
+    ],
+    "severity": "error",
+    "designRules": ["DR-003", "DR-006"],
+    "reason": "Both variants retain snapshot scope, the actionable count and explanation, and the supporting total."
+  },
+  {
+    "id": "priority-readable-type",
+    "type": "min-font-size",
+    "selector": ".priority-view",
+    "min": 14,
+    "severity": "error",
+    "designRules": ["DR-007", "DR-015"],
+    "reason": "Supporting content remains readable; hierarchy is not created by shrinking important information."
+  },
+  {
+    "id": "priority-action-target",
+    "type": "min-size",
+    "selector": "[data-role=respond]",
+    "minWidth": 44,
+    "minHeight": 44,
+    "severity": "error",
+    "designRules": ["DR-014"],
+    "reason": "The same usable inspection action survives both emphasis assignments."
+  },
+  {
+    "id": "priority-no-clipping",
+    "type": "no-clip",
+    "selector": ".priority-view h4, .priority-view h5, .priority-view p, .priority-view strong, .priority-view button",
+    "severity": "error",
+    "designRules": ["DR-015"],
+    "reason": "Typography, longer content, and narrow layouts must not hide task-critical text."
+  }
+]
