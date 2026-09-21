@@ -31,6 +31,12 @@ jobs:
           assert.equal(test.split(needle).length, 2, 'Expected unique fixture asset allowlist');
           test = test.replace(needle, '"behavior.js",\n            "priority-scene.js",\n            "behavior.css",');
           await writeFile(testPath, test);
+          const sitePath = 'scripts/site.mjs';
+          let site = await readFile(sitePath, 'utf8');
+          const asset = '"behavior.js",\n  "behavior.css",';
+          assert.equal(site.split(asset).length, 2, 'Expected unique built-site asset list');
+          site = site.replace(asset, '"behavior.js",\n  "priority-scene.js",\n  "behavior.css",');
+          await writeFile(sitePath, site);
           const catalogPath = 'docs/examples/behavior-catalog.json';
           const catalog = JSON.parse(await readFile(catalogPath, 'utf8'));
           const recovery = catalog.rules.find(rule => rule.id === 'DR-012');
@@ -38,7 +44,7 @@ jobs:
           catalog.rules.find(rule => rule.id === 'DR-016').exception = 'An explicitly ordered category set can justify a different encoding when explained.';
           await writeFile(catalogPath, JSON.stringify(catalog, null, 2) + '\n');
           NODE
-          npx --no-install prettier --write docs/examples/priority-rules.json docs/examples/priority-before.json docs/examples/priority-checkpoint.mjs docs/examples/priority-scene.js docs/examples/behavior.css docs/examples/behavior.html docs/examples/behavior-catalog.json docs/examples/conformance-matrix.json scripts/test-package.mjs test/review.test.mjs
+          npx --no-install prettier --write docs/examples/priority-rules.json docs/examples/priority-before.json docs/examples/priority-checkpoint.mjs docs/examples/priority-scene.js docs/examples/behavior.css docs/examples/behavior.html docs/examples/behavior-catalog.json docs/examples/conformance-matrix.json scripts/test-package.mjs scripts/site.mjs test/review.test.mjs
       - run: npm run lint
       - run: npm run analyze
       - run: npm run guide:check
@@ -58,6 +64,7 @@ jobs:
             done
           done
           cp dist/behavior-evidence/dr-013-evidence.json "$destination/dr-013-emphasis-evidence.json"
+          npx --no-install prettier --write "$destination/dr-013-emphasis-evidence.json"
           git diff --quiet -- .github/workflows
           git fetch origin "$HEAD_REF"
           test "$(git rev-parse FETCH_HEAD)" = "$source_commit"
