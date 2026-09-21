@@ -1,3 +1,5 @@
+import { configurePriority } from "./priority-scene.js";
+
 // Deliberately paired teaching fixtures, not production carrier operations.
 // The catalog describes judgment separately from observable engine checks.
 const root = document.getElementById("behavior-examples");
@@ -358,12 +360,7 @@ async function start() {
         find(sample, "undo").hidden = true;
       };
     }
-    if (id === "DR-013") {
-      find(sample, "respond").onclick = () => {
-        find(sample, "result").textContent =
-          "EP 1042, EP 1047, and EP 1051 are awaiting address corrections.";
-      };
-    }
+    if (id === "DR-013") configurePriority(sample, good);
     if (id === "DR-014") {
       let trigger = find(sample, "trigger");
       const evidence = find(sample, "evidence");
