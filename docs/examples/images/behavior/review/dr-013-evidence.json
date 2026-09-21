@@ -134,10 +134,7 @@
               ]
             }
           },
-          "order": [
-            "exceptions",
-            "volume"
-          ],
+          "order": ["exceptions", "volume"],
           "clipped": 0
         },
         {
@@ -261,10 +258,7 @@
               ]
             }
           },
-          "order": [
-            "volume",
-            "exceptions"
-          ],
+          "order": ["volume", "exceptions"],
           "clipped": 0
         }
       ],
@@ -403,10 +397,7 @@
               ]
             }
           },
-          "order": [
-            "exceptions",
-            "volume"
-          ],
+          "order": ["exceptions", "volume"],
           "clipped": 0
         },
         {
@@ -530,10 +521,7 @@
               ]
             }
           },
-          "order": [
-            "volume",
-            "exceptions"
-          ],
+          "order": ["volume", "exceptions"],
           "clipped": 0
         }
       ],
