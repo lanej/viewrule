@@ -4,11 +4,14 @@ import { createHash } from "node:crypto";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { runPriorityCheckpoint } from "../docs/examples/priority-checkpoint.mjs";
+import { validateRules } from "../src/config.mjs";
 
 // Exercise the packed engine's installed review and contract-authoring workflows.
 const dir = await mkdtemp(path.join(tmpdir(), "viewrule-package-"));
 const root = path.resolve(import.meta.dirname, "..");
 try {
+  validateRules(JSON.parse(await readFile(path.join(root, "docs/examples/priority-rules.json"), "utf8")));
+  await runPriorityCheckpoint(root);
   execFileSync(process.execPath, ["scripts/site.mjs"], {
     cwd: root,
     stdio: "inherit",
@@ -48,7 +51,6 @@ try {
       env: { ...process.env, VIEWRULE_TEST_ARCHIVE: archive },
     },
   );
-  await runPriorityCheckpoint(root);
   // Release CI publishes precisely the archive that passed, not a second pack.
   await mkdir(path.join(root, "dist"), { recursive: true });
   await copyFile(archive, path.join(root, "dist", packed.filename));

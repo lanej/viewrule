@@ -1,0 +1,76 @@
+name: DR-013 emphasis authoring
+on:
+  pull_request:
+    types: [labeled]
+permissions:
+  contents: write
+jobs:
+  evidence:
+    if: github.event.label.name == 'capture-dr013-emphasis' && github.head_ref == 'refine/dr-013-example-isolation' && github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: npm-shrinkwrap.json
+      - run: npm ci
+      - name: Complete fixture integration and format authored files
+        shell: bash
+        run: |
+          node --input-type=module <<'NODE'
+          import assert from 'node:assert/strict';
+          import { readFile, writeFile } from 'node:fs/promises';
+          const testPath = 'test/review.test.mjs';
+          let test = await readFile(testPath, 'utf8');
+          const needle = '"behavior.js",\n            "behavior.css",';
+          assert.equal(test.split(needle).length, 2, 'Expected unique fixture asset allowlist');
+          test = test.replace(needle, '"behavior.js",\n            "priority-scene.js",\n            "behavior.css",');
+          await writeFile(testPath, test);
+          const catalogPath = 'docs/examples/behavior-catalog.json';
+          const catalog = JSON.parse(await readFile(catalogPath, 'utf8'));
+          const recovery = catalog.rules.find(rule => rule.id === 'DR-012');
+          recovery.verification = recovery.verification.replace('Entered value is outside the allowed range.', 'Enter 6% or less.');
+          catalog.rules.find(rule => rule.id === 'DR-016').exception = 'An explicitly ordered category set can justify a different encoding when explained.';
+          await writeFile(catalogPath, JSON.stringify(catalog, null, 2) + '\n');
+          NODE
+          npx --no-install prettier --write docs/examples/priority-rules.json docs/examples/priority-before.json docs/examples/priority-checkpoint.mjs docs/examples/priority-scene.js docs/examples/behavior.css docs/examples/behavior.html docs/examples/behavior-catalog.json docs/examples/conformance-matrix.json scripts/test-package.mjs test/review.test.mjs
+      - run: npm run lint
+      - run: npm run analyze
+      - run: npm run guide:check
+      - run: node bin/viewrule.mjs install-browser --with-deps
+      - run: npm test
+      - name: Publish this capture set once
+        shell: bash
+        env:
+          HEAD_REF: ${{ github.head_ref }}
+        run: |
+          source_commit="$(git rev-parse HEAD)"
+          destination="docs/examples/images/behavior/review"
+          mkdir -p "$destination"
+          for quality in good bad; do
+            for viewport in desktop mobile; do
+              cp "dist/behavior-evidence/dr-013-$quality-$viewport.png" "$destination/dr-013-emphasis-$quality-$viewport.png"
+            done
+          done
+          cp dist/behavior-evidence/dr-013-evidence.json "$destination/dr-013-emphasis-evidence.json"
+          git diff --quiet -- .github/workflows
+          git fetch origin "$HEAD_REF"
+          test "$(git rev-parse FETCH_HEAD)" = "$source_commit"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -u
+          git add "$destination"/dr-013-emphasis-*.png "$destination/dr-013-emphasis-evidence.json"
+          git commit -m "Record tested DR-013 emphasis evidence and fixture integration"
+          git push origin "HEAD:$HEAD_REF"
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: dr013-emphasis-authoring
+          path: dist/behavior-evidence/
+          if-no-files-found: warn
+          retention-days: 7

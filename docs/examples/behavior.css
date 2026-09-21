@@ -380,7 +380,7 @@ body.behavior-gallery[data-behavior-rule="DR-009"] .gallery-heading p,
   font-size: 1.25rem;
 }
 
-/* DR-013: one shared surface. The counterexample changes DOM order only. */
+/* DR-013: two shared emphasis roles; only their assignment changes. */
 [data-rule="DR-013"] .behavior-pair {
   row-gap: 0.75rem;
 }
@@ -400,6 +400,9 @@ body.behavior-gallery[data-behavior-rule="DR-009"] .gallery-heading p,
   min-height: 0;
   padding: 1.5em;
   font-size: 1rem;
+  background: light-dark(#ffffff, #152131);
+  border-color: light-dark(#d7e0eb, #45556b);
+  color: light-dark(#25354a, #e1e9f5);
 }
 [data-rule="DR-013"] .sample[data-enlarged="true"] {
   font-size: 1.25rem;
@@ -408,47 +411,66 @@ body.behavior-gallery[data-behavior-rule="DR-009"] .gallery-heading p,
   margin-bottom: 1.25em;
 }
 [data-rule="DR-013"] .priority-heading h4 {
-  font-size: 1.25em;
+  font-size: 1.125em;
   line-height: 1.3;
   margin: 0 0 0.4em;
 }
 [data-rule="DR-013"] .priority-heading p {
   margin: 0;
   font-size: 0.875em;
-  color: light-dark(#4c6256, #b5c8bc);
+  color: light-dark(#506078, #bbc9df);
 }
 [data-rule="DR-013"] .hierarchy {
   display: flex;
   flex-direction: column;
-  gap: 1.25em;
+  gap: 0.5em;
 }
 [data-rule="DR-013"] [data-priority] {
   min-width: 0;
-  border-top: 1px solid light-dark(#d1dbd4, #405348);
-  padding-top: 1.25em;
+  padding: 1.125em;
+  border-inline-start: 3px solid transparent;
+  border-radius: 0.375em;
+  background: light-dark(#ffffff, #152131);
+  color: light-dark(#44546a, #c0cde0);
 }
 [data-rule="DR-013"] h5 {
-  font-size: 1.125em;
+  font-size: 1em;
+  font-weight: 600;
   line-height: 1.35;
   margin: 0;
+}
+[data-rule="DR-013"] .volume strong {
+  font-size: inherit;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
 }
 [data-rule="DR-013"] [data-priority] p {
   margin: 0.5em 0 0;
   line-height: 1.5;
 }
-[data-rule="DR-013"] .volume strong {
-  display: block;
-  margin-top: 0.25em;
+[data-rule="DR-013"] .priority-primary {
+  background: light-dark(#eaf1ff, #20314b);
+  border-inline-start-color: light-dark(#3563ab, #9fbcf0);
+  color: light-dark(#183f78, #d7e5ff);
+}
+[data-rule="DR-013"] .priority-primary h5 {
   font-size: 1.5em;
-  font-variant-numeric: tabular-nums;
-  line-height: 1.2;
+  font-weight: 700;
 }
 [data-rule="DR-013"] button {
   margin-top: 0.875em;
+  padding: 0.5em 0.75em;
   min-width: 2.75rem;
   min-height: 2.75rem;
   font-size: 0.875em;
+  font-weight: 600;
+  color: light-dark(#253f65, #d7e5ff);
+  background: light-dark(#ffffff, #152131);
+  border-color: light-dark(#7185a4, #8a9cba);
   white-space: normal;
+}
+[data-rule="DR-013"] button:focus-visible {
+  outline-color: light-dark(#234e95, #aecbff);
 }
 @media (max-width: 700px) {
   [data-rule="DR-013"] .sample {

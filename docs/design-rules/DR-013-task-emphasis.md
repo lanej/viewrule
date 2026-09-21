@@ -23,6 +23,22 @@ interface itself. Keep both alternatives comparably polished so unrelated stylin
 does not reveal the intended answer. These are Viewrule authoring conventions,
 not experimentally established thresholds.
 
+**Executable emphasis contracts:** Declare which subject is primary for the task,
+then specify the observable relationships that support that decision: type scale,
+contrast, grouping, placement, and any accent treatment. A correct DOM order alone
+does not establish visual priority. Conversely, a controlled priority counterexample
+may swap a coordinated color-and-type role; it need not freeze typography or restrict
+the mutation to order. Preserve facts, readable supporting evidence, action behavior,
+and consistent status meanings. An attention accent must not invent a warning or success.
+
+Author scoped checks before repairing the UI and exercise them against the rejected
+baseline. Assert measured paint, text, geometry, and behavior rather than classes,
+expected-pass annotations, or the mere presence of a rule. Preserve a representative
+rejected fixture so returning to the old design makes the check fail. Exact colors
+and sizes remain project choices: a native style check verifies those choices, not
+a universal salience score. Human review still judges task suitability.
+See the [red-to-green priority example](../examples/priority-design.md).
+
 **Exception:** Navigation, orientation, or a safety-critical alert may appropriately
 outrank the page's ordinary primary task. There is no universal KPI count, occupancy
 score, or rule requiring exactly one primary button on every page.

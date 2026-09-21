@@ -1,63 +1,87 @@
-# DR-013: put the response task first
+# DR-013: emphasize the response task
 
 **Task:** Before dispatch, inspect the three shipments blocked by address problems.
-The daily total is context, not the first decision. All data is a synthetic snapshot;
-no controls modify real shipments.
+Daily volume is supporting context. Data is synthetic; inspection is read-only.
+A planning task may legitimately prioritize volume instead.
 
-The [Rule of Priority](../design-rules/DR-013-task-emphasis.md) asks whether emphasis
-serves this task. A planning view may legitimately lead with aggregate volume.
-This example does not establish a universal requirement to put exceptions first.
+## Contract before repair
+
+The [native rules](priority-rules.json) were authored and run against the previous
+[order-only revision](https://github.com/lanej/viewrule/tree/71c2992425ff03d7aa112d25bb25648f4f4b6aca/docs/examples)
+**before changing the UI**. Native Viewrule found four violations on its Good:
+exception type was 18px while volume was 24px, and both surfaces were transparent.
+The old layout preserved order but did not implement the newly declared emphasis.
+
+The [frozen prior component](priority-before.json) preserves that rejected input,
+its source revision, and source hashes. The [checkpoint](priority-checkpoint.mjs)
+replays it before the repaired component in both supported layouts. It calls the
+engine's real [inspectPage](../../src/checks.mjs), not a mock checker.
+
+| Subject | Declared type | Declared surface |
+| --- | --- | --- |
+| Exceptions and response | 24px; 30px with 125% text | Accent blue, light/dark theme tokens |
+| Daily shipment total | 16px; 20px with 125% text | Neutral, light/dark theme tokens |
+
+These are **application-specific choices**, not a universal hierarchy score or a
+requirement that every primary element be blue or 24px. Native `style` checks read
+computed properties on the task's actual subjects. `context`, `min-font-size`,
+`min-size`, and `no-clip` protect the shared baseline. A class named primary or an
+expected-pass matrix entry cannot satisfy a failed paint/style check.
 
 ## One controlled mutation
 
-Both variants use one [template](behavior.html), shared
-[styles](behavior.css), and the same [initializer](priority-scene.js).
-Bad moves the intact daily-total section before the exception section **in the DOM**.
-No font, color, size, copy, count, control, spacing token, or disclosure behavior changes.
-Assistive reading and visual order therefore agree rather than relying on CSS reversal.
+Both variants use one [template](behavior.html), shared [CSS](behavior.css), and
+[initializer](priority-scene.js). **Which subject receives `priority-primary` is
+the only variant-specific choice.** That role bundles type, accent surface, and
+contrast. DOM order, facts, copy, scope, padding, controls, and disclosure behavior
+are identical. Natural section height may change as larger headings wrap.
 
-Good reads: exceptions and response, then total. Bad reads: total, then exceptions
-and response. Both disclose the same three shipment identities on request and preserve
-focus when that disclosure closes. An address correction is not performed or claimed.
+Good emphasizes the response task; Bad emphasizes routine daily volume. Both
+remain readable. Accent means attention, not warning severity, carrier identity,
+selection, risk, or successful execution. The same two visual roles are reused;
+no oversized number, missing control, or illegible secondary text manufactures
+the intended failure. Hue is not the only emphasis channel: type size/weight and
+a visible border also distinguish the primary role.
 
-## Evidence and boundaries
+## Executed evidence
 
-The [checkpoint](priority-checkpoint.mjs) is invoked by the existing
-[package-validation workflow](../../scripts/test-package.mjs). It mounts the actual
-component template, shared styles, and initializer offline; the existing installed-package
-walkthrough independently exercises the integrated rule page. There is no new engine detector.
+The existing `npm test` command invokes the checkpoint. It requires:
 
-It asserts matching content, computed component styles and dimensions, opposite DOM
-and rendered section order, unclipped critical text, and actual Tab/Enter/Escape interaction
-on both variants. The desktop also keeps both complete sections visible together.
+- Prior Good and Bad: exactly the four native DR-013 violations, in both layouts.
+- Current Good: zero native findings. Current Bad: exactly those four violations,
+  all mapped solely to DR-013. Required selector coverage cannot be skipped.
+- Equal content, DOM order, action styling and behavior; equal styles **by role**
+  instead of requiring the same subject to have the same emphasis in both variants.
+- Removing Good's actual accent and headline size while retaining its primary
+  class must turn native checks red again. Restoring the rendered styles clears it.
+- Opaque text/background contrast of at least 4.5:1 in the captured light theme,
+  usable targets, no clipped critical text, and real Tab/Enter/Escape inspection.
 
-The [conformance matrix](conformance-matrix.json) covers all registered DRs. DR-013's
-machine-evidence cells name checks that must actually execute successfully in both layouts;
-`pass` declarations alone are not evidence. The position check proves this authored
-mutation, not the broader correctness of visual emphasis. Human review remains necessary.
+The [conformance matrix](conformance-matrix.json) links mechanical cells to checks
+that must execute. The target remains human-reviewed: computed style verification
+establishes the chosen implementation, not whether this is the best task hierarchy.
 
-### Human acceptance questions
+## Human review
 
-A checked PR item attests to the stated **expected result**, not that both sides pass
-the target rule. Non-target rules must pass on both. For the target, Good must pass
-and Bad must demonstrate the intended failure. Do not pre-check review items.
+Review both variants against [Useful Space](../design-rules/DR-007-responsive-detail.md),
+[Restraint](../design-rules/DR-008-earned-decoration.md),
+[Clear Action](../design-rules/DR-011-action-scope.md),
+[Priority](../design-rules/DR-013-task-emphasis.md), and
+[Resilience](../design-rules/DR-015-content-resilience.md).
+Also review [Consistency](../design-rules/DR-005-consistent-meanings.md): the accent
+must express emphasis without silently changing any status or entity meaning.
+No checkbox is pre-approved. For the target, checking attests that Good passes
+and Bad demonstrates the intended priority failure.
 
-| Rule | Inspect both variants |
-| --- | --- |
-| [DR-007 — Useful Space](../design-rules/DR-007-responsive-detail.md) | Readable type, bounded form width and usable controls; no stretched filler or shrinking text to satisfy a bound. |
-| [DR-008 — Restraint](../design-rules/DR-008-earned-decoration.md) | Neither side uses excessive decoration, giant totals or missing controls to reveal the answer. |
-| [DR-011 — Clear Action](../design-rules/DR-011-action-scope.md) | The action names inspection of three exceptions, not correction or dispatch. |
-| [DR-013 — Priority](../design-rules/DR-013-task-emphasis.md) | Good leads with the response task. Bad leads with the daily total. That order alone is the intended failing decision. |
-| [DR-015 — Resilience](../design-rules/DR-015-content-resilience.md) | Narrow layout, enlarged component text and longer guidance retain meaning, labels and actions. |
+## Capture and scope
 
-## Capture conditions
+Desktop: 1200 × 1000 CSS pixels, normal component text. Narrow: 390 × 844,
+125% component text, and longer address guidance. These are finite fixtures, not
+browser zoom, every locale, or a full accessibility certification. Dark-theme
+style tokens are permitted but not certified by the light-theme captures.
 
-Desktop is 1200 × 1000 CSS pixels at 100% component text. Mobile is 390 × 844
-at 125% component text, with a longer representative address explanation. Both variants
-use identical conditions within each pair; the mobile case deliberately combines these
-stresses and is not a test of every viewport or browser zoom level.
-
-The checkpoint writes four cropped screenshots and `dr-013-evidence.json` to
-`dist/behavior-evidence/`. The JSON records source hashes, measurements, browser version
-and capture conditions. CI retains artifacts; **it must not commit generated evidence**.
-Reviewed captures are published deliberately and linked to immutable revisions in the PR.
+Four real browser captures and `dr-013-evidence.json` are generated in
+`dist/behavior-evidence/`; the report includes native actual/expected findings,
+source hashes, keyboard evidence and contrast observations. CI retains artifacts
+but must not commit regenerated screenshots. Review images are published once
+and referenced at an immutable revision.

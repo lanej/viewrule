@@ -1,8 +1,9 @@
-// Shared DR-013 component behavior; safe to evaluate in the browser checkpoint.
+// Shared DR-013 behavior. Accent means attention, not risk or success.
 export function configurePriority(sample, good) {
-  const hierarchy = sample.querySelector(".hierarchy");
-  // Only the reading order changes; styles, facts, and behavior are shared.
-  if (!good) hierarchy.prepend(sample.querySelector(".volume"));
+  // One mutation: assign the shared primary treatment to the wrong subject.
+  // Both variants keep the same DOM order, facts, and action behavior.
+  sample.querySelector(good ? ".exceptions" : ".volume")
+    .classList.add("priority-primary");
   const trigger = sample.querySelector('[data-role="respond"]');
   const result = sample.querySelector('[data-role="result"]');
   result.id = `priority-result-${good ? "good" : "bad"}`;
