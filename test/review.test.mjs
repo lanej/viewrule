@@ -17,6 +17,7 @@ import { createServer } from "node:http";
 import { createRequire } from "node:module";
 import { execFile } from "node:child_process";
 import { chromium } from "playwright";
+import { inspectPage } from "../src/checks.mjs";
 import { config } from "./fixtures.mjs";
 import {
   analyticalHtml,
@@ -103,6 +104,7 @@ test(
             "pattern-review.css",
             "behavior.html",
             "behavior.js",
+            "priority-scene.js",
             "behavior.css",
             "gallery.css",
             "behavior-catalog.json",
@@ -2379,6 +2381,41 @@ test(
       }
 
       await choose("DR-013");
+      const integratedPriorityRules = JSON.parse(
+        await readFile(
+          path.join(exampleDirectory, "priority-rules.json"),
+          "utf8",
+        ),
+      );
+      for (const quality of ["good", "bad"]) {
+        const measured = await page.evaluate(
+          inspectPage,
+          integratedPriorityRules.map((rule) => ({
+            ...rule,
+            selector: rule.selector
+              .split(",")
+              .map((selector) => "#" + quality + " " + selector.trim())
+              .join(", "),
+          })),
+        );
+        assert.deepEqual(
+          measured.findings.map((finding) => finding.rule).sort(),
+          quality === "good"
+            ? []
+            : [
+                "priority-response-surface",
+                "priority-response-type",
+                "priority-total-surface",
+                "priority-total-type",
+              ],
+          "The integrated canonical page must satisfy the same native priority contract",
+        );
+        assert.ok(
+          measured.metrics.evaluations.every(
+            (entry) => entry.status === "checked",
+          ),
+        );
+      }
       assert.equal(
         await page.locator("#good .volume strong").textContent(),
         await page.locator("#bad .volume strong").textContent(),

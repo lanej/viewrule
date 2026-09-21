@@ -1,0 +1,1793 @@
+{
+  "schemaVersion": 1,
+  "target": "DR-013",
+  "browser": "151.0.7922.34",
+  "rendering": "Actual component and native inspectPage; legacy fixture replayed before the repaired component in both layouts.",
+  "sources": {
+    "docs/examples/behavior.html": "875c577068ba10fa15e1bbff709758296abb1468b9915991d82e1f1144d1107c",
+    "docs/examples/gallery.css": "f28447df3264e1363a29d58ac1948f576dc00888e04b5969b3e82c24887c01ad",
+    "docs/examples/behavior.css": "0e4f12e0e28a3a29ace11913b476d340da7a331cd77b77cc46e61d2e49d4d109",
+    "docs/examples/priority-scene.js": "a3478ffb3978f5eb8e65b87efc8f00bbf2beb885f359eaae24ce3b71f1173cd1",
+    "docs/examples/priority-rules.json": "9584246555d24ddf6c96d07d3d894b33b046e2984b443324cffb93a1925d8afc",
+    "docs/examples/priority-before.json": "dff28974c89f234445670c1c30990e3f4bfa329f0b1977a05d0c9913e7d7fa0f",
+    "src/checks.mjs": "78dae3381ed9bf0d1eb3e612551c8096d7fae23d63c214f52ea60bb8d035d76d"
+  },
+  "previousRevision": "71c2992425ff03d7aa112d25bb25648f4f4b6aca",
+  "checks": [
+    {
+      "viewport": "desktop",
+      "red": {
+        "good": {
+          "findings": [
+            {
+              "rule": "priority-response-type",
+              "severity": "error",
+              "selector": "#good .exceptions h5",
+              "element": "h5",
+              "message": "Unapproved font-size: 18px.",
+              "reason": "For dispatch review, the actionable exception heading receives the primary type scale (24px; 30px at 125% text). This is a scoped design contract, not a universal hierarchy threshold.",
+              "actual": "18px",
+              "expected": ["24px", "30px"],
+              "box": {
+                "x": 49,
+                "y": 220,
+                "width": 514,
+                "height": 24.296875
+              }
+            },
+            {
+              "rule": "priority-response-surface",
+              "severity": "error",
+              "selector": "#good .exceptions",
+              "element": "section.exceptions",
+              "message": "Unapproved background-color: rgba(0, 0, 0, 0).",
+              "reason": "The response task receives the accent surface. Inspect the rendered background, not a primary class or metadata claim. Accent denotes attention, not warning severity.",
+              "actual": "rgba(0, 0, 0, 0)",
+              "expected": ["rgb(234, 241, 255)", "rgb(32, 49, 75)"],
+              "box": {
+                "x": 49,
+                "y": 199,
+                "width": 514,
+                "height": 157.546875
+              }
+            },
+            {
+              "rule": "priority-total-type",
+              "severity": "error",
+              "selector": "#good .volume strong",
+              "element": "strong",
+              "message": "Unapproved font-size: 24px.",
+              "reason": "The daily total uses the supporting type scale (16px; 20px at 125% text) instead of outranking the response task.",
+              "actual": "24px",
+              "expected": ["16px", "20px"],
+              "box": {
+                "x": 49,
+                "y": 427.84375,
+                "width": 514,
+                "height": 28.796875
+              }
+            },
+            {
+              "rule": "priority-total-surface",
+              "severity": "error",
+              "selector": "#good .volume",
+              "element": "section.volume",
+              "message": "Unapproved background-color: rgba(0, 0, 0, 0).",
+              "reason": "Supporting shipment volume stays on the neutral surface rather than competing for the accent.",
+              "actual": "rgba(0, 0, 0, 0)",
+              "expected": ["rgb(255, 255, 255)", "rgb(21, 33, 49)"],
+              "box": {
+                "x": 49,
+                "y": 376.546875,
+                "width": 514,
+                "height": 112.09375
+              }
+            }
+          ],
+          "metrics": {
+            "viewportWidth": 1200,
+            "viewportHeight": 1000,
+            "pageHeight": 1000,
+            "evaluatedRules": 8,
+            "density": [],
+            "repeatedMetrics": [],
+            "evidenceDistances": [],
+            "markContrasts": [],
+            "comparisons": [],
+            "consistency": [],
+            "evaluations": [
+              {
+                "rule": "priority-response-type",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "priority-response-surface",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "priority-total-type",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "priority-total-surface",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "priority-context",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "priority-readable-type",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "priority-action-target",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "priority-no-clipping",
+                "matched": 8,
+                "status": "checked"
+              }
+            ]
+          }
+        },
+        "bad": {
+          "findings": [
+            {
+              "rule": "priority-response-type",
+              "severity": "error",
+              "selector": "#bad .exceptions h5",
+              "element": "h5",
+              "message": "Unapproved font-size: 18px.",
+              "reason": "For dispatch review, the actionable exception heading receives the primary type scale (24px; 30px at 125% text). This is a scoped design contract, not a universal hierarchy threshold.",
+              "actual": "18px",
+              "expected": ["24px", "30px"],
+              "box": {
+                "x": 637,
+                "y": 352.09375,
+                "width": 514,
+                "height": 24.296875
+              }
+            },
+            {
+              "rule": "priority-response-surface",
+              "severity": "error",
+              "selector": "#bad .exceptions",
+              "element": "section.exceptions",
+              "message": "Unapproved background-color: rgba(0, 0, 0, 0).",
+              "reason": "The response task receives the accent surface. Inspect the rendered background, not a primary class or metadata claim. Accent denotes attention, not warning severity.",
+              "actual": "rgba(0, 0, 0, 0)",
+              "expected": ["rgb(234, 241, 255)", "rgb(32, 49, 75)"],
+              "box": {
+                "x": 637,
+                "y": 331.09375,
+                "width": 514,
+                "height": 157.546875
+              }
+            },
+            {
+              "rule": "priority-total-type",
+              "severity": "error",
+              "selector": "#bad .volume strong",
+              "element": "strong",
+              "message": "Unapproved font-size: 24px.",
+              "reason": "The daily total uses the supporting type scale (16px; 20px at 125% text) instead of outranking the response task.",
+              "actual": "24px",
+              "expected": ["16px", "20px"],
+              "box": {
+                "x": 637,
+                "y": 250.296875,
+                "width": 514,
+                "height": 28.796875
+              }
+            },
+            {
+              "rule": "priority-total-surface",
+              "severity": "error",
+              "selector": "#bad .volume",
+              "element": "section.volume",
+              "message": "Unapproved background-color: rgba(0, 0, 0, 0).",
+              "reason": "Supporting shipment volume stays on the neutral surface rather than competing for the accent.",
+              "actual": "rgba(0, 0, 0, 0)",
+              "expected": ["rgb(255, 255, 255)", "rgb(21, 33, 49)"],
+              "box": {
+                "x": 637,
+                "y": 199,
+                "width": 514,
+                "height": 112.09375
+              }
+            }
+          ],
+          "metrics": {
+            "viewportWidth": 1200,
+            "viewportHeight": 1000,
+            "pageHeight": 1000,
+            "evaluatedRules": 8,
+            "density": [],
+            "repeatedMetrics": [],
+            "evidenceDistances": [],
+            "markContrasts": [],
+            "comparisons": [],
+            "consistency": [],
+            "evaluations": [
+              {
+                "rule": "priority-response-type",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "priority-response-surface",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "priority-total-type",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "priority-total-surface",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "priority-context",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "priority-readable-type",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "priority-action-target",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "priority-no-clipping",
+                "matched": 8,
+                "status": "checked"
+              }
+            ]
+          }
+        }
+      },
+      "green": {
+        "good": {
+          "findings": [],
+          "metrics": {
+            "viewportWidth": 1200,
+            "viewportHeight": 1000,
+            "pageHeight": 1000,
+            "evaluatedRules": 8,
+            "density": [],
+            "repeatedMetrics": [],
+            "evidenceDistances": [],
+            "markContrasts": [],
+            "comparisons": [],
+            "consistency": [],
+            "evaluations": [
+              {
+                "rule": "priority-response-type",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "priority-response-surface",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "priority-total-type",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "priority-total-surface",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "priority-context",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "priority-readable-type",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "priority-action-target",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "priority-no-clipping",
+                "matched": 8,
+                "status": "checked"
+              }
+            ]
+          }
+        },
+        "bad": {
+          "findings": [
+            {
+              "rule": "priority-response-type",
+              "severity": "error",
+              "selector": "#bad .exceptions h5",
+              "element": "h5",
+              "message": "Unapproved font-size: 16px.",
+              "reason": "For dispatch review, the actionable exception heading receives the primary type scale (24px; 30px at 125% text). This is a scoped design contract, not a universal hierarchy threshold.",
+              "actual": "16px",
+              "expected": ["24px", "30px"],
+              "box": {
+                "x": 658,
+                "y": 213.578125,
+                "width": 475,
+                "height": 21.59375
+              }
+            },
+            {
+              "rule": "priority-response-surface",
+              "severity": "error",
+              "selector": "#bad .exceptions",
+              "element": "section.exceptions",
+              "message": "Unapproved background-color: rgb(255, 255, 255).",
+              "reason": "The response task receives the accent surface. Inspect the rendered background, not a primary class or metadata claim. Accent denotes attention, not warning severity.",
+              "actual": "rgb(255, 255, 255)",
+              "expected": ["rgb(234, 241, 255)", "rgb(32, 49, 75)"],
+              "box": {
+                "x": 637,
+                "y": 195.578125,
+                "width": 514,
+                "height": 169.84375
+              }
+            },
+            {
+              "rule": "priority-total-type",
+              "severity": "error",
+              "selector": "#bad .volume strong",
+              "element": "strong",
+              "message": "Unapproved font-size: 24px.",
+              "reason": "The daily total uses the supporting type scale (16px; 20px at 125% text) instead of outranking the response task.",
+              "actual": "24px",
+              "expected": ["16px", "20px"],
+              "box": {
+                "x": 658,
+                "y": 393.421875,
+                "width": 75.921875,
+                "height": 28
+              }
+            },
+            {
+              "rule": "priority-total-surface",
+              "severity": "error",
+              "selector": "#bad .volume",
+              "element": "section.volume.priority-primary",
+              "message": "Unapproved background-color: rgb(234, 241, 255).",
+              "reason": "Supporting shipment volume stays on the neutral surface rather than competing for the accent.",
+              "actual": "rgb(234, 241, 255)",
+              "expected": ["rgb(255, 255, 255)", "rgb(21, 33, 49)"],
+              "box": {
+                "x": 637,
+                "y": 373.421875,
+                "width": 514,
+                "height": 100.390625
+              }
+            }
+          ],
+          "metrics": {
+            "viewportWidth": 1200,
+            "viewportHeight": 1000,
+            "pageHeight": 1000,
+            "evaluatedRules": 8,
+            "density": [],
+            "repeatedMetrics": [],
+            "evidenceDistances": [],
+            "markContrasts": [],
+            "comparisons": [],
+            "consistency": [],
+            "evaluations": [
+              {
+                "rule": "priority-response-type",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "priority-response-surface",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "priority-total-type",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "priority-total-surface",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "priority-context",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "priority-readable-type",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "priority-action-target",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "priority-no-clipping",
+                "matched": 8,
+                "status": "checked"
+              }
+            ]
+          }
+        }
+      },
+      "stripped": {
+        "good": {
+          "findings": [
+            {
+              "rule": "priority-response-type",
+              "severity": "error",
+              "selector": "#good .exceptions h5",
+              "element": "h5",
+              "message": "Unapproved font-size: 16px.",
+              "reason": "For dispatch review, the actionable exception heading receives the primary type scale (24px; 30px at 125% text). This is a scoped design contract, not a universal hierarchy threshold.",
+              "actual": "16px",
+              "expected": ["24px", "30px"],
+              "box": {
+                "x": 70,
+                "y": 213.578125,
+                "width": 475,
+                "height": 21.59375
+              }
+            },
+            {
+              "rule": "priority-response-surface",
+              "severity": "error",
+              "selector": "#good .exceptions",
+              "element": "section.exceptions.priority-primary",
+              "message": "Unapproved background-color: rgb(255, 255, 255).",
+              "reason": "The response task receives the accent surface. Inspect the rendered background, not a primary class or metadata claim. Accent denotes attention, not warning severity.",
+              "actual": "rgb(255, 255, 255)",
+              "expected": ["rgb(234, 241, 255)", "rgb(32, 49, 75)"],
+              "box": {
+                "x": 49,
+                "y": 195.578125,
+                "width": 514,
+                "height": 169.84375
+              }
+            }
+          ],
+          "metrics": {
+            "viewportWidth": 1200,
+            "viewportHeight": 1000,
+            "pageHeight": 1000,
+            "evaluatedRules": 8,
+            "density": [],
+            "repeatedMetrics": [],
+            "evidenceDistances": [],
+            "markContrasts": [],
+            "comparisons": [],
+            "consistency": [],
+            "evaluations": [
+              {
+                "rule": "priority-response-type",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "priority-response-surface",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "priority-total-type",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "priority-total-surface",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "priority-context",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "priority-readable-type",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "priority-action-target",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "priority-no-clipping",
+                "matched": 8,
+                "status": "checked"
+              }
+            ]
+          }
+        },
+        "bad": {
+          "findings": [
+            {
+              "rule": "priority-response-type",
+              "severity": "error",
+              "selector": "#bad .exceptions h5",
+              "element": "h5",
+              "message": "Unapproved font-size: 16px.",
+              "reason": "For dispatch review, the actionable exception heading receives the primary type scale (24px; 30px at 125% text). This is a scoped design contract, not a universal hierarchy threshold.",
+              "actual": "16px",
+              "expected": ["24px", "30px"],
+              "box": {
+                "x": 658,
+                "y": 213.578125,
+                "width": 475,
+                "height": 21.59375
+              }
+            },
+            {
+              "rule": "priority-response-surface",
+              "severity": "error",
+              "selector": "#bad .exceptions",
+              "element": "section.exceptions",
+              "message": "Unapproved background-color: rgb(255, 255, 255).",
+              "reason": "The response task receives the accent surface. Inspect the rendered background, not a primary class or metadata claim. Accent denotes attention, not warning severity.",
+              "actual": "rgb(255, 255, 255)",
+              "expected": ["rgb(234, 241, 255)", "rgb(32, 49, 75)"],
+              "box": {
+                "x": 637,
+                "y": 195.578125,
+                "width": 514,
+                "height": 169.84375
+              }
+            },
+            {
+              "rule": "priority-total-type",
+              "severity": "error",
+              "selector": "#bad .volume strong",
+              "element": "strong",
+              "message": "Unapproved font-size: 24px.",
+              "reason": "The daily total uses the supporting type scale (16px; 20px at 125% text) instead of outranking the response task.",
+              "actual": "24px",
+              "expected": ["16px", "20px"],
+              "box": {
+                "x": 658,
+                "y": 393.421875,
+                "width": 75.921875,
+                "height": 28
+              }
+            },
+            {
+              "rule": "priority-total-surface",
+              "severity": "error",
+              "selector": "#bad .volume",
+              "element": "section.volume.priority-primary",
+              "message": "Unapproved background-color: rgb(234, 241, 255).",
+              "reason": "Supporting shipment volume stays on the neutral surface rather than competing for the accent.",
+              "actual": "rgb(234, 241, 255)",
+              "expected": ["rgb(255, 255, 255)", "rgb(21, 33, 49)"],
+              "box": {
+                "x": 637,
+                "y": 373.421875,
+                "width": 514,
+                "height": 100.390625
+              }
+            }
+          ],
+          "metrics": {
+            "viewportWidth": 1200,
+            "viewportHeight": 1000,
+            "pageHeight": 1000,
+            "evaluatedRules": 8,
+            "density": [],
+            "repeatedMetrics": [],
+            "evidenceDistances": [],
+            "markContrasts": [],
+            "comparisons": [],
+            "consistency": [],
+            "evaluations": [
+              {
+                "rule": "priority-response-type",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "priority-response-surface",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "priority-total-type",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "priority-total-surface",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "priority-context",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "priority-readable-type",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "priority-action-target",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "priority-no-clipping",
+                "matched": 8,
+                "status": "checked"
+              }
+            ]
+          }
+        }
+      },
+      "observations": [
+        {
+          "sections": {
+            "exceptions": {
+              "text": "3 shipments need a response Address problems are blocking delivery. Review these exceptions before the next dispatch. Review 3 exceptions",
+              "primary": true,
+              "box": {
+                "x": 49,
+                "y": 195.578125,
+                "width": 514,
+                "height": 180.640625,
+                "bottom": 376.21875
+              },
+              "style": [
+                "16px",
+                "400",
+                "rgb(24, 63, 120)",
+                "rgb(234, 241, 255)",
+                "18px",
+                "6px"
+              ],
+              "title": [
+                "24px",
+                "700",
+                "rgb(24, 63, 120)",
+                "rgba(0, 0, 0, 0)",
+                "0px",
+                "0px"
+              ]
+            },
+            "volume": {
+              "text": "1,200 shipments today Daily total, including the 3 exceptions.",
+              "primary": false,
+              "box": {
+                "x": 49,
+                "y": 384.21875,
+                "width": 514,
+                "height": 89.59375,
+                "bottom": 473.8125
+              },
+              "style": [
+                "16px",
+                "400",
+                "rgb(68, 84, 106)",
+                "rgb(255, 255, 255)",
+                "18px",
+                "6px"
+              ],
+              "title": [
+                "16px",
+                "600",
+                "rgb(68, 84, 106)",
+                "rgba(0, 0, 0, 0)",
+                "0px",
+                "0px"
+              ]
+            }
+          },
+          "contrast": [
+            {
+              "text": "Dispatch review",
+              "ratio": 12.449707470938197
+            },
+            {
+              "text": "Today · All carriers and origins · 09:00 PT snapshot",
+              "ratio": 6.391806210334279
+            },
+            {
+              "text": "3 shipments need a response",
+              "ratio": 9.165813684432377
+            },
+            {
+              "text": "Address problems are blocking delivery. Review these exceptions\n              before the next dispatch.",
+              "ratio": 9.165813684432377
+            },
+            {
+              "text": "Review 3 exceptions",
+              "ratio": 10.61902478259384
+            },
+            {
+              "text": "1,200 shipments today",
+              "ratio": 7.7148029631982755
+            },
+            {
+              "text": "Daily total, including the 3 exceptions.",
+              "ratio": 7.7148029631982755
+            }
+          ],
+          "box": {
+            "x": 24,
+            "y": 99,
+            "width": 564,
+            "height": 399.8125,
+            "bottom": 498.8125
+          },
+          "button": [
+            "14px",
+            "600",
+            "rgb(37, 63, 101)",
+            "rgb(255, 255, 255)",
+            "7px 10.5px",
+            "4px"
+          ],
+          "order": ["exceptions", "volume"]
+        },
+        {
+          "sections": {
+            "exceptions": {
+              "text": "3 shipments need a response Address problems are blocking delivery. Review these exceptions before the next dispatch. Review 3 exceptions",
+              "primary": false,
+              "box": {
+                "x": 637,
+                "y": 195.578125,
+                "width": 514,
+                "height": 169.84375,
+                "bottom": 365.421875
+              },
+              "style": [
+                "16px",
+                "400",
+                "rgb(68, 84, 106)",
+                "rgb(255, 255, 255)",
+                "18px",
+                "6px"
+              ],
+              "title": [
+                "16px",
+                "600",
+                "rgb(68, 84, 106)",
+                "rgba(0, 0, 0, 0)",
+                "0px",
+                "0px"
+              ]
+            },
+            "volume": {
+              "text": "1,200 shipments today Daily total, including the 3 exceptions.",
+              "primary": true,
+              "box": {
+                "x": 637,
+                "y": 373.421875,
+                "width": 514,
+                "height": 100.390625,
+                "bottom": 473.8125
+              },
+              "style": [
+                "16px",
+                "400",
+                "rgb(24, 63, 120)",
+                "rgb(234, 241, 255)",
+                "18px",
+                "6px"
+              ],
+              "title": [
+                "24px",
+                "700",
+                "rgb(24, 63, 120)",
+                "rgba(0, 0, 0, 0)",
+                "0px",
+                "0px"
+              ]
+            }
+          },
+          "contrast": [
+            {
+              "text": "Dispatch review",
+              "ratio": 12.449707470938197
+            },
+            {
+              "text": "Today · All carriers and origins · 09:00 PT snapshot",
+              "ratio": 6.391806210334279
+            },
+            {
+              "text": "3 shipments need a response",
+              "ratio": 7.7148029631982755
+            },
+            {
+              "text": "Address problems are blocking delivery. Review these exceptions\n              before the next dispatch.",
+              "ratio": 7.7148029631982755
+            },
+            {
+              "text": "Review 3 exceptions",
+              "ratio": 10.61902478259384
+            },
+            {
+              "text": "1,200 shipments today",
+              "ratio": 9.165813684432377
+            },
+            {
+              "text": "Daily total, including the 3 exceptions.",
+              "ratio": 9.165813684432377
+            }
+          ],
+          "box": {
+            "x": 612,
+            "y": 99,
+            "width": 564,
+            "height": 399.8125,
+            "bottom": 498.8125
+          },
+          "button": [
+            "14px",
+            "600",
+            "rgb(37, 63, 101)",
+            "rgb(255, 255, 255)",
+            "7px 10.5px",
+            "4px"
+          ],
+          "order": ["exceptions", "volume"]
+        }
+      ],
+      "passed": [
+        "context",
+        "shared-content",
+        "shared-role-styles",
+        "same-order",
+        "native-emphasis",
+        "paint-not-metadata",
+        "text-contrast",
+        "no-clipping",
+        "keyboard-disclosure",
+        "continuity"
+      ]
+    },
+    {
+      "viewport": "mobile",
+      "red": {
+        "good": {
+          "findings": [
+            {
+              "rule": "priority-response-type",
+              "severity": "error",
+              "selector": "#good .exceptions h5",
+              "element": "h5",
+              "message": "Unapproved font-size: 22.5px.",
+              "reason": "For dispatch review, the actionable exception heading receives the primary type scale (24px; 30px at 125% text). This is a scoped design contract, not a universal hierarchy threshold.",
+              "actual": "22.5px",
+              "expected": ["24px", "30px"],
+              "box": {
+                "x": 37,
+                "y": 258,
+                "width": 316,
+                "height": 60.75
+              }
+            },
+            {
+              "rule": "priority-response-surface",
+              "severity": "error",
+              "selector": "#good .exceptions",
+              "element": "section.exceptions",
+              "message": "Unapproved background-color: rgba(0, 0, 0, 0).",
+              "reason": "The response task receives the accent surface. Inspect the rendered background, not a primary class or metadata claim. Accent denotes attention, not warning severity.",
+              "actual": "rgba(0, 0, 0, 0)",
+              "expected": ["rgb(234, 241, 255)", "rgb(32, 49, 75)"],
+              "box": {
+                "x": 37,
+                "y": 232,
+                "width": 316,
+                "height": 336.3125
+              }
+            },
+            {
+              "rule": "priority-total-type",
+              "severity": "error",
+              "selector": "#good .volume strong",
+              "element": "strong",
+              "message": "Unapproved font-size: 30px.",
+              "reason": "The daily total uses the supporting type scale (16px; 20px at 125% text) instead of outranking the response task.",
+              "actual": "30px",
+              "expected": ["16px", "20px"],
+              "box": {
+                "x": 37,
+                "y": 657.1875,
+                "width": 316,
+                "height": 36
+              }
+            },
+            {
+              "rule": "priority-total-surface",
+              "severity": "error",
+              "selector": "#good .volume",
+              "element": "section.volume",
+              "message": "Unapproved background-color: rgba(0, 0, 0, 0).",
+              "reason": "Supporting shipment volume stays on the neutral surface rather than competing for the accent.",
+              "actual": "rgba(0, 0, 0, 0)",
+              "expected": ["rgb(255, 255, 255)", "rgb(21, 33, 49)"],
+              "box": {
+                "x": 37,
+                "y": 593.3125,
+                "width": 316,
+                "height": 169.875
+              }
+            }
+          ],
+          "metrics": {
+            "viewportWidth": 390,
+            "viewportHeight": 844,
+            "pageHeight": 1580,
+            "evaluatedRules": 8,
+            "density": [],
+            "repeatedMetrics": [],
+            "evidenceDistances": [],
+            "markContrasts": [],
+            "comparisons": [],
+            "consistency": [],
+            "evaluations": [
+              {
+                "rule": "priority-response-type",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "priority-response-surface",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "priority-total-type",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "priority-total-surface",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "priority-context",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "priority-readable-type",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "priority-action-target",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "priority-no-clipping",
+                "matched": 8,
+                "status": "checked"
+              }
+            ]
+          }
+        },
+        "bad": {
+          "findings": [
+            {
+              "rule": "priority-response-type",
+              "severity": "error",
+              "selector": "#bad .exceptions h5",
+              "element": "h5",
+              "message": "Unapproved font-size: 22.5px.",
+              "reason": "For dispatch review, the actionable exception heading receives the primary type scale (24px; 30px at 125% text). This is a scoped design contract, not a universal hierarchy threshold.",
+              "actual": "22.5px",
+              "expected": ["24px", "30px"],
+              "box": {
+                "x": 37,
+                "y": 1209.0625,
+                "width": 316,
+                "height": 60.75
+              }
+            },
+            {
+              "rule": "priority-response-surface",
+              "severity": "error",
+              "selector": "#bad .exceptions",
+              "element": "section.exceptions",
+              "message": "Unapproved background-color: rgba(0, 0, 0, 0).",
+              "reason": "The response task receives the accent surface. Inspect the rendered background, not a primary class or metadata claim. Accent denotes attention, not warning severity.",
+              "actual": "rgba(0, 0, 0, 0)",
+              "expected": ["rgb(234, 241, 255)", "rgb(32, 49, 75)"],
+              "box": {
+                "x": 37,
+                "y": 1183.0625,
+                "width": 316,
+                "height": 336.3125
+              }
+            },
+            {
+              "rule": "priority-total-type",
+              "severity": "error",
+              "selector": "#bad .volume strong",
+              "element": "strong",
+              "message": "Unapproved font-size: 30px.",
+              "reason": "The daily total uses the supporting type scale (16px; 20px at 125% text) instead of outranking the response task.",
+              "actual": "30px",
+              "expected": ["16px", "20px"],
+              "box": {
+                "x": 37,
+                "y": 1052.0625,
+                "width": 316,
+                "height": 36
+              }
+            },
+            {
+              "rule": "priority-total-surface",
+              "severity": "error",
+              "selector": "#bad .volume",
+              "element": "section.volume",
+              "message": "Unapproved background-color: rgba(0, 0, 0, 0).",
+              "reason": "Supporting shipment volume stays on the neutral surface rather than competing for the accent.",
+              "actual": "rgba(0, 0, 0, 0)",
+              "expected": ["rgb(255, 255, 255)", "rgb(21, 33, 49)"],
+              "box": {
+                "x": 37,
+                "y": 988.1875,
+                "width": 316,
+                "height": 169.875
+              }
+            }
+          ],
+          "metrics": {
+            "viewportWidth": 390,
+            "viewportHeight": 844,
+            "pageHeight": 1580,
+            "evaluatedRules": 8,
+            "density": [],
+            "repeatedMetrics": [],
+            "evidenceDistances": [],
+            "markContrasts": [],
+            "comparisons": [],
+            "consistency": [],
+            "evaluations": [
+              {
+                "rule": "priority-response-type",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "priority-response-surface",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "priority-total-type",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "priority-total-surface",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "priority-context",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "priority-readable-type",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "priority-action-target",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "priority-no-clipping",
+                "matched": 8,
+                "status": "checked"
+              }
+            ]
+          }
+        }
+      },
+      "green": {
+        "good": {
+          "findings": [],
+          "metrics": {
+            "viewportWidth": 390,
+            "viewportHeight": 844,
+            "pageHeight": 1736,
+            "evaluatedRules": 8,
+            "density": [],
+            "repeatedMetrics": [],
+            "evidenceDistances": [],
+            "markContrasts": [],
+            "comparisons": [],
+            "consistency": [],
+            "evaluations": [
+              {
+                "rule": "priority-response-type",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "priority-response-surface",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "priority-total-type",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "priority-total-surface",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "priority-context",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "priority-readable-type",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "priority-action-target",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "priority-no-clipping",
+                "matched": 8,
+                "status": "checked"
+              }
+            ]
+          }
+        },
+        "bad": {
+          "findings": [
+            {
+              "rule": "priority-response-type",
+              "severity": "error",
+              "selector": "#bad .exceptions h5",
+              "element": "h5",
+              "message": "Unapproved font-size: 20px.",
+              "reason": "For dispatch review, the actionable exception heading receives the primary type scale (24px; 30px at 125% text). This is a scoped design contract, not a universal hierarchy threshold.",
+              "actual": "20px",
+              "expected": ["24px", "30px"],
+              "box": {
+                "x": 62.5,
+                "y": 1070.5625,
+                "width": 268,
+                "height": 54
+              }
+            },
+            {
+              "rule": "priority-response-surface",
+              "severity": "error",
+              "selector": "#bad .exceptions",
+              "element": "section.exceptions",
+              "message": "Unapproved background-color: rgb(255, 255, 255).",
+              "reason": "The response task receives the accent surface. Inspect the rendered background, not a primary class or metadata claim. Accent denotes attention, not warning severity.",
+              "actual": "rgb(255, 255, 255)",
+              "expected": ["rgb(234, 241, 255)", "rgb(32, 49, 75)"],
+              "box": {
+                "x": 37,
+                "y": 1048.0625,
+                "width": 316,
+                "height": 380.0625
+              }
+            },
+            {
+              "rule": "priority-total-type",
+              "severity": "error",
+              "selector": "#bad .volume strong",
+              "element": "strong",
+              "message": "Unapproved font-size: 30px.",
+              "reason": "The daily total uses the supporting type scale (16px; 20px at 125% text) instead of outranking the response task.",
+              "actual": "30px",
+              "expected": ["16px", "20px"],
+              "box": {
+                "x": 62.5,
+                "y": 1462.625,
+                "width": 94.90625,
+                "height": 35
+              }
+            },
+            {
+              "rule": "priority-total-surface",
+              "severity": "error",
+              "selector": "#bad .volume",
+              "element": "section.volume.priority-primary",
+              "message": "Unapproved background-color: rgb(234, 241, 255).",
+              "reason": "Supporting shipment volume stays on the neutral surface rather than competing for the accent.",
+              "actual": "rgb(234, 241, 255)",
+              "expected": ["rgb(255, 255, 255)", "rgb(21, 33, 49)"],
+              "box": {
+                "x": 37,
+                "y": 1438.125,
+                "width": 316,
+                "height": 236.5
+              }
+            }
+          ],
+          "metrics": {
+            "viewportWidth": 390,
+            "viewportHeight": 844,
+            "pageHeight": 1736,
+            "evaluatedRules": 8,
+            "density": [],
+            "repeatedMetrics": [],
+            "evidenceDistances": [],
+            "markContrasts": [],
+            "comparisons": [],
+            "consistency": [],
+            "evaluations": [
+              {
+                "rule": "priority-response-type",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "priority-response-surface",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "priority-total-type",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "priority-total-surface",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "priority-context",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "priority-readable-type",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "priority-action-target",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "priority-no-clipping",
+                "matched": 8,
+                "status": "checked"
+              }
+            ]
+          }
+        }
+      },
+      "stripped": {
+        "good": {
+          "findings": [
+            {
+              "rule": "priority-response-type",
+              "severity": "error",
+              "selector": "#good .exceptions h5",
+              "element": "h5",
+              "message": "Unapproved font-size: 16px.",
+              "reason": "For dispatch review, the actionable exception heading receives the primary type scale (24px; 30px at 125% text). This is a scoped design contract, not a universal hierarchy threshold.",
+              "actual": "16px",
+              "expected": ["24px", "30px"],
+              "box": {
+                "x": 62.5,
+                "y": 250.25,
+                "width": 268,
+                "height": 21.59375
+              }
+            },
+            {
+              "rule": "priority-response-surface",
+              "severity": "error",
+              "selector": "#good .exceptions",
+              "element": "section.exceptions.priority-primary",
+              "message": "Unapproved background-color: rgb(255, 255, 255).",
+              "reason": "The response task receives the accent surface. Inspect the rendered background, not a primary class or metadata claim. Accent denotes attention, not warning severity.",
+              "actual": "rgb(255, 255, 255)",
+              "expected": ["rgb(234, 241, 255)", "rgb(32, 49, 75)"],
+              "box": {
+                "x": 37,
+                "y": 227.75,
+                "width": 316,
+                "height": 347.65625
+              }
+            }
+          ],
+          "metrics": {
+            "viewportWidth": 390,
+            "viewportHeight": 844,
+            "pageHeight": 1636,
+            "evaluatedRules": 8,
+            "density": [],
+            "repeatedMetrics": [],
+            "evidenceDistances": [],
+            "markContrasts": [],
+            "comparisons": [],
+            "consistency": [],
+            "evaluations": [
+              {
+                "rule": "priority-response-type",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "priority-response-surface",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "priority-total-type",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "priority-total-surface",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "priority-context",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "priority-readable-type",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "priority-action-target",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "priority-no-clipping",
+                "matched": 8,
+                "status": "checked"
+              }
+            ]
+          }
+        },
+        "bad": {
+          "findings": [
+            {
+              "rule": "priority-response-type",
+              "severity": "error",
+              "selector": "#bad .exceptions h5",
+              "element": "h5",
+              "message": "Unapproved font-size: 20px.",
+              "reason": "For dispatch review, the actionable exception heading receives the primary type scale (24px; 30px at 125% text). This is a scoped design contract, not a universal hierarchy threshold.",
+              "actual": "20px",
+              "expected": ["24px", "30px"],
+              "box": {
+                "x": 62.5,
+                "y": 970.65625,
+                "width": 268,
+                "height": 54
+              }
+            },
+            {
+              "rule": "priority-response-surface",
+              "severity": "error",
+              "selector": "#bad .exceptions",
+              "element": "section.exceptions",
+              "message": "Unapproved background-color: rgb(255, 255, 255).",
+              "reason": "The response task receives the accent surface. Inspect the rendered background, not a primary class or metadata claim. Accent denotes attention, not warning severity.",
+              "actual": "rgb(255, 255, 255)",
+              "expected": ["rgb(234, 241, 255)", "rgb(32, 49, 75)"],
+              "box": {
+                "x": 37,
+                "y": 948.15625,
+                "width": 316,
+                "height": 380.0625
+              }
+            },
+            {
+              "rule": "priority-total-type",
+              "severity": "error",
+              "selector": "#bad .volume strong",
+              "element": "strong",
+              "message": "Unapproved font-size: 30px.",
+              "reason": "The daily total uses the supporting type scale (16px; 20px at 125% text) instead of outranking the response task.",
+              "actual": "30px",
+              "expected": ["16px", "20px"],
+              "box": {
+                "x": 62.5,
+                "y": 1362.71875,
+                "width": 94.90625,
+                "height": 35
+              }
+            },
+            {
+              "rule": "priority-total-surface",
+              "severity": "error",
+              "selector": "#bad .volume",
+              "element": "section.volume.priority-primary",
+              "message": "Unapproved background-color: rgb(234, 241, 255).",
+              "reason": "Supporting shipment volume stays on the neutral surface rather than competing for the accent.",
+              "actual": "rgb(234, 241, 255)",
+              "expected": ["rgb(255, 255, 255)", "rgb(21, 33, 49)"],
+              "box": {
+                "x": 37,
+                "y": 1338.21875,
+                "width": 316,
+                "height": 236.5
+              }
+            }
+          ],
+          "metrics": {
+            "viewportWidth": 390,
+            "viewportHeight": 844,
+            "pageHeight": 1636,
+            "evaluatedRules": 8,
+            "density": [],
+            "repeatedMetrics": [],
+            "evidenceDistances": [],
+            "markContrasts": [],
+            "comparisons": [],
+            "consistency": [],
+            "evaluations": [
+              {
+                "rule": "priority-response-type",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "priority-response-surface",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "priority-total-type",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "priority-total-surface",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "priority-context",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "priority-readable-type",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "priority-action-target",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "priority-no-clipping",
+                "matched": 8,
+                "status": "checked"
+              }
+            ]
+          }
+        }
+      },
+      "observations": [
+        {
+          "sections": {
+            "exceptions": {
+              "text": "3 shipments need a response Address problems are blocking delivery for these shipments. Inspect the affected shipment IDs and arrange address corrections before the next dispatch. Review 3 exceptions",
+              "primary": true,
+              "box": {
+                "x": 37,
+                "y": 227.75,
+                "width": 316,
+                "height": 447.5625,
+                "bottom": 675.3125
+              },
+              "style": [
+                "20px",
+                "400",
+                "rgb(24, 63, 120)",
+                "rgb(234, 241, 255)",
+                "22.5px",
+                "7.5px"
+              ],
+              "title": [
+                "30px",
+                "700",
+                "rgb(24, 63, 120)",
+                "rgba(0, 0, 0, 0)",
+                "0px",
+                "0px"
+              ]
+            },
+            "volume": {
+              "text": "1,200 shipments today Daily total, including the 3 exceptions.",
+              "primary": false,
+              "box": {
+                "x": 37,
+                "y": 685.3125,
+                "width": 316,
+                "height": 142,
+                "bottom": 827.3125
+              },
+              "style": [
+                "20px",
+                "400",
+                "rgb(68, 84, 106)",
+                "rgb(255, 255, 255)",
+                "22.5px",
+                "7.5px"
+              ],
+              "title": [
+                "20px",
+                "600",
+                "rgb(68, 84, 106)",
+                "rgba(0, 0, 0, 0)",
+                "0px",
+                "0px"
+              ]
+            }
+          },
+          "contrast": [
+            {
+              "text": "Dispatch review",
+              "ratio": 12.449707470938197
+            },
+            {
+              "text": "Today · All carriers and origins · 09:00 PT snapshot",
+              "ratio": 6.391806210334279
+            },
+            {
+              "text": "3 shipments need a response",
+              "ratio": 9.165813684432377
+            },
+            {
+              "text": "Address problems are blocking delivery for these shipments. Inspect the affected shipment IDs and arrange address corrections before the next dispatch.",
+              "ratio": 9.165813684432377
+            },
+            {
+              "text": "Review 3 exceptions",
+              "ratio": 10.61902478259384
+            },
+            {
+              "text": "1,200 shipments today",
+              "ratio": 7.7148029631982755
+            },
+            {
+              "text": "Daily total, including the 3 exceptions.",
+              "ratio": 7.7148029631982755
+            }
+          ],
+          "box": {
+            "x": 16,
+            "y": 91,
+            "width": 358,
+            "height": 757.3125,
+            "bottom": 848.3125
+          },
+          "button": [
+            "17.5px",
+            "600",
+            "rgb(37, 63, 101)",
+            "rgb(255, 255, 255)",
+            "8.75px 13.125px",
+            "4px"
+          ],
+          "order": ["exceptions", "volume"]
+        },
+        {
+          "sections": {
+            "exceptions": {
+              "text": "3 shipments need a response Address problems are blocking delivery for these shipments. Inspect the affected shipment IDs and arrange address corrections before the next dispatch. Review 3 exceptions",
+              "primary": false,
+              "box": {
+                "x": 37,
+                "y": 1048.0625,
+                "width": 316,
+                "height": 380.0625,
+                "bottom": 1428.125
+              },
+              "style": [
+                "20px",
+                "400",
+                "rgb(68, 84, 106)",
+                "rgb(255, 255, 255)",
+                "22.5px",
+                "7.5px"
+              ],
+              "title": [
+                "20px",
+                "600",
+                "rgb(68, 84, 106)",
+                "rgba(0, 0, 0, 0)",
+                "0px",
+                "0px"
+              ]
+            },
+            "volume": {
+              "text": "1,200 shipments today Daily total, including the 3 exceptions.",
+              "primary": true,
+              "box": {
+                "x": 37,
+                "y": 1438.125,
+                "width": 316,
+                "height": 236.5,
+                "bottom": 1674.625
+              },
+              "style": [
+                "20px",
+                "400",
+                "rgb(24, 63, 120)",
+                "rgb(234, 241, 255)",
+                "22.5px",
+                "7.5px"
+              ],
+              "title": [
+                "30px",
+                "700",
+                "rgb(24, 63, 120)",
+                "rgba(0, 0, 0, 0)",
+                "0px",
+                "0px"
+              ]
+            }
+          },
+          "contrast": [
+            {
+              "text": "Dispatch review",
+              "ratio": 12.449707470938197
+            },
+            {
+              "text": "Today · All carriers and origins · 09:00 PT snapshot",
+              "ratio": 6.391806210334279
+            },
+            {
+              "text": "3 shipments need a response",
+              "ratio": 7.7148029631982755
+            },
+            {
+              "text": "Address problems are blocking delivery for these shipments. Inspect the affected shipment IDs and arrange address corrections before the next dispatch.",
+              "ratio": 7.7148029631982755
+            },
+            {
+              "text": "Review 3 exceptions",
+              "ratio": 10.61902478259384
+            },
+            {
+              "text": "1,200 shipments today",
+              "ratio": 9.165813684432377
+            },
+            {
+              "text": "Daily total, including the 3 exceptions.",
+              "ratio": 9.165813684432377
+            }
+          ],
+          "box": {
+            "x": 16,
+            "y": 911.3125,
+            "width": 358,
+            "height": 784.3125,
+            "bottom": 1695.625
+          },
+          "button": [
+            "17.5px",
+            "600",
+            "rgb(37, 63, 101)",
+            "rgb(255, 255, 255)",
+            "8.75px 13.125px",
+            "4px"
+          ],
+          "order": ["exceptions", "volume"]
+        }
+      ],
+      "passed": [
+        "context",
+        "shared-content",
+        "shared-role-styles",
+        "same-order",
+        "native-emphasis",
+        "paint-not-metadata",
+        "text-contrast",
+        "no-clipping",
+        "keyboard-disclosure",
+        "continuity"
+      ]
+    }
+  ],
+  "captures": [
+    {
+      "file": "dr-013-good-desktop.png",
+      "quality": "good",
+      "viewport": {
+        "width": 1200,
+        "height": 1000
+      },
+      "fontScale": 1,
+      "longCopy": false
+    },
+    {
+      "file": "dr-013-bad-desktop.png",
+      "quality": "bad",
+      "viewport": {
+        "width": 1200,
+        "height": 1000
+      },
+      "fontScale": 1,
+      "longCopy": false
+    },
+    {
+      "file": "dr-013-good-mobile.png",
+      "quality": "good",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "fontScale": 1.25,
+      "longCopy": true
+    },
+    {
+      "file": "dr-013-bad-mobile.png",
+      "quality": "bad",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "fontScale": 1.25,
+      "longCopy": true
+    }
+  ],
+  "limits": "The explicit type/color tokens are scoped to this dispatch task and theme. Their measured use is not a general salience score or human approval. 125% component text is not browser zoom."
+}

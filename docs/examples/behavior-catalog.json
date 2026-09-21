@@ -77,7 +77,7 @@
       ],
       "exception": "Do not offer Undo for an irreversible action; explain safe re-entry requirements.",
       "nativeChecks": ["context"],
-      "verification": "The controlled pair holds persistent range guidance, specific validation, focus recovery, review, confirmation, Undo, scope, and presentation invariant. Application assertions verify that rejection focuses and marks both inputs invalid with the same \"Entered value is outside the allowed range.\" guidance, while only the bad variant clears the rejected proposal. Both variants then complete the same corrected review and reversal flow. This fixture does not prove remote transaction rollback or financial compliance.",
+      "verification": "The controlled pair holds persistent range guidance, specific validation, focus recovery, review, confirmation, Undo, scope, and presentation invariant. Application assertions verify that rejection focuses and marks both inputs invalid with the same \"Enter 6% or less.\" guidance, while only the bad variant clears the rejected proposal. Both variants then complete the same corrected review and reversal flow. This fixture does not prove remote transaction rollback or financial compliance.",
       "sources": [
         "https://www.w3.org/WAI/WCAG22/Understanding/error-prevention-legal-financial-data.html",
         "https://www.w3.org/WAI/WCAG22/Understanding/error-identification.html"
@@ -161,7 +161,7 @@
       "alternatives": [
         "Use direct labels without color; use sequential scales for magnitude or diverging scales around a real target."
       ],
-      "exception": "An explicitly ordered category set can justify a different treatment. Explain it.",
+      "exception": "An explicitly ordered category set can justify a different encoding when explained.",
       "nativeChecks": [],
       "verification": "Human semantic review of the variable and palette. Attribute equality or an arbitrary data-palette declaration is not evidence that color meaning is appropriate.",
       "sources": ["https://colorbrewer2.org/learnmore/schemes_full.html"],

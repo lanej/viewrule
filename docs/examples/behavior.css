@@ -399,13 +399,13 @@ body.behavior-gallery[data-behavior-rule="DR-009"] .gallery-heading p,
 [data-rule="DR-013"] .sample {
   min-height: 0;
   padding: 1.5em;
-  font-size: 1rem;
+  font-size: max(1rem, 16px);
   background: light-dark(#ffffff, #152131);
   border-color: light-dark(#d7e0eb, #45556b);
   color: light-dark(#25354a, #e1e9f5);
 }
 [data-rule="DR-013"] .sample[data-enlarged="true"] {
-  font-size: 1.25rem;
+  font-size: max(1.25rem, 20px);
 }
 [data-rule="DR-013"] .priority-heading {
   margin-bottom: 1.25em;
@@ -460,8 +460,8 @@ body.behavior-gallery[data-behavior-rule="DR-009"] .gallery-heading p,
 [data-rule="DR-013"] button {
   margin-top: 0.875em;
   padding: 0.5em 0.75em;
-  min-width: 2.75rem;
-  min-height: 2.75rem;
+  min-width: max(2.75rem, 44px);
+  min-height: max(2.75rem, 44px);
   font-size: 0.875em;
   font-weight: 600;
   color: light-dark(#253f65, #d7e5ff);
