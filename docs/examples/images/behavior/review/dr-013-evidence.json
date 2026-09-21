@@ -1,0 +1,595 @@
+{
+  "schemaVersion": 1,
+  "target": "DR-013",
+  "browser": "151.0.7922.34",
+  "rendering": "Actual component template, shared CSS and initializer mounted offline. Integration is covered by the existing installed-package walkthrough.",
+  "sources": {
+    "docs/examples/behavior.html": "cca151fa243494927e13c597d2bb128e6369ca1e04ee20ebdd7d7ce9b6baf3e5",
+    "docs/examples/gallery.css": "f28447df3264e1363a29d58ac1948f576dc00888e04b5969b3e82c24887c01ad",
+    "docs/examples/behavior.css": "c22bf1f7cf6e0ac51f6ccc8890e355179a6190f2fc4f4c82bd62f8b260721b83",
+    "docs/examples/priority-scene.js": "12efec46979e5f5c6ed792cb60f764141e0445fb6cd804382fbbc8d172a90a69"
+  },
+  "checks": [
+    {
+      "viewport": "desktop",
+      "observations": [
+        {
+          "box": {
+            "top": 99,
+            "bottom": 513.640625,
+            "width": 564,
+            "height": 414.640625
+          },
+          "sections": {
+            "exceptions": {
+              "text": "3 shipments need a response Address problems are blocking delivery. Review these exceptions before the next dispatch. Review 3 exceptions",
+              "box": {
+                "top": 199,
+                "bottom": 356.546875,
+                "width": 514,
+                "height": 157.546875
+              },
+              "styles": [
+                [
+                  "SECTION",
+                  "16px",
+                  "400",
+                  "rgb(23, 46, 40)",
+                  "rgba(0, 0, 0, 0)",
+                  "20px 0px 0px",
+                  "",
+                  "24px"
+                ],
+                [
+                  "H5",
+                  "18px",
+                  "700",
+                  "rgb(23, 46, 40)",
+                  "rgba(0, 0, 0, 0)",
+                  "0px",
+                  "0px none rgb(23, 46, 40)",
+                  "24.3px"
+                ],
+                [
+                  "P",
+                  "16px",
+                  "400",
+                  "rgb(23, 46, 40)",
+                  "rgba(0, 0, 0, 0)",
+                  "0px",
+                  "0px none rgb(23, 46, 40)",
+                  "24px"
+                ],
+                [
+                  "BUTTON",
+                  "14px",
+                  "400",
+                  "rgb(23, 46, 40)",
+                  "rgb(242, 246, 243)",
+                  "8px 12px",
+                  "1px solid rgb(138, 157, 145)",
+                  "21px"
+                ],
+                [
+                  "P",
+                  "16px",
+                  "400",
+                  "rgb(23, 46, 40)",
+                  "rgba(0, 0, 0, 0)",
+                  "0px",
+                  "0px none rgb(23, 46, 40)",
+                  "24px"
+                ]
+              ]
+            },
+            "volume": {
+              "text": "Shipments today 1,200 Daily total, including the 3 exceptions.",
+              "box": {
+                "top": 376.546875,
+                "bottom": 488.640625,
+                "width": 514,
+                "height": 112.09375
+              },
+              "styles": [
+                [
+                  "SECTION",
+                  "16px",
+                  "400",
+                  "rgb(23, 46, 40)",
+                  "rgba(0, 0, 0, 0)",
+                  "20px 0px 0px",
+                  "",
+                  "24px"
+                ],
+                [
+                  "H5",
+                  "18px",
+                  "700",
+                  "rgb(23, 46, 40)",
+                  "rgba(0, 0, 0, 0)",
+                  "0px",
+                  "0px none rgb(23, 46, 40)",
+                  "24.3px"
+                ],
+                [
+                  "STRONG",
+                  "24px",
+                  "700",
+                  "rgb(23, 46, 40)",
+                  "rgba(0, 0, 0, 0)",
+                  "0px",
+                  "0px none rgb(23, 46, 40)",
+                  "28.8px"
+                ],
+                [
+                  "P",
+                  "16px",
+                  "400",
+                  "rgb(23, 46, 40)",
+                  "rgba(0, 0, 0, 0)",
+                  "0px",
+                  "0px none rgb(23, 46, 40)",
+                  "24px"
+                ]
+              ]
+            }
+          },
+          "order": [
+            "exceptions",
+            "volume"
+          ],
+          "clipped": 0
+        },
+        {
+          "box": {
+            "top": 99,
+            "bottom": 513.640625,
+            "width": 564,
+            "height": 414.640625
+          },
+          "sections": {
+            "volume": {
+              "text": "Shipments today 1,200 Daily total, including the 3 exceptions.",
+              "box": {
+                "top": 199,
+                "bottom": 311.09375,
+                "width": 514,
+                "height": 112.09375
+              },
+              "styles": [
+                [
+                  "SECTION",
+                  "16px",
+                  "400",
+                  "rgb(23, 46, 40)",
+                  "rgba(0, 0, 0, 0)",
+                  "20px 0px 0px",
+                  "",
+                  "24px"
+                ],
+                [
+                  "H5",
+                  "18px",
+                  "700",
+                  "rgb(23, 46, 40)",
+                  "rgba(0, 0, 0, 0)",
+                  "0px",
+                  "0px none rgb(23, 46, 40)",
+                  "24.3px"
+                ],
+                [
+                  "STRONG",
+                  "24px",
+                  "700",
+                  "rgb(23, 46, 40)",
+                  "rgba(0, 0, 0, 0)",
+                  "0px",
+                  "0px none rgb(23, 46, 40)",
+                  "28.8px"
+                ],
+                [
+                  "P",
+                  "16px",
+                  "400",
+                  "rgb(23, 46, 40)",
+                  "rgba(0, 0, 0, 0)",
+                  "0px",
+                  "0px none rgb(23, 46, 40)",
+                  "24px"
+                ]
+              ]
+            },
+            "exceptions": {
+              "text": "3 shipments need a response Address problems are blocking delivery. Review these exceptions before the next dispatch. Review 3 exceptions",
+              "box": {
+                "top": 331.09375,
+                "bottom": 488.640625,
+                "width": 514,
+                "height": 157.546875
+              },
+              "styles": [
+                [
+                  "SECTION",
+                  "16px",
+                  "400",
+                  "rgb(23, 46, 40)",
+                  "rgba(0, 0, 0, 0)",
+                  "20px 0px 0px",
+                  "",
+                  "24px"
+                ],
+                [
+                  "H5",
+                  "18px",
+                  "700",
+                  "rgb(23, 46, 40)",
+                  "rgba(0, 0, 0, 0)",
+                  "0px",
+                  "0px none rgb(23, 46, 40)",
+                  "24.3px"
+                ],
+                [
+                  "P",
+                  "16px",
+                  "400",
+                  "rgb(23, 46, 40)",
+                  "rgba(0, 0, 0, 0)",
+                  "0px",
+                  "0px none rgb(23, 46, 40)",
+                  "24px"
+                ],
+                [
+                  "BUTTON",
+                  "14px",
+                  "400",
+                  "rgb(23, 46, 40)",
+                  "rgb(242, 246, 243)",
+                  "8px 12px",
+                  "1px solid rgb(138, 157, 145)",
+                  "21px"
+                ],
+                [
+                  "P",
+                  "16px",
+                  "400",
+                  "rgb(23, 46, 40)",
+                  "rgba(0, 0, 0, 0)",
+                  "0px",
+                  "0px none rgb(23, 46, 40)",
+                  "24px"
+                ]
+              ]
+            }
+          },
+          "order": [
+            "volume",
+            "exceptions"
+          ],
+          "clipped": 0
+        }
+      ],
+      "passed": [
+        "context",
+        "shared-content",
+        "shared-styles",
+        "shared-geometry",
+        "order-only",
+        "no-clipping",
+        "keyboard-disclosure",
+        "continuity"
+      ]
+    },
+    {
+      "viewport": "mobile",
+      "observations": [
+        {
+          "box": {
+            "top": 91,
+            "bottom": 784.1875,
+            "width": 358,
+            "height": 693.1875
+          },
+          "sections": {
+            "exceptions": {
+              "text": "3 shipments need a response Address problems are blocking delivery for these shipments. Inspect the affected shipment IDs and arrange address corrections before the next dispatch. Review 3 exceptions",
+              "box": {
+                "top": 232,
+                "bottom": 568.3125,
+                "width": 316,
+                "height": 336.3125
+              },
+              "styles": [
+                [
+                  "SECTION",
+                  "20px",
+                  "400",
+                  "rgb(23, 46, 40)",
+                  "rgba(0, 0, 0, 0)",
+                  "25px 0px 0px",
+                  "",
+                  "30px"
+                ],
+                [
+                  "H5",
+                  "22.5px",
+                  "700",
+                  "rgb(23, 46, 40)",
+                  "rgba(0, 0, 0, 0)",
+                  "0px",
+                  "0px none rgb(23, 46, 40)",
+                  "30.375px"
+                ],
+                [
+                  "P",
+                  "20px",
+                  "400",
+                  "rgb(23, 46, 40)",
+                  "rgba(0, 0, 0, 0)",
+                  "0px",
+                  "0px none rgb(23, 46, 40)",
+                  "30px"
+                ],
+                [
+                  "BUTTON",
+                  "17.5px",
+                  "400",
+                  "rgb(23, 46, 40)",
+                  "rgb(242, 246, 243)",
+                  "8px 12px",
+                  "1px solid rgb(138, 157, 145)",
+                  "26.25px"
+                ],
+                [
+                  "P",
+                  "20px",
+                  "400",
+                  "rgb(23, 46, 40)",
+                  "rgba(0, 0, 0, 0)",
+                  "0px",
+                  "0px none rgb(23, 46, 40)",
+                  "30px"
+                ]
+              ]
+            },
+            "volume": {
+              "text": "Shipments today 1,200 Daily total, including the 3 exceptions.",
+              "box": {
+                "top": 593.3125,
+                "bottom": 763.1875,
+                "width": 316,
+                "height": 169.875
+              },
+              "styles": [
+                [
+                  "SECTION",
+                  "20px",
+                  "400",
+                  "rgb(23, 46, 40)",
+                  "rgba(0, 0, 0, 0)",
+                  "25px 0px 0px",
+                  "",
+                  "30px"
+                ],
+                [
+                  "H5",
+                  "22.5px",
+                  "700",
+                  "rgb(23, 46, 40)",
+                  "rgba(0, 0, 0, 0)",
+                  "0px",
+                  "0px none rgb(23, 46, 40)",
+                  "30.375px"
+                ],
+                [
+                  "STRONG",
+                  "30px",
+                  "700",
+                  "rgb(23, 46, 40)",
+                  "rgba(0, 0, 0, 0)",
+                  "0px",
+                  "0px none rgb(23, 46, 40)",
+                  "36px"
+                ],
+                [
+                  "P",
+                  "20px",
+                  "400",
+                  "rgb(23, 46, 40)",
+                  "rgba(0, 0, 0, 0)",
+                  "0px",
+                  "0px none rgb(23, 46, 40)",
+                  "30px"
+                ]
+              ]
+            }
+          },
+          "order": [
+            "exceptions",
+            "volume"
+          ],
+          "clipped": 0
+        },
+        {
+          "box": {
+            "top": 847.1875,
+            "bottom": 1540.375,
+            "width": 358,
+            "height": 693.1875
+          },
+          "sections": {
+            "volume": {
+              "text": "Shipments today 1,200 Daily total, including the 3 exceptions.",
+              "box": {
+                "top": 988.1875,
+                "bottom": 1158.0625,
+                "width": 316,
+                "height": 169.875
+              },
+              "styles": [
+                [
+                  "SECTION",
+                  "20px",
+                  "400",
+                  "rgb(23, 46, 40)",
+                  "rgba(0, 0, 0, 0)",
+                  "25px 0px 0px",
+                  "",
+                  "30px"
+                ],
+                [
+                  "H5",
+                  "22.5px",
+                  "700",
+                  "rgb(23, 46, 40)",
+                  "rgba(0, 0, 0, 0)",
+                  "0px",
+                  "0px none rgb(23, 46, 40)",
+                  "30.375px"
+                ],
+                [
+                  "STRONG",
+                  "30px",
+                  "700",
+                  "rgb(23, 46, 40)",
+                  "rgba(0, 0, 0, 0)",
+                  "0px",
+                  "0px none rgb(23, 46, 40)",
+                  "36px"
+                ],
+                [
+                  "P",
+                  "20px",
+                  "400",
+                  "rgb(23, 46, 40)",
+                  "rgba(0, 0, 0, 0)",
+                  "0px",
+                  "0px none rgb(23, 46, 40)",
+                  "30px"
+                ]
+              ]
+            },
+            "exceptions": {
+              "text": "3 shipments need a response Address problems are blocking delivery for these shipments. Inspect the affected shipment IDs and arrange address corrections before the next dispatch. Review 3 exceptions",
+              "box": {
+                "top": 1183.0625,
+                "bottom": 1519.375,
+                "width": 316,
+                "height": 336.3125
+              },
+              "styles": [
+                [
+                  "SECTION",
+                  "20px",
+                  "400",
+                  "rgb(23, 46, 40)",
+                  "rgba(0, 0, 0, 0)",
+                  "25px 0px 0px",
+                  "",
+                  "30px"
+                ],
+                [
+                  "H5",
+                  "22.5px",
+                  "700",
+                  "rgb(23, 46, 40)",
+                  "rgba(0, 0, 0, 0)",
+                  "0px",
+                  "0px none rgb(23, 46, 40)",
+                  "30.375px"
+                ],
+                [
+                  "P",
+                  "20px",
+                  "400",
+                  "rgb(23, 46, 40)",
+                  "rgba(0, 0, 0, 0)",
+                  "0px",
+                  "0px none rgb(23, 46, 40)",
+                  "30px"
+                ],
+                [
+                  "BUTTON",
+                  "17.5px",
+                  "400",
+                  "rgb(23, 46, 40)",
+                  "rgb(242, 246, 243)",
+                  "8px 12px",
+                  "1px solid rgb(138, 157, 145)",
+                  "26.25px"
+                ],
+                [
+                  "P",
+                  "20px",
+                  "400",
+                  "rgb(23, 46, 40)",
+                  "rgba(0, 0, 0, 0)",
+                  "0px",
+                  "0px none rgb(23, 46, 40)",
+                  "30px"
+                ]
+              ]
+            }
+          },
+          "order": [
+            "volume",
+            "exceptions"
+          ],
+          "clipped": 0
+        }
+      ],
+      "passed": [
+        "context",
+        "shared-content",
+        "shared-styles",
+        "shared-geometry",
+        "order-only",
+        "no-clipping",
+        "keyboard-disclosure",
+        "continuity"
+      ]
+    }
+  ],
+  "captures": [
+    {
+      "file": "dr-013-good-desktop.png",
+      "quality": "good",
+      "viewport": {
+        "width": 1200,
+        "height": 1000
+      },
+      "fontScale": 1,
+      "longCopy": false
+    },
+    {
+      "file": "dr-013-bad-desktop.png",
+      "quality": "bad",
+      "viewport": {
+        "width": 1200,
+        "height": 1000
+      },
+      "fontScale": 1,
+      "longCopy": false
+    },
+    {
+      "file": "dr-013-good-mobile.png",
+      "quality": "good",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "fontScale": 1.25,
+      "longCopy": true
+    },
+    {
+      "file": "dr-013-bad-mobile.png",
+      "quality": "bad",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "fontScale": 1.25,
+      "longCopy": true
+    }
+  ],
+  "limits": "125% component text is not browser zoom or a complete accessibility audit. Authored order is mechanically checked; human review must judge priority and all other declared subjective requirements."
+}
