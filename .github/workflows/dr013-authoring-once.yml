@@ -25,18 +25,47 @@ jobs:
           node --input-type=module <<'NODE'
           import assert from 'node:assert/strict';
           import { readFile, writeFile } from 'node:fs/promises';
+          const replaceOnce = (source, from, to) => {
+            assert.equal(source.split(from).length, 2, `Expected unique source fragment: ${from}`);
+            return source.replace(from, to);
+          };
           const testPath = 'test/review.test.mjs';
           let test = await readFile(testPath, 'utf8');
-          const needle = '"behavior.js",\n            "behavior.css",';
-          assert.equal(test.split(needle).length, 2, 'Expected unique fixture asset allowlist');
-          test = test.replace(needle, '"behavior.js",\n            "priority-scene.js",\n            "behavior.css",');
+          test = replaceOnce(test, '"behavior.js",\n            "behavior.css",', '"behavior.js",\n            "priority-scene.js",\n            "behavior.css",');
+          test = replaceOnce(test, 'import { chromium } from "playwright";', 'import { chromium } from "playwright";\nimport { inspectPage } from "../src/checks.mjs";');
+          const nativeCheck = `      await choose("DR-013");
+                const integratedPriorityRules = JSON.parse(
+                  await readFile(path.join(exampleDirectory, "priority-rules.json"), "utf8"),
+                );
+                for (const quality of ["good", "bad"]) {
+                  const measured = await page.evaluate(inspectPage, integratedPriorityRules.map((rule) => ({
+                    ...rule,
+                    selector: rule.selector.split(",").map((selector) => "#" + quality + " " + selector.trim()).join(", "),
+                  })));
+                  assert.deepEqual(
+                    measured.findings.map((finding) => finding.rule).sort(),
+                    quality === "good" ? [] : ["priority-response-surface", "priority-response-type", "priority-total-surface", "priority-total-type"],
+                    "The integrated canonical page must satisfy the same native priority contract",
+                  );
+                  assert.ok(measured.metrics.evaluations.every((entry) => entry.status === "checked"));
+                }
+          `;
+          test = replaceOnce(test, '      await choose("DR-013");\n', nativeCheck);
           await writeFile(testPath, test);
           const sitePath = 'scripts/site.mjs';
           let site = await readFile(sitePath, 'utf8');
-          const asset = '"behavior.js",\n  "behavior.css",';
-          assert.equal(site.split(asset).length, 2, 'Expected unique built-site asset list');
-          site = site.replace(asset, '"behavior.js",\n  "priority-scene.js",\n  "behavior.css",');
+          site = replaceOnce(site, '"behavior.js",\n  "behavior.css",', '"behavior.js",\n  "priority-scene.js",\n  "behavior.css",');
           await writeFile(sitePath, site);
+          const cssPath = 'docs/examples/behavior.css';
+          const css = await readFile(cssPath, 'utf8');
+          const marker = css.indexOf('/* DR-013:');
+          assert.ok(marker >= 0);
+          let priority = css.slice(marker);
+          priority = replaceOnce(priority, 'padding: 1.5em;\n  font-size: 1rem;', 'padding: 1.5em;\n  font-size: max(1rem, 16px);');
+          priority = replaceOnce(priority, 'font-size: 1.25rem;', 'font-size: max(1.25rem, 20px);');
+          priority = replaceOnce(priority, 'min-width: 2.75rem;', 'min-width: max(2.75rem, 44px);');
+          priority = replaceOnce(priority, 'min-height: 2.75rem;', 'min-height: max(2.75rem, 44px);');
+          await writeFile(cssPath, css.slice(0, marker) + priority);
           const catalogPath = 'docs/examples/behavior-catalog.json';
           const catalog = JSON.parse(await readFile(catalogPath, 'utf8'));
           const recovery = catalog.rules.find(rule => rule.id === 'DR-012');
