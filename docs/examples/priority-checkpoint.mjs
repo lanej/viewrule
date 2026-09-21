@@ -382,13 +382,11 @@ export async function runPriorityCheckpoint(root) {
         assert.deepEqual(ids(final.bad), targetFindings);
         for (const quality of ["good", "bad"]) {
           const file = `dr-013-${quality}-${name}.png`;
-          await page
-            .locator(`#${quality} .sample`)
-            .screenshot({
-              path: path.join(directory, file),
-              animations: "disabled",
-              caret: "hide",
-            });
+          await page.locator(`#${quality} .sample`).screenshot({
+            path: path.join(directory, file),
+            animations: "disabled",
+            caret: "hide",
+          });
           captures.push({
             file,
             quality,
