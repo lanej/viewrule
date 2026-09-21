@@ -42,6 +42,7 @@ export async function runPriorityCheckpoint(root) {
         await page.addStyleTag({ content: sources[1] });
         await page.addStyleTag({ content: sources[2] });
         await page.evaluate(({ initialize, enlarged }) => {
+          const document = globalThis.document;
           const root = document.querySelector("#behavior-examples");
           root.setAttribute("data-rule", "DR-013");
           document.body.dataset.behaviorRule = "DR-013";
@@ -60,7 +61,7 @@ export async function runPriorityCheckpoint(root) {
               "Address problems are blocking delivery for these shipments. Inspect the affected shipment IDs and arrange address corrections before the next dispatch.";
           }
         }, { initialize: configurePriority.toString(), enlarged });
-        await page.evaluate(() => document.fonts.ready);
+        await page.evaluate(() => globalThis.document.fonts.ready);
         const observations = await page.locator(".sample").evaluateAll((samples) => samples.map((sample) => {
           const box = (element) => {
             const r = element.getBoundingClientRect();
@@ -72,7 +73,7 @@ export async function runPriorityCheckpoint(root) {
               text: section.textContent.replace(/\s+/g, " ").trim(),
               box: box(section),
               styles: [section, ...section.querySelectorAll("*")].map((element) => {
-                const s = getComputedStyle(element);
+                const s = element.ownerDocument.defaultView.getComputedStyle(element);
                 return [element.tagName, s.fontSize, s.fontWeight, s.color, s.backgroundColor, s.padding, s.border, s.lineHeight];
               }),
             };
@@ -111,8 +112,8 @@ export async function runPriorityCheckpoint(root) {
           await page.keyboard.press("Tab");
           const button = page.locator(`#${quality} [data-role="respond"]`);
           const result = page.locator(`#${quality} [data-role="result"]`);
-          assert.equal(await button.evaluate((el) => el === document.activeElement), true);
-          assert.equal(await button.evaluate((el) => getComputedStyle(el).outlineStyle !== "none"), true);
+          assert.equal(await button.evaluate((el) => el === el.ownerDocument.activeElement), true);
+          assert.equal(await button.evaluate((el) => el.ownerDocument.defaultView.getComputedStyle(el).outlineStyle !== "none"), true);
           await page.keyboard.press("Enter");
           assert.equal(await result.isVisible(), true);
           assert.equal(await button.getAttribute("aria-expanded"), "true");
@@ -123,7 +124,7 @@ export async function runPriorityCheckpoint(root) {
           assert.equal(await button.getAttribute("aria-expanded"), "false");
           assert.equal(await page.locator(`#${quality} .volume strong`).textContent(), "1,200");
           assert.equal(await page.locator(`#${quality} .exceptions h5`).textContent(), "3 shipments need a response");
-          assert.equal(await button.evaluate((el) => el === document.activeElement), true);
+          assert.equal(await button.evaluate((el) => el === el.ownerDocument.activeElement), true);
         }
         for (const quality of ["good", "bad"]) {
           // Match capture focus state rather than assigning a focus cue to only Bad.
