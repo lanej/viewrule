@@ -904,6 +904,34 @@ test(
     );
     await git(linked, "commit", "-qm", "Reviewed nested application");
 
+    // On case-insensitive filesystems the removed spelling still resolves via
+    // lstat, but must not be mistaken for an extra unstaged source file.
+    await git(linked, "mv", "apps/web/src/page.html", "apps/web/src/Page.html");
+    const renamedReview = await worktreeCLI(
+      linked,
+      ["check", "--project", "apps/web"],
+      "",
+      pluginLauncher,
+    );
+    assert.equal(
+      renamedReview.code,
+      0,
+      renamedReview.stderr || renamedReview.stdout,
+    );
+    const renamedCommit = await worktreeCLI(
+      linked,
+      ["pre-commit", "--project", "apps/web"],
+      "",
+      pluginLauncher,
+    );
+    assert.equal(
+      renamedCommit.code,
+      0,
+      renamedCommit.stderr || renamedCommit.stdout,
+    );
+    assert.equal(JSON.parse(renamedCommit.stdout).status, "pass");
+    await git(linked, "commit", "-qm", "Reviewed filename capitalization");
+
     // The shared discovery module lives outside src/ but still changes the engine
     // used to interpret a report. Its installed bytes must participate in freshness.
     const resolverFile = path.join(

@@ -1,6 +1,6 @@
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { lstat, readFile, readlink, realpath } from "node:fs/promises";
+import { lstat, readdir, readFile, readlink, realpath } from "node:fs/promises";
 import path from "node:path";
 import { validateConfig } from "./config.mjs";
 import {
@@ -154,7 +154,22 @@ async function matchesTree(root, file, entry, algorithm) {
     if (error.code === "ENOENT" || error.code === "ENOTDIR") return null;
     throw error;
   });
-  if (!entry || !metadata) return !entry && !metadata;
+  if (!metadata) return !entry;
+  if (!entry) {
+    // lstat can resolve a deleted spelling to its renamed replacement on a
+    // case-insensitive filesystem. Only an exact remaining path is an extra input.
+    let directory = root;
+    for (const name of file.split("/")) {
+      if (
+        !(await readdir(directory)).some(
+          (entry) => entry.normalize("NFC") === name.normalize("NFC"),
+        )
+      )
+        return true;
+      directory = path.join(directory, name);
+    }
+    return false;
+  }
   if (entry.mode === "160000")
     throw new Error(
       `Review input is a Git submodule: ${file}. Verify its checked-out commit in application CI.`,
