@@ -120,6 +120,7 @@ const assets = path.join(output, "assets/examples");
 await mkdir(assets, { recursive: true });
 for (const file of [
   "behavior.js",
+  "priority-scene.js",
   "behavior.css",
   "behavior-catalog.json",
   "evidence.js",

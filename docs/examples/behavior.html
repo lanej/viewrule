@@ -188,18 +188,27 @@
       </dialog>
     </template>
     <template id="scene-DR-013">
-      <div class="hierarchy">
-        <section class="exceptions">
-          <h4>3 shipments need a response</h4>
-          <p>
-            Address problems are blocking delivery. Review these exceptions
-            before the next dispatch.
-          </p>
-          <button type="button" data-role="respond">Review 3 exceptions</button>
-          <p data-role="result" role="status"></p>
-        </section>
-        <div class="volume">
-          <span>Shipments today</span><strong>1,200</strong>
+      <div class="priority-view">
+        <header class="priority-heading">
+          <h4>Dispatch review</h4>
+          <p>Today · All carriers and origins · 09:00 PT snapshot</p>
+        </header>
+        <div class="hierarchy">
+          <section class="exceptions" data-priority="exceptions">
+            <h5>3 shipments need a response</h5>
+            <p data-role="reason">
+              Address problems are blocking delivery. Review these exceptions
+              before the next dispatch.
+            </p>
+            <button type="button" data-role="respond" aria-expanded="false">
+              Review 3 exceptions
+            </button>
+            <p data-role="result" role="status" hidden></p>
+          </section>
+          <section class="volume" data-priority="volume">
+            <h5><strong>1,200</strong> shipments today</h5>
+            <p>Daily total, including the 3 exceptions.</p>
+          </section>
         </div>
       </div>
     </template>

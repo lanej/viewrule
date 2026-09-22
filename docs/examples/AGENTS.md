@@ -17,7 +17,22 @@ The good example is the source of truth; the bad example is a controlled mutatio
 
 ## Conformance matrix
 
-Every canonical example must declare every registered design rule for both variants as `pass`, `fail`, `review`, or `not-applicable`, with evidence. Good has no failures. Bad has exactly one failure: the target rule. Non-target outcomes must match. CI validates machine-observable claims; subjective review stays explicit rather than becoming a manufactured detector pass.
+Every canonical example must declare every registered design rule for both variants as expected `pass`, `fail`, or `not-applicable`, with the evidence mechanism recorded separately. Good has no failures. Bad has exactly one failure: the target rule. Non-target outcomes must match. CI validates machine-observable claims; subjective review stays explicit rather than becoming a manufactured detector pass.
+
+## Red before repair
+
+When review exposes a missed design constraint, state it and add the applicable
+native or behavioral check before changing the UI. Run it against the actual
+rejected implementation, including a previously labeled Good when necessary.
+Record the specific failure; unrelated CI errors do not count. Preserve a finite
+rejected fixture, prove the repaired Good clears the findings, and keep Bad's
+expected failures restricted to the target. Do not weaken checks to get green.
+A check proves its measured scope, not a subjective review verdict.
+See [priority's red-to-green contract](priority-design.md).
+
+A target violation can be one semantic choice implemented through multiple CSS
+properties. For priority, swapping a shared color-and-type emphasis role is one
+mutation. Do not accidentally freeze the channels the target rule governs.
 
 ## Isolate the rule under test
 

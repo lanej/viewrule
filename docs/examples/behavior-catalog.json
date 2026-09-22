@@ -90,14 +90,20 @@
       "title": "Rule of Priority",
       "enforcement": "review",
       "task": "Find the three shipments requiring a response among 1,200 shipments.",
-      "good": "The exceptions and response lead; the total remains available but subordinate.",
-      "bad": "A huge total attracts attention while the exception and response are visually secondary.",
+      "good": "Give actionable exceptions the shared primary color-and-type treatment; daily volume stays readable and supporting.",
+      "bad": "Apply the same primary treatment to daily volume instead. Keep content, DOM order, controls and disclosure behavior identical.",
       "alternatives": [
         "A planning task may appropriately lead with aggregate volume instead."
       ],
       "exception": "A safety-critical alert can supersede the ordinary attention order.",
-      "nativeChecks": [],
-      "verification": "Human task and visual review. There is no hierarchy score, universal KPI count, or manufactured failing engine badge.",
+      "nativeChecks": [
+        "style",
+        "context",
+        "min-font-size",
+        "min-size",
+        "no-clip"
+      ],
+      "verification": "The native priority-rules contract first rejects the prior order-only Good, then passes repaired Good while Bad fails only the four DR-013 emphasis checks. The checkpoint verifies computed styles rather than primary metadata, equal content and shared role styles, text contrast, clipping and keyboard behavior at both widths. Human review still decides whether the emphasis serves the stated dispatch task.",
       "sources": [
         "https://www.nngroup.com/articles/visual-hierarchy-ux-definition/"
       ],
