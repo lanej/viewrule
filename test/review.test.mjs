@@ -311,6 +311,13 @@ test(
       {},
       "Retired Stop continuation cannot require an engine",
     );
+    const prefixedHook = await cli(["--project", project, "hook"]);
+    assert.equal(prefixedHook.code, 0, prefixedHook.stderr);
+    assert.deepEqual(
+      JSON.parse(prefixedHook.stdout),
+      {},
+      "Legacy global options cannot delegate to an old blocking engine",
+    );
     await rm(path.join(project, ".ui-review/config.json"));
     const rejected = await cli(["setup", "--skip-browser"]);
     assert.equal(rejected.code, 2);
@@ -367,7 +374,16 @@ test(
       projectSettings,
       JSON.stringify({
         hooks: {
-          Stop: [{ hooks: [{ type: "command", command: "ui-review hook" }] }],
+          Stop: [
+            {
+              hooks: [
+                {
+                  type: "command",
+                  command: "ui-review --project apps/web hook",
+                },
+              ],
+            },
+          ],
         },
       }),
     );

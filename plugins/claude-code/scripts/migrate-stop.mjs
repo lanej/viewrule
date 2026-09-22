@@ -11,6 +11,7 @@ import {
 } from "node:fs/promises";
 import { homedir } from "node:os";
 import path from "node:path";
+import { isLegacyHook } from "./project.mjs";
 
 // Recognize one simple invocation without evaluating shell text. Compound commands
 // need human editing: deleting their handler could remove someone else's check.
@@ -62,7 +63,7 @@ function isViewruleStop(handler) {
     )
       return false;
   }
-  return words.length === 1 && words[0] === "hook";
+  return isLegacyHook(words);
 }
 
 /** Remove only known Viewrule Stop handlers; leave other settings and symlinks intact. */

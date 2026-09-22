@@ -3,10 +3,11 @@ import { readFile } from "node:fs/promises";
 import { createRequire } from "node:module";
 import { spawnSync } from "node:child_process";
 import path from "node:path";
+import { isLegacyHook } from "../plugins/claude-code/scripts/project.mjs";
 
 const args = process.argv.slice(2);
 // Retired Stop entrypoint: old registrations must never block or need an engine.
-if (args[0] === "hook") {
+if (isLegacyHook(args)) {
   console.log("{}");
 } else if (args[0] === "guide") {
   try {

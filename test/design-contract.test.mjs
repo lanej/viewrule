@@ -643,7 +643,7 @@ test(
     for (const launcher of [engineLauncher, pluginLauncher]) {
       const unconfigured = await worktreeCLI(
         linked,
-        ["hook"],
+        [`--project=${linked}`, "hook"],
         JSON.stringify({ cwd: linked }),
         launcher,
       );

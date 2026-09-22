@@ -13,9 +13,10 @@ import { spawnSync } from "node:child_process";
 import { homedir } from "node:os";
 import path from "node:path";
 import { parseArgs } from "node:util";
+import { isLegacyHook } from "./project.mjs";
 
 const args = process.argv.slice(2);
-const isHook = args[0] === "hook";
+const isHook = isLegacyHook(args);
 const json = async (file) => JSON.parse(await readFile(file, "utf8"));
 const data = path.resolve(
   process.env.VIEWRULE_PLUGIN_DATA_DIR ||
