@@ -105,6 +105,7 @@ test(
             "behavior.html",
             "behavior.js",
             "priority-scene.js",
+            "continuity-scene.js",
             "behavior.css",
             "gallery.css",
             "behavior-catalog.json",
@@ -2232,26 +2233,45 @@ test(
 
       await choose("DR-010");
       for (const quality of ["good", "bad"]) {
-        await role(quality, "filter").fill("Seattle priority");
+        await role(quality, "filter").fill("Seattle");
         await role(quality, "open").click();
         await role(quality, "close").click();
-        if (quality === "bad")
-          await role("bad", "selected")
-            .filter({ hasText: "EP 1043" })
-            .waitFor();
+        // Native focus restoration can precede the queued close handler.
+        // Wait for the complete observed state; do not change the expected result.
+        await page.waitForFunction((quality) => {
+          const root = globalThis.document.querySelector("#" + quality);
+          return (
+            !root.querySelector("dialog").open &&
+            globalThis.document.activeElement ===
+              root.querySelector("[data-role=open]") &&
+            root.querySelector("input").value ===
+              (quality === "good" ? "Seattle" : "")
+          );
+        }, quality);
         assert.equal(
           await role(quality, "filter").inputValue(),
-          quality === "good" ? "Seattle priority" : "",
+          quality === "good" ? "Seattle" : "",
+        );
+        assert.equal(await role(quality, "selected").textContent(), "EP 1042");
+        assert.equal(
+          await role(quality, "working-set-value").textContent(),
+          quality === "good" ? "Seattle" : "All destinations",
         );
         assert.equal(
-          await role(quality, "selected").textContent(),
-          quality === "good" ? "EP 1042" : "EP 1043",
+          await role(quality, "summary").textContent(),
+          quality === "good"
+            ? "Showing 2 Seattle shipments"
+            : "Showing all 3 shipments",
         );
-        assert.equal(
-          await role(quality, quality === "good" ? "open" : "filter").evaluate(
-            (el) => el === el.ownerDocument.activeElement,
-          ),
-          true,
+        assert.deepEqual(
+          await page
+            .locator("#" + quality + " [data-shipment]:visible")
+            .evaluateAll((rows) =>
+              rows.map((row) => row.getAttribute("data-shipment")),
+            ),
+          quality === "good"
+            ? ["EP 1042", "EP 1047"]
+            : ["EP 1042", "EP 1047", "EP 1043"],
         );
       }
       await screenshot("DR-010", "returned");

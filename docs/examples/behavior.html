@@ -111,17 +111,90 @@
       </section>
     </template>
     <template id="scene-DR-010">
-      <label
-        >Destination filter <input data-role="filter" value="Seattle"
-      /></label>
-      <p>Selected shipment: <strong data-role="selected">EP 1042</strong></p>
-      <p>EP 1042 · Oakland → Seattle<br />EP 1043 · Oakland → Denver</p>
-      <button type="button" data-role="open">Inspect EP 1042</button>
-      <dialog data-role="dialog" aria-label="Shipment EP 1042 details">
-        <h4>EP 1042 · Seattle</h4>
-        <p>Latest scan: Portland, 08:40. Expected arrival: September 15.</p>
-        <button type="button" data-role="close">Return to queue</button>
-      </dialog>
+      <section class="continuity-view" aria-label="Shipment queue">
+        <header class="continuity-heading">
+          <h4>Shipment queue</h4>
+          <p>All carriers · 09:00 PT snapshot</p>
+        </header>
+        <label class="continuity-filter"
+          >Destination filter
+          <input
+            data-role="filter"
+            type="search"
+            value="Seattle"
+            placeholder="All destinations"
+          />
+        </label>
+        <div class="continuity-destination-scope" data-role="destination-scope">
+          <span class="continuity-destination-scope-label">Destination scope</span>
+          <strong data-role="destination-scope-value">Seattle</strong>
+          <p class="continuity-summary" data-role="summary" role="status"></p>
+        </div>
+        <ul class="continuity-list" aria-label="Matching shipments">
+          <li
+            data-shipment="EP 1042"
+            data-destination="Seattle"
+            aria-current="true"
+          >
+            <div>
+              <strong data-role="selected">EP 1042</strong>
+              <span data-selection class="continuity-selection"
+                >Selected shipment</span
+              >
+              <p>Oakland → Seattle</p>
+            </div>
+            <button
+              type="button"
+              data-role="open"
+              data-inspect
+              aria-label="Inspect EP 1042"
+            >
+              Inspect
+            </button>
+          </li>
+          <li
+            data-shipment="EP 1047"
+            data-destination="Seattle"
+            aria-current="false"
+          >
+            <div>
+              <strong>EP 1047</strong
+              ><span data-selection class="continuity-selection" hidden
+                >Selected</span
+              >
+              <p>Oakland → Seattle</p>
+            </div>
+            <button type="button" data-inspect aria-label="Inspect EP 1047">
+              Inspect
+            </button>
+          </li>
+          <li
+            data-shipment="EP 1043"
+            data-destination="Denver"
+            aria-current="false"
+          >
+            <div>
+              <strong>EP 1043</strong
+              ><span data-selection class="continuity-selection" hidden
+                >Selected</span
+              >
+              <p>Oakland → Denver</p>
+            </div>
+            <button type="button" data-inspect aria-label="Inspect EP 1043">
+              Inspect
+            </button>
+          </li>
+        </ul>
+        <p data-role="empty" hidden>No shipments match this destination.</p>
+        <dialog data-role="dialog" aria-label="Shipment details">
+          <h4 data-role="detail-title">EP 1042</h4>
+          <p data-role="detail-route">Oakland → Seattle</p>
+          <p>Read-only shipment details.</p>
+          <button type="button" data-role="close" autofocus>
+            Return to queue
+          </button>
+        </dialog>
+      </section>
     </template>
     <template id="scene-DR-011">
       <h4>Rate proposal</h4>

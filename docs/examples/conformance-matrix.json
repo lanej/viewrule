@@ -226,6 +226,133 @@
           "rule": "../design-rules/DR-016-semantic-color.md"
         }
       }
+    },
+    {
+      "id": "DR-010",
+      "target": "DR-010",
+      "rules": {
+        "DR-001": {
+          "good": "not-applicable",
+          "bad": "not-applicable",
+          "evidenceType": "rationale",
+          "evidence": "No charts or shared scale comparison.",
+          "rule": "../design-rules/DR-001-comparable-scales.md"
+        },
+        "DR-002": {
+          "good": "not-applicable",
+          "bad": "not-applicable",
+          "evidenceType": "rationale",
+          "evidence": "No graphical magnitude encoding.",
+          "rule": "../design-rules/DR-002-proportional-magnitude.md"
+        },
+        "DR-003": {
+          "good": "pass",
+          "bad": "pass",
+          "evidenceType": "automated",
+          "evidence": "The destination scope is explicit beside the real query, and visible result counts truthfully reflect that state.",
+          "checks": [
+            "native-baseline",
+            "truthful-results",
+            "explicit-destination-scope"
+          ],
+          "rule": "../design-rules/DR-003-quantity-context.md"
+        },
+        "DR-004": {
+          "good": "not-applicable",
+          "bad": "not-applicable",
+          "evidenceType": "rationale",
+          "evidence": "Only known synthetic records; no missing or estimated observations.",
+          "rule": "../design-rules/DR-004-missing-estimated-values.md"
+        },
+        "DR-005": {
+          "good": "pass",
+          "bad": "pass",
+          "evidenceType": "human-review",
+          "evidence": "Selected always means the same inspected shipment. Selection styling, labels and control meanings remain consistent.",
+          "rule": "../design-rules/DR-005-consistent-meanings.md"
+        },
+        "DR-006": {
+          "good": "pass",
+          "bad": "pass",
+          "evidenceType": "automated",
+          "evidence": "Query, explicit destination scope, selected identity, results, and controls remain local and unclipped at the declared widths.",
+          "checks": ["native-baseline", "explicit-destination-scope"],
+          "rule": "../design-rules/DR-006-related-evidence.md"
+        },
+        "DR-007": {
+          "good": "pass",
+          "bad": "pass",
+          "evidenceType": "human-review",
+          "evidence": "Both widths retain readable queue context and usable controls without fixed-height filler. Extra rows on Bad follow from filter loss.",
+          "rule": "../design-rules/DR-007-responsive-detail.md"
+        },
+        "DR-008": {
+          "good": "pass",
+          "bad": "pass",
+          "evidenceType": "human-review",
+          "evidence": "Selected-row treatment and boundaries aid scanning; no unrelated ornamental or oversized treatment reveals the intended answer.",
+          "rule": "../design-rules/DR-008-earned-decoration.md"
+        },
+        "DR-009": {
+          "good": "pass",
+          "bad": "pass",
+          "evidenceType": "behavioral",
+          "evidence": "Visible results reflect the actual input, including an empty query and no matches; read-only detail does not claim delivery or modification.",
+          "checks": ["real-filter", "truthful-results"],
+          "rule": "../design-rules/DR-009-state-honesty.md"
+        },
+        "DR-010": {
+          "good": "pass",
+          "bad": "fail",
+          "evidenceType": "behavioral",
+          "evidence": "Both variants preserve EP 1042 and invoking focus. Only Bad clears the destination query after Return or Escape.",
+          "checks": ["query-isolation", "stable-selection", "return-focus"],
+          "rule": "../design-rules/DR-010-context-continuity.md"
+        },
+        "DR-011": {
+          "good": "pass",
+          "bad": "pass",
+          "evidenceType": "human-review",
+          "evidence": "Destination and Inspect describe real filtering and read-only detail. Return to queue does not suggest resetting the query.",
+          "rule": "../design-rules/DR-011-action-scope.md"
+        },
+        "DR-012": {
+          "good": "not-applicable",
+          "bad": "not-applicable",
+          "evidenceType": "rationale",
+          "evidence": "Read-only navigation, not failed submission or transactional recovery. Query retention across a successful detail journey is DR-010's scope.",
+          "rule": "../design-rules/DR-012-recovery-safeguards.md"
+        },
+        "DR-013": {
+          "good": "pass",
+          "bad": "pass",
+          "evidenceType": "human-review",
+          "evidence": "Destination, matching shipments and the selected record guide continuing the comparison. Both sides preserve the same hierarchy.",
+          "rule": "../design-rules/DR-013-task-emphasis.md"
+        },
+        "DR-014": {
+          "good": "pass",
+          "bad": "pass",
+          "evidenceType": "behavioral",
+          "evidence": "Actual Tab, Enter and Escape reach and dismiss detail; Return restores the invoking control. Native rules require usable targets.",
+          "checks": ["keyboard-journey", "return-focus", "native-baseline"],
+          "rule": "../design-rules/DR-014-keyboard-access.md"
+        },
+        "DR-015": {
+          "good": "pass",
+          "bad": "pass",
+          "evidenceType": "human-review",
+          "evidence": "Desktop and 390px captures with 125% component text preserve destinations, IDs, counts and controls. Not all zoom or locale settings are certified.",
+          "rule": "../design-rules/DR-015-content-resilience.md"
+        },
+        "DR-016": {
+          "good": "not-applicable",
+          "bad": "not-applicable",
+          "evidenceType": "rationale",
+          "evidence": "Selection treatment is not a categorical, magnitude or deviation color scale. Consistency and readable contrast still apply.",
+          "rule": "../design-rules/DR-016-semantic-color.md"
+        }
+      }
     }
   ]
 }

@@ -1,3 +1,4 @@
+import { configureContinuity } from "./continuity-scene.js";
 import { configurePriority } from "./priority-scene.js";
 
 // Deliberately paired teaching fixtures, not production carrier operations.
@@ -272,19 +273,7 @@ async function start() {
 
   function configure(sample, id, good) {
     if (id === "DR-009") paintShipment(sample, good);
-    if (id === "DR-010") {
-      const dialog = find(sample, "dialog");
-      const open = find(sample, "open");
-      open.onclick = () => dialog.showModal();
-      find(sample, "close").onclick = () => dialog.close();
-      dialog.addEventListener("close", () => {
-        if (!good) {
-          find(sample, "filter").value = "";
-          find(sample, "selected").textContent = "EP 1043";
-          find(sample, "filter").focus();
-        }
-      });
-    }
+    if (id === "DR-010") configureContinuity(sample, good);
     if (id === "DR-011") {
       const dialog = find(sample, "dialog");
       const apply = () => {

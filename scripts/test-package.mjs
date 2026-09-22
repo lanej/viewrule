@@ -1,3 +1,4 @@
+import { runContinuityCheckpoint } from "../docs/examples/continuity-checkpoint.mjs";
 import { execFileSync } from "node:child_process";
 import { mkdtemp, rm, mkdir, copyFile, readFile } from "node:fs/promises";
 import { createHash } from "node:crypto";
@@ -18,6 +19,15 @@ try {
       ),
     ),
   );
+  validateRules(
+    JSON.parse(
+      await readFile(
+        path.join(root, "docs/examples/continuity-rules.json"),
+        "utf8",
+      ),
+    ),
+  );
+  await runContinuityCheckpoint(root);
   await runPriorityCheckpoint(root);
   execFileSync(process.execPath, ["scripts/site.mjs"], {
     cwd: root,
