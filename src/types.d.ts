@@ -100,7 +100,8 @@ export interface SourceCheckResult {
 export interface ProjectConfig {
   version: 1;
   baseURL: string;
-  enforceOnStop: boolean;
+  /** Deprecated; accepted for existing configurations, never enables Stop blocking. */
+  enforceOnStop?: boolean;
   sourcePaths: Selection;
   reviewScopes?: ReviewScope[];
   evidenceReuse?: { environmentKey: string; maxAgeMs: number };

@@ -111,14 +111,14 @@ key. Missing reuse settings or an unavailable browser identity make the relevant
 scopes unknown and force execution, not optimistic skipping.
 
 `maxAgeMs` must be explicit, from 1,000 through 86,400,000 milliseconds. Expiry uses
-**original measurement time**, never the time a reused report was assembled. The
-Stop hook enforces this limit too. An age bound limits staleness; it does not replace
+**original measurement time**, never the time a reused report was assembled.
+`verify` and the optional Git gates enforce this limit too. An age bound limits staleness; it does not replace
 the environment identity contract.
 
 Scoped checks explicitly launch the same browser executable whose bytes are
 fingerprinted (`VIEWRULE_BROWSER_PATH`, the legacy alias, or Playwright's pinned
 Chromium executable). Legacy configurations retain their existing launch behavior.
-No browser or provider is downloaded by planning, checking, or hook enforcement.
+No browser or provider is downloaded by planning, checking, or Git verification.
 
 ## Evidence and pass semantics
 
@@ -141,7 +141,7 @@ failure when another page changes. Reuse never waives a rule or preserves an old
 aggregate pass without recomputation.
 
 All required browser states and enabled source providers must be represented in a
-passing report. The Stop hook verifies the whole-source fingerprint, report and
+passing report. `verify` checks the whole-source fingerprint, report and
 artifact checksums, complete obligation membership, and original evidence age.
 An incomplete run cannot become a whole-project pass. Reused evidence older than
 an approved baseline is not described as a newly resolved finding or new visual

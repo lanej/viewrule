@@ -19,7 +19,7 @@ Source-only lint does not require this workflow.
    the consulted ID and source SHA-256 rather than copying general policy into DESIGN.md.
    Older pinned engines may lack that guide, rule lookup, or the new preflight; use
    only supported commands and state the enforcement limit. Do not install during
-   a review or hook. Public policy may be newer; checks use the installed policy.
+   a review or verification. Public policy may be newer; checks use the installed policy.
 3. Author or amend DESIGN.md when UI changes are authorized. Cover: users/tasks;
    principles/tradeoffs; visual-system ownership; behavior/resilience/accessibility;
    scoped requirements and verification; evidence, exceptions, and unresolved decisions.

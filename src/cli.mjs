@@ -16,15 +16,13 @@ import {
 import { impeccableProvider } from "./impeccable.mjs";
 import { runSourceChecks, sourceSummary } from "./source-checks.mjs";
 import { readContract } from "./contract.mjs";
-import { readPlan } from "./plan.mjs";
 import { readProjectDocuments } from "./project-documents.mjs";
-import { runReview } from "./review.mjs";
 import { defaultPreferences, presetRules } from "./presets.mjs";
 import {
   feedbackEntries,
   recordFeedback,
   learnRule,
-  hookDecision,
+  verifyReview,
   addRule,
 } from "./state.mjs";
 
@@ -48,7 +46,10 @@ const help = `viewrule — rendered UI checks and a versioned design feedback lo
                                        Convert recorded feedback into a JSON rule
   guide [ID]                           Read the versioned guide index or one Markdown page
   guidance                             Read project documents (including unfinished prose), guidance, and feedback
-  hook                                 Claude Stop hook; opt-in per project
+  verify                               Verify existing rendered evidence without capturing
+  pre-commit [--project DIR ...]       Verify affected staged UI inputs against existing evidence
+  pre-push [--project DIR ...] REMOTE URL
+                                       Verify affected pushed UI inputs; reads Git ref updates on stdin
 
 Common: --project DIR (exact application root), --help, --version
 Default: nearest configured parent within this checkout; init and lint use cwd.
@@ -63,7 +64,7 @@ try {
     allowPositionals: true,
     options: {
       url: { type: "string" },
-      project: { type: "string" },
+      project: { type: "string", multiple: true },
       report: { type: "string" },
       decision: { type: "string" },
       note: { type: "string" },
@@ -82,9 +83,10 @@ try {
     },
   });
   const command = positionals[0];
+  const gitEvent = ["pre-commit", "pre-push"].includes(command);
   const project =
     args.project !== undefined || ["init", "lint"].includes(command)
-      ? path.resolve(args.project ?? process.cwd())
+      ? path.resolve(args.project?.at(-1) ?? process.cwd())
       : await findProject(process.cwd());
   const globalDir = globalConfigDir();
   if ((args.incremental || args.full) && !["check", "plan"].includes(command))
@@ -111,7 +113,25 @@ try {
   )
     await assertLocalReviewDirectory(project);
   if (args.help || !command) console.log(help);
-  else if (positionals.length !== 1)
+  else if (gitEvent) {
+    if (positionals.length !== (command === "pre-push" ? 3 : 1))
+      throw new Error(
+        "Usage: pre-commit [--project DIR ...] | pre-push [--project DIR ...] REMOTE URL",
+      );
+    let input = "";
+    if (command === "pre-push")
+      for await (const chunk of process.stdin) input += chunk;
+    const { gitGate } = await import("./git-gate.mjs");
+    const result = await gitGate(
+      args.project?.map((directory) => path.resolve(directory)) ?? [project],
+      globalDir,
+      command,
+      input,
+      positionals[1],
+    );
+    console.log(JSON.stringify(result));
+    process.exitCode = result.status === "fail" ? 1 : 0;
+  } else if (positionals.length !== 1)
     throw new Error("Expected one command; use --help.");
   else if (command === "init") {
     const starter = await presetRules(args.preset ?? "baseline");
@@ -166,13 +186,14 @@ try {
     }
     const documents = await readProjectDocuments(project);
     console.log(
-      `Created ${dir}/config.json with editable ${args.preset ?? "baseline"} starter rules (existing rules and documents are preserved). Author DESIGN.md before contract/check; a scaffold is not a completed contract. Use /viewrule:design or docs/project-documents.md. Calibrate selectors, counts, and thresholds to the task. Stop enforcement is off until enforceOnStop is true. Project guidance: ${documents.map((document) => document.path).join(", ")}. Commit the setup files (.ui-review/config.json, rules.json, .gitignore, project documents, and any checkpoint scripts) to carry them into new Git worktrees. Runs, latest.json, and authentication state stay local; see docs/worktrees.md.`,
+      `Created ${dir}/config.json with editable ${args.preset ?? "baseline"} starter rules (existing rules and documents are preserved). Author DESIGN.md before contract/check; a scaffold is not a completed contract. Use /viewrule:design or docs/project-documents.md. Calibrate selectors, counts, and thresholds to the task. Reviews are explicit; optional Git gates and application CI control delivery. Project guidance: ${documents.map((document) => document.path).join(", ")}. Commit the setup files (.ui-review/config.json, rules.json, .gitignore, project documents, and any checkpoint scripts) to carry them into new Git worktrees. Runs, latest.json, and authentication state stay local; see docs/worktrees.md.`,
     );
   } else if (command === "preset") {
     console.log(
       JSON.stringify(await presetRules(args.name ?? "baseline"), null, 2),
     );
   } else if (command === "plan") {
+    const { readPlan } = await import("./plan.mjs");
     console.log(
       JSON.stringify(
         await readPlan(project, globalDir, Boolean(args.incremental)),
@@ -242,6 +263,7 @@ try {
     );
     process.exitCode = summary.errors ? 1 : 0;
   } else if (command === "check") {
+    const { runReview } = await import("./review.mjs");
     const result = await runReview(
       project,
       globalDir,
@@ -340,12 +362,12 @@ try {
         2,
       ),
     );
+  } else if (command === "verify") {
+    const result = await verifyReview(project, globalDir);
+    console.log(JSON.stringify(result));
+    process.exitCode = result.status === "pass" ? 0 : 1;
   } else if (command === "hook") {
-    let input = "";
-    for await (const chunk of process.stdin) input += chunk;
-    console.log(
-      JSON.stringify(await hookDecision(JSON.parse(input), globalDir)),
-    );
+    console.log("{}");
   } else throw new Error(`Unknown command: ${command}`);
 } catch (err) {
   console.error(`viewrule: ${err.message}`);

@@ -10,7 +10,7 @@ changing behavior. For code review, read [REVIEW.md](REVIEW.md).
 - Keep the engine, schema, policy, and reports here. Personal defaults belong in
   dotfiles; application selectors, thresholds, and approvals belong in the app.
 - The Claude plugin is a CLI client. Keep its skills concise, use installed engine
-  docs, and bump its manifest version for updates; never install from a Stop hook.
+  docs, and bump its manifest version for updates; never install from evidence verification or a Git gate.
 - The engine requires Node 22.18+ and npm; development tooling needs Node 22.18+.
   Use ES modules and pinned dependencies; no
   compilation step is required. Run the formatter, linter, and static checks below.
@@ -71,7 +71,7 @@ run; disclose the substitution.
 ## Compatibility and delivery
 
 Preserve the CLI, schema versions, `.ui-review` directory, legacy aliases, exit codes,
-and opt-in hook behavior unless the task explicitly changes them. Keep user data out
+and opt-in Git integration unless the task explicitly changes them. Keep user data out
 of the installed package. Dependency changes must update `npm-shrinkwrap.json`.
 
 Keep instructions concise and point to conditional detail instead of repeating it.

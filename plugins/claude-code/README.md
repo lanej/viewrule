@@ -18,10 +18,11 @@ In Claude Code:
 /viewrule:setup
 ```
 
-Setup installs the checksummed engine release in `engine.json` and its Playwright
-Chromium browser. It then helps configure your running application. Installing the
+Setup removes recognized legacy Viewrule Stop handlers, installs the checksummed
+engine release in `engine.json` and its Playwright Chromium browser, then helps
+configure your running application. Installing the
 plugin alone makes no engine or browser download, and does not enable enforcement.
-Version 0.7.3 pins the 0.7.1 engine, including worktree-aware project discovery,
+Version 0.7.4 removes Stop registration and retains the 0.7.1 engine pin, including worktree-aware project discovery,
 native globs, read-only planning, opt-in incremental evidence reuse, authored design
 contracts, and offline rule lookup.
 Bundled Impeccable source diagnostics, `lint`, decision-surface checks, and interaction
@@ -78,15 +79,31 @@ recommendations still require a real Claude session.
 
 ## Enforcement and existing installs
 
-The bundled Stop hook uses the same pinned engine as the skills. Projects opt in with
-`enforceOnStop: true` in `.ui-review/config.json`. Missing, failing, or stale evidence
-blocks the first Stop; hook continuation is allowed to avoid loops. An unconfigured
-project needs no installed engine. The hook never installs software or launches a
-browser. Use a required application CI check when a pass must gate merging.
+The plugin does not block Stop events. Run `/viewrule:review` explicitly while
+working, and use application CI for a required merge gate. Optional `pre-commit`
+and `pre-push` commands in the updated engine verify existing evidence for affected
+UI inputs. The current 0.7.1 pin does not include those commands; do not install or
+silently select another engine to enable them. See [Git gates and engine availability](../../docs/git-gates.md).
 
-Keep only one Viewrule Stop hook active. If using the older dotfiles hook, remove
-that specific entry from Claude settings when enabling this plugin. Preserve other
-hooks. The dotfiles `ui-review` CLI can remain installed for shell use.
+Run setup again after updating the plugin, even when the engine pin is unchanged.
+`setup --project <application-root>` removes recognized Viewrule Stop commands from
+`$CLAUDE_CONFIG_DIR/settings.json` (default `~/.claude/settings.json`) and from
+`.claude/settings.json` / `settings.local.json` in the application and its ancestors
+through the checkout root. It follows settings-file symlinks into dotfiles while
+preserving the links, file modes, permissions settings, and unrelated hooks.
+Repeated setup leaves already-migrated files untouched. The cleanup runs before
+engine installation, so a download/browser failure does not keep an old Stop gate.
+
+Setup reports removed handlers and remaining manual work in `stopHookMigration`.
+Combined shell commands, custom wrappers, invalid JSON, and unwritable files are
+reported for manual attention. It does not edit managed policy, other checkouts,
+custom `--settings` files, or old plugin caches. Remove only the confirmed Viewrule
+invocation from a custom handler, preserving any other checks. See
+[migration details](../../docs/git-gates.md#migrate-from-stop-enforcement).
+Updated plugin and standalone `hook` entrypoints are
+harmless compatibility no-ops, regardless of legacy `enforceOnStop` values. Reload
+the plugin and restart sessions that still hold the old hook registration. The
+dotfiles `ui-review` CLI can remain installed for shell use.
 
 The plugin inherits `VIEWRULE_CONFIG_DIR` (and its legacy alias), so personal defaults
 can remain in dotfiles. To keep the existing dotfiles preference location, set
@@ -103,20 +120,19 @@ Application configuration is local to each checkout. Commit `.ui-review/config.j
 scripts so new Git worktrees receive the intended contract. Setup does not propagate
 uncommitted files. Keep `runs/`, `latest.json`, and authentication state local; sharing
 the entire directory through a symlink can overwrite another checkout's evidence.
-The pinned engine and plugin hook discover the nearest configured parent within the
-current worktree. Use `--project <application-root>` to choose an exact root, or for
+Project commands discover the nearest configured parent within the current worktree. Use `--project <application-root>` to choose an exact root, or for
 project commands on engines older than 0.7.1. See
 [worktree setup and optional Git hooks](../../docs/worktrees.md).
 
 Runtime installs live under `$XDG_DATA_HOME/viewrule/claude-code`, falling back to
 `~/.local/share/viewrule/claude-code`. `VIEWRULE_PLUGIN_DATA_DIR` overrides that root;
-use the same environment for skills and hooks. Each engine version/checksum has its
+use the same environment for review and verification. Each engine version/checksum has its
 own directory. Downloads are verified before npm runs, install scripts are disabled,
 and a completed installation is moved into place atomically. Setup failure preserves
 older versions. Repeating setup reuses the engine and can retry browser installation.
 
 Update the marketplace and plugin through Claude's plugin manager, then reload and
-run setup if the engine pin changed. Maintainers bump the plugin manifest version for
+run setup to apply migrations and any changed engine pin. Maintainers bump the plugin manifest version for
 plugin changes; changing `engine.json` also requires that bump. The engine is released
 separately. Roll back using an earlier plugin checkout with `--plugin-dir`; its pin
 selects the corresponding retained engine. Rerun review after changing versions.

@@ -29,7 +29,7 @@ versions, executable SHA-256, and `coverage: "source-only"`. Its status uses the
 same advisory/blocking rules as `check`: exit 0 allows warnings, exit 1 means a
 configured blocking error, and exit 2 means an incomplete scan or setup failure.
 `renderedRequirements: "not-assessed"` stays explicit. `lint` writes no review state,
-approval, or captures and cannot satisfy an opted-in Stop hook.
+approval, or captures and cannot satisfy rendered-evidence verification.
 
 Use `lint` for source diagnostics; use `check` when rendered application requirements
 need verification. Agents should repair actionable findings within the user's scope.

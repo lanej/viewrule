@@ -3,7 +3,7 @@
 ## Application review
 
 1. **Initialize:** `viewrule init --url ...` creates `.ui-review` schema version 1
-   with Stop enforcement off and editable baseline rules. `--preset analytical`
+   with explicit review and editable baseline rules. `--preset analytical`
    starts a declared comparison workspace. Pick representative state and calibrate
    the starting thresholds; existing project rules remain unchanged.
 2. **Measure:** start the app, run `viewrule check`, and inspect the HTML report.
@@ -18,8 +18,9 @@
 5. **Learn:** write a rule and run `viewrule learn --feedback ID --rule FILE`.
    This validates supplied JSON and links provenance. It does not infer thresholds.
    Rejected and accepted examples establish whether a proposed rule helps.
-6. **Enforce:** opt into the Claude hook, or run the CLI in application CI.
-   Recheck after source, configuration, tool, data, or environment changes.
+6. **Deliver:** optionally verify staged/pushed UI inputs with a Git gate; run a full
+   review in application CI before merging. See [Git gates](git-gates.md). Recheck
+   after source, configuration, tool, data, or environment changes.
 
 Subjective feedback remains guidance. A false positive should prompt a scoped rule
 correction with an explanation; never silently loosen a rule solely to obtain a pass.
@@ -35,7 +36,7 @@ The plugin and engine have separate versions. A plugin release bumps
 URL and checksum in `engine.json` and bumps that plugin version too. Plugin-only
 changes do not require an engine release or a `[release]` commit. Setup never updates
 the pin or replaces a published engine. Dotfiles remains an optional installer and
-personal preference source; adopting the plugin requires removing any duplicate hook.
+personal preference source; rerun plugin setup to migrate obsolete Viewrule Stop registrations.
 
 The source repository and versioned GitHub Release tarballs are the initial
 distribution channels. npm registry publication is a separate future decision.
@@ -113,14 +114,14 @@ with `VIEWRULE_DEV_DIR`; unset it to resume the installed version. See
 integration removes its wrappers and installation directory only. Project rules,
 feedback, and approved references are retained unless the user deletes them.
 Run folders are disposable; remove obsolete runs when space is needed. After
-deleting a run referenced by `latest.json`, rerun before relying on its hook state.
+deleting a run referenced by `latest.json`, rerun before relying on verification.
 Viewrule does not delete shared Playwright browser caches on uninstall.
 
 ## Failure handling
 
 Invalid rules stop execution. Missing selectors fail unless explicitly optional.
 Incomplete detail coverage and navigation/capture errors fail. Stale or missing
-passing evidence blocks an opted-in hook. Install failures leave the prior version
+passing evidence fails explicit verification and an affected opt-in Git gate. Install failures leave the prior version
 active. Remediation advice never mutates source or evidence.
 
 First diagnose the report's actual selector, viewport, observation, and expectation.

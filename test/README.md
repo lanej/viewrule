@@ -13,7 +13,7 @@ These are specified test expectations using illustrative data, not user approval
 
 | State | Intentional condition | Required result |
 | --- | --- | --- |
-| `broken` | 18×18px export control; justified prose; left-aligned numeric amounts; 450px header; metric peers offset and overlapping; 12px table text; clipped carrier labels; hidden caption; wide viewport drops carrier 2 and changes the period | Specific control/prose/numeric findings plus header, alignment, overlap, type, label, context, identity-preservation, and period findings with the expected DR citations; Stop blocks |
+| `broken` | 18×18px export control; justified prose; left-aligned numeric amounts; 450px header; metric peers offset and overlapping; 12px table text; clipped carrier labels; hidden caption; wide viewport drops carrier 2 and changes the period | Specific control/prose/numeric findings plus header, alignment, overlap, type, label, context, identity-preservation, and period findings with the expected DR citations; verification fails |
 | `compact` | 440px comparison width, 14px data text, complete caption and labels; eight desktop rows and twelve at 4K | Fresh pass, zero warnings, preserved comparison identities, complete original-size 4K detail tiles |
 | `sidebar` | 440px table beside a trend and explanation panel, with the same comparisons and exact rules as compact | Zero errors/warnings and an identical contract hash; a different composition is permitted |
 | `stretched` | Same text and rows as compact; table alone expands to the full 4K width | Fails the text-distance rule at 4K while identity counts remain unchanged; desktop still passes |
@@ -36,7 +36,7 @@ The feedback portion learns a stricter text-distance limit from fixture feedback
 then checks the corrected layout; the same rule is retained for the stretched case.
 
 Installation checksum rejection, default guidance and personal overrides, configuration
-preservation, hook opt-in, report/reference preservation, and stale-result enforcement
+preservation, retired Stop compatibility, staged/pushed Git gates, report/reference preservation, and stale-result enforcement
 are exercised within this workflow. It does not assess chart truth, image-only content,
 model skill selection, or visual taste. `npm run demo` presents the same five layouts
 and their reports for human inspection using `templates/gallery.html`.
@@ -107,7 +107,10 @@ semantic density, complex map contrast, and recommendation quality remain human 
 ## Guide and original examples
 
 The same installed workflow retrieves one pattern and its evidence from an isolated
-plugin **before engine setup**, then checks identical Markdown through the packed
+plugin **before engine setup**, verifies setup removes legacy Stop handlers from
+mixed user/project settings while preserving dotfile symlinks, permissions, other
+hooks, and malformed files, and checks that repeated migration is a no-op. It then
+checks identical Markdown through the packed
 engine. Unknown IDs return usage failure. `npm run guide:check` handles the authoring
 contract and links; the Pages build is also a PR CI gate.
 
@@ -126,15 +129,15 @@ The installed review workflow ends with a two-scope application, shared inputs,
 a checkpoint, two real bundled providers, and required design documents. It
 verifies unchanged reuse, local invalidation, shared/global fan-out, cross-page
 failures involving reused evidence, provenance, damaged artifacts, full fallback,
-expiry, and Stop enforcement. Captures are observations, not snapshots. Actual
+expiry, and evidence verification. Captures are observations, not snapshots. Actual
 workload counts/timings and inputs are retained in
 `dist/review-evidence/incremental-workload.json`; they are not agent-cost estimates.
 The same workflow verifies plan/check agreement with deliberately unsorted rule IDs
 and checkpoint-symlink retargeting between byte-identical modules with distinct
 relative imports. Every possible target and helper is a declared input. Retargeting
-must invalidate Stop enforcement, rerun the affected page, and detect the changed
+must invalidate evidence verification, rerun the affected page, and detect the changed
 rendered encoding while preserving the other page's verified reused capture.
 
-The expanded installed workflow has a 240-second test-harness budget. This bounds
+The expanded installed workflow has a 360-second test-harness budget. This bounds
 the combined regression workload, not individual application captures or provider
 execution. Production timeout settings and all evidence assertions are unchanged.

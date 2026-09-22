@@ -331,7 +331,7 @@ test(
     await writeFile(rulesPath, JSON.stringify([rule]));
     const config = {
       ...JSON.parse(initialConfig),
-      sourcePaths: ["src"],
+      sourcePaths: ["./src/"],
       sourceChecks: [],
       accessibility: false,
       enforceOnStop: true,
@@ -345,10 +345,9 @@ test(
     const before = JSON.parse(checked.stdout).contract;
     const latestPath = path.join(project, ".ui-review/latest.json");
     const latest = await readFile(latestPath, "utf8");
-    const hookInput = JSON.stringify({ cwd: project });
-    const fresh = await cli(["hook"], hookInput);
+    const fresh = await cli(["verify"]);
     assert.equal(fresh.code, 0, fresh.stderr);
-    assert.deepEqual(JSON.parse(fresh.stdout), {});
+    assert.deepEqual(JSON.parse(fresh.stdout), { status: "pass" });
     await writeFile(
       designPath,
       authored + "\nThe reporting period must remain visible.\n",
@@ -361,9 +360,9 @@ test(
       after.documentChanges.map((change) => change.path),
       ["DESIGN.md"],
     );
-    const stale = await cli(["hook"], hookInput);
-    assert.equal(stale.code, 0, stale.stderr);
-    assert.equal(JSON.parse(stale.stdout).decision, "block");
+    const stale = await cli(["verify"]);
+    assert.equal(stale.code, 1, stale.stderr);
+    assert.equal(JSON.parse(stale.stdout).status, "fail");
     assert.equal(await readFile(latestPath, "utf8"), latest);
 
     // An existing optional configuration is not silently migrated by an audit.
@@ -515,11 +514,11 @@ test(
     for (const launcher of [engineLauncher, pluginLauncher]) {
       const missingEvidence = await worktreeCLI(
         childDirectory,
-        ["hook"],
+        ["verify"],
         JSON.stringify({ cwd: childDirectory }),
         launcher,
       );
-      assert.equal(JSON.parse(missingEvidence.stdout).decision, "block");
+      assert.equal(JSON.parse(missingEvidence.stdout).status, "fail");
     }
     const reviewed = await worktreeCLI(
       childDirectory,
@@ -537,12 +536,186 @@ test(
     for (const launcher of [engineLauncher, pluginLauncher]) {
       const freshEvidence = await worktreeCLI(
         childDirectory,
-        ["hook"],
+        ["verify"],
         JSON.stringify({ cwd: childDirectory }),
         launcher,
       );
-      assert.deepEqual(JSON.parse(freshEvidence.stdout), {});
+      assert.deepEqual(JSON.parse(freshEvidence.stdout), { status: "pass" });
     }
+    // Git delivery checks are opt-in and scoped, even when invoked below the root.
+    // A passing capture of an unstaged fix must never certify the broken index.
+    const linkedLatest = path.join(linked, ".ui-review/latest.json");
+    const linkedEvidence = await readFile(linkedLatest, "utf8");
+    const frontendFile = path.join(linked, "src/page.html");
+    const reviewedSource = await readFile(frontendFile, "utf8");
+    await writeFile(path.join(linked, "backend.txt"), "Backend-only work\n");
+    await git(linked, "add", "backend.txt");
+    await rename(linkedLatest, linkedLatest + ".saved");
+    const unrelatedCommit = await worktreeCLI(
+      childDirectory,
+      ["pre-commit"],
+      "",
+      pluginLauncher,
+    );
+    assert.equal(unrelatedCommit.code, 0, unrelatedCommit.stderr);
+    assert.equal(
+      JSON.parse(unrelatedCommit.stdout).status,
+      "skip",
+      "Backend-only commits do not need a UI report",
+    );
+    await rename(linkedLatest + ".saved", linkedLatest);
+    await writeFile(frontendFile, "<main>Broken staged UI</main>");
+    await git(linked, "add", "src/page.html");
+    await writeFile(frontendFile, reviewedSource);
+    const stagedBefore = (await git(linked, "diff", "--cached", "--binary"))
+      .stdout;
+    const partialCommit = await worktreeCLI(
+      childDirectory,
+      ["pre-commit"],
+      "",
+      pluginLauncher,
+    );
+    assert.equal(
+      partialCommit.code,
+      1,
+      partialCommit.stderr || partialCommit.stdout,
+    );
+    assert.match(
+      JSON.parse(partialCommit.stdout).projects[0].reason,
+      /differ from the Git index: src\/page.html/,
+    );
+    assert.equal(
+      (await git(linked, "diff", "--cached", "--binary")).stdout,
+      stagedBefore,
+      "Verification never changes the index",
+    );
+    assert.equal(await readFile(frontendFile, "utf8"), reviewedSource);
+    assert.equal(await readFile(linkedLatest, "utf8"), linkedEvidence);
+    // Commit the deliberately rejected fixture with the test repository's hooks disabled,
+    // then stage the already reviewed fix to exercise a real changed, passing index.
+    await git(linked, "commit", "-qm", "Rejected staged UI fixture");
+    const rejectedRevision = (
+      await git(linked, "rev-parse", "HEAD")
+    ).stdout.trim();
+    await git(linked, "add", "src/page.html");
+    const readyCommit = await worktreeCLI(
+      childDirectory,
+      ["pre-commit"],
+      "",
+      pluginLauncher,
+    );
+    assert.equal(readyCommit.code, 0, readyCommit.stderr || readyCommit.stdout);
+    assert.equal(JSON.parse(readyCommit.stdout).status, "pass");
+    await git(linked, "commit", "-qm", "Reviewed UI fixture");
+    const reviewedRevision = (
+      await git(linked, "rev-parse", "HEAD")
+    ).stdout.trim();
+    const readyPush = await worktreeCLI(
+      childDirectory,
+      ["pre-push", "review-test", "unused"],
+      `refs/heads/reviewed ${reviewedRevision} refs/heads/reviewed ${rejectedRevision}\n`,
+      pluginLauncher,
+    );
+    assert.equal(readyPush.code, 0, readyPush.stderr || readyPush.stdout);
+    assert.equal(JSON.parse(readyPush.stdout).status, "pass");
+    const otherPush = await worktreeCLI(
+      childDirectory,
+      ["pre-push", "review-test", "unused"],
+      `refs/heads/rejected ${rejectedRevision} refs/heads/rejected ${revision}\n`,
+      pluginLauncher,
+    );
+    assert.equal(otherPush.code, 1, otherPush.stderr || otherPush.stdout);
+    assert.match(
+      JSON.parse(otherPush.stdout).projects[0].reason,
+      /differ from refs\/heads\/rejected/,
+    );
+    // A first push of a backend-only branch uses the destination's known history.
+    await git(
+      linked,
+      "remote",
+      "add",
+      "review-test",
+      path.join(root, "unused-remote.git"),
+    );
+    await git(
+      linked,
+      "update-ref",
+      "refs/remotes/review-test/main",
+      reviewedRevision,
+    );
+    await writeFile(
+      path.join(linked, "backend.txt"),
+      "More backend-only work\n",
+    );
+    await git(linked, "add", "backend.txt");
+    await git(linked, "commit", "-qm", "Backend-only branch");
+    const backendRevision = (
+      await git(linked, "rev-parse", "HEAD")
+    ).stdout.trim();
+    await rename(linkedLatest, linkedLatest + ".saved");
+    const backendPush = await worktreeCLI(
+      childDirectory,
+      ["pre-push", "review-test", "unused"],
+      `refs/heads/backend ${backendRevision} refs/heads/backend ${"0".repeat(40)}\n`,
+      pluginLauncher,
+    );
+    assert.equal(backendPush.code, 0, backendPush.stderr || backendPush.stdout);
+    assert.equal(JSON.parse(backendPush.stdout).status, "skip");
+    await rename(linkedLatest + ".saved", linkedLatest);
+
+    // Select a nested application from the checkout root. Its own staged inputs
+    // require review while the root application's unrelated source stays skipped.
+    const nested = path.join(linked, "apps/web");
+    await mkdir(path.join(nested, ".ui-review"), { recursive: true });
+    await cp(path.join(linked, "src"), path.join(nested, "src"), {
+      recursive: true,
+    });
+    for (const file of [
+      ".ui-review/config.json",
+      ".ui-review/rules.json",
+      ".ui-review/.gitignore",
+      "DESIGN.md",
+    ])
+      await cp(path.join(linked, file), path.join(nested, file));
+    await git(linked, "add", "apps/web");
+    const unreviewedNested = await worktreeCLI(linked, [
+      "pre-commit",
+      "--project",
+      "apps/web",
+    ]);
+    assert.equal(
+      unreviewedNested.code,
+      1,
+      unreviewedNested.stderr || unreviewedNested.stdout,
+    );
+    const nestedReview = await worktreeCLI(
+      linked,
+      ["check", "--project", "apps/web"],
+      "",
+      pluginLauncher,
+    );
+    assert.equal(
+      nestedReview.code,
+      0,
+      nestedReview.stderr || nestedReview.stdout,
+    );
+    const nestedCommit = await worktreeCLI(
+      linked,
+      ["pre-commit", "--project", ".", "--project", "apps/web"],
+      "",
+      pluginLauncher,
+    );
+    assert.equal(
+      nestedCommit.code,
+      0,
+      nestedCommit.stderr || nestedCommit.stdout,
+    );
+    assert.deepEqual(
+      JSON.parse(nestedCommit.stdout).projects.map((result) => result.status),
+      ["skip", "pass"],
+    );
+    await git(linked, "commit", "-qm", "Reviewed nested application");
+
     // The shared discovery module lives outside src/ but still changes the engine
     // used to interpret a report. Its installed bytes must participate in freshness.
     const resolverFile = path.join(
@@ -556,10 +729,10 @@ test(
     );
     const changedEngine = await worktreeCLI(
       childDirectory,
-      ["hook"],
+      ["verify"],
       JSON.stringify({ cwd: childDirectory }),
     );
-    assert.equal(JSON.parse(changedEngine.stdout).decision, "block");
+    assert.equal(JSON.parse(changedEngine.stdout).status, "fail");
     await writeFile(resolverFile, resolverSource);
     await writeFile(
       path.join(childDirectory, "page.html"),
@@ -567,11 +740,11 @@ test(
     );
     const staleWorktree = await worktreeCLI(
       childDirectory,
-      ["hook"],
+      ["verify"],
       JSON.stringify({ cwd: childDirectory }),
       pluginLauncher,
     );
-    assert.equal(JSON.parse(staleWorktree.stdout).decision, "block");
+    assert.equal(JSON.parse(staleWorktree.stdout).status, "fail");
     assert.equal(await readFile(latestPath, "utf8"), mainState);
 
     // Discovery follows the current checkout after a Git-supported move.
@@ -593,11 +766,11 @@ test(
     for (const launcher of [engineLauncher, pluginLauncher]) {
       const sharedHook = await worktreeCLI(
         childDirectory,
-        ["hook"],
+        ["verify"],
         JSON.stringify({ cwd: childDirectory }),
         launcher,
       );
-      assert.equal(JSON.parse(sharedHook.stdout).decision, "block");
+      assert.equal(JSON.parse(sharedHook.stdout).status, "fail");
       assert.match(
         JSON.parse(sharedHook.stdout).reason,
         /\.ui-review.*outside the project/,

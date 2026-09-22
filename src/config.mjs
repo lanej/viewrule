@@ -156,15 +156,7 @@ export const configSchema = object(
       ]),
     },
   },
-  [
-    "version",
-    "baseURL",
-    "pages",
-    "viewports",
-    "sourcePaths",
-    "enforceOnStop",
-    "accessibility",
-  ],
+  ["version", "baseURL", "pages", "viewports", "sourcePaths", "accessibility"],
 );
 const common = {
   id: text,

@@ -21,7 +21,7 @@ const hiddenSourceDirectories = new Set([
 ]);
 const sourceExtension =
   /\.(?:html?|css|scss|sass|less|jsx?|tsx?|vue|svelte|astro|blade\.php)$/i;
-const contextFiles = [
+export const impeccableContextFiles = [
   ...["", ".agents/context", "docs"].flatMap((directory) =>
     ["DESIGN.md", "Design.md", "design.md", "DESIGN.json"].map((file) =>
       path.join(directory, file),
@@ -107,7 +107,7 @@ export async function impeccableContextFingerprint(starts) {
       ".impeccable",
       "apps",
       "packages",
-      ...contextFiles,
+      ...impeccableContextFiles,
     ]) {
       const file = path.join(directory, name);
       const info = await metadata(file);
@@ -117,7 +117,7 @@ export async function impeccableContextFingerprint(starts) {
           (info ? (info.isDirectory() ? "directory" : "file") : "missing") +
           "\0",
       );
-      if (info?.isFile() && contextFiles.includes(name))
+      if (info?.isFile() && impeccableContextFiles.includes(name))
         hash.update(await readFile(file));
     }
   }

@@ -12,8 +12,8 @@ rules and evidence while the engine performs deterministic checks.
 | Location | Owns | Does not own |
 | --- | --- | --- |
 | Viewrule repository | Engine, rule schema, design policy, reports, distribution, regression detector | Personal taste or application code |
-| `plugins/claude-code/` | Setup/review/feedback skills, pinned engine installation, Stop adapter | Measurement logic, model self-approval, application source repair logic |
-| Dotfiles | Installation choices, development-checkout override, personal preferences, optional legacy hook | A second copy of the engine |
+| `plugins/claude-code/` | Setup/review/feedback skills, pinned engine installation, legacy Stop migration | Measurement logic, model self-approval, application source repair logic |
+| Dotfiles | Installation choices, development-checkout override, personal preferences, legacy Stop-hook migration | A second copy of the engine |
 | Application `.ui-review/` | Routes, selectors, viewports, thresholds, recorded feedback, approved references | Global defaults for unrelated applications |
 
 Global configuration defaults to `$XDG_CONFIG_HOME/viewrule`, or `~/.config/viewrule`.
@@ -66,17 +66,18 @@ Preset assets are packaged with the engine and included in freshness fingerprint
 The self-contained Claude plugin is discovered through the root marketplace manifest.
 Its Node launcher downloads the exact `engine.json` archive, checks SHA-256 before
 installation, and uses a version/checksum directory outside the plugin cache.
-Downloads require explicit setup or browser installation. The hook has a preflight for unconfigured
-projects and then delegates freshness checks to the installed engine. The `docs`
+Downloads require explicit setup or browser installation. Retired Stop registrations return immediately, even before engine setup. The `docs`
 adapter command points skills at the matching installed policy and rule reference.
 Plugin cache files are immutable during setup; no parent-repository paths are needed.
 
 | Module | Responsibility |
 | --- | --- |
 | `src/presets.mjs`, `presets/` | Built-in guidance and validated editable starter rules |
-| `plugins/claude-code/scripts/viewrule.mjs` | Pinned installation, CLI delegation, documentation paths, missing-engine hook handling |
-| `bin/viewrule.mjs` | Executable, lightweight hook preflight, version, browser installation |
+| `plugins/claude-code/scripts/viewrule.mjs` | Pinned installation, CLI delegation, documentation paths, retired Stop compatibility |
+| `plugins/claude-code/scripts/migrate-stop.mjs` | Setup-time migration of known Viewrule Stop handlers in user and project settings |
+| `bin/viewrule.mjs` | Executable, retired Stop compatibility, version, browser installation |
 | `src/cli.mjs` | Command parsing and presentation |
+| `src/git-gate.mjs` | Optional staged/pushed input selection and comparison with reviewed working files |
 | `src/paths.mjs`, `plugins/claude-code/scripts/project.mjs` | User-config location, compatibility environment variables, and dependency-free project discovery shared with the isolated plugin |
 | `src/contract.mjs` | Effective pre-design boundaries, canonical hashes, snapshots, and report-to-report changes |
 | `src/changes.mjs` | Finding identities and approved-review deltas, including unassessed or incomparable evidence |
@@ -88,7 +89,7 @@ Plugin cache files are immutable during setup; no parent-repository paths are ne
 | `src/design.mjs` | Design policy loading, cross-viewport rules, citations, suggestions |
 | `src/report.mjs`, `src/templates/` | Report view models and escaped Mustache HTML reports/policy pages |
 | `src/types.d.ts` | Internal contracts for JavaScript static analysis; no emitted code |
-| `src/state.mjs` | Fingerprints, atomic state writes, feedback, learning, Stop decisions |
+| `src/state.mjs` | Fingerprints, atomic state writes, feedback, learning, evidence verification |
 
 Report markup lives in packaged HTML templates. Mustache escapes interpolated values;
 the policy body alone uses pre-escaped text with fixed paragraph/emphasis tags.
@@ -129,7 +130,7 @@ introduced. Advice cannot establish which decision factors the task requires.
 | `.ui-review/feedback.jsonl` | Append-only human feedback and provenance |
 | `.ui-review/approved/<id>/` | Exact report and screenshots approved by a human |
 | `.ui-review/runs/<id>/` | Disposable run: JSON, HTML, policy snapshot, overview, tiles |
-| `.ui-review/latest.json` | Running/pass/fail state and source fingerprint for the hook |
+| `.ui-review/latest.json` | Running/pass/fail state and source fingerprint for verification |
 | Global `rules.json`, `preferences.json`, `feedback.jsonl` | Deliberately reusable rules and notes |
 
 Global feedback does not copy project screenshots; prose can still contain private
@@ -150,12 +151,16 @@ within the DOM model. It cannot establish task relevance, unobstructed visibilit
 in every case, chart truth, or visual quality. Canvas, ancestor clipping, occlusion,
 and semantic metadata require additional review. Density remains a proxy.
 
-The Stop hook reads state and compares fingerprints; it does not launch a browser.
-Its continuation guard permits a subsequent stop to avoid loops. Use application
-CI and repository branch protection when a passing check must gate a merge.
-Viewrule supplies the exit code; repository owners configure required status checks.
+`verify` reads state and compares fingerprints without launching a browser. The
+optional Git gates in `src/git-gate.mjs` select affected application inputs, compare
+the relevant working bytes with the index or outgoing commit tree, and then call the
+same verifier. They preserve the index and working files. Stop registration is
+removed; old `hook` commands return `{}` without requiring an installed engine.
+Use application CI and repository branch protection when a passing review must gate
+merging. Viewrule supplies the exit code; repository owners configure the required
+status check. See [Git gates and migration](git-gates.md).
 
-Fingerprints cover configured source, local/global rules and preferences, engine
+Fingerprints cover configured source and runtime setup, local/global rules and preferences, engine
 files, package manifest, shrinkwrap, and design policy. They do not cover changing
 remote data, browser binaries, operating-system fonts, or a modified live server.
 Recheck after those change. A fingerprint is a freshness aid, not an attestation.

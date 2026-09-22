@@ -52,11 +52,11 @@ Enabled source-check providers must emit a JSON array or `{ "findings": [] }`
 to stdout. Exit codes 0 and 1 are accepted with valid JSON so linters can signal
 findings with exit 1. A clean scan must explicitly emit an empty array. Empty,
 whitespace-only, or malformed output fails review with setup exit code 2 and keeps
-the opted-in Stop hook blocked; it cannot resolve previously reported findings.
+evidence verification failing; it cannot resolve previously reported findings.
 
 Use `viewrule lint --target src` for a source-only scan without Chromium. New
 projects include bundled Impeccable diagnostics as advisory; source-only results
-never replace a rendered review or satisfy its Stop hook.
+never replace a rendered review or satisfy rendered-evidence verification.
 
 Use `format: "impeccable"` for the pinned Impeccable source detector. Its exit
 codes are different: 0 means no primary findings, 2 means primary findings, and
@@ -143,7 +143,7 @@ disabled for captures; fonts are awaited. Supply deterministic fixture data when
 comparing runs. Initial captures use light color scheme and reduced motion; this
 first version does not model interaction sequences, themes, or other browsers.
 
-`sourcePaths` are relative file/directory prefixes, not globs. They define freshness
+`sourcePaths` supports project-relative file/directory prefixes and include/exclude globs. They define freshness
 coverage: include all files that can affect your UI and fixture data. Default `.`
 covers Git-visible files; generated review output, dependencies, and build/cache
 directories are excluded. Without Git, the checker walks the project with those
@@ -322,12 +322,12 @@ reuse; `.ui-review/runs/` and `latest.json` are disposable and ignored.
 
 ## Claude and CI enforcement
 
-The configured Stop hook does nothing unless the current project has enabled
-`enforceOnStop: true`. It requires a passing result with a matching fingerprint
-of configured source files, local/global rules, and checker implementation. It
-does not run a browser on every stop. Claude's `stop_hook_active` continuation is
-allowed through to avoid loops; report unresolved errors honestly. This is an
-iteration aid, not an unbypassable enforcement boundary.
+`viewrule verify` requires a passing report with a matching fingerprint of configured
+source, runtime setup, local/global rules, and the checker implementation. It checks
+existing evidence without a browser. Optional `pre-commit` and `pre-push` commands
+first select affected UI inputs and match the reviewed files to the staged/pushed
+contents. The obsolete `enforceOnStop` field is accepted but ignored; conversational
+stops are never blocked. See [Git gates and engine availability](git-gates.md).
 
 For a required merge gate, install the pinned dependencies, install Chromium,
 start the app with fixtures, and run `viewrule check` in CI. Preserve the run
@@ -355,7 +355,7 @@ rule because it passes only the example used to invent it.
 
 References: [Tufte](https://www.edwardtufte.com/book/the-visual-display-of-quantitative-information/),
 [Playwright accessibility](https://playwright.dev/docs/accessibility-testing),
-[Claude hooks](https://code.claude.com/docs/en/hooks-guide).
+[Git gates and Stop migration](git-gates.md).
 
 
 ## Analytical decision surfaces

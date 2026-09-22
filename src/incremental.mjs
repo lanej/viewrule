@@ -158,7 +158,7 @@ export function evidenceAgeProblem(report, config) {
 }
 
 /** Inspect every required obligation before treating a stored pass as current.
- * The hook does not need a browser, a provider, or a new approval to verify this.
+ * Verification does not need a browser, a provider, or a new approval.
  * @param {string} project @param {import("./types.js").ProjectConfig} config */
 export async function storedEvidenceProblem(project, config) {
   const cache = await readCache(project);

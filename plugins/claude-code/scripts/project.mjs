@@ -2,7 +2,7 @@ import { lstat, realpath } from "node:fs/promises";
 import path from "node:path";
 
 // Shared by the isolated plugin and packaged CLI. Keep discovery dependency-free
-// so an unconfigured Stop hook does not need an installed engine or Git executable.
+// so resolving an application does not need an installed engine or Git executable.
 async function exists(file) {
   try {
     await lstat(file);

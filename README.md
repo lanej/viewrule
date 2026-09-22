@@ -159,9 +159,9 @@ actual feedback against a specific report.
 Claude can also select these skills when relevant. Repairs follow the scope of your
 request, and only human feedback can establish an approved visual reference.
 
-The plugin includes an opt-in Stop hook; installation leaves enforcement off.
-See the [plugin guide](https://github.com/lanej/viewrule/blob/main/plugins/claude-code/README.md)
-for configuration, existing dotfiles-hook migration, updates, and removal.
+The plugin leaves conversational stops unblocked. Use explicit review during UI work
+and opt-in Git gates or application CI for delivery. See [Git gates and Stop migration](docs/git-gates.md)
+and the [plugin guide](https://github.com/lanej/viewrule/blob/main/plugins/claude-code/README.md).
 
 ### CLI, other agents, or the demo
 
@@ -206,7 +206,7 @@ viewrule lint --target src
 This returns general diagnostics without a running app, browser, or agent review.
 New projects include Impeccable as an advisory provider; existing configurations
 are preserved. Source-only passes do not assess rendered requirements or satisfy
-the Stop hook. Run `check` when the application's layout, data presentation, or
+rendered-evidence verification. Run `check` when the application's layout, data presentation, or
 interaction requirements need verification. See [Impeccable integration](docs/impeccable.md)
 for configuration, findings, and deliberate enforcement.
 
@@ -313,11 +313,11 @@ preferences explicitly intended to apply across projects.
 | A check or capture fails | `1` |
 | Usage or configuration is invalid | `2` |
 
-Run the CLI in application CI for a required gate. The optional Claude Stop hook
-requires a current passing result when the application sets `enforceOnStop: true`;
-initial configs leave it off. It checks source/rule freshness without launching a
-browser. Its continuation guard prevents loops, so it is an iteration aid rather
-than a substitute for a required CI check. See [integrations](docs/integrations.md).
+Run the CLI in application CI for a required merge gate. Optional `pre-commit` and
+`pre-push` commands verify existing evidence only when declared UI inputs change.
+They check the staged or pushed contents against the reviewed files without starting
+a browser. `verify` checks evidence explicitly during development. Conversational
+stops are never blocked. See [Git gates, engine availability, and migration](docs/git-gates.md).
 
 ## How it is architected
 
@@ -326,8 +326,7 @@ configuration and rules; Impeccable supplies general source diagnostics, and axe
 supplies automated accessibility checks. It uses local
 JSON, JSONL, HTML, and PNG files, with no hosted service, database, model API, or
 telemetry. The configured application can make its own browser network requests.
-The Claude plugin packages skills, a release installer, and the existing Stop-hook
-protocol. It invokes the CLI and reads that engine version's docs; it does not copy
+The Claude plugin packages skills and a release installer. It invokes the CLI and reads that engine version's docs; it does not copy
 measurement logic. Using the plugin involves Claude's normal model service.
 
 ```mermaid
@@ -343,11 +342,11 @@ flowchart TD
 
 | Layer | Implementation and responsibility |
 | --- | --- |
-| Claude integration | `plugins/claude-code/`: task guidance, pinned setup, and Stop-hook adapter; `.claude-plugin/marketplace.json` provides discovery |
+| Claude integration | `plugins/claude-code/`: task guidance and pinned setup; `.claude-plugin/marketplace.json` provides discovery |
 | Entry and configuration | `bin/viewrule.mjs`, `src/cli.mjs`, `src/config.mjs`, `src/paths.mjs`: commands, schema validation, and configuration lookup |
 | Browser evidence | `src/review.mjs`, `src/capture.mjs`, `src/checks.mjs`: fresh contexts, geometry, styles, accessibility, and full-resolution tiles |
 | Design evaluation | `src/design.mjs`: policy loading, cross-viewport comparisons, coverage, citations, and remediation suggestions |
-| Reports and state | `src/report.mjs`, `src/templates/`, `src/state.mjs`: rendered reports, fingerprints, feedback provenance, approved references, and Stop decisions |
+| Reports and state | `src/report.mjs`, `src/templates/`, `src/state.mjs`: rendered reports, fingerprints, feedback provenance, approved references, and evidence verification |
 
 A check fingerprints scoped source and rules before and after capture; changes during
 the run fail it. Each page/viewport gets a fresh browser context. Observations are
