@@ -47,6 +47,56 @@ test(
     );
     const engine = path.join(installation, "node_modules/viewrule");
     const repository = path.resolve(import.meta.dirname, "..");
+
+    // Existing listeners and another checkout's preview must not prevent startup.
+    const occupied = createServer((req, res) => res.end("Other application"));
+    await new Promise((resolve, reject) => {
+      occupied.once("error", (error) =>
+        "code" in error && error.code === "EADDRINUSE"
+          ? resolve(undefined)
+          : reject(error),
+      );
+      occupied.listen(4173, "127.0.0.1", () => resolve(undefined));
+    });
+    t.after(() =>
+      occupied.listening
+        ? new Promise((resolve) => occupied.close(resolve))
+        : undefined,
+    );
+    const startPreview = () =>
+      new Promise((resolve, reject) => {
+        let output = "";
+        const child = execFile(
+          process.execPath,
+          [path.join(repository, "scripts/site.mjs"), "--serve"],
+          { cwd: repository, timeout: 30000 },
+          (error) => reject(error ?? new Error("Preview exited before ready")),
+        );
+        const closed = new Promise((done) => child.once("close", done));
+        const stop = () => {
+          child.kill();
+          return closed;
+        };
+        t.after(stop);
+        child.stdout.on("data", (chunk) => {
+          output += chunk;
+          const match = output.match(
+            /Preview: (http:\/\/127\.0\.0\.1:\d+\/rules\/)/,
+          );
+          if (match) resolve({ url: match[1], stop });
+        });
+      });
+    const firstPreview = await startPreview();
+    const secondPreview = await startPreview();
+    assert.notEqual(firstPreview.url, secondPreview.url);
+    for (const preview of [firstPreview, secondPreview]) {
+      assert.notEqual(new URL(preview.url).port, "4173");
+      const response = await fetch(preview.url);
+      assert.equal(response.status, 200);
+      assert.match(await response.text(), /Viewrule/);
+      await preview.stop();
+    }
+
     const project = path.join(root, "application");
     await mkdir(path.join(project, "src"), { recursive: true });
     await writeFile(
@@ -100,6 +150,7 @@ test(
     const env = {
       ...process.env,
       VIEWRULE_CONFIG_DIR: path.join(root, "global"),
+      VIEWRULE_BASE_URL: baseURL,
     };
     const cli = (args, input = "") =>
       new Promise((resolve, reject) => {
@@ -223,7 +274,7 @@ test(
       ruleIndex,
     );
 
-    const init = await cli(["init", "--url", baseURL]);
+    const init = await cli(["init"]);
     assert.equal(init.code, 0, init.stderr);
     const configPath = path.join(project, ".ui-review/config.json");
     const rulesPath = path.join(project, ".ui-review/rules.json");
@@ -232,6 +283,11 @@ test(
     const initialRules = await readFile(rulesPath, "utf8");
     assert.deepEqual(JSON.parse(initialConfig).projectDocuments, ["DESIGN.md"]);
     assert.equal(JSON.parse(initialConfig).enforceOnStop, false);
+    assert.equal(
+      Object.hasOwn(JSON.parse(initialConfig), "baseURL"),
+      false,
+      "New setup does not commit a machine-local development port",
+    );
     const scaffold = await readFile(designPath, "utf8");
     assert.match(scaffold, /viewrule:design-template/);
     await assert.rejects(readFile(path.join(project, "STYLE.md")), {
@@ -307,6 +363,55 @@ test(
       JSON.parse(contract.stdout).projectDocuments[0].content,
       authored,
     );
+    const runtimeURL = env.VIEWRULE_BASE_URL;
+    delete env.VIEWRULE_BASE_URL;
+    for (const command of ["plan", "check"]) {
+      const missingRuntimeURL = await cli([command]);
+      assert.equal(missingRuntimeURL.code, 2);
+      assert.match(missingRuntimeURL.stderr, /No application URL is available/);
+    }
+    const offlineContract = await cli(["contract"]);
+    assert.equal(offlineContract.code, 0, offlineContract.stderr);
+    const explicitRuntimeURL = await cli(["plan", "--url", baseURL]);
+    assert.equal(explicitRuntimeURL.code, 0, explicitRuntimeURL.stderr);
+    assert.deepEqual(JSON.parse(explicitRuntimeURL.stdout).target, {
+      baseURL: new URL(baseURL).href,
+      source: "argument",
+    });
+    env.VIEWRULE_BASE_URL = runtimeURL;
+    const credentialURL = await cli([
+      "plan",
+      "--url",
+      "http://fixture-user:fixture-secret@127.0.0.1/",
+    ]);
+    assert.equal(credentialURL.code, 2);
+    assert.match(credentialURL.stderr, /embedded credentials/);
+    assert.doesNotMatch(credentialURL.stderr, /fixture-secret/);
+    const invalidURL = await cli(["plan", "--url", ""]);
+    assert.equal(
+      invalidURL.code,
+      2,
+      "An empty override cannot select another server",
+    );
+    assert.match(invalidURL.stderr, /Invalid application URL from argument/);
+
+    // A legacy absolute route must not silently stay on the old worktree's port.
+    await writeFile(
+      configPath,
+      JSON.stringify({
+        ...JSON.parse(initialConfig),
+        baseURL,
+        pages: [{ name: "main", path: `${baseURL}/`, ready: "main" }],
+      }),
+    );
+    const wrongOrigin = await cli([
+      "plan",
+      "--url",
+      "http://other-worktree.invalid/",
+    ]);
+    assert.equal(wrongOrigin.code, 2);
+    assert.match(wrongOrigin.stderr, /Page paths must stay on baseURL origin/);
+    await writeFile(configPath, initialConfig);
     assert.equal((await cli(["init", "--documents"])).code, 2);
     assert.equal(await readFile(designPath, "utf8"), authored);
     assert.equal(await readFile(configPath, "utf8"), initialConfig);
@@ -336,19 +441,87 @@ test(
       accessibility: false,
       enforceOnStop: true,
       viewports: [{ name: "desktop", width: 800, height: 600 }],
+      reviewScopes: [{ name: "main", sourcePaths: ["src"], pages: ["main"] }],
+      evidenceReuse: { environmentKey: "contract-fixture", maxAgeMs: 3600000 },
     };
     await writeFile(configPath, JSON.stringify(config));
     if (browserPath === undefined) delete env.VIEWRULE_BROWSER_PATH;
     else env.VIEWRULE_BROWSER_PATH = browserPath;
     const checked = await cli(["check"]);
     assert.equal(checked.code, 0, checked.stderr || checked.stdout);
+    assert.equal(
+      JSON.parse(checked.stdout).targetBaseURL,
+      new URL(baseURL).href,
+    );
     const before = JSON.parse(checked.stdout).contract;
+    const firstReport = JSON.parse(
+      await readFile(JSON.parse(checked.stdout).report, "utf8"),
+    );
+    assert.equal(firstReport.targetBaseURL, new URL(baseURL).href);
+    assert.equal(Object.hasOwn(firstReport.contract.config, "baseURL"), false);
+    const reusablePlan = await cli(["plan", "--incremental"]);
+    assert.equal(reusablePlan.code, 0, reusablePlan.stderr);
+    assert.equal(JSON.parse(reusablePlan.stdout).browser.reuseCount, 1);
+
+    // A second live endpoint serves different rendered content with identical
+    // local inputs. It must be measured, even when the previous run can be reused.
+    const alternateServer = createServer((req, res) => {
+      res.setHeader("Content-Type", "text/html");
+      res.end(
+        '<!doctype html><html lang="en"><title>Other checkout</title><main><p style="font-size:8px">Different server</p></main></html>',
+      );
+    });
+    await new Promise((resolve) =>
+      alternateServer.listen(0, "127.0.0.1", () => resolve(undefined)),
+    );
+    t.after(() => new Promise((resolve) => alternateServer.close(resolve)));
+    const alternateAddress = alternateServer.address();
+    assert.ok(alternateAddress && typeof alternateAddress !== "string");
+    const alternateURL = `http://127.0.0.1:${alternateAddress.port}/`;
+    const changedTargetPlan = await cli([
+      "plan",
+      "--incremental",
+      "--url",
+      alternateURL,
+    ]);
+    assert.equal(changedTargetPlan.code, 0, changedTargetPlan.stderr);
+    assert.equal(JSON.parse(changedTargetPlan.stdout).browser.reuseCount, 0);
+    const changedTarget = await cli([
+      "check",
+      "--incremental",
+      "--url",
+      alternateURL,
+    ]);
+    assert.equal(
+      changedTarget.code,
+      1,
+      changedTarget.stderr || changedTarget.stdout,
+    );
+    const changedTargetReport = JSON.parse(
+      await readFile(JSON.parse(changedTarget.stdout).report, "utf8"),
+    );
+    assert.equal(changedTargetReport.targetBaseURL, alternateURL);
+    assert.equal(changedTargetReport.execution.browser.reused, 0);
+    assert.equal(changedTargetReport.pages[0].url, alternateURL);
+    const wrongServerFinding = changedTargetReport.pages[0].findings.find(
+      (finding) => finding.rule === rule.id,
+    );
+    assert.ok(wrongServerFinding);
+    assert.equal(wrongServerFinding.actual, 8);
+    assert.equal(wrongServerFinding.expected, 14);
+    assert.deepEqual(wrongServerFinding.designRules, ["DR-007"]);
+    assert.equal(changedTargetReport.contract.hash, before.hash);
+    assert.deepEqual(JSON.parse(await readFile(configPath, "utf8")), config);
+    const recovered = await cli(["check"]);
+    assert.equal(recovered.code, 0, recovered.stderr || recovered.stdout);
     const latestPath = path.join(project, ".ui-review/latest.json");
     const latest = await readFile(latestPath, "utf8");
     const hookInput = JSON.stringify({ cwd: project });
+    delete env.VIEWRULE_BASE_URL;
     const fresh = await cli(["hook"], hookInput);
     assert.equal(fresh.code, 0, fresh.stderr);
     assert.deepEqual(JSON.parse(fresh.stdout), {});
+    env.VIEWRULE_BASE_URL = runtimeURL;
     await writeFile(
       designPath,
       authored + "\nThe reporting period must remain visible.\n",
@@ -370,6 +543,7 @@ test(
     const legacy = path.join(root, "legacy");
     await mkdir(path.join(legacy, ".ui-review"), { recursive: true });
     const legacyConfig = { ...config };
+    legacyConfig.baseURL = alternateURL;
     delete legacyConfig.projectDocuments;
     const legacyConfigPath = path.join(legacy, ".ui-review/config.json");
     await writeFile(legacyConfigPath, JSON.stringify(legacyConfig));
@@ -383,6 +557,20 @@ test(
       JSON.parse(await readFile(legacyConfigPath, "utf8")),
       legacyConfig,
     );
+    const environmentPlan = await cli(["plan", "--project", legacy]);
+    assert.equal(environmentPlan.code, 0, environmentPlan.stderr);
+    assert.deepEqual(JSON.parse(environmentPlan.stdout).target, {
+      baseURL: new URL(baseURL).href,
+      source: "environment",
+    });
+    delete env.VIEWRULE_BASE_URL;
+    const configuredPlan = await cli(["plan", "--project", legacy]);
+    assert.equal(configuredPlan.code, 0, configuredPlan.stderr);
+    assert.deepEqual(JSON.parse(configuredPlan.stdout).target, {
+      baseURL: alternateURL,
+      source: "config",
+    });
+    env.VIEWRULE_BASE_URL = runtimeURL;
 
     // Adopting setup preserves an existing visual system and its optional companion.
     await writeFile(path.join(legacy, "DESIGN.md"), authored);

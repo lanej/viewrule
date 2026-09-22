@@ -1,5 +1,20 @@
 # Changelog
 
+## Unreleased
+
+- Treat the application server URL as runtime state instead of requiring a committed
+  development port. New `init` configurations omit `baseURL`; `check` and `plan`
+  resolve `--url`, then `VIEWRULE_BASE_URL`, then an existing configured `baseURL`.
+  Record the resolved target in review output and include it in incremental reuse
+  identity so evidence is not reused across different endpoints. Existing configs
+  remain compatible.
+- Let the local site preview bind an operating-system-assigned port and print its
+  actual URL, allowing concurrent previews without a fixed-port conflict.
+- Preserve URL credential and page-origin validation for runtime overrides, and
+  reject invalid explicit targets instead of falling back to another server.
+- Update Claude plugin 0.7.4 guidance with installed-engine capability checks; the
+  published engine pin stays unchanged until a separate engine release.
+
 ## 0.7.1 — 2026-09-22
 
 - Discover the nearest configured application for review commands and Stop hooks

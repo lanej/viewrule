@@ -288,7 +288,7 @@ if (process.argv.includes("--serve")) {
     ".woff": "font/woff",
     ".woff2": "font/woff2",
   };
-  createServer(async (request, response) => {
+  const server = createServer(async (request, response) => {
     try {
       if (!["GET", "HEAD"].includes(request.method)) {
         response.writeHead(405);
@@ -318,7 +318,11 @@ if (process.argv.includes("--serve")) {
       response.writeHead(404);
       response.end("Not found");
     }
-  }).listen(4173, "127.0.0.1", () =>
-    console.log("Preview: http://127.0.0.1:4173/rules/"),
-  );
+  });
+  server.listen(0, "127.0.0.1", () => {
+    const address = server.address();
+    if (!address || typeof address === "string")
+      throw new Error("Preview server did not bind a TCP port");
+    console.log(`Preview: http://127.0.0.1:${address.port}/rules/`);
+  });
 }

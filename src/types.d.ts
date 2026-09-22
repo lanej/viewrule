@@ -99,7 +99,7 @@ export interface SourceCheckResult {
 }
 export interface ProjectConfig {
   version: 1;
-  baseURL: string;
+  baseURL?: string;
   enforceOnStop: boolean;
   sourcePaths: Selection;
   reviewScopes?: ReviewScope[];
@@ -307,6 +307,7 @@ export interface ReviewReport {
   id: string;
   project: string;
   createdAt: string;
+  targetBaseURL: string;
   engineVersion: string;
   fingerprint: string;
   browserVersion?: string;

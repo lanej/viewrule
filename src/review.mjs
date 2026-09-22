@@ -30,12 +30,19 @@ import {
   evidenceAgeProblem,
 } from "./incremental.mjs";
 import { engineVersion, fileDigest } from "./fingerprints.mjs";
+import { runtimeConfig } from "./runtime-url.mjs";
 
-/** @param {string} project @param {string} globalDir @param {boolean} [incremental] */
-export async function runReview(project, globalDir, incremental = false) {
+/** @param {string} project @param {string} globalDir @param {boolean} [incremental] @param {string} [explicitURL] */
+export async function runReview(
+  project,
+  globalDir,
+  incremental = false,
+  explicitURL,
+) {
   project = await realpath(project);
   const contract = await readContract(project, globalDir);
-  const { config, rules } = contract;
+  const { config: contractConfig, rules } = contract;
+  const { config, target } = runtimeConfig(contractConfig, explicitURL);
   const before = await fingerprint(
     project,
     config,
@@ -44,7 +51,12 @@ export async function runReview(project, globalDir, incremental = false) {
   );
   const currentEngineVersion = await engineVersion();
   const plan = config.reviewScopes?.length
-    ? await executionPlan(project, globalDir, contract, incremental)
+    ? await executionPlan(
+        project,
+        globalDir,
+        { ...contract, config },
+        incremental,
+      )
     : null;
   const id =
     new Date().toISOString().replace(/[:.]/g, "-") +
@@ -66,6 +78,7 @@ export async function runReview(project, globalDir, incremental = false) {
     id,
     project,
     createdAt: new Date().toISOString(),
+    targetBaseURL: target.baseURL,
     engineVersion: currentEngineVersion,
     fingerprint: before,
     contract,

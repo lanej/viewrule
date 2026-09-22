@@ -31,17 +31,19 @@ import {
 const help = `viewrule — rendered UI checks and a versioned design feedback loop
 
   install-browser [--with-deps]       Install the pinned Chromium browser
-  init --url http://localhost:3000 [--preset baseline|analytical] [--documents]
+  init [--url URL] [--preset baseline|analytical] [--documents]
                                        Create config, starter rules, and a missing DESIGN.md scaffold; never overwrite
                                        New projects require an authored DESIGN.md; --documents also scaffolds STYLE.md
   preset --name baseline|analytical     Print starter rules for review or adaptation
-  plan [--incremental | --full]        Print resolved input and browser obligations; no checks or state writes
+  plan [--url URL] [--incremental | --full]
+                                       Print resolved input and browser obligations; no checks or state writes
   contract                             Validate required design prose; print constraints, documents, and changes
   schema [--type TYPE]                  Print the installed rule schema for authoring
   add-rule --rule FILE [--dry-run]      Validate and add a project rule; never replace an existing ID
   lint [--target PATH ...]             Run source diagnostics as JSON; no browser, project setup, or review state
                                        --target selects bundled Impeccable; otherwise use configured providers
-  check [--incremental | --full]       Validate the contract, capture pages, check rules, write HTML + JSON
+  check [--url URL] [--incremental | --full]
+                                       Validate the contract, capture pages, check rules, write HTML + JSON
   feedback --report PATH --decision approve|adjust --note TEXT [--scope project|global]
                                        Save feedback; approval preserves screenshots
   learn --feedback ID --rule FILE [--scope project|global]
@@ -54,6 +56,7 @@ Common: --project DIR (exact application root), --help, --version
 Default: nearest configured parent within this checkout; init and lint use cwd.
 Project files: DESIGN.md (required for new projects), STYLE.md (optional); .ui-review/config.json, rules.json, feedback.jsonl, approved/
 Global files: $XDG_CONFIG_HOME/viewrule (default ~/.config/viewrule)
+Runtime URL: --url URL, then VIEWRULE_BASE_URL, then legacy config baseURL.
 Override: VIEWRULE_CONFIG_DIR; UI_REVIEW_GLOBAL_DIR remains supported.
 Exit codes: 0 checks pass, 1 checks fail, 2 setup/configuration/usage error.
 See docs/ui-review.md for rule types and CI use; docs/project-documents.md for authoring and explicit migration.
@@ -95,6 +98,8 @@ try {
     throw new Error("Choose --incremental or --full, not both");
   if (args.target?.length && command !== "lint")
     throw new Error("--target is only supported by lint");
+  if (args.url !== undefined && !["init", "plan", "check"].includes(command))
+    throw new Error("--url is only supported by init, plan, and check");
   if (
     !args.help &&
     [
@@ -123,7 +128,7 @@ try {
       existingDocuments.some((document) => document.role === "style");
     const config = validateConfig({
       version: 1,
-      baseURL: args.url ?? "http://localhost:3000",
+      ...(args.url !== undefined ? { baseURL: args.url } : {}),
       enforceOnStop: false,
       sourcePaths: ["."],
       sourceChecks: [impeccableProvider()],
@@ -166,7 +171,7 @@ try {
     }
     const documents = await readProjectDocuments(project);
     console.log(
-      `Created ${dir}/config.json with editable ${args.preset ?? "baseline"} starter rules (existing rules and documents are preserved). Author DESIGN.md before contract/check; a scaffold is not a completed contract. Use /viewrule:design or docs/project-documents.md. Calibrate selectors, counts, and thresholds to the task. Stop enforcement is off until enforceOnStop is true. Project guidance: ${documents.map((document) => document.path).join(", ")}. Commit the setup files (.ui-review/config.json, rules.json, .gitignore, project documents, and any checkpoint scripts) to carry them into new Git worktrees. Runs, latest.json, and authentication state stay local; see docs/worktrees.md.`,
+      `Created ${dir}/config.json with editable ${args.preset ?? "baseline"} starter rules (existing rules and documents are preserved). Author DESIGN.md before contract/check; a scaffold is not a completed contract. Use /viewrule:design or docs/project-documents.md. Calibrate selectors, counts, and thresholds to the task. Stop enforcement is off until enforceOnStop is true. Project guidance: ${documents.map((document) => document.path).join(", ")}. Commit the setup files (.ui-review/config.json, rules.json, .gitignore, project documents, and any checkpoint scripts) to carry them into new Git worktrees. The application URL is runtime state unless you explicitly supplied --url; use check --url <actual-url> or VIEWRULE_BASE_URL for dynamically assigned development ports. Runs, latest.json, and authentication state stay local; see docs/worktrees.md.`,
     );
   } else if (command === "preset") {
     console.log(
@@ -175,7 +180,7 @@ try {
   } else if (command === "plan") {
     console.log(
       JSON.stringify(
-        await readPlan(project, globalDir, Boolean(args.incremental)),
+        await readPlan(project, globalDir, Boolean(args.incremental), args.url),
         null,
         2,
       ),
@@ -246,10 +251,12 @@ try {
       project,
       globalDir,
       Boolean(args.incremental),
+      args.url,
     );
     console.log(
       JSON.stringify({
         status: result.report.status,
+        targetBaseURL: result.report.targetBaseURL,
         ...result.report.summary,
         contract: {
           hash: result.report.contract.hash,
