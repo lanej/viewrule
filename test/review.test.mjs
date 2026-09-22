@@ -797,11 +797,8 @@ test(
     const installedPackage = JSON.parse(installedPackageText);
     await writeFile(
       installedPackagePath,
-      JSON.stringify(
-        { ...installedPackage, version: "9.9.9-test" },
-        null,
-        2,
-      ) + "\n",
+      JSON.stringify({ ...installedPackage, version: "9.9.9-test" }, null, 2) +
+        "\n",
     );
     const mismatchedHook = await hook();
     assert.equal(mismatchedHook.decision, "block");
