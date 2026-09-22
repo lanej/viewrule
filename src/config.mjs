@@ -398,10 +398,18 @@ export async function readJSON(file, fallback) {
   }
 }
 export async function loadProject(project, globalDir) {
-  const config = validateConfig(
-    await readJSON(path.join(project, ".ui-review/config.json")),
-    project,
-  );
+  const file = path.join(project, ".ui-review/config.json");
+  let raw;
+  try {
+    raw = await readJSON(file);
+  } catch (error) {
+    if (error.code !== "ENOENT") throw error;
+    throw new Error(
+      `No Viewrule configuration at ${file}. Run viewrule init in the application root, or restore its committed setup files. Git worktrees do not inherit uncommitted .ui-review files; see docs/worktrees.md.`,
+      { cause: error },
+    );
+  }
+  const config = validateConfig(raw, project);
   const local = await readJSON(path.join(project, ".ui-review/rules.json"), []);
   const rules = mergeRules(
     await readJSON(path.join(globalDir, "rules.json"), []),

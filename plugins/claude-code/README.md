@@ -97,6 +97,16 @@ override does not change the plugin engine.
 
 ## Storage, updates, and removal
 
+Application configuration is local to each checkout. Commit `.ui-review/config.json`,
+`rules.json`, its generated `.gitignore`, project documents, and supporting checkpoint
+scripts so new Git worktrees receive the intended contract. Setup does not propagate
+uncommitted files. Keep `runs/`, `latest.json`, and authentication state local; sharing
+the entire directory through a symlink can overwrite another checkout's evidence.
+The plugin hook discovers the nearest configured parent within the current worktree,
+including with an older pinned engine. Use `--project <application-root>` for project
+commands on older engines; CLI parent discovery ships with the corresponding engine
+update. See [worktree setup and optional Git hooks](../../docs/worktrees.md).
+
 Runtime installs live under `$XDG_DATA_HOME/viewrule/claude-code`, falling back to
 `~/.local/share/viewrule/claude-code`. `VIEWRULE_PLUGIN_DATA_DIR` overrides that root;
 use the same environment for skills and hooks. Each engine version/checksum has its

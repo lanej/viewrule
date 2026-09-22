@@ -12,6 +12,9 @@ import {
   rm,
   cp,
   symlink,
+  realpath,
+  lstat,
+  rename,
 } from "node:fs/promises";
 import { createServer } from "node:http";
 import { tmpdir } from "node:os";
@@ -405,5 +408,203 @@ test(
       JSON.parse(await readFile(legacyConfigPath, "utf8")).projectDocuments,
       ["DESIGN.md", "STYLE.md"],
     );
+
+    // Carry authored setup into a real linked worktree, then review from a child
+    // directory through both installed entrypoints. Runtime evidence stays local.
+    const git = (cwd, ...args) =>
+      promisify(execFile)(
+        "git",
+        [
+          "-c",
+          "core.hooksPath=/dev/null",
+          "-c",
+          "commit.gpgsign=false",
+          "-c",
+          "user.name=Viewrule test",
+          "-c",
+          "user.email=viewrule@example.invalid",
+          ...args,
+        ],
+        { cwd, env, timeout: 10000 },
+      );
+    const engineLauncher = path.join(engine, "bin/viewrule.mjs");
+    const pluginLauncher = path.join(plugin, "scripts/viewrule.mjs");
+    const worktreeCLI = (cwd, args, input = "", launcher = engineLauncher) =>
+      new Promise((resolve, reject) => {
+        const child = execFile(
+          process.execPath,
+          [launcher, ...args],
+          { cwd, env: pluginEnv, timeout: 45000 },
+          (error, stdout, stderr) => {
+            if (error && typeof error.code !== "number") return reject(error);
+            resolve({ code: error?.code ?? 0, stdout, stderr });
+          },
+        );
+        child.stdin.end(input);
+      });
+    await git(project, "init", "-q");
+    await git(project, "add", "src");
+    await git(project, "commit", "-qm", "Application before setup");
+    // Nest it physically below the configured checkout to catch discovery that
+    // crosses a .git file boundary and accidentally adopts the main checkout.
+    let linked = path.join(project, ".worktrees/feature checkout");
+    await git(project, "worktree", "add", "--detach", linked);
+    assert.ok((await lstat(path.join(linked, ".git"))).isFile());
+    const missingSetup = await worktreeCLI(linked, ["plan"]);
+    assert.equal(missingSetup.code, 2);
+    assert.match(missingSetup.stderr, /worktree|committed/i);
+    for (const launcher of [engineLauncher, pluginLauncher]) {
+      const unconfigured = await worktreeCLI(
+        linked,
+        ["hook"],
+        JSON.stringify({ cwd: linked }),
+        launcher,
+      );
+      assert.deepEqual(JSON.parse(unconfigured.stdout), {});
+    }
+    await git(
+      project,
+      "add",
+      ".ui-review/config.json",
+      ".ui-review/rules.json",
+      ".ui-review/.gitignore",
+      "DESIGN.md",
+    );
+    await git(
+      project,
+      "commit",
+      "-qm",
+      "Version the application review contract",
+    );
+    const revision = (await git(project, "rev-parse", "HEAD")).stdout.trim();
+    await git(linked, "checkout", "--detach", revision);
+    let childDirectory = path.join(linked, "src");
+    const plan = await worktreeCLI(childDirectory, ["plan"]);
+    assert.equal(plan.code, 0, plan.stderr);
+    assert.equal(JSON.parse(plan.stdout).project, await realpath(linked));
+    assert.equal(JSON.parse(plan.stdout).sources.inventory, "git");
+    assert.ok(
+      JSON.parse(plan.stdout).sources.files.some(
+        (file) => file.path === "src/page.html",
+      ),
+    );
+    const explicit = await worktreeCLI(childDirectory, [
+      "plan",
+      "--project",
+      ".",
+    ]);
+    assert.equal(explicit.code, 2, "An explicit project is an exact boundary");
+    const ignored = await git(
+      linked,
+      "check-ignore",
+      ".ui-review/latest.json",
+      ".ui-review/runs/sample/report.json",
+      ".ui-review/auth-local.json",
+    );
+    assert.equal(ignored.stdout.trim().split("\n").length, 3);
+    await assert.rejects(
+      git(
+        linked,
+        "check-ignore",
+        ".ui-review/config.json",
+        ".ui-review/rules.json",
+      ),
+      { code: 1 },
+    );
+    const mainState = await readFile(latestPath, "utf8");
+    for (const launcher of [engineLauncher, pluginLauncher]) {
+      const missingEvidence = await worktreeCLI(
+        childDirectory,
+        ["hook"],
+        JSON.stringify({ cwd: childDirectory }),
+        launcher,
+      );
+      assert.equal(JSON.parse(missingEvidence.stdout).decision, "block");
+    }
+    const reviewed = await worktreeCLI(
+      childDirectory,
+      ["check"],
+      "",
+      pluginLauncher,
+    );
+    assert.equal(reviewed.code, 0, reviewed.stderr || reviewed.stdout);
+    assert.ok(
+      JSON.parse(reviewed.stdout).report.startsWith(
+        path.join(await realpath(linked), ".ui-review/runs") + path.sep,
+      ),
+    );
+    assert.equal(await readFile(latestPath, "utf8"), mainState);
+    for (const launcher of [engineLauncher, pluginLauncher]) {
+      const freshEvidence = await worktreeCLI(
+        childDirectory,
+        ["hook"],
+        JSON.stringify({ cwd: childDirectory }),
+        launcher,
+      );
+      assert.deepEqual(JSON.parse(freshEvidence.stdout), {});
+    }
+    // The shared discovery module lives outside src/ but still changes the engine
+    // used to interpret a report. Its installed bytes must participate in freshness.
+    const resolverFile = path.join(
+      engine,
+      "plugins/claude-code/scripts/project.mjs",
+    );
+    const resolverSource = await readFile(resolverFile, "utf8");
+    await writeFile(
+      resolverFile,
+      resolverSource + "\n// Changed engine module\n",
+    );
+    const changedEngine = await worktreeCLI(
+      childDirectory,
+      ["hook"],
+      JSON.stringify({ cwd: childDirectory }),
+    );
+    assert.equal(JSON.parse(changedEngine.stdout).decision, "block");
+    await writeFile(resolverFile, resolverSource);
+    await writeFile(
+      path.join(childDirectory, "page.html"),
+      "<main>Changed worktree source</main>",
+    );
+    const staleWorktree = await worktreeCLI(
+      childDirectory,
+      ["hook"],
+      JSON.stringify({ cwd: childDirectory }),
+      pluginLauncher,
+    );
+    assert.equal(JSON.parse(staleWorktree.stdout).decision, "block");
+    assert.equal(await readFile(latestPath, "utf8"), mainState);
+
+    // Discovery follows the current checkout after a Git-supported move.
+    const moved = path.join(root, "moved checkout");
+    await git(project, "worktree", "move", linked, moved);
+    linked = moved;
+    childDirectory = path.join(linked, "src");
+    const movedPlan = await worktreeCLI(childDirectory, ["plan"]);
+    assert.equal(movedPlan.code, 0, movedPlan.stderr);
+    assert.equal(JSON.parse(movedPlan.stdout).project, await realpath(linked));
+
+    // The common symlink workaround must not overwrite another checkout's state.
+    const linkedReview = path.join(linked, ".ui-review");
+    await rename(linkedReview, linkedReview + ".saved");
+    await symlink(path.join(project, ".ui-review"), linkedReview, "dir");
+    const shared = await worktreeCLI(childDirectory, ["check"]);
+    assert.equal(shared.code, 2);
+    assert.match(shared.stderr, /\.ui-review.*outside the project/);
+    for (const launcher of [engineLauncher, pluginLauncher]) {
+      const sharedHook = await worktreeCLI(
+        childDirectory,
+        ["hook"],
+        JSON.stringify({ cwd: childDirectory }),
+        launcher,
+      );
+      assert.equal(JSON.parse(sharedHook.stdout).decision, "block");
+      assert.match(
+        JSON.parse(sharedHook.stdout).reason,
+        /\.ui-review.*outside the project/,
+      );
+    }
+    assert.equal(await readFile(latestPath, "utf8"), mainState);
+    await rm(linkedReview);
+    await rename(linkedReview + ".saved", linkedReview);
   },
 );

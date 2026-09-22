@@ -28,7 +28,8 @@
     "npm-shrinkwrap.json",
     "CHANGELOG.md",
     "plugins/claude-code/guide/",
-    "plugins/claude-code/scripts/guide.mjs"
+    "plugins/claude-code/scripts/guide.mjs",
+    "plugins/claude-code/scripts/project.mjs"
   ],
   "scripts": {
     "benchmark": "node scripts/benchmark.mjs",

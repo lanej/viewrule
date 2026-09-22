@@ -1,5 +1,18 @@
 # Changelog
 
+## Unreleased
+
+- Discover the nearest configured application for review commands and Stop hooks
+  without crossing a `.git` file or directory. Explicit `--project`, new-project
+  `init`, and source-only `lint` retain their exact-directory behavior.
+- Reject an entire `.ui-review` directory linked outside the application so
+  worktrees cannot overwrite each other's mutable evidence through that setup.
+  Include the shared project resolver in engine freshness checks.
+- Explain committed setup versus local evidence, improve missing-configuration
+  diagnostics, and cover real Git worktrees in the installed-package workflow.
+- Plugin 0.7.2 resolves nested hook directories before delegating to its existing
+  engine pin. The CLI changes require a future engine release; no pin is changed.
+
 ## 0.7.0 — 2026-09-17
 
 - Add native include/exclude globs for source files, project documents, and

@@ -27,6 +27,8 @@ viewrule check
 
 `init` never replaces an existing configuration. The checker does not execute
 application startup commands. It uses a fresh Chromium context for each capture.
+For linked checkouts, see [Git worktrees](worktrees.md): version the setup files,
+keep evidence local, and use `--project` to choose an exact application root.
 For an authenticated local app, set `storageState` to a local Playwright state
 file; `.ui-review/auth*.json` is ignored by the generated ignore file. Do not
 commit authentication state. `VIEWRULE_BROWSER_PATH` (legacy `UI_REVIEW_BROWSER_PATH`) can select an already

@@ -227,6 +227,10 @@ configs include desktop, wide, large, 4K, and mobile viewports; dimensions are *
 pixels**, not the monitor's hardware resolution. Use stable fixture data for comparisons.
 Viewrule does not start the application's server.
 
+Commit the calibrated setup and its generated `.ui-review/.gitignore` to carry it
+into new Git worktrees. Each checkout keeps its own run state. See
+[worktree setup, project discovery, and optional hooks](docs/worktrees.md).
+
 ### The default opinion
 
 `guidance` includes seven built-in preferences adapted from the original dotfiles:

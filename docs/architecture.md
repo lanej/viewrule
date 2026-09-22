@@ -77,7 +77,7 @@ Plugin cache files are immutable during setup; no parent-repository paths are ne
 | `plugins/claude-code/scripts/viewrule.mjs` | Pinned installation, CLI delegation, documentation paths, missing-engine hook handling |
 | `bin/viewrule.mjs` | Executable, lightweight hook preflight, version, browser installation |
 | `src/cli.mjs` | Command parsing and presentation |
-| `src/paths.mjs` | User-config location and compatibility environment variables |
+| `src/paths.mjs`, `plugins/claude-code/scripts/project.mjs` | User-config location, compatibility environment variables, and dependency-free project discovery shared with the isolated plugin |
 | `src/contract.mjs` | Effective pre-design boundaries, canonical hashes, snapshots, and report-to-report changes |
 | `src/changes.mjs` | Finding identities and approved-review deltas, including unassessed or incomparable evidence |
 | `src/scopes.mjs`, `src/source-scope.mjs`, `src/plan.mjs` | Shared selection, conservative input resolution, and read-only workload plans |
@@ -137,6 +137,11 @@ information. Rules are updated using an exclusive lock and atomic rename. Runs
 have unique directories; concurrent checks of one project are not a supported
 workflow. A process interrupted after setting `running` leaves enforcement blocked
 until a successful rerun.
+
+Git worktrees carry committed setup independently and keep mutable evidence in each
+application directory. Project discovery stops at either form of `.git` marker;
+the shared Git metadata directory never supplies application configuration. See
+[worktree setup and isolation](worktrees.md).
 
 ## Confidence and enforcement boundaries
 
