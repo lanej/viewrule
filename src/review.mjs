@@ -29,7 +29,7 @@ import {
   captureManifest,
   evidenceAgeProblem,
 } from "./incremental.mjs";
-import { fileDigest } from "./fingerprints.mjs";
+import { engineVersion, fileDigest } from "./fingerprints.mjs";
 
 /** @param {string} project @param {string} globalDir @param {boolean} [incremental] */
 export async function runReview(project, globalDir, incremental = false) {
@@ -42,6 +42,7 @@ export async function runReview(project, globalDir, incremental = false) {
     globalDir,
     contract.projectDocuments,
   );
+  const currentEngineVersion = await engineVersion();
   const plan = config.reviewScopes?.length
     ? await executionPlan(project, globalDir, contract, incremental)
     : null;
@@ -53,6 +54,7 @@ export async function runReview(project, globalDir, incremental = false) {
   await mkdir(dir, { recursive: true, mode: 0o700 });
   await writeJSON(path.join(project, ".ui-review/latest.json"), {
     status: "running",
+    engineVersion: currentEngineVersion,
     fingerprint: before,
     ...(contract.previousReportFile
       ? { reportFile: contract.previousReportFile }
@@ -64,6 +66,7 @@ export async function runReview(project, globalDir, incremental = false) {
     id,
     project,
     createdAt: new Date().toISOString(),
+    engineVersion: currentEngineVersion,
     fingerprint: before,
     contract,
     status: "fail",
@@ -371,6 +374,7 @@ export async function runReview(project, globalDir, incremental = false) {
   );
   await writeJSON(path.join(project, ".ui-review/latest.json"), {
     status: report.status,
+    engineVersion: currentEngineVersion,
     fingerprint: before,
     reportFile,
     ...(plan ? { reportSHA256: await fileDigest(reportFile) } : {}),
