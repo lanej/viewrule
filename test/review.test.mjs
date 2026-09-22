@@ -9,6 +9,8 @@ import {
   rm,
   cp,
   symlink,
+  lstat,
+  chmod,
 } from "node:fs/promises";
 import { createHash } from "node:crypto";
 import { tmpdir } from "node:os";
@@ -28,7 +30,7 @@ import {
 // One user workflow through the installed entrypoint; no helper/edge-case matrix.
 test(
   "Installed presets reject broken and stretched comparisons, accept distinct React layouts under one contract, and preserve feedback",
-  { timeout: 240000 },
+  { timeout: 360000 },
   async (t) => {
     const project = await mkdtemp(path.join(tmpdir(), "ui-review-"));
     t.after(() => rm(project, { recursive: true, force: true }));
@@ -231,6 +233,8 @@ test(
       VIEWRULE_CONFIG_DIR: globalDir,
       VIEWRULE_PLUGIN_DATA_DIR: runtime,
       CLAUDE_PLUGIN_ROOT: plugin,
+      CLAUDE_CONFIG_DIR: path.join(project, "claude user"),
+      CLAUDE_PROJECT_DIR: project,
     };
     const run = (command, args, input = "") =>
       new Promise((resolve, reject) => {
@@ -250,18 +254,24 @@ test(
         path.join(plugin, "scripts/viewrule.mjs"),
         ...args,
       ]);
-    const hookConfig = JSON.parse(
-      await readFile(path.join(plugin, "hooks/hooks.json"), "utf8"),
-    );
-    const hookCommand = hookConfig.hooks.Stop[0].hooks[0].command;
-    const hook = async (extra = {}) => {
+    await assert.rejects(readFile(path.join(plugin, "hooks/hooks.json")), {
+      code: "ENOENT",
+    });
+    const legacyHook = async (extra = {}) => {
       const result = await run(
-        "/bin/sh",
-        ["-c", hookCommand],
+        process.execPath,
+        [path.join(plugin, "scripts/viewrule.mjs"), "hook"],
         JSON.stringify({ cwd: project, ...extra }),
       );
       assert.equal(result.code, 0, result.stderr);
       return JSON.parse(result.stdout);
+    };
+    const verify = async (extra = {}) => {
+      const result = await cli(["verify", "--project", extra.cwd ?? project]);
+      assert.ok([0, 1].includes(result.code), result.stderr);
+      const output = JSON.parse(result.stdout);
+      assert.equal(result.code, output.status === "pass" ? 0 : 1);
+      return output;
     };
     // Offline guide retrieval works from an isolated plugin before setup.
     const guide = await cli(["guide"]);
@@ -282,16 +292,31 @@ test(
     assert.equal(evidenceGuide.code, 0, evidenceGuide.stderr);
     assert.ok(evidenceGuide.stdout.includes("https://carbondesignsystem.com/"));
     assert.equal((await cli(["guide", "../engine.json"])).code, 2);
-    assert.deepEqual(await hook(), {}, "Unconfigured hook needs no engine");
+    assert.deepEqual(
+      await legacyHook(),
+      {},
+      "Retired Stop command needs no engine",
+    );
     await writeFile(
       path.join(project, ".ui-review/config.json"),
       JSON.stringify({ enforceOnStop: true }),
     );
-    assert.match((await hook()).reason, /viewrule:setup/);
     assert.deepEqual(
-      await hook({ stop_hook_active: true }),
+      await legacyHook(),
       {},
-      "Continuation cannot loop on a missing engine",
+      "Retired Stop registration does not need an installed engine",
+    );
+    assert.deepEqual(
+      await legacyHook({ stop_hook_active: true }),
+      {},
+      "Retired Stop continuation cannot require an engine",
+    );
+    const prefixedHook = await cli(["--project", project, "hook"]);
+    assert.equal(prefixedHook.code, 0, prefixedHook.stderr);
+    assert.deepEqual(
+      JSON.parse(prefixedHook.stdout),
+      {},
+      "Legacy global options cannot delegate to an old blocking engine",
     );
     await rm(path.join(project, ".ui-review/config.json"));
     const rejected = await cli(["setup", "--skip-browser"]);
@@ -303,8 +328,128 @@ test(
       "Rejected download leaves no partial install",
     );
     corruptDownload = false;
-    const setup = await cli(["setup", "--skip-browser"]);
+    // Setup migrates old settings, including dotfile symlinks and a nested app,
+    // without removing other checks or requiring a new engine release.
+    const migrationRoot = path.join(project, "migration checkout");
+    const migrationApp = path.join(migrationRoot, "apps/web");
+    await mkdir(path.join(migrationRoot, ".claude"), { recursive: true });
+    await mkdir(path.join(migrationApp, ".claude"), { recursive: true });
+    assert.equal((await run("git", ["init", "-q", migrationRoot])).code, 0);
+    await mkdir(env.CLAUDE_CONFIG_DIR);
+    const userSettings = path.join(env.CLAUDE_CONFIG_DIR, "settings.json");
+    const dotfile = path.join(project, "dotfiles-settings.json");
+    const projectSettings = path.join(migrationRoot, ".claude/settings.json");
+    const localSettings = path.join(
+      migrationApp,
+      ".claude/settings.local.json",
+    );
+    const malformedSettings = path.join(migrationApp, ".claude/settings.json");
+    const unrelated = {
+      type: "command",
+      command: "node ./scripts/other-check.mjs",
+    };
+    const combined = {
+      type: "command",
+      command: "viewrule hook && other-check",
+    };
+    const retained = {
+      permissions: { allow: ["Bash(npm test)"] },
+      env: { APP_THEME: "light" },
+      hooks: {
+        Stop: [{ matcher: "", hooks: [unrelated, combined] }],
+        PostToolUse: [
+          { hooks: [{ type: "command", command: "viewrule hook" }] },
+        ],
+      },
+    };
+    const oldSettings = structuredClone(retained);
+    oldSettings.hooks.Stop[0].hooks.unshift({
+      type: "command",
+      command: 'node "${CLAUDE_PLUGIN_ROOT}/scripts/viewrule.mjs" hook',
+    });
+    await writeFile(dotfile, JSON.stringify(oldSettings));
+    await chmod(dotfile, 0o640);
+    await symlink(dotfile, userSettings);
+    await writeFile(
+      projectSettings,
+      JSON.stringify({
+        hooks: {
+          Stop: [
+            {
+              hooks: [
+                {
+                  type: "command",
+                  command: "ui-review --project apps/web hook",
+                },
+              ],
+            },
+          ],
+        },
+      }),
+    );
+    await writeFile(
+      localSettings,
+      JSON.stringify({
+        hooks: {
+          Stop: [
+            {
+              hooks: [
+                {
+                  type: "command",
+                  command: process.execPath,
+                  args: [path.join(plugin, "scripts/viewrule.mjs"), "hook"],
+                },
+              ],
+            },
+          ],
+        },
+      }),
+    );
+    await writeFile(malformedSettings, "{invalid JSON\n");
+    const setup = await cli([
+      "setup",
+      "--skip-browser",
+      "--project",
+      migrationApp,
+    ]);
     assert.equal(setup.code, 0, setup.stderr);
+    const migration = JSON.parse(setup.stdout).stopHookMigration;
+    assert.equal(migration.removed.length, 3);
+    assert.equal(
+      migration.removed.reduce((sum, file) => sum + file.count, 0),
+      3,
+    );
+    assert.equal(migration.manual.length, 2);
+    assert.deepEqual(
+      JSON.parse(await readFile(userSettings, "utf8")),
+      retained,
+    );
+    assert.ok((await lstat(userSettings)).isSymbolicLink());
+    assert.equal((await lstat(dotfile)).mode & 0o777, 0o640);
+    assert.deepEqual(JSON.parse(await readFile(projectSettings, "utf8")), {
+      hooks: {},
+    });
+    assert.deepEqual(JSON.parse(await readFile(localSettings, "utf8")), {
+      hooks: {},
+    });
+    assert.equal(await readFile(malformedSettings, "utf8"), "{invalid JSON\n");
+    const settingsAfter = await readFile(userSettings, "utf8");
+    const repeatSetup = await cli([
+      "setup",
+      "--skip-browser",
+      "--project",
+      migrationApp,
+    ]);
+    assert.equal(repeatSetup.code, 0, repeatSetup.stderr);
+    assert.deepEqual(
+      JSON.parse(repeatSetup.stdout).stopHookMigration.removed,
+      [],
+    );
+    assert.equal(
+      await readFile(userSettings, "utf8"),
+      settingsAfter,
+      "Migration is idempotent",
+    );
     assert.equal((await cli(["--version"])).stdout.trim(), pin.version);
     const packageGuide = await run(process.execPath, [
       path.join(JSON.parse(setup.stdout).engine, "bin/viewrule.mjs"),
@@ -481,7 +626,11 @@ test(
       ).enforceOnStop,
       false,
     );
-    assert.deepEqual(await hook(), {}, "Setup does not enable enforcement");
+    assert.deepEqual(
+      await legacyHook(),
+      {},
+      "Setup does not enable enforcement",
+    );
     assert.deepEqual(
       JSON.parse(
         await readFile(path.join(project, ".ui-review/config.json"), "utf8"),
@@ -711,8 +860,8 @@ test(
         (f) => f.rule === "analytical-numeric-alignment" && f.actual === "left",
       ),
     );
-    const blocked = await hook();
-    assert.equal(blocked.decision, "block");
+    const blocked = await verify();
+    assert.equal(blocked.status, "fail");
     assert.match(blocked.reason, /DR-007/);
 
     const note = await cli([
@@ -753,18 +902,18 @@ test(
     await writeFile(source, analyticalHtml("compact"));
     const good = await cli(["check"]);
     assert.equal(good.code, 0, good.stderr || good.stdout);
-    assert.deepEqual(await hook(), {});
+    assert.deepEqual(await verify(), { status: "pass" });
     const newlyMatched = path.join(project, "src/newly-matched.css");
     await writeFile(newlyMatched, "/* new dependency */\n");
     assert.equal(
-      (await hook()).decision,
-      "block",
+      (await verify()).status,
+      "fail",
       "New glob matches invalidate a passing capture",
     );
     await rm(newlyMatched);
     assert.deepEqual(
-      await hook(),
-      {},
+      await verify(),
+      { status: "pass" },
       "Removing the new match restores the original input set",
     );
     await mkdir(path.join(project, "src/generated"), { recursive: true });
@@ -773,8 +922,8 @@ test(
       "/* excluded */\n",
     );
     assert.deepEqual(
-      await hook(),
-      {},
+      await verify(),
+      { status: "pass" },
       "An excluded file does not invalidate unrelated evidence",
     );
     const output = JSON.parse(good.stdout);
@@ -797,20 +946,20 @@ test(
         2,
       ) + "\n",
     );
-    const mismatchedHook = await hook();
-    assert.equal(mismatchedHook.decision, "block");
+    const mismatchedReview = await verify();
+    assert.equal(mismatchedReview.status, "fail");
     assert.ok(
-      mismatchedHook.reason.includes(
+      mismatchedReview.reason.includes(
         "generated by viewrule engine v9.9.9-test",
       ),
     );
     assert.ok(
-      mismatchedHook.reason.includes(`Stop hook is running v${pin.version}`),
+      mismatchedReview.reason.includes(`verifier is running v${pin.version}`),
     );
     await writeFile(latestPath, latestAfterGoodText);
     assert.deepEqual(
-      await hook(),
-      {},
+      await verify(),
+      { status: "pass" },
       "Restoring the report-generating engine version restores the pass",
     );
     const changedDistance = report.contract.changes.find(
@@ -890,8 +1039,8 @@ test(
 
     await writeFile(source, analyticalHtml("stretched"));
     assert.equal(
-      (await hook()).decision,
-      "block",
+      (await verify()).status,
+      "fail",
       "Source changes invalidate the passing review",
     );
     const stretched = await cli(["check"]);
@@ -955,7 +1104,7 @@ test(
       { errors: 0, warnings: 0 },
       "Useful surrounding whitespace is allowed",
     );
-    assert.deepEqual(await hook(), {});
+    assert.deepEqual(await verify(), { status: "pass" });
     assert.equal(
       finiteReport.contract.changes.find(
         (change) => change.id === "analytical-comparisons",
@@ -974,8 +1123,8 @@ test(
       originalTemplate + "\n<!-- changed report template -->\n",
     );
     assert.equal(
-      (await hook()).decision,
-      "block",
+      (await verify()).status,
+      "fail",
       "Template edits invalidate passing evidence",
     );
     await writeFile(installedTemplate, originalTemplate);
@@ -3181,7 +3330,7 @@ test(
     );
     assert.equal(interrupted.status, "running");
     assert.equal(interrupted.reportFile, JSON.parse(removed.stdout).report);
-    assert.equal((await hook()).decision, "block");
+    assert.equal((await verify()).status, "fail");
 
     await writeFile(diagnosticsPath, "[]");
     await writeFile(
@@ -3202,7 +3351,7 @@ test(
         .reason,
       /dimensions differ/,
     );
-    assert.deepEqual(await hook(), {});
+    assert.deepEqual(await verify(), { status: "pass" });
 
     // A pinned real Impeccable source scan has different exit codes from generic providers.
     const impeccablePackage = JSON.parse(
@@ -3268,7 +3417,7 @@ test(
     );
     const rejectedSource = await cli(["check"]);
     assert.equal(rejectedSource.code, 1, rejectedSource.stderr);
-    assert.equal((await hook()).decision, "block");
+    assert.equal((await verify()).status, "fail");
     const rejectedLint = await cli(["lint"]);
     assert.equal(rejectedLint.code, 1, rejectedLint.stderr);
     assert.equal(JSON.parse(rejectedLint.stdout).errors, 1);
@@ -3285,7 +3434,7 @@ test(
       priorState,
       "Source-only passes never replace rendered review state",
     );
-    assert.equal((await hook()).decision, "block");
+    assert.equal((await verify()).status, "fail");
     const acceptedSource = await cli(["check"]);
     assert.equal(acceptedSource.code, 0, acceptedSource.stderr);
     const acceptedSourceReport = JSON.parse(
@@ -3293,14 +3442,14 @@ test(
     );
     assert.equal(acceptedSourceReport.sourceChecks[0].execution.code, 0);
     assert.deepEqual(acceptedSourceReport.sourceChecks[0].findings, []);
-    assert.deepEqual(await hook(), {});
+    assert.deepEqual(await verify(), { status: "pass" });
     await writeFile(
       providerSource,
       "body { font-family: Georgia, serif; }\n/* changed generated source */\n",
     );
     assert.equal(
-      (await hook()).decision,
-      "block",
+      (await verify()).status,
+      "fail",
       "Explicit detector targets remain tracked outside normal source scope",
     );
     impeccableProvider.noConfig = false;
@@ -3317,7 +3466,7 @@ test(
     );
     const contextualSource = await cli(["check"]);
     assert.equal(contextualSource.code, 0, contextualSource.stderr);
-    assert.deepEqual(await hook(), {});
+    assert.deepEqual(await verify(), { status: "pass" });
     await writeFile(detectorDesign, fontContract("Palatino"));
     const changedDesignLint = await cli(["lint"]);
     assert.equal(changedDesignLint.code, 1, changedDesignLint.stderr);
@@ -3327,29 +3476,29 @@ test(
       ),
     );
     assert.equal(
-      (await hook()).decision,
-      "block",
+      (await verify()).status,
+      "fail",
       "A changed fallback design document cannot reuse the earlier passing review",
     );
     await writeFile(detectorDesign, fontContract("Georgia"));
-    assert.deepEqual(await hook(), {});
+    assert.deepEqual(await verify(), { status: "pass" });
     const nearerDesign = path.join(project, "dist/DESIGN.md");
     await writeFile(nearerDesign, fontContract("Palatino"));
     assert.equal(
-      (await hook()).decision,
-      "block",
+      (await verify()).status,
+      "fail",
       "Creating a nearer design document invalidates the old context",
     );
     await rm(nearerDesign);
-    assert.deepEqual(await hook(), {});
+    assert.deepEqual(await verify(), { status: "pass" });
     await mkdir(path.join(project, ".impeccable"), { recursive: true });
     await writeFile(
       path.join(project, ".impeccable/config.local.json"),
       '{"detector":{"ignoreRules":["overused-font"]}}\n',
     );
     assert.equal(
-      (await hook()).decision,
-      "block",
+      (await verify()).status,
+      "fail",
       "Ignored local Impeccable settings invalidate rendered checks",
     );
     await rm(providerSource);
@@ -3358,7 +3507,7 @@ test(
     const failedSource = await cli(["check"]);
     assert.equal(failedSource.code, 2, failedSource.stdout);
     assert.match(failedSource.stderr, /provider impeccable failed with exit 1/);
-    assert.equal((await hook()).decision, "block");
+    assert.equal((await verify()).status, "fail");
 
     // One rejected/passing chart boundary pair through the installed CLI.
     await writeFile(
@@ -3730,7 +3879,9 @@ test(
       executed: 2,
       reused: 0,
     });
-    assert.deepEqual(await hook({ cwd: incrementalProject }), {});
+    assert.deepEqual(await verify({ cwd: incrementalProject }), {
+      status: "pass",
+    });
     const scopeLatest = path.join(incrementalProject, ".ui-review/latest.json");
     const beforePlan = await readFile(scopeLatest, "utf8");
     const runsBeforePlan = await readdir(
@@ -3800,7 +3951,7 @@ test(
     assert.ok(
       authPlan.sourceChecks.every((provider) => provider.action === "run"),
     );
-    assert.equal((await hook({ cwd: incrementalProject })).decision, "block");
+    assert.equal((await verify({ cwd: incrementalProject })).status, "fail");
     await writeFile(incrementalStorageFile, incrementalStorage);
     await writeFile(incrementalSetupFile, `${incrementalSetup}\n`);
     const setupPlan = await scopePlan();
@@ -3951,7 +4102,9 @@ test(
         .runId,
       fullScopeRun.report.id,
     );
-    assert.deepEqual(await hook({ cwd: incrementalProject }), {});
+    assert.deepEqual(await verify({ cwd: incrementalProject }), {
+      status: "pass",
+    });
     await writeFile(
       path.join(incrementalProject, "src/a/index.html"),
       incrementalHTML("a changed", "different"),
@@ -3971,7 +4124,7 @@ test(
       ),
       "Cross-page rules must reevaluate reused observations against changed pages",
     );
-    assert.equal((await hook({ cwd: incrementalProject })).decision, "block");
+    assert.equal((await verify({ cwd: incrementalProject })).status, "fail");
     await writeFile(
       path.join(incrementalProject, "src/a/index.html"),
       incrementalHTML("a changed"),
@@ -3992,7 +4145,7 @@ test(
       ),
       "corrupt evidence",
     );
-    assert.equal((await hook({ cwd: incrementalProject })).decision, "block");
+    assert.equal((await verify({ cwd: incrementalProject })).status, "fail");
     assert.equal(
       (await scopePlan()).browser.captureCount,
       1,
@@ -4009,12 +4162,14 @@ test(
     );
     // Damaged comparison history must not prevent a new complete review.
     await writeFile(restoredEvidence.reportFile, "{invalid report");
-    assert.equal((await hook({ cwd: incrementalProject })).decision, "block");
+    assert.equal((await verify({ cwd: incrementalProject })).status, "fail");
     assert.equal((await scopePlan()).browser.captureCount, 2);
     const repairedReport = await scopeCheck("recover-invalid-report");
     assert.equal(repairedReport.report.execution.browser.executed, 2);
     assert.equal(repairedReport.report.execution.sourceChecks.executed, 2);
-    assert.deepEqual(await hook({ cwd: incrementalProject }), {});
+    assert.deepEqual(await verify({ cwd: incrementalProject }), {
+      status: "pass",
+    });
     // Both destinations and all relative imports are declared inputs. Only the
     // checkpoint link changes; identical module bytes must not preserve a pass.
     const linkedSetup =
@@ -4049,7 +4204,9 @@ test(
     const linkedRun = await scopeCheck("checkpoint-link", "--full");
     const linkedPlan = await scopePlan();
     assert.equal(linkedPlan.browser.captureCount, 0);
-    assert.deepEqual(await hook({ cwd: incrementalProject }), {});
+    assert.deepEqual(await verify({ cwd: incrementalProject }), {
+      status: "pass",
+    });
     const linkedInputs = linkedPlan.reviewScopes.find(
       (scope) => scope.name === "a",
     ).inputs;
@@ -4064,7 +4221,7 @@ test(
     await rm(checkpointLink);
     await symlink("checkpoints/b/setup.mjs", checkpointLink);
     assert.equal(await readFile(checkpointLink, "utf8"), linkedSetup);
-    assert.equal((await hook({ cwd: incrementalProject })).decision, "block");
+    assert.equal((await verify({ cwd: incrementalProject })).status, "fail");
     const retargetedPlan = await scopePlan();
     assert.equal(retargetedPlan.browser.captureCount, 1);
     assert.equal(
@@ -4114,7 +4271,7 @@ test(
       ),
       "Copied artifacts keep byte-only checksum semantics",
     );
-    assert.equal((await hook({ cwd: incrementalProject })).decision, "block");
+    assert.equal((await verify({ cwd: incrementalProject })).status, "fail");
     // Real elapsed time, without editing a passing report to manufacture expiry.
     await writeIncrementalConfig({
       ...incrementalConfig,
@@ -4140,7 +4297,7 @@ test(
         .filter((scope) => scope.name !== "shared")
         .every((scope) => /expired/.test(scope.reason)),
     );
-    assert.match((await hook({ cwd: incrementalProject })).reason, /expired/);
+    assert.match((await verify({ cwd: incrementalProject })).reason, /expired/);
     const workloadDirectory = path.join(repository, "dist/review-evidence");
     await mkdir(workloadDirectory, { recursive: true });
     await writeFile(

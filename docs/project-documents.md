@@ -89,7 +89,8 @@ that every required concern or application behavior has been verified.
 
 `lint` remains independent: it returns source-only diagnostics, does not validate
 design prose, and never creates rendered evidence or satisfies a rendered review.
-Opt-in Stop enforcement and existing exit-code meanings are unchanged.
+Document checks participate in explicit review and optional Git gates; existing
+review exit-code meanings are unchanged. See [Git gates and Stop migration](git-gates.md).
 
 ## Connect requirements to checks
 

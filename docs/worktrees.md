@@ -45,12 +45,13 @@ Published engine 0.7.1 uses configured `baseURL`; follow the
 
 ## Project paths and evidence
 
-Without `--project`, review commands and the Stop hook find the nearest ancestor
+Without `--project`, review and verification commands find the nearest ancestor
 containing `.ui-review/config.json`. Discovery stops at a `.git` **file or directory**,
 so it stays inside a linked worktree, submodule, or normal checkout. It never follows
 the Git common directory back to the main checkout. A nearer configured application
 in a monorepo takes precedence. With no configuration, the original working directory
-remains the target and the Stop hook remains unconfigured.
+remains the target. Git hooks should explicitly name nested applications with
+`--project apps/web`; see [optional Git gates](git-gates.md).
 
 `--project DIR` selects exactly that application root. `init` and source-only `lint`
 also retain the current directory by default, so creating a nested application or

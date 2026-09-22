@@ -10,12 +10,12 @@ For a request limited to automated source diagnostics, inspect the installed
 engine's `--help` once. If it supports `lint`, run `lint --target <UI source>` and
 report its findings and source-only coverage; no guide-reading or full visual
 critique is needed for that task. A clean source scan does not assess application
-rules or satisfy the Stop hook. Use the rendered workflow below when the request
+rules or satisfy rendered-evidence verification. Use the rendered workflow below when the request
 includes layout, interaction, comparison requirements, or visual review. Engines
 without `lint` predate the bundled integration; state that limitation and use only
 capabilities present in their installed help and documentation. Older engines through
 0.5.1 also predate the Impeccable-specific command adapter. Do not
-install or download a newer engine during a check or Stop hook.
+install or download a newer engine during a check or verification.
 
 For substantive rendered work, read
 `${CLAUDE_PLUGIN_ROOT}/skills/review/component-composition.md` once for the task.

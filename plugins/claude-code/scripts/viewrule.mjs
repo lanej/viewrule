@@ -12,10 +12,11 @@ import { createHash } from "node:crypto";
 import { spawnSync } from "node:child_process";
 import { homedir } from "node:os";
 import path from "node:path";
-import { findProject, assertLocalReviewDirectory } from "./project.mjs";
+import { parseArgs } from "node:util";
+import { isLegacyHook } from "./project.mjs";
 
 const args = process.argv.slice(2);
-const isHook = args.length === 1 && args[0] === "hook";
+const isHook = isLegacyHook(args);
 const json = async (file) => JSON.parse(await readFile(file, "utf8"));
 const data = path.resolve(
   process.env.VIEWRULE_PLUGIN_DATA_DIR ||
@@ -119,27 +120,8 @@ async function main() {
     const { printGuide } = await import("./guide.mjs");
     return printGuide(args.slice(1));
   }
-  // Unconfigured projects and hook continuations never require an installed engine.
-  let input;
-  if (isHook) {
-    input = "";
-    for await (const chunk of process.stdin) input += chunk;
-    const payload = JSON.parse(input);
-    if (!payload || typeof payload !== "object")
-      throw new Error("Expected a hook payload object");
-    if (!payload.cwd || payload.stop_hook_active) return console.log("{}");
-    payload.cwd = await findProject(payload.cwd);
-    let config;
-    try {
-      config = await json(path.join(payload.cwd, ".ui-review/config.json"));
-    } catch (err) {
-      if (err.code !== "ENOENT") throw err;
-    }
-    if (!config || config.enforceOnStop === false) return console.log("{}");
-    await assertLocalReviewDirectory(payload.cwd);
-    // Older pinned engines also receive the resolved application root.
-    input = JSON.stringify(payload);
-  }
+  // Handle old manual registrations before loading the still-pinned engine.
+  if (isHook) return console.log("{}");
   if (Number(process.versions.node.split(".")[0]) < 22)
     throw new Error("Node.js 22 or newer is required");
   const pin = await json(new URL("../engine.json", import.meta.url));
@@ -153,22 +135,42 @@ async function main() {
   const engine = path.join(root, "node_modules/viewrule");
   const launcher = path.join(engine, "bin/viewrule.mjs");
   if (args[0] === "setup") {
-    if (
-      args
-        .slice(1)
-        .some((arg) => !["--skip-browser", "--with-deps"].includes(arg)) ||
-      (args.includes("--skip-browser") && args.includes("--with-deps"))
-    ) {
-      throw new Error("Usage: setup [--skip-browser | --with-deps]");
-    }
+    const { values } = parseArgs({
+      args: args.slice(1),
+      options: {
+        project: { type: "string" },
+        "skip-browser": { type: "boolean" },
+        "with-deps": { type: "boolean" },
+      },
+    });
+    if (values["skip-browser"] && values["with-deps"])
+      throw new Error(
+        "Usage: setup [--project DIR] [--skip-browser | --with-deps]",
+      );
+    const { migrateStopHooks } = await import("./migrate-stop.mjs");
+    const stopHookMigration = await migrateStopHooks(
+      path.resolve(
+        values.project ?? process.env.CLAUDE_PROJECT_DIR ?? process.cwd(),
+      ),
+    );
+    for (const { file, count } of stopHookMigration.removed)
+      console.error(
+        `Removed ${count} legacy Viewrule Stop hook(s) from ${file}.`,
+      );
+    for (const { file, reason } of stopHookMigration.manual)
+      console.error(`Viewrule Stop migration: ${file}: ${reason}`);
+    if (stopHookMigration.removed.length)
+      console.error(
+        "Restart Claude sessions that still hold the old Stop registration.",
+      );
     await install(root, pin);
-    if (!args.includes("--skip-browser")) {
+    if (!values["skip-browser"]) {
       const result = spawnSync(
         process.execPath,
         [
           launcher,
           "install-browser",
-          ...args.filter((arg) => arg === "--with-deps"),
+          ...(values["with-deps"] ? ["--with-deps"] : []),
         ],
         { stdio: ["ignore", 2, 2] },
       );
@@ -182,7 +184,8 @@ async function main() {
       JSON.stringify({
         version: pin.version,
         engine,
-        browser: args.includes("--skip-browser") ? "skipped" : "installed",
+        browser: values["skip-browser"] ? "skipped" : "installed",
+        stopHookMigration,
       }),
     );
     return;
@@ -200,20 +203,6 @@ async function main() {
         authoring: path.join(engine, "docs/rule-authoring.md"),
       }),
     );
-  } else if (isHook) {
-    const result = spawnSync(process.execPath, [launcher, "hook"], {
-      input,
-      encoding: "utf8",
-      timeout: 25000,
-    });
-    if (result.error) throw result.error;
-    if (result.status !== 0)
-      throw new Error(result.stderr || "Engine hook failed");
-    const decision = JSON.parse(result.stdout);
-    if (decision.decision === "block")
-      decision.reason +=
-        " Use /viewrule:review to run the plugin's pinned engine.";
-    console.log(JSON.stringify(decision));
   } else {
     const result = spawnSync(process.execPath, [launcher, ...args], {
       stdio: "inherit",
@@ -226,15 +215,6 @@ async function main() {
 try {
   await main();
 } catch (err) {
-  if (isHook)
-    console.log(
-      JSON.stringify({
-        decision: "block",
-        reason: `Viewrule could not verify this project: ${err.message}`,
-      }),
-    );
-  else {
-    console.error(`viewrule plugin: ${err.message}`);
-    process.exitCode = 2;
-  }
+  console.error(`viewrule plugin: ${err.message}`);
+  process.exitCode = 2;
 }

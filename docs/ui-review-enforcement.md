@@ -2,7 +2,7 @@
 
 The [design rules](design-rules.md) define the intended outcomes. `viewrule`
 checks configured, observable conditions and cites the relevant rule IDs in its
-HTML report, JSON output, and Stop-hook findings. Each run preserves a local
+HTML report, JSON output, and verification findings. Each run preserves a local
 design-rule reference and its source hash so the cited text stays with the report.
 
 Before selecting a layout, use `contract` to read the effective merged boundaries.
@@ -181,10 +181,11 @@ merge on that exit code. Warnings and unrequired unassessed rules stay visible.
 Required coverage, missing required selectors, incomplete captures, and stale
 source/configuration/policy evidence cannot satisfy the corresponding gate.
 
-The opt-in Stop hook requires a current passing review and includes up to five
-blocking findings with their design IDs and report path. It retains its bounded
-continuation behavior; it is an iteration aid rather than an unbypassable gate.
-Code, rules, and the design-rule document participate in freshness checks.
+`viewrule verify` requires a current passing report and includes up to five
+blocking findings with their design IDs and report path. Optional Git gates reuse
+that verification for affected staged or pushed UI inputs; Stop events are never
+blocked. Code, runtime setup, rules, and design documents participate in freshness
+checks. See [Git gates](git-gates.md) for installation and migration.
 
 Findings include page, viewport, selector, measured and expected values, the
 design-rule citation, and a suggested next action. A coding agent can use this

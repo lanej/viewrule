@@ -4,7 +4,7 @@
 
 The [Viewrule plugin](https://github.com/lanej/viewrule/blob/main/plugins/claude-code/README.md)
 is the primary Claude integration. It provides setup, design/review, and human-feedback
-skills, plus the existing opt-in Stop protocol. The plugin installs its own checksummed
+skills without blocking conversational stops. The plugin installs its own checksummed
 engine release, and reads that engine's policy and measurement docs. It never copies
 the measurement implementation or changes a project's thresholds on installation.
 
@@ -20,7 +20,7 @@ to a particular report. The agent may repair application code within the user's 
 Viewrule itself measures and reports. A review-only request does not authorize repairs.
 Skills can be selected automatically, but that selection is not an enforcement guarantee.
 
-When migrating from a manual or dotfiles Stop hook, retain just one Viewrule hook.
+When migrating, remove the obsolete Viewrule Stop entries from manual/dotfiles settings.
 Keep personal defaults through `VIEWRULE_CONFIG_DIR` in Claude's environment; the
 plugin does not inherit the dotfiles wrapper's hard-coded preference directory.
 Application configuration and feedback stay in `.ui-review/`. See the plugin guide
@@ -51,22 +51,17 @@ cd /path/to/app
 ~/.files/bin/ui-review check
 ```
 
-`VIEWRULE_DEV_DIR` must be exported in the environment launching Claude to affect
-its hook. Unset it to resume the pinned install. Use `viewrule guidance` to inspect
+`VIEWRULE_DEV_DIR` selects the engine used by the dotfiles wrapper. Unset it to resume the pinned install. Use `viewrule guidance` to inspect
 the effective preferences when invoking a standalone install separately from dotfiles.
 
-## Manual Claude Code hook
+## Optional Git gates
 
-Configure a Stop hook to execute an absolute path to `viewrule hook`, or keep the
-existing dotfiles command `"$HOME/.files/bin/ui-review" hook`. The command reads the
-Claude JSON payload on stdin and writes `{}` or a JSON block decision on stdout.
-It does no browser work. Projects opt in with `enforceOnStop: true`; `init` defaults
-to false. Hook continuation is allowed through to prevent infinite loops.
-
-The standalone launcher handles opted-in verification errors as block decisions.
-The dotfiles wrapper also handles a missing installation. Keep enforcement in app
-CI when it must be mandatory; a coding-agent Stop hook is an iteration aid.
-Use this when the plugin is not enabled; do not register the same review twice.
+Use `viewrule pre-commit --project apps/web` or a pre-push hook to verify existing
+rendered evidence when declared UI inputs change. These are deliberate opt-ins;
+they never start a browser or modify staged files. `viewrule verify` checks evidence
+explicitly outside Git. See [Git setup, staged-content guarantees, engine availability,
+and Stop migration](git-gates.md). Full browser review in application CI remains
+the required merge gate.
 
 ## Any coding agent
 

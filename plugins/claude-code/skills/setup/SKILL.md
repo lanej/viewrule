@@ -6,15 +6,21 @@ description: Set up Viewrule's pinned UI measurement engine and configure an app
 Use this when the user wants Viewrule installed or configured. Run commands in the
 application repository; plugin installation does not itself install Node or Chromium.
 
-1. Check Node.js 22.18+ and npm. Run:
-   `node "${CLAUDE_PLUGIN_ROOT}/scripts/viewrule.mjs" setup`
-   This verifies and installs the pinned engine and its Chromium browser. Use
+1. Identify the application root in the current checkout and check Node.js 22.18+
+   and npm. Run:
+   `node "${CLAUDE_PLUGIN_ROOT}/scripts/viewrule.mjs" setup --project <application-root>`
+   Setup removes recognized legacy Viewrule Stop handlers from user settings and
+   project settings up to the checkout root, preserving other hooks and permissions.
+   Report `stopHookMigration.manual` entries; inspect custom wrappers and remove
+   only their confirmed Viewrule Stop invocation. Do not delete combined checks,
+   edit managed policy, or claim migration finished while a reported entry remains.
+   Restart sessions holding an old registration. See the plugin README for scope.
+   Setup then verifies and installs the pinned engine and its Chromium browser. Use
    `--with-deps` only when Linux system dependencies need installation; it can require
    elevated privileges. `--skip-browser` is for an already provisioned browser.
 2. Obtain the application's actual development URL and startup command from its
    instructions or current task. Start the app within the task's authorization.
-   Identify the application root in the current checkout and pass it with
-   `--project <application-root>` for project commands. In a Git worktree, missing
+   Pass `--project <application-root>` for project commands. In a Git worktree, missing
    `.ui-review/config.json` can mean the setup was never committed or is absent on
    this branch; restore or explicitly copy the intended contract before generating
    a new one. For a genuinely new application, run the same launcher with
@@ -42,11 +48,11 @@ application repository; plugin installation does not itself install Node or Chro
    sources; explicitly migrate existing configurations without dropping references.
    Read-only audits report missing intent rather than creating it to clear a finding.
    Run `contract` and summarize the effective boundaries. Use `/viewrule:add-rule`
-   for requested new constraints. Leave `enforceOnStop` false unless the user has
-   requested completion enforcement.
-   When adopting the plugin, remove only a confirmed duplicate Viewrule Stop entry
-   from the user's existing hook configuration; preserve unrelated hooks. See the
-   `${CLAUDE_PLUGIN_ROOT}/README.md` for dotfiles preference configuration and migration.
+   for requested new constraints. Do not register a Stop hook or enable the obsolete
+   `enforceOnStop` setting. Review remains explicit; application CI is the required
+   delivery gate. Configure optional Git hooks only when requested, preserving the
+   existing hook manager and other checks. Consult `${CLAUDE_PLUGIN_ROOT}/README.md`
+   for command availability with the pinned engine and migration from old Stop hooks.
 5. Continue with `/viewrule:review` for the requested application. Report installation
    or readiness blockers plainly; do not substitute a passing empty configuration.
 

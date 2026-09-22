@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+- Retire Claude Stop enforcement. Legacy `hook` commands return an empty decision;
+  `enforceOnStop` is accepted but ignored. Add explicit `verify` and optional
+  pre-commit/pre-push gates for affected UI inputs, including nested applications
+  and staged/outgoing content checks without running a browser or changing Git state.
+- Update Claude plugin to 0.7.5. Setup migrates recognized Viewrule Stop handlers
+  from user/project settings while preserving other hooks, permissions, and dotfile
+  symlinks; custom handlers and unreadable settings are reported for manual attention.
+  The published engine pin stays unchanged; new engine commands need a later release.
 - Treat the application server URL as runtime state instead of requiring a committed
   development port. New `init` configurations omit `baseURL`; `check` and `plan`
   resolve `--url`, then `VIEWRULE_BASE_URL`, then an existing configured `baseURL`.
