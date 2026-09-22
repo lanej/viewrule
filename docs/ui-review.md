@@ -16,7 +16,7 @@ implemented checks, configuration examples, and the limits of their evidence.
 
 Requires Node 22.18+ and npm. Install the standalone package as described in [README](../README.md).
 The following commands require `Runtime URL:` in the installed `viewrule --help`;
-for published engine 0.7.1, use the [compatibility workflow](#runtime-url-compatibility).
+for older engine 0.7.1, use the [compatibility workflow](#runtime-url-compatibility).
 Set `APP_URL` to the actual URL printed by your running application.
 
 ```sh
@@ -126,9 +126,8 @@ and policy changes. These differences describe changes; they do not approve them
 
 ### Runtime URL compatibility
 
-Runtime URL overrides are available in the current source and require an engine
-whose `--help` contains `Runtime URL:`. Published engine 0.7.1, including the current
-Claude plugin engine pin, ignores `check --url` and `VIEWRULE_BASE_URL`; it always
+Runtime URL overrides are available in engine 0.8.0, whose `--help` contains
+`Runtime URL:`. Older engine 0.7.1 ignores `check --url` and `VIEWRULE_BASE_URL`; it always
 reviews configured `baseURL`. For that engine, set `APP_URL` to the running app's
 actual URL, initialize with `viewrule init --url "$APP_URL"`, author the contract,
 and run `viewrule check`. For an existing configuration, update `baseURL` explicitly

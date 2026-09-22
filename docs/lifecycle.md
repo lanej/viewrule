@@ -2,8 +2,8 @@
 
 ## Application review
 
-The runtime URL commands below require an engine whose `--help` contains
-`Runtime URL:`. Published engine 0.7.1 uses configured `baseURL`; see the
+The runtime URL commands below require engine 0.8.0, whose `--help` contains
+`Runtime URL:`. Older engine 0.7.1 uses configured `baseURL`; see the
 [compatibility workflow](ui-review.md#runtime-url-compatibility).
 
 1. **Initialize:** `viewrule init` creates `.ui-review` schema version 1
