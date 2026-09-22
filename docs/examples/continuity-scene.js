@@ -14,7 +14,8 @@ export function configureContinuity(sample, good) {
     const exactDestination =
       rawQuery &&
       rows.some((row) => row.dataset.destination.toLowerCase() === query);
-    find("destination-scope-value").textContent = rawQuery || "All destinations";
+    find("destination-scope-value").textContent =
+      rawQuery || "All destinations";
     find("summary").textContent = !rawQuery
       ? `Showing ${count} shipments`
       : exactDestination

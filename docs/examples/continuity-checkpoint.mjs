@@ -250,9 +250,7 @@ export async function runContinuityCheckpoint(root, redOnly = false) {
           );
           assert.equal(
             await role(page, quality, "summary").textContent(),
-            quality === "good"
-              ? "Showing 2 shipments"
-              : "Showing 3 shipments",
+            quality === "good" ? "Showing 2 shipments" : "Showing 3 shipments",
           );
           native[quality] = await page.evaluate(
             inspectPage,
