@@ -1,5 +1,9 @@
 #!/usr/bin/env node
-import { globalConfigDir } from "./paths.mjs";
+import {
+  globalConfigDir,
+  findProject,
+  assertLocalReviewDirectory,
+} from "./paths.mjs";
 import { parseArgs } from "node:util";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
@@ -46,7 +50,8 @@ const help = `viewrule — rendered UI checks and a versioned design feedback lo
   guidance                             Read project documents (including unfinished prose), guidance, and feedback
   hook                                 Claude Stop hook; opt-in per project
 
-Common: --project DIR (default cwd), --help, --version
+Common: --project DIR (exact application root), --help, --version
+Default: nearest configured parent within this checkout; init and lint use cwd.
 Project files: DESIGN.md (required for new projects), STYLE.md (optional); .ui-review/config.json, rules.json, feedback.jsonl, approved/
 Global files: $XDG_CONFIG_HOME/viewrule (default ~/.config/viewrule)
 Override: VIEWRULE_CONFIG_DIR; UI_REVIEW_GLOBAL_DIR remains supported.
@@ -77,7 +82,10 @@ try {
     },
   });
   const command = positionals[0];
-  const project = path.resolve(args.project ?? process.cwd());
+  const project =
+    args.project !== undefined || ["init", "lint"].includes(command)
+      ? path.resolve(args.project ?? process.cwd())
+      : await findProject(process.cwd());
   const globalDir = globalConfigDir();
   if ((args.incremental || args.full) && !["check", "plan"].includes(command))
     throw new Error(
@@ -87,6 +95,21 @@ try {
     throw new Error("Choose --incremental or --full, not both");
   if (args.target?.length && command !== "lint")
     throw new Error("--target is only supported by lint");
+  if (
+    !args.help &&
+    [
+      "init",
+      "plan",
+      "contract",
+      "add-rule",
+      "lint",
+      "check",
+      "feedback",
+      "learn",
+      "guidance",
+    ].includes(command)
+  )
+    await assertLocalReviewDirectory(project);
   if (args.help || !command) console.log(help);
   else if (positionals.length !== 1)
     throw new Error("Expected one command; use --help.");
@@ -143,7 +166,7 @@ try {
     }
     const documents = await readProjectDocuments(project);
     console.log(
-      `Created ${dir}/config.json with editable ${args.preset ?? "baseline"} starter rules (existing rules and documents are preserved). Author DESIGN.md before contract/check; a scaffold is not a completed contract. Use /viewrule:design or docs/project-documents.md. Calibrate selectors, counts, and thresholds to the task. Stop enforcement is off until enforceOnStop is true. Project guidance: ${documents.map((document) => document.path).join(", ")}.`,
+      `Created ${dir}/config.json with editable ${args.preset ?? "baseline"} starter rules (existing rules and documents are preserved). Author DESIGN.md before contract/check; a scaffold is not a completed contract. Use /viewrule:design or docs/project-documents.md. Calibrate selectors, counts, and thresholds to the task. Stop enforcement is off until enforceOnStop is true. Project guidance: ${documents.map((document) => document.path).join(", ")}. Commit the setup files (.ui-review/config.json, rules.json, .gitignore, project documents, and any checkpoint scripts) to carry them into new Git worktrees. Runs, latest.json, and authentication state stay local; see docs/worktrees.md.`,
     );
   } else if (command === "preset") {
     console.log(

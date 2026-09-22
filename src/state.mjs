@@ -11,6 +11,7 @@ import {
   realpath,
 } from "node:fs/promises";
 import path from "node:path";
+import { findProject, assertLocalReviewDirectory } from "./paths.mjs";
 import {
   readJSON,
   loadProject,
@@ -256,13 +257,14 @@ export async function learnRule(project, globalDir, feedbackId, rule, scope) {
 }
 export async function hookDecision(payload, globalDir) {
   if (!payload.cwd || payload.stop_hook_active) return {};
-  const project = await realpath(payload.cwd);
+  const project = await findProject(payload.cwd);
   const raw = await readJSON(
     path.join(project, ".ui-review/config.json"),
     null,
   );
   if (!raw || raw.enforceOnStop === false) return {};
   try {
+    await assertLocalReviewDirectory(project);
     const { config } = await loadProject(project, globalDir);
     const latest = await readJSON(
       path.join(project, ".ui-review/latest.json"),

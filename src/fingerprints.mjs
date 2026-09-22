@@ -51,7 +51,12 @@ export async function inputDigest(file) {
 export async function engineFingerprint() {
   const root = path.resolve(import.meta.dirname, "..");
   const files = new Set(["package.json", "npm-shrinkwrap.json"]);
-  for (const directory of ["src", "bin", "presets"])
+  for (const directory of [
+    "src",
+    "bin",
+    "presets",
+    "plugins/claude-code/scripts",
+  ])
     for await (const file of walkFiles(path.join(root, directory)))
       files.add(`${directory}/${file}`);
   for (const file of policyPaths) files.add(path.relative(root, file));

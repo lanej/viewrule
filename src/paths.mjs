@@ -1,6 +1,11 @@
 import path from "node:path";
 import { homedir } from "node:os";
 
+export {
+  findProject,
+  assertLocalReviewDirectory,
+} from "../plugins/claude-code/scripts/project.mjs";
+
 export function globalConfigDir() {
   return path.resolve(
     process.env.VIEWRULE_CONFIG_DIR ??

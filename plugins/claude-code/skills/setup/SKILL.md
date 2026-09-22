@@ -13,9 +13,14 @@ application repository; plugin installation does not itself install Node or Chro
    elevated privileges. `--skip-browser` is for an already provisioned browser.
 2. Obtain the application's actual development URL and startup command from its
    instructions or current task. Start the app within the task's authorization.
-   If `.ui-review/config.json` is absent, run the same launcher with
-   `init --url <actual-url>` for the baseline, or add `--preset analytical` for a
-   table/comparison workspace. Preserve existing configuration and rules.
+   Identify the application root in the current checkout and pass it with
+   `--project <application-root>` for project commands. In a Git worktree, missing
+   `.ui-review/config.json` can mean the setup was never committed or is absent on
+   this branch; restore or explicitly copy the intended contract before generating
+   a new one. For a genuinely new application, run the same launcher with
+   `init --project <application-root> --url <actual-url>` for the baseline, or add
+   `--preset analytical` for a table/comparison workspace. Preserve existing
+   configuration and rules. See `${CLAUDE_PLUGIN_ROOT}/README.md` for worktree setup.
 3. Run the launcher with `docs` and read the returned policy and rule-reference paths.
    Configure routes, readiness selectors, source paths, representative CSS viewports,
    and task-specific expectations. Read the returned defaults documentation path.
@@ -41,4 +46,7 @@ application repository; plugin installation does not itself install Node or Chro
    or readiness blockers plainly; do not substitute a passing empty configuration.
 
 Setup leaves personal preferences and application state outside the plugin cache.
+Version nonsecret setup, its generated ignore file, documents, and checkpoint scripts
+so new worktrees receive them. Keep runs, latest state, and authentication local;
+do not symlink the entire `.ui-review` directory between checkouts.
 Do not modify permission settings or silently install a different engine version.

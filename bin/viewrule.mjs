@@ -3,6 +3,7 @@ import { readFile } from "node:fs/promises";
 import { createRequire } from "node:module";
 import { spawnSync } from "node:child_process";
 import path from "node:path";
+import { findProject, assertLocalReviewDirectory } from "../src/paths.mjs";
 
 const args = process.argv.slice(2);
 // Keep an unconfigured Stop hook independent of optional browser setup and npm dependencies.
@@ -15,6 +16,7 @@ if (args.length === 1 && args[0] === "hook") {
       throw new Error("Expected a hook payload object");
     let config;
     if (payload.cwd && !payload.stop_hook_active) {
+      payload.cwd = await findProject(payload.cwd);
       try {
         config = JSON.parse(
           await readFile(
@@ -28,6 +30,7 @@ if (args.length === 1 && args[0] === "hook") {
     }
     if (!config || config.enforceOnStop === false) console.log("{}");
     else {
+      await assertLocalReviewDirectory(payload.cwd);
       const { hookDecision } = await import("../src/state.mjs");
       const { globalConfigDir } = await import("../src/paths.mjs");
       console.log(

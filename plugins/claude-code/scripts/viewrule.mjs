@@ -12,6 +12,7 @@ import { createHash } from "node:crypto";
 import { spawnSync } from "node:child_process";
 import { homedir } from "node:os";
 import path from "node:path";
+import { findProject, assertLocalReviewDirectory } from "./project.mjs";
 
 const args = process.argv.slice(2);
 const isHook = args.length === 1 && args[0] === "hook";
@@ -127,6 +128,7 @@ async function main() {
     if (!payload || typeof payload !== "object")
       throw new Error("Expected a hook payload object");
     if (!payload.cwd || payload.stop_hook_active) return console.log("{}");
+    payload.cwd = await findProject(payload.cwd);
     let config;
     try {
       config = await json(path.join(payload.cwd, ".ui-review/config.json"));
@@ -134,6 +136,9 @@ async function main() {
       if (err.code !== "ENOENT") throw err;
     }
     if (!config || config.enforceOnStop === false) return console.log("{}");
+    await assertLocalReviewDirectory(payload.cwd);
+    // Older pinned engines also receive the resolved application root.
+    input = JSON.stringify(payload);
   }
   if (Number(process.versions.node.split(".")[0]) < 22)
     throw new Error("Node.js 22 or newer is required");
