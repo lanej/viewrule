@@ -2,6 +2,10 @@
 
 ## Application review
 
+The runtime URL commands below require an engine whose `--help` contains
+`Runtime URL:`. Published engine 0.7.1 uses configured `baseURL`; see the
+[compatibility workflow](ui-review.md#runtime-url-compatibility).
+
 1. **Initialize:** `viewrule init` creates `.ui-review` schema version 1
    with Stop enforcement off and editable baseline rules. `--preset analytical`
    starts a declared comparison workspace. Pick representative state and calibrate

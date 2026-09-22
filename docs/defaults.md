@@ -12,6 +12,10 @@ and project design systems take precedence over this starting guidance.
 
 ## Executable presets
 
+The setup below requires runtime URL support in the installed engine. See the
+[compatibility workflow](ui-review.md#runtime-url-compatibility) for published
+engine 0.7.1, which requires an explicit configured URL.
+
 ```sh
 viewrule init
 # Or, for a comparison table / analytical workspace:

@@ -212,14 +212,20 @@ for configuration, findings, and deliberate enforcement.
 
 ### Configure a real application
 
+The runtime URL workflow below is available in the current source. Check the
+installed `viewrule --help` for `Runtime URL:` before using it. Published engine
+0.7.1 requires configured `baseURL` and ignores `check --url` and `VIEWRULE_BASE_URL`;
+follow the [older-engine workflow](docs/ui-review.md#runtime-url-compatibility)
+until upgrading to an engine that supports runtime URLs.
+
 Initialize the application contract without binding it to a machine-local port. Start
-your development server, use the actual URL it reports for rendered commands, then run:
+your development server and set `APP_URL` to the actual URL it prints, then run:
 
 ```sh
 viewrule init
 # For an analytical workspace, add --preset analytical to init.
 # Calibrate .ui-review/config.json and its starter rules for your application.
-viewrule check --url http://127.0.0.1:<actual-port>
+viewrule check --url "$APP_URL"
 ```
 
 You can set `VIEWRULE_BASE_URL` instead of repeating `--url`. Existing configs with

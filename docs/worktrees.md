@@ -39,6 +39,9 @@ actually reports for `viewrule check --url <actual-url>` (or set
 make review work. Existing configured `baseURL` values remain supported, but a URL
 pointing at another checkout's server can measure that checkout even when local
 paths are correct. Viewrule does not probe localhost ports for this reason.
+These overrides require `Runtime URL:` in the installed `viewrule --help`.
+Published engine 0.7.1 uses configured `baseURL`; follow the
+[compatibility workflow](ui-review.md#runtime-url-compatibility) for that engine.
 
 ## Project paths and evidence
 
@@ -51,11 +54,12 @@ remains the target and the Stop hook remains unconfigured.
 
 `--project DIR` selects exactly that application root. `init` and source-only `lint`
 also retain the current directory by default, so creating a nested application or
-scanning relative targets does not unexpectedly affect its parent. For example:
+scanning relative targets does not unexpectedly affect its parent. With runtime URL
+support and `APP_URL` set to the URL printed by this worktree's server:
 
 ```sh
 viewrule init --project ../my-app-feature/apps/web
-viewrule check --project ../my-app-feature/apps/web --url http://127.0.0.1:<actual-port>
+viewrule check --project ../my-app-feature/apps/web --url "$APP_URL"
 ```
 
 Configuration paths, source scopes, documents, checkpoint scripts, and run output
