@@ -244,8 +244,9 @@ real rates. Good and bad labels describe the stated task, not actual engine outp
 Some bad examples intentionally pass unrelated geometry checks.
 
 
-Run `npm run site:preview` from a checkout and open
-`http://127.0.0.1:4173/examples/behavior.html`. All assets and the catalog are local;
+Run `npm run site:preview` from a checkout and replace `/rules/` in the printed
+preview URL with `/examples/behavior.html`. The server chooses an available port.
+All assets and the catalog are local;
 no carrier API or external UI runtime is required. `npm test` exercises the same
 examples from the packed and installed engine, not a separate test-only copy.
 The scoped [configuration](examples/behavior-config.json) and

@@ -125,9 +125,15 @@ and policy changes. These differences describe changes; they do not approve them
 committed as part of the design contract. For `check` and `plan`, resolve the
 running application at execution time with `--url <actual-url>` or
 `VIEWRULE_BASE_URL`; an existing configured `baseURL` remains the fallback.
-Viewrule deliberately does not scan localhost ports because selecting another
-worktree's server would be worse than an explicit failure.
+Viewrule does not start the application or scan localhost ports; use the URL
+reported by the current checkout's server. URLs must use HTTP(S) without embedded
+credentials. An invalid override fails rather than selecting a fallback server.
+Use relative page paths so every route stays on the selected endpoint when its
+port changes; absolute routes on a different origin are rejected.
 
+The plan's `target` and report's `targetBaseURL` record the resolved URL without
+changing the committed config or contract hash. Contract, guidance, source-only
+lint, and Stop-hook validation do not need a runtime URL.
 
 ```json
 {

@@ -1,3 +1,5 @@
+import { validateConfig } from "./config.mjs";
+
 /** Resolve machine-local application connectivity without making it a required
  * part of the committed review contract.
  * @param {import("./types.js").ProjectConfig} config
@@ -8,9 +10,7 @@ export function resolveReviewURL(config, explicitURL) {
     ["environment", process.env.VIEWRULE_BASE_URL],
     ["config", config.baseURL],
   ];
-  const selected = candidates.find(
-    ([, value]) => typeof value === "string" && value.trim(),
-  );
+  const selected = candidates.find(([, value]) => value !== undefined);
   if (!selected)
     throw new Error(
       "No application URL is available. Start the application and pass --url <actual-url>, set VIEWRULE_BASE_URL, or keep baseURL in .ui-review/config.json for legacy/static setups.",
@@ -20,7 +20,7 @@ export function resolveReviewURL(config, explicitURL) {
   try {
     url = new URL(raw.trim());
   } catch (error) {
-    throw new Error(`Invalid application URL from ${source}: ${raw}`, {
+    throw new Error(`Invalid application URL from ${source}`, {
       cause: error,
     });
   }
@@ -28,6 +28,8 @@ export function resolveReviewURL(config, explicitURL) {
     throw new Error(
       `Application URL must use http or https, not ${url.protocol}`,
     );
+  if (url.username || url.password)
+    throw new Error("Application URL must not contain embedded credentials");
   return { baseURL: url.href, source };
 }
 
@@ -36,5 +38,8 @@ export function resolveReviewURL(config, explicitURL) {
  * @param {string | undefined} explicitURL */
 export function runtimeConfig(config, explicitURL) {
   const target = resolveReviewURL(config, explicitURL);
-  return { config: { ...config, baseURL: target.baseURL }, target };
+  return {
+    config: validateConfig({ ...config, baseURL: target.baseURL }),
+    target,
+  };
 }

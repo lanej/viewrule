@@ -128,7 +128,7 @@ try {
       existingDocuments.some((document) => document.role === "style");
     const config = validateConfig({
       version: 1,
-      ...(args.url ? { baseURL: args.url } : {}),
+      ...(args.url !== undefined ? { baseURL: args.url } : {}),
       enforceOnStop: false,
       sourcePaths: ["."],
       sourceChecks: [impeccableProvider()],

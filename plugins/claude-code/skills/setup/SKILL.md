@@ -21,8 +21,11 @@ application repository; plugin installation does not itself install Node or Chro
    `init --project <application-root>` for the baseline, or add
    `--preset analytical` for a table/comparison workspace. Do not commit the
    development server's port as setup state; retain the actual URL for rendered
-   commands. Preserve existing
-   configuration and rules. See `${CLAUDE_PLUGIN_ROOT}/README.md` for worktree setup.
+   commands. Check the installed engine's `--help` first: engines whose help lacks
+   `Runtime URL:` still require `init --url <actual-url>` and a configured `baseURL`.
+   Explain that limitation and follow their installed docs until an explicit engine
+   upgrade supports runtime URLs. Preserve existing configuration and rules.
+   See `${CLAUDE_PLUGIN_ROOT}/README.md` for worktree setup.
 3. Run the launcher with `docs` and read the returned policy and rule-reference paths.
    Configure routes, readiness selectors, source paths, representative CSS viewports,
    and task-specific expectations. Read the returned defaults documentation path.
