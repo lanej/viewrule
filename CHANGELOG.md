@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.7.1 — 2026-09-22
 
 - Discover the nearest configured application for review commands and Stop hooks
   without crossing a `.git` file or directory. Explicit `--project`, new-project
@@ -10,8 +10,18 @@
   Include the shared project resolver in engine freshness checks.
 - Explain committed setup versus local evidence, improve missing-configuration
   diagnostics, and cover real Git worktrees in the installed-package workflow.
-- Plugin 0.7.2 resolves nested hook directories before delegating to its existing
-  engine pin. The CLI changes require a future engine release; no pin is changed.
+- Update Claude plugin 0.7.3 to the checksummed 0.7.1 engine archive so both CLI
+  commands and Stop hooks use worktree-aware project discovery.
+- Include the previously merged component/composition review guidance and pattern
+  fixture, plus corrected DR-012 recovery and DR-013 emphasis examples with native
+  regression evidence.
+
+Upgrade: rerun review after installation because engine changes invalidate previous
+freshness. Replace any entire `.ui-review` directory linked outside the application
+with local state and committed or explicitly copied setup files. Uncommitted setup
+is not automatically inherited by a new worktree. Configuration/report schema v1,
+legacy aliases, and opt-in enforcement remain unchanged; no application rules or
+human approvals are rewritten. See [worktree setup](docs/worktrees.md).
 
 ## 0.7.0 — 2026-09-17
 

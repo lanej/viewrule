@@ -21,8 +21,9 @@ In Claude Code:
 Setup installs the checksummed engine release in `engine.json` and its Playwright
 Chromium browser. It then helps configure your running application. Installing the
 plugin alone makes no engine or browser download, and does not enable enforcement.
-Version 0.7.0 pins the 0.7.0 engine, including native globs, read-only planning,
-opt-in incremental evidence reuse, authored design contracts, and offline rule lookup.
+Version 0.7.3 pins the 0.7.1 engine, including worktree-aware project discovery,
+native globs, read-only planning, opt-in incremental evidence reuse, authored design
+contracts, and offline rule lookup.
 Bundled Impeccable source diagnostics, `lint`, decision-surface checks, and interaction
 checkpoints remain available. Full review is still the default; see the engine
 [scope and reuse configuration](../../docs/incremental-review.md) before enabling reuse.
@@ -57,7 +58,7 @@ The engine package includes the same canonical corpus and exposes
 
 Guide/evidence Markdown is local to the plugin. Gallery examples and measurement
 manuals live in the source/package `docs/` (find an installed package through `docs`)
-or the published site. The pinned 0.7.0 engine includes the gallery assets and canonical rule Markdown.
+or the published site. The pinned 0.7.1 engine includes the gallery assets and canonical rule Markdown.
 Use `viewrule guide rules` for the rule index and `viewrule guide DR-006` for an
 individual rule after setup.
 The new guide's written examples and evidence summaries are bundled offline. Public routes are `https://lanej.io/viewrule/guide/v1/index.json` and the linked
@@ -102,10 +103,10 @@ Application configuration is local to each checkout. Commit `.ui-review/config.j
 scripts so new Git worktrees receive the intended contract. Setup does not propagate
 uncommitted files. Keep `runs/`, `latest.json`, and authentication state local; sharing
 the entire directory through a symlink can overwrite another checkout's evidence.
-The plugin hook discovers the nearest configured parent within the current worktree,
-including with an older pinned engine. Use `--project <application-root>` for project
-commands on older engines; CLI parent discovery ships with the corresponding engine
-update. See [worktree setup and optional Git hooks](../../docs/worktrees.md).
+The pinned engine and plugin hook discover the nearest configured parent within the
+current worktree. Use `--project <application-root>` to choose an exact root, or for
+project commands on engines older than 0.7.1. See
+[worktree setup and optional Git hooks](../../docs/worktrees.md).
 
 Runtime installs live under `$XDG_DATA_HOME/viewrule/claude-code`, falling back to
 `~/.local/share/viewrule/claude-code`. `VIEWRULE_PLUGIN_DATA_DIR` overrides that root;
