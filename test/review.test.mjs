@@ -791,8 +791,11 @@ test(
     assert.equal(latestAfterGood.engineVersion, pin.version);
     await writeFile(
       latestPath,
-      JSON.stringify({ ...latestAfterGood, engineVersion: "9.9.9-test" }, null, 2) +
-        "\n",
+      JSON.stringify(
+        { ...latestAfterGood, engineVersion: "9.9.9-test" },
+        null,
+        2,
+      ) + "\n",
     );
     const mismatchedHook = await hook();
     assert.equal(mismatchedHook.decision, "block");
@@ -802,9 +805,7 @@ test(
       ),
     );
     assert.ok(
-      mismatchedHook.reason.includes(
-        `Stop hook is running v${pin.version}`,
-      ),
+      mismatchedHook.reason.includes(`Stop hook is running v${pin.version}`),
     );
     await writeFile(latestPath, latestAfterGoodText);
     assert.deepEqual(
