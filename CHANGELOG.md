@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+
+- Treat the application server URL as runtime state instead of requiring a committed
+  development port. New `init` configurations omit `baseURL`; `check` and `plan`
+  resolve `--url`, then `VIEWRULE_BASE_URL`, then an existing configured `baseURL`.
+  Record the resolved target in review output and include it in incremental reuse
+  identity so evidence is not reused across different endpoints. Existing configs
+  remain compatible.
+
 ## 0.7.1 — 2026-09-22
 
 - Discover the nearest configured application for review commands and Stop hooks

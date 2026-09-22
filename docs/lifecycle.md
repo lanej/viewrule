@@ -2,11 +2,12 @@
 
 ## Application review
 
-1. **Initialize:** `viewrule init --url ...` creates `.ui-review` schema version 1
+1. **Initialize:** `viewrule init` creates `.ui-review` schema version 1
    with Stop enforcement off and editable baseline rules. `--preset analytical`
    starts a declared comparison workspace. Pick representative state and calibrate
    the starting thresholds; existing project rules remain unchanged.
-2. **Measure:** start the app, run `viewrule check`, and inspect the HTML report.
+2. **Measure:** start the app, pass its actual URL with `viewrule check --url ...`
+   (or `VIEWRULE_BASE_URL`), and inspect the HTML report.
    Exit `0` permits warnings, `1` reports failed checks/captures, and `2` reports
    usage or configuration errors. `latest.json` remains non-passing after interruption.
 3. **Interpret:** inspect full-resolution details and evaluate task usefulness.

@@ -212,14 +212,18 @@ for configuration, findings, and deliberate enforcement.
 
 ### Configure a real application
 
-Start your application's development server, then run these commands in its repository:
+Initialize the application contract without binding it to a machine-local port. Start
+your development server, use the actual URL it reports for rendered commands, then run:
 
 ```sh
-viewrule init --url http://localhost:3000
+viewrule init
 # For an analytical workspace, add --preset analytical to init.
 # Calibrate .ui-review/config.json and its starter rules for your application.
-viewrule check
+viewrule check --url http://127.0.0.1:<actual-port>
 ```
+
+You can set `VIEWRULE_BASE_URL` instead of repeating `--url`. Existing configs with
+`baseURL` remain supported, but new setup does not need to commit a development port.
 
 `init` does not overwrite existing configuration. Choose routes, a readiness selector
 that proves the intended data has loaded, and representative browser sizes. Initial
@@ -245,7 +249,7 @@ text values, complete labels, shared context, and aligned metric peers. These ar
 calibratable starting constraints; a finite task can require fewer alternatives.
 Neither preset imposes a viewport occupancy score.
 
-Use `viewrule init --preset analytical --url ...` for a new comparison workspace,
+Use `viewrule init --preset analytical` for a new comparison workspace,
 or `viewrule preset --name analytical` to inspect rules for an existing application.
 The [defaults guide](docs/defaults.md) documents exact thresholds, annotations,
 scope, and limitations. Upgrading never replaces an application's rules.

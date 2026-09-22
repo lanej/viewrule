@@ -33,9 +33,12 @@ ignore file can still exclude the whole directory. Diagnose that with
 Feedback and approved references may contain private screenshots or prose; decide
 deliberately whether to version them.
 
-Run the application server for the current worktree, check its configured `baseURL`
-and authentication state, then run `viewrule check`. A URL pointing at another
-checkout's server can measure that checkout even when the local paths are correct.
+Run the application server for the current worktree and use the URL that server
+actually reports for `viewrule check --url <actual-url>` (or set
+`VIEWRULE_BASE_URL`). Do not commit a worktree-specific development port just to
+make review work. Existing configured `baseURL` values remain supported, but a URL
+pointing at another checkout's server can measure that checkout even when local
+paths are correct. Viewrule does not probe localhost ports for this reason.
 
 ## Project paths and evidence
 
@@ -51,8 +54,8 @@ also retain the current directory by default, so creating a nested application o
 scanning relative targets does not unexpectedly affect its parent. For example:
 
 ```sh
-viewrule init --project ../my-app-feature/apps/web --url http://localhost:3001
-viewrule check --project ../my-app-feature/apps/web
+viewrule init --project ../my-app-feature/apps/web
+viewrule check --project ../my-app-feature/apps/web --url http://127.0.0.1:<actual-port>
 ```
 
 Configuration paths, source scopes, documents, checkpoint scripts, and run output

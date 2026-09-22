@@ -100,6 +100,7 @@ test(
     const env = {
       ...process.env,
       VIEWRULE_CONFIG_DIR: path.join(root, "global"),
+      VIEWRULE_BASE_URL: baseURL,
     };
     const cli = (args, input = "") =>
       new Promise((resolve, reject) => {
@@ -223,7 +224,7 @@ test(
       ruleIndex,
     );
 
-    const init = await cli(["init", "--url", baseURL]);
+    const init = await cli(["init"]);
     assert.equal(init.code, 0, init.stderr);
     const configPath = path.join(project, ".ui-review/config.json");
     const rulesPath = path.join(project, ".ui-review/rules.json");
@@ -232,6 +233,11 @@ test(
     const initialRules = await readFile(rulesPath, "utf8");
     assert.deepEqual(JSON.parse(initialConfig).projectDocuments, ["DESIGN.md"]);
     assert.equal(JSON.parse(initialConfig).enforceOnStop, false);
+    assert.equal(
+      Object.hasOwn(JSON.parse(initialConfig), "baseURL"),
+      false,
+      "New setup does not commit a machine-local development port",
+    );
     const scaffold = await readFile(designPath, "utf8");
     assert.match(scaffold, /viewrule:design-template/);
     await assert.rejects(readFile(path.join(project, "STYLE.md")), {
@@ -307,6 +313,18 @@ test(
       JSON.parse(contract.stdout).projectDocuments[0].content,
       authored,
     );
+    const runtimeURL = env.VIEWRULE_BASE_URL;
+    delete env.VIEWRULE_BASE_URL;
+    const missingRuntimeURL = await cli(["plan"]);
+    assert.equal(missingRuntimeURL.code, 2);
+    assert.match(missingRuntimeURL.stderr, /No application URL is available/);
+    const explicitRuntimeURL = await cli(["plan", "--url", baseURL]);
+    assert.equal(explicitRuntimeURL.code, 0, explicitRuntimeURL.stderr);
+    assert.deepEqual(JSON.parse(explicitRuntimeURL.stdout).target, {
+      baseURL: new URL(baseURL).href,
+      source: "argument",
+    });
+    env.VIEWRULE_BASE_URL = runtimeURL;
     assert.equal((await cli(["init", "--documents"])).code, 2);
     assert.equal(await readFile(designPath, "utf8"), authored);
     assert.equal(await readFile(configPath, "utf8"), initialConfig);
@@ -342,6 +360,10 @@ test(
     else env.VIEWRULE_BROWSER_PATH = browserPath;
     const checked = await cli(["check"]);
     assert.equal(checked.code, 0, checked.stderr || checked.stdout);
+    assert.equal(
+      JSON.parse(checked.stdout).targetBaseURL,
+      new URL(baseURL).href,
+    );
     const before = JSON.parse(checked.stdout).contract;
     const latestPath = path.join(project, ".ui-review/latest.json");
     const latest = await readFile(latestPath, "utf8");

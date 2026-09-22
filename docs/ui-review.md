@@ -19,10 +19,10 @@ Requires Node 22.18+ and npm. Install the standalone package as described in [RE
 ```sh
 viewrule install-browser
 cd ~/src/my-app
-viewrule init --url http://localhost:3000
+viewrule init
 # Edit .ui-review/config.json and .ui-review/rules.json; start your app normally.
 viewrule contract
-viewrule check
+viewrule check --url http://127.0.0.1:<actual-port>
 ```
 
 `init` never replaces an existing configuration. The checker does not execute
@@ -121,10 +121,17 @@ and policy changes. These differences describe changes; they do not approve them
 
 ## Project configuration
 
+`baseURL` is optional. New configurations omit it so a development port is not
+committed as part of the design contract. For `check` and `plan`, resolve the
+running application at execution time with `--url <actual-url>` or
+`VIEWRULE_BASE_URL`; an existing configured `baseURL` remains the fallback.
+Viewrule deliberately does not scan localhost ports because selecting another
+worktree's server would be worse than an explicit failure.
+
+
 ```json
 {
   "version": 1,
-  "baseURL": "http://localhost:3000",
   "enforceOnStop": false,
   "sourcePaths": ["src", "public", "package.json"],
   "accessibility": true,
