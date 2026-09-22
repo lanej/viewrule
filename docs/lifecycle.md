@@ -2,11 +2,16 @@
 
 ## Application review
 
-1. **Initialize:** `viewrule init --url ...` creates `.ui-review` schema version 1
+The runtime URL commands below require an engine whose `--help` contains
+`Runtime URL:`. Published engine 0.7.1 uses configured `baseURL`; see the
+[compatibility workflow](ui-review.md#runtime-url-compatibility).
+
+1. **Initialize:** `viewrule init` creates `.ui-review` schema version 1
    with explicit review and editable baseline rules. `--preset analytical`
    starts a declared comparison workspace. Pick representative state and calibrate
    the starting thresholds; existing project rules remain unchanged.
-2. **Measure:** start the app, run `viewrule check`, and inspect the HTML report.
+2. **Measure:** start the app, pass its actual URL with `viewrule check --url ...`
+   (or `VIEWRULE_BASE_URL`), and inspect the HTML report.
    Exit `0` permits warnings, `1` reports failed checks/captures, and `2` reports
    usage or configuration errors. `latest.json` remains non-passing after interruption.
 3. **Interpret:** inspect full-resolution details and evaluate task usefulness.

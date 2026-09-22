@@ -77,7 +77,7 @@ From a source checkout with Node 22.18+:
 ```sh
 npm ci
 npm run site:preview
-# Open http://127.0.0.1:4173/app/
+# Open the printed preview URL, replacing /rules/ with /app/.
 ```
 
 The preview builds once and serves locally; rerun it after changing source.

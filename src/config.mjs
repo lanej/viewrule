@@ -156,7 +156,7 @@ export const configSchema = object(
       ]),
     },
   },
-  ["version", "baseURL", "pages", "viewports", "sourcePaths", "accessibility"],
+  ["version", "pages", "viewports", "sourcePaths", "accessibility"],
 );
 const common = {
   id: text,
@@ -283,13 +283,18 @@ function unique(values, label) {
 export function validateConfig(config, project) {
   if (!checkConfig(config))
     throw new Error(`Invalid config: ${ajv.errorsText(checkConfig.errors)}`);
-  const url = new URL(config.baseURL);
-  if (
-    !["http:", "https:"].includes(url.protocol) ||
-    url.username ||
-    url.password
-  )
-    throw new Error("baseURL must be HTTP(S) without embedded credentials");
+  let url;
+  if (config.baseURL) {
+    url = new URL(config.baseURL);
+    if (
+      !["http:", "https:"].includes(url.protocol) ||
+      url.username ||
+      url.password
+    )
+      throw new Error("baseURL must be HTTP(S) without embedded credentials");
+  } else {
+    url = new URL("http://viewrule.invalid/");
+  }
   unique(
     config.pages.map((p) => p.name),
     "page name",
@@ -301,7 +306,11 @@ export function validateConfig(config, project) {
   validateSourceChecks(config.sourceChecks ?? []);
   for (const p of config.pages) {
     if (new URL(p.path, url).origin !== url.origin)
-      throw new Error("Page paths must stay on baseURL origin");
+      throw new Error(
+        config.baseURL
+          ? "Page paths must stay on baseURL origin"
+          : "Page paths must be relative to the runtime application URL",
+      );
     validateNames(
       p.viewports,
       config.viewports.map((v) => v.name),

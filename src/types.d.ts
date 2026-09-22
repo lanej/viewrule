@@ -99,7 +99,7 @@ export interface SourceCheckResult {
 }
 export interface ProjectConfig {
   version: 1;
-  baseURL: string;
+  baseURL?: string;
   /** Deprecated; accepted for existing configurations, never enables Stop blocking. */
   enforceOnStop?: boolean;
   sourcePaths: Selection;
@@ -308,6 +308,7 @@ export interface ReviewReport {
   id: string;
   project: string;
   createdAt: string;
+  targetBaseURL: string;
   engineVersion: string;
   fingerprint: string;
   browserVersion?: string;

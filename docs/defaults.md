@@ -12,11 +12,19 @@ and project design systems take precedence over this starting guidance.
 
 ## Executable presets
 
+The setup below requires runtime URL support in the installed engine. See the
+[compatibility workflow](ui-review.md#runtime-url-compatibility) for published
+engine 0.7.1, which requires an explicit configured URL.
+
 ```sh
-viewrule init --url http://localhost:3000
+viewrule init
 # Or, for a comparison table / analytical workspace:
-viewrule init --url http://localhost:3000 --preset analytical
+viewrule init --preset analytical
 ```
+
+The application URL is runtime state. Pass the actual development URL to rendered
+commands with `--url`, set `VIEWRULE_BASE_URL`, or keep an existing configured
+`baseURL` for a static/legacy setup.
 
 New projects receive editable rules, not an empty array. `baseline` is the default;
 `analytical` includes baseline plus a declared comparison contract. Initialization

@@ -15,14 +15,17 @@ implemented checks, configuration examples, and the limits of their evidence.
 ## Setup and first review
 
 Requires Node 22.18+ and npm. Install the standalone package as described in [README](../README.md).
+The following commands require `Runtime URL:` in the installed `viewrule --help`;
+for published engine 0.7.1, use the [compatibility workflow](#runtime-url-compatibility).
+Set `APP_URL` to the actual URL printed by your running application.
 
 ```sh
 viewrule install-browser
 cd ~/src/my-app
-viewrule init --url http://localhost:3000
+viewrule init
 # Edit .ui-review/config.json and .ui-review/rules.json; start your app normally.
 viewrule contract
-viewrule check
+viewrule check --url "$APP_URL"
 ```
 
 `init` never replaces an existing configuration. The checker does not execute
@@ -121,10 +124,36 @@ and policy changes. These differences describe changes; they do not approve them
 
 ## Project configuration
 
+### Runtime URL compatibility
+
+Runtime URL overrides are available in the current source and require an engine
+whose `--help` contains `Runtime URL:`. Published engine 0.7.1, including the current
+Claude plugin engine pin, ignores `check --url` and `VIEWRULE_BASE_URL`; it always
+reviews configured `baseURL`. For that engine, set `APP_URL` to the running app's
+actual URL, initialize with `viewrule init --url "$APP_URL"`, author the contract,
+and run `viewrule check`. For an existing configuration, update `baseURL` explicitly
+to match the current checkout's server; `init` preserves existing configuration.
+Use the runtime workflow after upgrading to an engine that advertises support.
+
+### Runtime configuration
+
+`baseURL` is optional. New configurations omit it so a development port is not
+committed as part of the design contract. For `check` and `plan`, resolve the
+running application at execution time with `--url <actual-url>` or
+`VIEWRULE_BASE_URL`; an existing configured `baseURL` remains the fallback.
+Viewrule does not start the application or scan localhost ports; use the URL
+reported by the current checkout's server. URLs must use HTTP(S) without embedded
+credentials. An invalid override fails rather than selecting a fallback server.
+Use relative page paths so every route stays on the selected endpoint when its
+port changes; absolute routes on a different origin are rejected.
+
+The plan's `target` and report's `targetBaseURL` record the resolved URL without
+changing the committed config or contract hash. Contract, guidance, source-only
+lint, and evidence verification do not need a runtime URL.
+
 ```json
 {
   "version": 1,
-  "baseURL": "http://localhost:3000",
   "enforceOnStop": false,
   "sourcePaths": ["src", "public", "package.json"],
   "accessibility": true,

@@ -94,6 +94,9 @@ Configuration, scope definitions, executable rules, global documents, policy,
 preferences, engine/dependency files, platform, Node version, and browser identity
 are conservatively global. Scope document content and bundled-provider input,
 context, and binary identities participate in the relevant scope fingerprints.
+The resolved runtime URL is also global: changing `--url` or `VIEWRULE_BASE_URL`
+invalidates reuse, while leaving the committed contract unchanged. A server restart
+on the same URL still requires a new `environmentKey` when its relevant state changes.
 Checkpoint setup and storage-state files are included even outside source globs or
 Git's inventory, and must remain inside the project for scoped reviews. Storage
 state is always global, even when its path matches one application's source scope.

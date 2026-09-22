@@ -22,7 +22,7 @@ Setup removes recognized legacy Viewrule Stop handlers, installs the checksummed
 engine release in `engine.json` and its Playwright Chromium browser, then helps
 configure your running application. Installing the
 plugin alone makes no engine or browser download, and does not enable enforcement.
-Version 0.7.4 removes Stop registration and retains the 0.7.1 engine pin, including worktree-aware project discovery,
+Version 0.7.5 removes Stop registration and retains the 0.7.1 engine pin, including worktree-aware project discovery,
 native globs, read-only planning, opt-in incremental evidence reuse, authored design
 contracts, and offline rule lookup.
 Bundled Impeccable source diagnostics, `lint`, decision-surface checks, and interaction

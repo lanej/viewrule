@@ -8,11 +8,14 @@ Stop event. A response can end while work is incomplete or needs human input.
 The plugin's existing 0.7.1 engine pin does not contain them. Use a built/installed
 engine containing these commands, or invoke this checkout's `bin/viewrule.mjs`
 with Node after installing dependencies. Use that same engine for `check` and Git
-verification. Plugin 0.7.4 removes Stop registration independently of the engine pin.
+verification. Plugin 0.7.5 removes Stop registration independently of the engine pin.
+For captures with the updated engine, set `APP_URL` to the actual URL reported by
+this checkout's application server, then pass `--url "$APP_URL"` to `check`, or
+export `VIEWRULE_BASE_URL`. Verification and Git gates need no running server or URL.
 
 ## Choose a delivery boundary
 
-- **Explicit review:** `viewrule check --project apps/web` captures and measures the
+- **Explicit review:** `viewrule check --project apps/web --url "$APP_URL"` captures and measures the
   running application. `viewrule verify --project apps/web` checks existing evidence
   without a browser and fails if it is missing, failing, stale, or incompatible.
 - **Pre-commit:** an optional local check of the staged UI inputs. It can interrupt
@@ -101,7 +104,7 @@ mode, including symlink targets. It honors Git's alternative index for partial
 commits. An unstaged frontend fix therefore cannot certify a broken staged file.
 
 When they differ, finish choosing the staged contents, make the reviewed UI inputs
-match them, then run `viewrule check --project ...`. The gate prints the first
+match them, then run `viewrule check --project ... --url "$APP_URL"`. The gate prints the first
 differing path and leaves all files untouched. Unrelated unstaged backend changes
 do not require cleanup. Relevant untracked, nonignored source files must also be
 accounted for. Git filters or line-ending conversion that make working bytes differ

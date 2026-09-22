@@ -73,7 +73,13 @@ For read-only review, inspect those responsibilities without changing source or 
 
 With the intended app state running, validate both levels:
 
-1. Run `check`. Read its JSON findings and saved report. Exit 1 means failed checks;
+1. Use the actual URL reported by the running application and run
+   `check --url <actual-url>` (or set `VIEWRULE_BASE_URL`). Do not invent a fixed
+   localhost port or probe other listeners. Read its JSON findings and saved report.
+   If the installed engine's `--help` lacks `Runtime URL:`, it still uses configured
+   `baseURL`; verify that it matches the running app and follow its installed docs.
+   Do not assume `check --url` or the environment override works on older engines.
+   Exit 1 means failed checks;
    exit 2 means setup or usage failed. A missing report is not a passing review.
    Keep full review as the default; this phase split does not authorize incremental
    mode, narrower coverage, or stale evidence. A run can cover both review levels.
