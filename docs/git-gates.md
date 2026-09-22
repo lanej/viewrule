@@ -4,12 +4,10 @@ Run `viewrule check` deliberately while developing a UI. Inspect its full-resolu
 evidence and resolve findings before delivery. Viewrule no longer blocks Claude's
 Stop event. A response can end while work is incomplete or needs human input.
 
-`verify`, `pre-commit`, and `pre-push` are new engine commands in this source change.
-The plugin's existing 0.7.1 engine pin does not contain them. Use a built/installed
-engine containing these commands, or invoke this checkout's `bin/viewrule.mjs`
-with Node after installing dependencies. Use that same engine for `check` and Git
-verification. Plugin 0.7.5 removes Stop registration independently of the engine pin.
-For captures with the updated engine, set `APP_URL` to the actual URL reported by
+`verify`, `pre-commit`, and `pre-push` require engine 0.8.0, included in plugin 0.8.0.
+Run plugin setup after updating to install its pinned engine and migrate old Stop
+handlers. Use the same engine for `check` and Git verification.
+For captures, set `APP_URL` to the actual URL reported by
 this checkout's application server, then pass `--url "$APP_URL"` to `check`, or
 export `VIEWRULE_BASE_URL`. Verification and Git gates need no running server or URL.
 

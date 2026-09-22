@@ -39,8 +39,8 @@ actually reports for `viewrule check --url <actual-url>` (or set
 make review work. Existing configured `baseURL` values remain supported, but a URL
 pointing at another checkout's server can measure that checkout even when local
 paths are correct. Viewrule does not probe localhost ports for this reason.
-These overrides require `Runtime URL:` in the installed `viewrule --help`.
-Published engine 0.7.1 uses configured `baseURL`; follow the
+These overrides require engine 0.8.0 with `Runtime URL:` in `viewrule --help`.
+Older engine 0.7.1 uses configured `baseURL`; follow the
 [compatibility workflow](ui-review.md#runtime-url-compatibility) for that engine.
 
 ## Project paths and evidence

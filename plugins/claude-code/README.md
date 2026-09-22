@@ -22,7 +22,8 @@ Setup removes recognized legacy Viewrule Stop handlers, installs the checksummed
 engine release in `engine.json` and its Playwright Chromium browser, then helps
 configure your running application. Installing the
 plugin alone makes no engine or browser download, and does not enable enforcement.
-Version 0.7.5 removes Stop registration and retains the 0.7.1 engine pin, including worktree-aware project discovery,
+Version 0.8.0 pins engine 0.8.0 with explicit evidence verification, optional Git gates,
+runtime application URLs, and automatic Stop-hook migration. It retains worktree-aware project discovery,
 native globs, read-only planning, opt-in incremental evidence reuse, authored design
 contracts, and offline rule lookup.
 Bundled Impeccable source diagnostics, `lint`, decision-surface checks, and interaction
@@ -59,7 +60,7 @@ The engine package includes the same canonical corpus and exposes
 
 Guide/evidence Markdown is local to the plugin. Gallery examples and measurement
 manuals live in the source/package `docs/` (find an installed package through `docs`)
-or the published site. The pinned 0.7.1 engine includes the gallery assets and canonical rule Markdown.
+or the published site. The pinned engine includes the gallery assets and canonical rule Markdown.
 Use `viewrule guide rules` for the rule index and `viewrule guide DR-006` for an
 individual rule after setup.
 The new guide's written examples and evidence summaries are bundled offline. Public routes are `https://lanej.io/viewrule/guide/v1/index.json` and the linked
@@ -81,9 +82,8 @@ recommendations still require a real Claude session.
 
 The plugin does not block Stop events. Run `/viewrule:review` explicitly while
 working, and use application CI for a required merge gate. Optional `pre-commit`
-and `pre-push` commands in the updated engine verify existing evidence for affected
-UI inputs. The current 0.7.1 pin does not include those commands; do not install or
-silently select another engine to enable them. See [Git gates and engine availability](../../docs/git-gates.md).
+and `pre-push` commands in engine 0.8.0 verify existing evidence for affected
+UI inputs. Use the same engine for review and verification. See [Git gates](../../docs/git-gates.md).
 
 Run setup again after updating the plugin, even when the engine pin is unchanged.
 `setup --project <application-root>` removes recognized Viewrule Stop commands from

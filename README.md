@@ -12,7 +12,7 @@ opens the running app in Chromium, checks configured constraints, and reports
 violations with evidence and design-rule citations. Other agents and CI can use
 the same CLI directly.
 
-**Status:** experimental 0.7.1, distributed through
+**Status:** experimental 0.8.0, distributed through
 [GitHub Releases](https://github.com/lanej/viewrule/releases). No npm registry release
 is available yet. Node.js 22.18+ and npm are required. Linux is exercised in CI;
 macOS and Windows have not been validated.
@@ -85,8 +85,7 @@ viewrule guide P-003    # one Markdown page on action lists
 viewrule guide E-CARBON # just the selected evidence record
 ```
 
-These commands ship with this source change; older engine releases do not include
-them. The updated plugin supplies `guide [ID]` independently of its pinned engine,
+The plugin supplies `guide [ID]` independently of its pinned engine,
 so its review skill can consult bundled guidance before setup. Read only relevant
 pages, state decision assumptions, inspect examples, implement, then run checks.
 The runnable pricing and encoding examples compose Easy UI components from a pinned
@@ -165,14 +164,14 @@ and the [plugin guide](https://github.com/lanej/viewrule/blob/main/plugins/claud
 
 ### CLI, other agents, or the demo
 
-Download `viewrule-0.7.1.tgz` and `SHA256SUMS` from the
-[v0.7.1 release](https://github.com/lanej/viewrule/releases/tag/v0.7.1).
+Download `viewrule-0.8.0.tgz` and `SHA256SUMS` from the
+[v0.8.0 release](https://github.com/lanej/viewrule/releases/tag/v0.8.0).
 From that download directory, verify the checksum and install:
 
 ```sh
 # Linux; on macOS use: shasum -a 256 -c SHA256SUMS
 sha256sum -c SHA256SUMS
-npm install --global ./viewrule-0.7.1.tgz
+npm install --global ./viewrule-0.8.0.tgz
 viewrule install-browser
 viewrule --version
 ```
@@ -212,8 +211,8 @@ for configuration, findings, and deliberate enforcement.
 
 ### Configure a real application
 
-The runtime URL workflow below is available in the current source. Check the
-installed `viewrule --help` for `Runtime URL:` before using it. Published engine
+The runtime URL workflow below is available in engine 0.8.0. Check the
+installed `viewrule --help` for `Runtime URL:` before using it. Older engine
 0.7.1 requires configured `baseURL` and ignores `check --url` and `VIEWRULE_BASE_URL`;
 follow the [older-engine workflow](docs/ui-review.md#runtime-url-compatibility)
 until upgrading to an engine that supports runtime URLs.
