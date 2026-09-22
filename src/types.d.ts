@@ -307,6 +307,7 @@ export interface ReviewReport {
   id: string;
   project: string;
   createdAt: string;
+  engineVersion: string;
   fingerprint: string;
   browserVersion?: string;
   status: "pass" | "fail";
