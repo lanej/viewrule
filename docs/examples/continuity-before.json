@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "revision": "a07b82afeb1900ef8e8bd7dc7c2a2dce4b9c90c7",
+  "template": "<template id=\"scene-DR-010\">\n      <label\n        >Destination filter <input data-role=\"filter\" value=\"Seattle\"\n      /></label>\n      <p>Selected shipment: <strong data-role=\"selected\">EP 1042</strong></p>\n      <p>EP 1042 · Oakland → Seattle<br />EP 1043 · Oakland → Denver</p>\n      <button type=\"button\" data-role=\"open\">Inspect EP 1042</button>\n      <dialog data-role=\"dialog\" aria-label=\"Shipment EP 1042 details\">\n        <h4>EP 1042 · Seattle</h4>\n        <p>Latest scan: Portland, 08:40. Expected arrival: September 15.</p>\n        <button type=\"button\" data-role=\"close\">Return to queue</button>\n      </dialog>\n    </template>",
+  "initializer": "function(sample,good) { const find=(el,role)=>el.querySelector(`[data-role=\"${role}\"]`);\n      const dialog = find(sample, \"dialog\");\n      const open = find(sample, \"open\");\n      open.onclick = () => dialog.showModal();\n      find(sample, \"close\").onclick = () => dialog.close();\n      dialog.addEventListener(\"close\", () => {\n        if (!good) {\n          find(sample, \"filter\").value = \"\";\n          find(sample, \"selected\").textContent = \"EP 1043\";\n          find(sample, \"filter\").focus();\n        }\n      });\n    }",
+  "sources": {
+    "behavior.html": "875c577068ba10fa15e1bbff709758296abb1468b9915991d82e1f1144d1107c",
+    "behavior.js": "f1355df1b83f8f166584d7d517b336e18a6e2b95e22b5d29153bb9801cd2c129"
+  }
+}
