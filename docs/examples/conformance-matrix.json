@@ -100,6 +100,30 @@
           "bad": "not-applicable",
           "evidence": "Color does not encode a data variable.",
           "evidenceType": "rationale"
+        },
+        "DR-017": {
+          "good": "unassessed",
+          "bad": "unassessed",
+          "evidence": "No peer-alignment contract has been evaluated for this existing example. New composition checkpoint evidence does not retroactively certify this fixture.",
+          "evidenceType": "rationale"
+        },
+        "DR-018": {
+          "good": "unassessed",
+          "bad": "unassessed",
+          "evidence": "No repeated-spacing contract has been evaluated for this existing example. New composition checkpoint evidence does not retroactively certify this fixture.",
+          "evidenceType": "rationale"
+        },
+        "DR-019": {
+          "good": "unassessed",
+          "bad": "unassessed",
+          "evidence": "No finite evidence inventory or viewport-growth contract has been evaluated for this existing example. This is unassessed, not an occupancy failure or a pass.",
+          "evidenceType": "rationale"
+        },
+        "DR-020": {
+          "good": "unassessed",
+          "bad": "unassessed",
+          "evidence": "Semantic peer balance has not been assessed for this existing example. Existing priority review is not approval under the new composition rule.",
+          "evidenceType": "rationale"
         }
       }
     },
@@ -127,7 +151,10 @@
           "evidence": "Fixed labels expose measure, day, snapshot time, scope and units. Both variants retain the same known counts.",
           "evidenceType": "automated",
           "rule": "../design-rules/DR-003-quantity-context.md",
-          "checks": ["context", "shared-content"]
+          "checks": [
+            "context",
+            "shared-content"
+          ]
         },
         "DR-004": {
           "good": "not-applicable",
@@ -149,7 +176,11 @@
           "evidence": "Scope, the action and its reason remain local; both sections fit together on desktop, and critical text stays unclipped.",
           "evidenceType": "automated",
           "rule": "../design-rules/DR-006-related-evidence.md",
-          "checks": ["context", "no-clipping", "same-order"]
+          "checks": [
+            "context",
+            "no-clipping",
+            "same-order"
+          ]
         },
         "DR-007": {
           "good": "pass",
@@ -171,7 +202,10 @@
           "evidence": "Disclosure shows the actual three fixture identities awaiting correction; it does not claim correction or dispatch.",
           "evidenceType": "behavioral",
           "rule": "../design-rules/DR-009-state-honesty.md",
-          "checks": ["keyboard-disclosure", "context"]
+          "checks": [
+            "keyboard-disclosure",
+            "context"
+          ]
         },
         "DR-010": {
           "good": "pass",
@@ -179,7 +213,10 @@
           "evidence": "Disclosure preserves scope, counts and invoking focus in both variants.",
           "evidenceType": "behavioral",
           "rule": "../design-rules/DR-010-context-continuity.md",
-          "checks": ["continuity", "keyboard-disclosure"]
+          "checks": [
+            "continuity",
+            "keyboard-disclosure"
+          ]
         },
         "DR-011": {
           "good": "pass",
@@ -201,7 +238,10 @@
           "evidence": "Good assigns the shared accent and primary type scale to actionable exceptions; Bad assigns them to daily volume. Native style checks reject the old Good and the wrong assignment, but a reviewer still judges task priority.",
           "evidenceType": "human-review",
           "rule": "../design-rules/DR-013-task-emphasis.md",
-          "checks": ["native-emphasis", "paint-not-metadata"]
+          "checks": [
+            "native-emphasis",
+            "paint-not-metadata"
+          ]
         },
         "DR-014": {
           "good": "pass",
@@ -209,7 +249,10 @@
           "evidence": "Real Tab/Enter/Escape sequence, visible focus, ARIA linkage and shared action target. Not full accessibility certification.",
           "evidenceType": "behavioral",
           "rule": "../design-rules/DR-014-keyboard-access.md",
-          "checks": ["keyboard-disclosure", "continuity"]
+          "checks": [
+            "keyboard-disclosure",
+            "continuity"
+          ]
         },
         "DR-015": {
           "good": "pass",
@@ -224,6 +267,30 @@
           "evidence": "Accent selects the primary presentation role; it is not a category, magnitude, warning or risk color scale. Text and actions retain labels and measured contrast.",
           "evidenceType": "rationale",
           "rule": "../design-rules/DR-016-semantic-color.md"
+        },
+        "DR-017": {
+          "good": "unassessed",
+          "bad": "unassessed",
+          "evidence": "No peer-alignment contract has been evaluated for this existing example. New composition checkpoint evidence does not retroactively certify this fixture.",
+          "evidenceType": "rationale"
+        },
+        "DR-018": {
+          "good": "unassessed",
+          "bad": "unassessed",
+          "evidence": "No repeated-spacing contract has been evaluated for this existing example. New composition checkpoint evidence does not retroactively certify this fixture.",
+          "evidenceType": "rationale"
+        },
+        "DR-019": {
+          "good": "unassessed",
+          "bad": "unassessed",
+          "evidence": "No finite evidence inventory or viewport-growth contract has been evaluated for this existing example. This is unassessed, not an occupancy failure or a pass.",
+          "evidenceType": "rationale"
+        },
+        "DR-020": {
+          "good": "unassessed",
+          "bad": "unassessed",
+          "evidence": "Semantic peer balance has not been assessed for this existing example. Existing priority review is not approval under the new composition rule.",
+          "evidenceType": "rationale"
         }
       }
     }

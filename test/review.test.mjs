@@ -1518,9 +1518,9 @@ test(
     const contextSchema = JSON.parse(
       (await cli(["schema", "--type", "context"])).stdout,
     );
-    assert.equal(contextSchema.properties.designRules.items.enum.length, 16);
+    assert.equal(contextSchema.properties.designRules.items.enum.length, 20);
     assert.deepEqual(
-      contextSchema.properties.designRules.items.enum.slice(8),
+      contextSchema.properties.designRules.items.enum.slice(8, 16),
       additions,
     );
     const conformance = JSON.parse(
@@ -1530,13 +1530,14 @@ test(
       ),
     );
     const registeredRules = contextSchema.properties.designRules.items.enum;
+    assert.deepEqual(registeredRules.slice(16), ["DR-017", "DR-018", "DR-019", "DR-020"]);
     for (const example of conformance.examples) {
       assert.equal(example.target, example.id);
       assert.deepEqual(Object.keys(example.rules), registeredRules);
       const failures = [];
       for (const [id, assessment] of Object.entries(example.rules)) {
-        assert.ok(["pass", "fail", "not-applicable"].includes(assessment.good));
-        assert.ok(["pass", "fail", "not-applicable"].includes(assessment.bad));
+        assert.ok(["pass", "fail", "not-applicable", "unassessed"].includes(assessment.good));
+        assert.ok(["pass", "fail", "not-applicable", "unassessed"].includes(assessment.bad));
         assert.ok(
           assessment.evidence?.trim(),
           `${example.id}/${id} needs evidence`,
@@ -1547,11 +1548,11 @@ test(
           ),
           `${example.id}/${id} needs a valid evidenceType`,
         );
-        if (assessment.good === "not-applicable")
+        if (["not-applicable", "unassessed"].includes(assessment.good))
           assert.equal(
             assessment.evidenceType,
             "rationale",
-            `${example.id}/${id} not-applicable needs rationale evidence`,
+            `${example.id}/${id} ${assessment.good} needs rationale evidence`,
           );
         assert.notEqual(
           assessment.good,

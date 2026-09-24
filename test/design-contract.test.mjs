@@ -183,7 +183,7 @@ test(
       );
     const ruleIndex = JSON.parse((await guide("rules")).stdout);
     assert.equal(ruleIndex.schemaVersion, 1);
-    assert.equal(ruleIndex.rules.length, 16);
+    assert.equal(ruleIndex.rules.length, 20);
     const selected = ruleIndex.rules.find((rule) => rule.id === "DR-006");
     const rawRule = (await guide(selected.id)).stdout;
     assert.equal(
