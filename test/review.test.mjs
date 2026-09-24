@@ -1662,7 +1662,7 @@ test(
     }
     await writeFile(
       proposal,
-      JSON.stringify({ ...behaviorRules[0], designRules: ["DR-017"] }),
+      JSON.stringify({ ...behaviorRules[0], designRules: ["DR-999"] }),
     );
     assert.equal(
       (await cli(["add-rule", "--rule", proposal, "--dry-run"])).code,

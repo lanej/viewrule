@@ -80,7 +80,7 @@ adds DR-009–DR-016 to this same installed workflow. Its native checks reject t
 missing freshness labels and two clipped service names with exact DR citations;
 the good panels have no corresponding findings. Requiring DR-016 without an
 executed check produces an explicit coverage failure rather than a semantic pass.
-The schema accepts the sixteen registered IDs and rejects unknown DR-017.
+The schema accepts the twenty registered IDs and rejects unknown DR-999.
 
 The fixture walkthrough exercises refresh/completion states, detail-return identity
 and focus, publication scope, rejection without losing input, review/cancel/undo,
