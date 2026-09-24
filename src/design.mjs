@@ -3,6 +3,7 @@ import { createHash } from "node:crypto";
 import path from "node:path";
 import { designRuleRegistry } from "./policy-ids.mjs";
 import { ruleApplies } from "./scopes.mjs";
+import { evaluateViewportGrowth } from "./viewport-growth.mjs";
 
 export const policyDirectory = path.resolve(
   import.meta.dirname,
@@ -17,7 +18,7 @@ const defaults = {
   "relative-position": ["DR-006", "DR-007"],
   "reading-column": ["DR-006", "DR-007"],
   "vertical-order": ["DR-006", "DR-007"],
-  align: ["DR-006"],
+  align: ["DR-006", "DR-017"],
   "no-overlap": ["DR-006"],
   "no-clip": ["DR-006", "DR-007"],
   "visible-count": ["DR-006"],
@@ -78,7 +79,9 @@ const advice = {
 };
 export const designIdsFor = (rule) =>
   rule.designRules ??
-  defaults[rule.type] ??
+  (rule.type === "comparison-set" && rule.growthYield
+    ? ["DR-006", "DR-007", "DR-019"]
+    : defaults[rule.type]) ??
   (rule.type === "style"
     ? [
         /font|line-height/.test(rule.property)
@@ -160,7 +163,10 @@ export function evaluateDesign(report, rules, config) {
           );
         if (page.viewport.name === rule.preserveFrom) continue;
         const baseline = pages.find(
-          (p) => p.name === page.name && p.viewport.name === rule.preserveFrom,
+          (p) =>
+            p.name === page.name &&
+            (p.checkpoint ?? null) === (page.checkpoint ?? null) &&
+            p.viewport.name === rule.preserveFrom,
         );
         const previous = baseline?.metrics?.comparisons.find(
           (item) => item.rule === rule.id,
@@ -192,6 +198,7 @@ export function evaluateDesign(report, rules, config) {
             );
         }
       }
+      evaluateViewportGrowth(pages, rule);
     }
     if (rule.type === "consistent") {
       const seen = new Map();
@@ -237,7 +244,7 @@ export function evaluateDesign(report, rules, config) {
       finding.suggestion ??= rule
         ? advice[rule.type]
         : "Resolve the capture or accessibility issue and rerun viewrule check.";
-      finding.evidenceKind =
+      finding.evidenceKind ??=
         rule?.type === "attribute" ||
         rule?.type === "repeated-metric" ||
         (rule?.type === "consistent" && rule.attributes.length)
@@ -249,11 +256,30 @@ export function evaluateDesign(report, rules, config) {
         const assigned = rules.filter(
           (rule) => active(rule, page) && designIdsFor(rule).includes(id),
         );
-        const observed = assigned.filter((rule) =>
-          page.metrics?.evaluations.some(
-            (e) => e.rule === rule.id && e.status === "checked",
-          ),
-        );
+        const observed = assigned.filter((rule) => {
+          if (
+            !page.metrics?.evaluations.some(
+              (e) => e.rule === rule.id && e.status === "checked",
+            )
+          )
+            return false;
+          if (id !== "DR-019" || !rule.growthYield) return true;
+          const growth = page.viewportGrowth?.find(
+            (item) => item.rule === rule.id,
+          );
+          if (!growth || growth.status === "unassessed") return false;
+          if (growth.status !== "reference") return true;
+          return report.pages.some(
+            (target) =>
+              target.name === page.name &&
+              (target.checkpoint ?? null) === (page.checkpoint ?? null) &&
+              target.viewportGrowth?.some(
+                (item) =>
+                  item.rule === rule.id &&
+                  ["measured", "saturated"].includes(item.status),
+              ),
+          );
+        });
         const hasFindings = page.findings.some((finding) =>
           finding.designRules.includes(id),
         );

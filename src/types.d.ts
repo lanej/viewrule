@@ -181,6 +181,7 @@ export interface Rule {
   minVisibleByViewport?: Record<string, number>;
   preserveFrom?: string;
   minFontSize?: number;
+  growthYield?: { min: number; availableKeys: string[] };
   required?: string[];
   region?: string;
   measure?: "boxes" | "text";
@@ -222,6 +223,22 @@ export interface Finding {
 export type DesignPolicy = Awaited<
   ReturnType<typeof import("./design.mjs").readDesignPolicy>
 >;
+export interface ViewportGrowthObservation {
+  rule: string;
+  preserveFrom: string;
+  status: "reference" | "measured" | "saturated" | "unassessed";
+  unit: string;
+  baselineArea: number | null;
+  currentArea: number | null;
+  baselineCount: number;
+  currentCount: number;
+  availableCount: number;
+  areaGrowth: number | null;
+  evidenceGrowth: number | null;
+  yield: number | null;
+  requiredCount: number | null;
+  minYield: number;
+}
 export interface PageResult {
   evidence?: EvidenceProvenance;
   name: string;
@@ -230,6 +247,7 @@ export interface PageResult {
   url: string;
   viewport: Viewport;
   findings: Finding[];
+  viewportGrowth?: ViewportGrowthObservation[];
   screenshot?: string;
   details?: Awaited<ReturnType<typeof import("./capture.mjs").captureDetails>>;
   metrics?: ReturnType<typeof import("./checks.mjs").inspectPage>["metrics"];

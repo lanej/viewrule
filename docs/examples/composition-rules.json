@@ -1,0 +1,75 @@
+[
+  {
+    "id": "peer-members",
+    "type": "required-elements",
+    "selector": "#peers",
+    "required": [".peer:nth-child(1) h2", ".peer:nth-child(2) h2"],
+    "severity": "error",
+    "reason": "Both equivalent summaries must remain present.",
+    "designRules": ["DR-017"]
+  },
+  {
+    "id": "peer-alignment",
+    "type": "align",
+    "selector": ".peer h2",
+    "edge": "top",
+    "tolerance": 1,
+    "severity": "error",
+    "reason": "Equivalent summaries share a heading anchor.",
+    "designRules": ["DR-017"]
+  },
+  {
+    "id": "label-value-rhythm",
+    "type": "relative-position",
+    "selector": ".relationship",
+    "from": ".label",
+    "to": ".value",
+    "relation": "above",
+    "minGap": 8,
+    "maxGap": 12,
+    "tolerance": 0.5,
+    "severity": "error",
+    "reason": "Equivalent label/value relationships use a bounded repeated gap.",
+    "designRules": ["DR-018"]
+  },
+  {
+    "id": "peer-balance",
+    "type": "style",
+    "selector": ".peer h2",
+    "property": "font-size",
+    "allowed": ["18px"],
+    "severity": "error",
+    "reason": "Equivalent summary roles share the declared heading scale.",
+    "designRules": ["DR-020"]
+  },
+  {
+    "id": "offer-growth",
+    "type": "comparison-set",
+    "selector": "#offers [data-offer]",
+    "keyAttribute": "data-offer",
+    "requiredKeys": ["a", "b", "c", "d"],
+    "minVisibleByViewport": { "desktop": 4, "wide": 4 },
+    "preserveFrom": "desktop",
+    "minFontSize": 16,
+    "growthYield": {
+      "min": 1,
+      "availableKeys": [
+        "a",
+        "b",
+        "c",
+        "d",
+        "e",
+        "f",
+        "g",
+        "h",
+        "i",
+        "j",
+        "k",
+        "l"
+      ]
+    },
+    "viewports": ["desktop", "wide"],
+    "severity": "error",
+    "reason": "Expose more distinct offers as area doubles, up to the finite inventory."
+  }
+]

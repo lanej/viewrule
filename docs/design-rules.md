@@ -13,6 +13,10 @@ evidence, and enforceable conditions. DR IDs provide policy rationale; only conf
 measurements are automated requirements. No DR citation alone establishes coverage
 of semantic claims such as decision sufficiency.
 
+DR-017–DR-020 add task-scoped composition contracts. Their formulas and thresholds
+are Viewrule conventions, not experimentally established measures of design quality.
+See [falsifiable composition](composition.md) for executable contracts and limits.
+
 ## How to apply the rules
 
 - **Must** defines a requirement when the stated condition applies.
@@ -148,6 +152,30 @@ Layout survives content variation and text adaptation.
 Color scales match the structure of the data.
 
 [Canonical rule →](design-rules/DR-016-semantic-color.md)
+
+## DR-017 — Rule of Alignment
+
+Related elements share intentional visual anchors.
+
+[Canonical rule →](design-rules/DR-017-intentional-alignment.md)
+
+## DR-018 — Rule of Rhythm
+
+Equivalent relationships use consistent spacing.
+
+[Canonical rule →](design-rules/DR-018-spacing-rhythm.md)
+
+## DR-019 — Rule of Spatial Economy
+
+Visual space is allocated according to task value rather than container availability.
+
+[Canonical rule →](design-rules/DR-019-spatial-economy.md)
+
+## DR-020 — Rule of Balance
+
+Visual weight reflects semantic priority, not accidental asymmetry.
+
+[Canonical rule →](design-rules/DR-020-semantic-balance.md)
 
 ## Refining the rules
 

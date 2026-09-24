@@ -100,6 +100,30 @@
           "bad": "not-applicable",
           "evidence": "Color does not encode a data variable.",
           "evidenceType": "rationale"
+        },
+        "DR-017": {
+          "good": "unassessed",
+          "bad": "unassessed",
+          "evidence": "No peer-alignment contract has been evaluated for this existing example. New composition checkpoint evidence does not retroactively certify this fixture.",
+          "evidenceType": "rationale"
+        },
+        "DR-018": {
+          "good": "unassessed",
+          "bad": "unassessed",
+          "evidence": "No repeated-spacing contract has been evaluated for this existing example. New composition checkpoint evidence does not retroactively certify this fixture.",
+          "evidenceType": "rationale"
+        },
+        "DR-019": {
+          "good": "unassessed",
+          "bad": "unassessed",
+          "evidence": "No finite evidence inventory or viewport-growth contract has been evaluated for this existing example. This is unassessed, not an occupancy failure or a pass.",
+          "evidenceType": "rationale"
+        },
+        "DR-020": {
+          "good": "unassessed",
+          "bad": "unassessed",
+          "evidence": "Semantic peer balance has not been assessed for this existing example. Existing priority review is not approval under the new composition rule.",
+          "evidenceType": "rationale"
         }
       }
     },
@@ -224,6 +248,30 @@
           "evidence": "Accent selects the primary presentation role; it is not a category, magnitude, warning or risk color scale. Text and actions retain labels and measured contrast.",
           "evidenceType": "rationale",
           "rule": "../design-rules/DR-016-semantic-color.md"
+        },
+        "DR-017": {
+          "good": "unassessed",
+          "bad": "unassessed",
+          "evidence": "No peer-alignment contract has been evaluated for this existing example. New composition checkpoint evidence does not retroactively certify this fixture.",
+          "evidenceType": "rationale"
+        },
+        "DR-018": {
+          "good": "unassessed",
+          "bad": "unassessed",
+          "evidence": "No repeated-spacing contract has been evaluated for this existing example. New composition checkpoint evidence does not retroactively certify this fixture.",
+          "evidenceType": "rationale"
+        },
+        "DR-019": {
+          "good": "unassessed",
+          "bad": "unassessed",
+          "evidence": "No finite evidence inventory or viewport-growth contract has been evaluated for this existing example. This is unassessed, not an occupancy failure or a pass.",
+          "evidenceType": "rationale"
+        },
+        "DR-020": {
+          "good": "unassessed",
+          "bad": "unassessed",
+          "evidence": "Semantic peer balance has not been assessed for this existing example. Existing priority review is not approval under the new composition rule.",
+          "evidenceType": "rationale"
         }
       }
     }
