@@ -170,26 +170,26 @@ for (const rule of policy.rules) {
         'href="https://github.com/lanej/viewrule/blob/main/docs/composition.md"',
       )
     : sections
-    .map(
-      ({ label, text }) =>
-        `<section><h2>${label}</h2><p>${markdownInline(text)}</p></section>`,
-    )
-    .join("\n");
+        .map(
+          ({ label, text }) =>
+            `<section><h2>${label}</h2><p>${markdownInline(text)}</p></section>`,
+        )
+        .join("\n");
   const behavioral = Number(rule.id.slice(3)) >= 9 && !composition;
   const interactive = composition
     ? `<p><a href="../../examples/composition.html">Open the rendered composition fixture</a> · <a href="https://github.com/lanej/viewrule/blob/main/docs/composition.md">Measurement contract and accepted/rejected cases</a></p><p>The native checkpoint changes actual geometry, spacing, type, and comparison layout against fixed contracts. It does not record human approval.</p>`
     : behavioral
-    ? `<div id="behavior-examples" data-fixed-rule="${rule.id}">${behaviorBody
-        .replace(
-          /<label\s*>Design rule[\s\S]*?<\/label>/,
-          '<select id="rule-picker" hidden aria-label="Design rule"></select>',
-        )
-        .replace(
-          /<p>\s*<a id="policy-link"[\s\S]*?<\/p>/,
-          "",
-        )}</div>${behaviorTemplates}
+      ? `<div id="behavior-examples" data-fixed-rule="${rule.id}">${behaviorBody
+          .replace(
+            /<label\s*>Design rule[\s\S]*?<\/label>/,
+            '<select id="rule-picker" hidden aria-label="Design rule"></select>',
+          )
+          .replace(
+            /<p>\s*<a id="policy-link"[\s\S]*?<\/p>/,
+            "",
+          )}</div>${behaviorTemplates}
         <p id="load-error" role="alert" hidden>Examples could not load. Reload to try again.</p>`
-    : `<div id="evidence-examples" data-rule="${rule.id}">
+      : `<div id="evidence-examples" data-rule="${rule.id}">
        <button type="button" id="evidence-toggle" aria-pressed="false">${["Change parcel volumes", "Change amounts", "Change period", "Change observation", "Reverse carrier order", "Switch selected carrier", "Show larger layout", "Expand shipment detail"][Number(rule.id.slice(3)) - 1]}</button>
        <div class="behavior-pair">${["good", "bad"].map((quality) => `<section id="${quality}"><h3>${quality === "good" ? "Good" : "Bad"} for this task</h3><p>${escapeHtml(example[quality])}</p><div class="sample">${evidenceSource.match(new RegExp('<template id="scene-' + rule.id + '">([\\s\\S]*?)</template>'))[1]}</div></section>`).join("")}</div>
        <p>These synthetic fixtures illustrate the stated comparison. Native checks can support review of declared scales, context, encodings, geometry, and legibility; they do not establish data truth or task relevance. Review the requirement and exceptions above.</p></div>`;

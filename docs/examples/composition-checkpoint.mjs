@@ -11,10 +11,18 @@ import { evaluateViewportGrowth } from "../../src/viewport-growth.mjs";
 // Exercise real rendered counterexamples with the native collector/evaluator.
 // Thresholds stay constant while the fixture changes; no approved reference.
 export async function runCompositionCheckpoint(root) {
-  const html = await readFile(path.join(root, "docs/examples/composition.html"), "utf8");
-  const rules = validateRules(JSON.parse(await readFile(
-    path.join(root, "docs/examples/composition-rules.json"), "utf8",
-  )));
+  const html = await readFile(
+    path.join(root, "docs/examples/composition.html"),
+    "utf8",
+  );
+  const rules = validateRules(
+    JSON.parse(
+      await readFile(
+        path.join(root, "docs/examples/composition-rules.json"),
+        "utf8",
+      ),
+    ),
+  );
   const growthRule = rules.find((rule) => rule.id === "offer-growth");
   assert.ok(designIdsFor(growthRule).includes("DR-019"));
   const policy = await readDesignPolicy();
@@ -27,7 +35,11 @@ export async function runCompositionCheckpoint(root) {
   });
   const outputs = {};
   const capture = async (name, variant = "good", activeRules = rules) => {
-    const viewport = { name, width: name === "desktop" ? 1000 : 2000, height: 800 };
+    const viewport = {
+      name,
+      width: name === "desktop" ? 1000 : 2000,
+      height: 800,
+    };
     const page = await browser.newPage({
       viewport: { width: viewport.width, height: viewport.height },
       deviceScaleFactor: 1,
@@ -35,21 +47,37 @@ export async function runCompositionCheckpoint(root) {
     try {
       await page.setContent(html);
       await page.evaluate((variant) => {
-        if (variant === "stretched") globalThis.document.body.dataset.stretched = "true";
-        if (variant === "bad-peers") globalThis.document.body.dataset.badPeers = "true";
-        const offers = [...globalThis.document.querySelectorAll("[data-offer]")];
+        if (variant === "stretched")
+          globalThis.document.body.dataset.stretched = "true";
+        if (variant === "bad-peers")
+          globalThis.document.body.dataset.badPeers = "true";
+        const offers = [
+          ...globalThis.document.querySelectorAll("[data-offer]"),
+        ];
         if (variant === "duplicates")
-          offers.forEach((el, index) => el.setAttribute("data-offer", "abcd"[index % 4]));
+          offers.forEach((el, index) =>
+            el.setAttribute("data-offer", "abcd"[index % 4]),
+          );
         if (variant === "finite") offers.slice(4).forEach((el) => el.remove());
         if (variant === "tiny")
-          globalThis.document.querySelector("#offers").setAttribute("style", "font-size: 8px");
+          globalThis.document
+            .querySelector("#offers")
+            .setAttribute("style", "font-size: 8px");
         if (variant === "empty") offers[0].textContent = "";
         return globalThis.document.fonts.ready.then(() => undefined);
       }, variant);
       const result = await page.evaluate(inspectPage, activeRules);
       if (variant === "good" || variant === "stretched")
-        await page.screenshot({ path: path.join(directory, `${name}-${variant}.png`) });
-      return { name: "offers", checkpoint: "loaded", url: "about:blank", viewport, ...result };
+        await page.screenshot({
+          path: path.join(directory, `${name}-${variant}.png`),
+        });
+      return {
+        name: "offers",
+        checkpoint: "loaded",
+        url: "about:blank",
+        viewport,
+        ...result,
+      };
     } finally {
       await page.close();
     }
@@ -59,12 +87,16 @@ export async function runCompositionCheckpoint(root) {
     evaluateViewportGrowth(pages, rule);
     return pages;
   };
-  const observation = (page) => page.viewportGrowth.find((item) => item.rule === growthRule.id);
+  const observation = (page) =>
+    page.viewportGrowth.find((item) => item.rule === growthRule.id);
   try {
     const baseline = await capture("desktop");
     const target = await capture("wide");
     const accepted = compare(baseline, target);
-    assert.deepEqual(accepted.flatMap((page) => page.findings), []);
+    assert.deepEqual(
+      accepted.flatMap((page) => page.findings),
+      [],
+    );
     assert.equal(observation(accepted[1]).yield, 1);
     assert.equal(observation(accepted[1]).baselineCount, 4);
     assert.equal(observation(accepted[1]).currentCount, 8);
@@ -75,15 +107,19 @@ export async function runCompositionCheckpoint(root) {
       const rejected = compare(baseline, await capture("wide", variant));
       assert.equal(observation(rejected[1]).yield, 0);
       assert.equal(observation(rejected[1]).currentCount, 4);
-      assert.deepEqual(rejected[1].findings.map((finding) => finding.rule), ["offer-growth"]);
+      assert.deepEqual(
+        rejected[1].findings.map((finding) => finding.rule),
+        ["offer-growth"],
+      );
       assert.ok(rejected[1].findings[0].designRules.includes("DR-019"));
       outputs[variant] = rejected;
     }
 
     const peerFailure = await capture("desktop", "bad-peers");
-    assert.deepEqual(peerFailure.findings.map((finding) => finding.rule).sort(), [
-      "label-value-rhythm", "peer-alignment", "peer-balance",
-    ]);
+    assert.deepEqual(
+      peerFailure.findings.map((finding) => finding.rule).sort(),
+      ["label-value-rhythm", "peer-alignment", "peer-balance"],
+    );
     outputs.peerFailure = peerFailure;
 
     const finiteRules = structuredClone(rules);
@@ -95,7 +131,10 @@ export async function runCompositionCheckpoint(root) {
       await capture("wide", "finite", finiteRules),
       finiteRule,
     );
-    assert.deepEqual(finite.flatMap((page) => page.findings), []);
+    assert.deepEqual(
+      finite.flatMap((page) => page.findings),
+      [],
+    );
     assert.equal(observation(finite[1]).status, "saturated");
     assert.equal(observation(finite[1]).yield, 0);
     assert.equal(observation(finite[1]).requiredCount, 4);
@@ -104,7 +143,9 @@ export async function runCompositionCheckpoint(root) {
     for (const variant of ["tiny", "empty"]) {
       const rejected = compare(baseline, await capture("wide", variant));
       assert.equal(observation(rejected[1]).status, "unassessed");
-      assert.ok(rejected[1].findings.some((finding) => finding.rule === "offer-growth"));
+      assert.ok(
+        rejected[1].findings.some((finding) => finding.rule === "offer-growth"),
+      );
       outputs[variant] = rejected;
     }
     const absent = structuredClone([target]);
@@ -117,12 +158,20 @@ export async function runCompositionCheckpoint(root) {
     const mismatched = compare(otherState, target);
     assert.equal(observation(mismatched[1]).status, "unassessed");
     outputs.checkpointMismatch = mismatched;
-    await writeFile(path.join(directory, "report.json"), JSON.stringify(outputs, null, 2) + "\n");
-    console.log("Composition checkpoint passed: alignment, rhythm, balance, growth, finite saturation, and rejected evidence.");
+    await writeFile(
+      path.join(directory, "report.json"),
+      JSON.stringify(outputs, null, 2) + "\n",
+    );
+    console.log(
+      "Composition checkpoint passed: alignment, rhythm, balance, growth, finite saturation, and rejected evidence.",
+    );
   } finally {
     await browser.close();
   }
 }
 
-if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url))
+if (
+  process.argv[1] &&
+  path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)
+)
   await runCompositionCheckpoint(path.resolve(import.meta.dirname, "../.."));
