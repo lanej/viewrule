@@ -1604,7 +1604,7 @@ test(
     const behaviorReport = JSON.parse(
       await readFile(JSON.parse(behaviorCheck.stdout).report, "utf8"),
     );
-    assert.equal(behaviorReport.designPolicy.rules.length, 16);
+    assert.equal(behaviorReport.designPolicy.rules.length, 20);
     for (const capture of behaviorReport.pages) {
       const findings = capture.findings.filter(
         (finding) => finding.rule !== "design-coverage",

@@ -441,3 +441,11 @@ supporting content instead of rewarding the large map's bounding box. Use existi
 `max-height` for explicitly identified scalar displays; a new scalar-quality score
 would overstate what geometry can establish. Readable-type and map-size rules prevent
 compression from becoming smaller text or an unreadable geographic thumbnail.
+
+## Composition and viewport-growth yield
+
+[Composition contracts](composition.md) document DR-017–DR-020 and the optional
+`comparison-set.growthYield` field (`min`, `availableKeys`). The finite inventory
+caps the required growth count; duplicated or stretched boxes do not earn yield.
+Existing configurations and presets remain unchanged. JSON reports expose
+`pages[].viewportGrowth`; missing prerequisites remain unassessed, not a pass.

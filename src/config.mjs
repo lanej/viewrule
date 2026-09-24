@@ -260,6 +260,12 @@ const optionalFields = {
     acrossPages: { type: "boolean" },
     compareSVG: { type: "boolean" },
   },
+  "comparison-set": {
+    growthYield: object(
+      { min: { type: "number", minimum: 0 }, availableKeys: names },
+      ["min", "availableKeys"],
+    ),
+  },
 };
 export const ruleSchema = {
   oneOf: Object.entries(types).map(([type, extra]) =>
@@ -382,6 +388,19 @@ export function validateRules(rules) {
       throw new Error(
         `Rule ${rule.id}: attribute checks must cite designRules`,
       );
+    else if (rule.type === "comparison-set" && rule.growthYield) {
+      const inventory = rule.growthYield.availableKeys;
+      if (
+        inventory.some((key) => !key.trim() || key !== key.trim()) ||
+        rule.requiredKeys.some((key) => !inventory.includes(key)) ||
+        Object.values(rule.minVisibleByViewport).some(
+          (count) => count > inventory.length,
+        )
+      )
+        throw new Error(
+          `Rule ${rule.id}: growthYield needs trimmed inventory keys containing requiredKeys and enough identities for every visible minimum`,
+        );
+    }
   return rules;
 }
 /** @param {import("./types.js").Rule[]} global @param {import("./types.js").Rule[]} local */
@@ -460,6 +479,21 @@ export function validateRuleScopes(rules, config) {
       for (const v of active)
         if (!r.minVisibleByViewport[v.name])
           throw new Error(`Rule ${r.id}: missing visible count for ${v.name}`);
+      if (r.growthYield)
+        for (const page of config.pages.filter((p) => selected(p.name, r.pages))) {
+          const viewports = active.filter((v) => selected(v.name, page.viewports));
+          const reference = viewports.find((v) => v.name === r.preserveFrom);
+          if (
+            !reference ||
+            !viewports.some(
+              (v) => v.width >= reference.width && v.height >= reference.height &&
+                v.width * v.height > reference.width * reference.height,
+            )
+          )
+            throw new Error(
+              `Rule ${r.id}: growthYield needs its reference and a larger comparable viewport on page ${page.name}`,
+            );
+        }
     }
   }
 }

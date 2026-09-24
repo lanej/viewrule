@@ -411,3 +411,12 @@ is the shared review rubric, used by the project Claude reviewer and summarized 
 GitHub Copilot instructions. Reviewer guidance does not enable automatic reviews or
 configure branch protection. See [SECURITY.md](https://github.com/lanej/viewrule/blob/main/SECURITY.md)
 for artifact privacy and reporting. MIT licensed.
+
+## Falsifiable visual composition
+
+DR-017–DR-020 cover alignment, rhythm, spatial economy, and balance through scoped
+contracts, not a universal design score. Existing geometry/style checks protect
+explicit peer relationships. Opt-in `comparison-set.growthYield` compares relative
+distinct-evidence growth with relative CSS viewport-area growth and caps required
+counts at a predeclared finite inventory. Stretching, duplication, or smaller type
+cannot certify improvement. See [composition contracts](docs/composition.md).

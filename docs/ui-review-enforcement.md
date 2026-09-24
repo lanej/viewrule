@@ -225,3 +225,16 @@ The installed regression checks a long currency label crossing its SVG's left
 edge and a contained alternative in the same capture, with specific excess, rule,
 and DR-006/DR-007 assertions. No default rule is added: the application declares
 which content must fit which boundary.
+
+## Composition contracts (DR-017–DR-020)
+
+| Policy | Implemented measurement | Not certified |
+| --- | --- | --- |
+| DR-017 Alignment | `align` edge spread with declared peers and tolerance | Optical alignment, baseline alignment, and peer selection |
+| DR-018 Rhythm | Repeated scoped `relative-position` intervals and required members | Inferred grouping, automatic rhythm or gap-variance score |
+| DR-019 Spatial Economy | Optional `comparison-set.growthYield`, distinct identities, legibility prerequisites, finite cap | Semantic relevance or a universal occupancy target |
+| DR-020 Balance | Explicit `style`, alignment and size contracts for declared roles | Generic salience, symmetry, or balance score |
+
+[Measurement contract and rendered counterexamples](composition.md). A reference
+capture alone does not establish growth coverage. Missing or failed comparison
+prerequisites produce an unassessed yield finding rather than a misleading score.

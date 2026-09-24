@@ -361,6 +361,17 @@ export function inspectPage(rules) {
           );
           continue;
         }
+        if (rule.type === "comparison-set" && rule.growthYield && !textBounds(el)) {
+          evaluations.at(-1).status = "missing";
+          add(
+            rule,
+            "Yield evidence needs visible, nonempty text; empty keyed boxes do not count.",
+            el,
+            key,
+            "visible comparison evidence",
+          );
+          continue;
+        }
         if (rule.type === "consistent") {
           const values = {};
           for (const property of rule.properties)

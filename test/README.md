@@ -141,3 +141,12 @@ rendered encoding while preserving the other page's verified reused capture.
 The expanded installed workflow has a 360-second test-harness budget. This bounds
 the combined regression workload, not individual application captures or provider
 execution. Production timeout settings and all evidence assertions are unchanged.
+
+## Composition checkpoint
+
+`npm test` also executes `docs/examples/composition-checkpoint.mjs` against native
+browser measurements. It preserves accepted/rejected composition fixtures and
+asserts alignment, relationship gaps, explicit peer type scale, viewport-growth
+yield, duplicate rejection, finite saturation, missing reference, and unreadable
+or empty evidence. `dist/composition-evidence/` contains machine results and
+representative captures; none establishes a human-approved visual reference.
