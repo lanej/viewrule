@@ -1,0 +1,93 @@
+[
+  {
+    "id": "composition-alignment",
+    "type": "alignment-residual",
+    "selector": ".handoffs",
+    "items": ".carrier-name",
+    "edge": "left",
+    "maxResidual": 2,
+    "reason": "The three declared carrier names share one left anchor; tolerate two CSS pixels.",
+    "pages": ["alignment-good", "alignment-bad"],
+    "severity": "error",
+    "designRules": ["DR-017"]
+  },
+  {
+    "id": "composition-rhythm",
+    "type": "gap-variance",
+    "selector": ".steps",
+    "items": "li",
+    "axis": "y",
+    "maxCoefficientOfVariation": 0.1,
+    "reason": "Three equally related checklist peers use a stable border-box gap; no subgroup is declared.",
+    "pages": ["rhythm-good", "rhythm-bad"],
+    "severity": "error",
+    "designRules": ["DR-018"]
+  },
+  {
+    "id": "composition-growth",
+    "type": "viewport-growth-yield",
+    "selector": ".queue-region",
+    "items": ".queue li",
+    "keyAttribute": "data-shipment",
+    "referenceViewport": "compact",
+    "minYield": 0.8,
+    "minFontSize": 14,
+    "reason": "Additional queue area must expose distinct readable shipment identities while preserving the baseline comparison set.",
+    "pages": ["economy-good", "economy-bad"],
+    "severity": "error",
+    "designRules": ["DR-019"]
+  },
+  {
+    "id": "composition-balance",
+    "type": "peer-footprint",
+    "selector": ".coverage-peers",
+    "items": "section",
+    "measure": "area",
+    "maxCoefficientOfVariation": 0.1,
+    "reason": "These three unselected carrier plans have equal task priority and receive comparable card areas.",
+    "pages": ["balance-good", "balance-bad"],
+    "severity": "error",
+    "designRules": ["DR-020"]
+  },
+  {
+    "id": "composition-chrome",
+    "type": "chrome-allocation",
+    "selector": ".economy-surface",
+    "items": "header, header h3, header p, footer",
+    "maxRatio": 0.45,
+    "pages": ["economy-good", "economy-bad"],
+    "severity": "error",
+    "designRules": ["DR-019"],
+    "reason": "Shared queue title and scope chrome occupy at most 45 percent of this declared decision surface; this fixture does not infer semantic utility."
+  },
+  {
+    "id": "composition-peer-type",
+    "type": "peer-footprint",
+    "selector": ".coverage-peers",
+    "items": "h4",
+    "measure": "font-size",
+    "maxCoefficientOfVariation": 0.05,
+    "pages": ["balance-good", "balance-bad"],
+    "severity": "error",
+    "designRules": ["DR-020"],
+    "reason": "Equal-priority peer headings share a type scale; card area is measured separately."
+  },
+  {
+    "id": "composition-readable",
+    "type": "min-font-size",
+    "selector": ".composition-surface",
+    "min": 14,
+    "severity": "error",
+    "designRules": ["DR-007", "DR-015"],
+    "reason": "All variants preserve readable type within this authored 14 CSS pixel minimum."
+  },
+  {
+    "id": "composition-context",
+    "type": "context",
+    "selector": ".composition-surface",
+    "required": ["header h3", "header p", "footer"],
+    "severity": "error",
+    "designRules": ["DR-003", "DR-006"],
+    "reason": "Each pair retains the same task title, local explanation, and time or comparison scope."
+  }
+]

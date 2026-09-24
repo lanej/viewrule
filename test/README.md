@@ -80,7 +80,7 @@ adds DR-009–DR-016 to this same installed workflow. Its native checks reject t
 missing freshness labels and two clipped service names with exact DR citations;
 the good panels have no corresponding findings. Requiring DR-016 without an
 executed check produces an explicit coverage failure rather than a semantic pass.
-The schema accepts the sixteen registered IDs and rejects unknown DR-017.
+The schema accepts the twenty registered IDs and rejects unknown DR-021.
 
 The fixture walkthrough exercises refresh/completion states, detail-return identity
 and focus, publication scope, rejection without losing input, review/cancel/undo,
@@ -141,3 +141,16 @@ rendered encoding while preserving the other page's verified reused capture.
 The expanded installed workflow has a 360-second test-harness budget. This bounds
 the combined regression workload, not individual application captures or provider
 execution. Production timeout settings and all evidence assertions are unchanged.
+
+The [composition examples](../docs/examples/composition.html) extend this same
+installed workflow with four controlled pairs: median-anchor residual, peer-gap
+variation, viewport-growth yield, and equal-priority footprint variation. Bad
+fails only its declared target; the workflow asserts actual values and preserves
+shared content, type, identities, semantic color, and total surface width. A
+checkpoint workflow checks complete finite-universe whitespace, nested chrome
+rectangle union and excessive allocation, unequal peer heading type, and missing
+growth identity evidence isolated from an intact checkpoint, and loss of a baseline
+identity despite a growing total. Native-scale Good
+and Bad images and both reports are retained in `dist/composition-evidence/`.
+These thresholds measure authored relationships, not general beauty, symmetry,
+semantic utility, or human approval.

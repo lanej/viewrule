@@ -106,7 +106,68 @@
       {{/density}}
     </tbody>
   </table>
-  {{/hasDensity}} {{#hasFindings}}
+  {{/hasDensity}} {{#hasComposition}}
+  <details>
+    <summary>Composition measurements</summary>
+    <p>
+      These measurements compare declared relationships. Their thresholds and
+      task relevance require application judgment.
+    </p>
+    <table>
+      <thead>
+        <tr>
+          <th>Rule / group</th>
+          <th>Measurement status</th>
+          <th>Observed geometry or style</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#composition}}
+        <tr>
+          <td><code>{{rule}}</code><br />{{element}}</td>
+          <td>{{status}}</td>
+          <td><pre>{{evidence}}</pre></td>
+        </tr>
+        {{/composition}}
+      </tbody>
+    </table>
+  </details>
+  {{/hasComposition}} {{#hasGrowth}}
+  <table>
+    <caption>
+      Viewport-growth yield · relative evidence growth / relative usable-area
+      growth
+    </caption>
+    <thead>
+      <tr>
+        <th>Rule / state</th>
+        <th>Evidence / usable area</th>
+        <th>Yield</th>
+        <th>Comparison evidence</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#growth}}
+      <tr>
+        <td><code>{{rule}}</code><br />{{comparisonStatus}}</td>
+        <td>{{count}} distinct identities / {{areaLabel}} CSS px²</td>
+        <td>{{yieldLabel}}</td>
+        <td>
+          <details>
+            <summary>Reference, identities, and exclusions</summary>
+            <pre>{{evidence}}</pre>
+          </details>
+        </td>
+      </tr>
+      {{/growth}}
+    </tbody>
+  </table>
+  <p>
+    A saturated comparison already exposes the complete declared finite set at
+    both sizes; its minimum-yield threshold is exempt. Yield does not establish
+    evidence quality, task relevance, or visual quality.
+  </p>
+  {{/hasGrowth}} {{#hasFindings}}
   <table>
     <thead>
       <tr>
@@ -132,9 +193,9 @@
           <p>{{suggestion}}</p>
         </td>
         <td>
-          <code>{{selector}}</code><br />{{evidence}}<br /><small
-            >{{evidenceKind}}</small
-          >
+          <code>{{selector}}</code>
+          <pre>{{evidence}}</pre>
+          <small>{{evidenceKind}}</small>
         </td>
       </tr>
       {{/findings}}

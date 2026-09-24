@@ -5,6 +5,10 @@ export function inspectPage(rules) {
   /** @type {import("./types.js").Finding[]} */
   const findings = [];
   const density = [];
+  /** @type {import("./types.js").CompositionMeasurement[]} */
+  const composition = [];
+  /** @type {import("./types.js").GrowthMeasurement[]} */
+  const growth = [];
   const repeatedMetrics = [],
     evidenceDistances = [],
     markContrasts = [];
@@ -99,6 +103,73 @@ export function inspectPage(rules) {
         : null,
     });
   const width = document.documentElement.clientWidth;
+  const viewportBounds = { left: 0, right: width, top: 0, bottom: innerHeight };
+  const clipBox = (box, bounds) => ({
+    left: Math.max(box.left, bounds.left),
+    right: Math.min(box.right, bounds.right),
+    top: Math.max(box.top, bounds.top),
+    bottom: Math.min(box.bottom, bounds.bottom),
+  });
+  const boxArea = (box) =>
+    Math.max(0, box.right - box.left) * Math.max(0, box.bottom - box.top);
+  const inside = (box, bounds) =>
+    box.left >= bounds.left &&
+    box.right <= bounds.right &&
+    box.top >= bounds.top &&
+    box.bottom <= bounds.bottom;
+  const unclipped = (box, start) => {
+    for (let el = start; el; el = el.parentElement) {
+      const style = getComputedStyle(el),
+        bounds = rect(el),
+        left = bounds.left + el.clientLeft,
+        top = bounds.top + el.clientTop;
+      if (
+        (style.overflowX !== "visible" &&
+          (box.left < left || box.right > left + el.clientWidth)) ||
+        (style.overflowY !== "visible" &&
+          (box.top < top || box.bottom > top + el.clientHeight))
+      )
+        return false;
+    }
+    return true;
+  };
+  const unionArea = (rectangles) => {
+    const boxes = rectangles.filter((box) => boxArea(box) > 0);
+    const xs = [...new Set(boxes.flatMap((box) => [box.left, box.right]))].sort(
+      (a, b) => a - b,
+    );
+    let area = 0;
+    for (let i = 1; i < xs.length; i++) {
+      let length = 0,
+        end = -Infinity;
+      const intervals = boxes
+        .filter((box) => box.left < xs[i] && box.right > xs[i - 1])
+        .map((box) => [box.top, box.bottom])
+        .sort((a, b) => a[0] - b[0]);
+      for (const [a, b] of intervals) {
+        length += Math.max(0, b - Math.max(a, end));
+        end = Math.max(end, b);
+      }
+      area += (xs[i] - xs[i - 1]) * length;
+    }
+    return area;
+  };
+  const variation = (values) => {
+    const mean = values.reduce((sum, value) => sum + value, 0) / values.length;
+    const variance =
+      values.reduce((sum, value) => sum + (value - mean) ** 2, 0) /
+      values.length;
+    return {
+      mean,
+      coefficientOfVariation: mean ? Math.sqrt(variance) / mean : 0,
+    };
+  };
+  const compositionTypes = [
+    "alignment-residual",
+    "gap-variance",
+    "peer-footprint",
+    "chrome-allocation",
+  ];
   const overflow =
     Math.max(
       document.documentElement.scrollWidth,
@@ -128,6 +199,32 @@ export function inspectPage(rules) {
       status: els.length ? "checked" : rule.optional ? "skipped" : "missing",
     });
     if (!els.length) {
+      if (!rule.optional && compositionTypes.includes(rule.type)) {
+        evaluations.at(-1).status = "unassessed";
+        composition.push({
+          rule: rule.id,
+          type: rule.type,
+          element: null,
+          status: "unassessed",
+          valid: false,
+          problems: ["Required selector has no visible matches."],
+        });
+      }
+      if (!rule.optional && rule.type === "viewport-growth-yield") {
+        evaluations.at(-1).status = "unassessed";
+        growth.push({
+          rule: rule.id,
+          element: null,
+          status: "unassessed",
+          valid: false,
+          width: 0,
+          height: 0,
+          area: 0,
+          keys: [],
+          items: [],
+          problems: ["Required selector has no visible matches."],
+        });
+      }
       if (!rule.optional)
         add(
           rule,
@@ -138,7 +235,297 @@ export function inspectPage(rules) {
         );
       continue;
     }
-    if (rule.type === "within-bounds") {
+    if (compositionTypes.includes(rule.type)) {
+      for (const el of els) {
+        const items = [...el.querySelectorAll(rule.items)].filter(
+          (item) => visible(item) && item.closest(rule.selector) === el,
+        );
+        const problems = [];
+        /** @type {import("./types.js").CompositionMeasurement} */
+        const observation = {
+          rule: rule.id,
+          type: rule.type,
+          element: describe(el),
+          status: "measured",
+          valid: true,
+          count: items.length,
+          problems,
+        };
+        composition.push(observation);
+        const minimum =
+          rule.type === "gap-variance"
+            ? 3
+            : rule.type === "chrome-allocation"
+              ? 1
+              : 2;
+        if (items.length < minimum)
+          problems.push(
+            `Measurement needs at least ${minimum} visible selected items.`,
+          );
+        if (
+          rule.type !== "chrome-allocation" &&
+          items.some((item, i) =>
+            items.some((other, j) => i !== j && item.contains(other)),
+          )
+        )
+          problems.push("Declared peers must not contain one another.");
+        if (rule.type === "chrome-allocation" && els.length !== 1)
+          problems.push(
+            "Chrome allocation needs exactly one visible usable region.",
+          );
+        if (!problems.length && rule.type === "alignment-residual") {
+          const anchors = items.map((item) => {
+            const box = rect(item);
+            return rule.edge === "center-x"
+              ? box.left + box.width / 2
+              : rule.edge === "center-y"
+                ? box.top + box.height / 2
+                : box[rule.edge];
+          });
+          const sorted = [...anchors].sort((a, b) => a - b),
+            middle = Math.floor(sorted.length / 2),
+            median =
+              sorted.length % 2
+                ? sorted[middle]
+                : (sorted[middle - 1] + sorted[middle]) / 2,
+            maxResidual = Math.max(
+              ...anchors.map((anchor) => Math.abs(anchor - median)),
+            );
+          Object.assign(observation, {
+            edge: rule.edge,
+            anchors,
+            median,
+            maxResidual,
+          });
+          if (maxResidual > rule.maxResidual)
+            add(
+              rule,
+              "Declared peer anchors exceed the configured residual from their median.",
+              el,
+              observation,
+              { maxResidual: rule.maxResidual, unit: "CSS px" },
+            );
+        } else if (!problems.length && rule.type === "gap-variance") {
+          const horizontal = rule.axis === "x";
+          const boxes = items
+            .map(rect)
+            .sort((a, b) => (horizontal ? a.left - b.left : a.top - b.top));
+          const gaps = boxes
+            .slice(1)
+            .map((box, i) =>
+              horizontal
+                ? box.left - boxes[i].right
+                : box.top - boxes[i].bottom,
+            );
+          Object.assign(observation, { axis: rule.axis, gaps });
+          if (gaps.some((gap) => gap < 0))
+            problems.push("Declared peers overlap on the measured axis.");
+          const crossStart = Math.max(
+            ...boxes.map((box) => (horizontal ? box.top : box.left)),
+          );
+          const crossEnd = Math.min(
+            ...boxes.map((box) => (horizontal ? box.bottom : box.right)),
+          );
+          if (crossEnd <= crossStart)
+            problems.push(
+              "Gap variance needs a single shared row or column band.",
+            );
+          if (!problems.length) {
+            Object.assign(observation, variation(gaps));
+            if (
+              observation.coefficientOfVariation >
+              rule.maxCoefficientOfVariation
+            )
+              add(
+                rule,
+                "Peer gaps exceed the configured population coefficient of variation.",
+                el,
+                observation,
+                { maxCoefficientOfVariation: rule.maxCoefficientOfVariation },
+              );
+          }
+        } else if (!problems.length && rule.type === "peer-footprint") {
+          const values = items.map((item) =>
+            rule.measure === "area"
+              ? boxArea(rect(item))
+              : parseFloat(getComputedStyle(item).fontSize),
+          );
+          Object.assign(observation, { measure: rule.measure, values });
+          if (values.some((value) => !Number.isFinite(value) || value <= 0))
+            problems.push(
+              "Peer footprint needs positive finite values for every peer.",
+            );
+          else {
+            Object.assign(observation, variation(values));
+            if (
+              observation.coefficientOfVariation >
+              rule.maxCoefficientOfVariation
+            )
+              add(
+                rule,
+                "Peer visual-footprint proxy exceeds the configured population coefficient of variation.",
+                el,
+                observation,
+                { maxCoefficientOfVariation: rule.maxCoefficientOfVariation },
+              );
+          }
+        } else if (!problems.length && rule.type === "chrome-allocation") {
+          const bounds = clipBox(rect(el), viewportBounds),
+            regionArea = boxArea(bounds),
+            chromeArea = unionArea(
+              items.map((item) => clipBox(rect(item), bounds)),
+            );
+          Object.assign(observation, { regionArea, chromeArea });
+          if (!regionArea)
+            problems.push("Usable region must intersect the initial viewport.");
+          else {
+            observation.ratio = chromeArea / regionArea;
+            if (observation.ratio > rule.maxRatio)
+              add(
+                rule,
+                "Declared chrome consumes more than its configured share of the usable region.",
+                el,
+                observation,
+                { maxRatio: rule.maxRatio },
+              );
+          }
+        }
+        if (problems.length) {
+          observation.valid = false;
+          observation.status = "unassessed";
+          evaluations.at(-1).status = "unassessed";
+          add(
+            rule,
+            `Composition measurement is unassessed: ${problems.join(" ")}`,
+            el,
+            observation,
+            "supported geometry and sufficient declared peers",
+          );
+        }
+      }
+    } else if (rule.type === "viewport-growth-yield") {
+      const el = els.length === 1 ? els[0] : null,
+        bounds = el ? clipBox(rect(el), viewportBounds) : viewportBounds;
+      /** @type {import("./types.js").GrowthMeasurement} */
+      const observation = {
+        rule: rule.id,
+        element: el ? describe(el) : null,
+        status: "measured",
+        valid: true,
+        width: el ? Math.max(0, bounds.right - bounds.left) : 0,
+        height: el ? Math.max(0, bounds.bottom - bounds.top) : 0,
+        area: el ? boxArea(bounds) : 0,
+        keys: [],
+        items: [],
+        problems: [],
+      };
+      growth.push(observation);
+      if (!el)
+        observation.problems.push(
+          "Viewport-growth yield needs exactly one visible usable region.",
+        );
+      else {
+        if (!observation.area)
+          observation.problems.push(
+            "Usable region must intersect the initial viewport.",
+          );
+        const items = [...el.querySelectorAll(rule.items)].filter(visible);
+        if (!items.length)
+          observation.problems.push(
+            "Evidence selector needs visible selected items.",
+          );
+        const counts = new Map();
+        for (const item of items) {
+          const key = item.getAttribute(rule.keyAttribute)?.trim() || null,
+            reasons = [],
+            nodes = textNodes(item),
+            sizes = nodes.map((node) =>
+              parseFloat(getComputedStyle(node.parentElement).fontSize),
+            ),
+            minFontSize = sizes.length ? Math.min(...sizes) : null;
+          if (!key)
+            observation.problems.push(
+              `Evidence ${describe(item)} has no stable identity in ${rule.keyAttribute}.`,
+            );
+          else {
+            counts.set(key, (counts.get(key) || 0) + 1);
+            if (rule.finiteKeys && !rule.finiteKeys.includes(key))
+              observation.problems.push(
+                `Evidence identity ${key} is outside finiteKeys.`,
+              );
+          }
+          if (!inside(rect(item), bounds))
+            reasons.push("outside usable region or viewport");
+          if (!unclipped(rect(item), item.parentElement))
+            reasons.push("clipped by ancestor overflow");
+          if (!nodes.length) reasons.push("no visible text");
+          if (
+            nodes.length &&
+            (!Number.isFinite(minFontSize) || minFontSize < rule.minFontSize)
+          )
+            reasons.push("below readable type size");
+          for (const node of nodes) {
+            const range = document.createRange();
+            range.setStart(node, node.textContent.search(/\S/));
+            range.setEnd(node, node.textContent.trimEnd().length);
+            if (
+              [...range.getClientRects()].some(
+                (box) =>
+                  box.width > 0 &&
+                  box.height > 0 &&
+                  (!inside(box, bounds) || !unclipped(box, node.parentElement)),
+              )
+            ) {
+              reasons.push(
+                "text outside usable region, viewport, or overflow clip",
+              );
+              break;
+            }
+          }
+          if (!key) reasons.push("missing identity");
+          if (key && rule.finiteKeys && !rule.finiteKeys.includes(key))
+            reasons.push("outside finiteKeys");
+          observation.items.push({
+            element: describe(item),
+            key,
+            eligible: !reasons.length,
+            reasons,
+            minFontSize,
+          });
+        }
+        for (const [key, count] of counts)
+          if (count > 1) {
+            observation.problems.push(
+              `Evidence identity ${key} appears ${count} times among visible selected items.`,
+            );
+            for (const item of observation.items.filter(
+              (item) => item.key === key,
+            )) {
+              item.eligible = false;
+              item.reasons.push("duplicate identity");
+            }
+          }
+        observation.keys = observation.items
+          .filter((item) => item.eligible)
+          .map((item) => item.key);
+        if (!observation.keys.length)
+          observation.problems.push(
+            "Growth measurement needs at least one fully visible, readable evidence identity.",
+          );
+      }
+      if (observation.problems.length) {
+        observation.valid = false;
+        observation.status = "unassessed";
+        evaluations.at(-1).status = "unassessed";
+        add(
+          rule,
+          `Viewport-growth observation is unassessed: ${observation.problems.join(" ")}`,
+          el,
+          observation,
+          "one usable region with uniquely identified evidence",
+        );
+      }
+    } else if (rule.type === "within-bounds") {
       for (const el of els) {
         const container = el.parentElement?.closest(rule.container);
         if (!container || !visible(container)) {
@@ -1023,6 +1410,8 @@ export function inspectPage(rules) {
       pageHeight: document.documentElement.scrollHeight,
       evaluatedRules: evaluated,
       density,
+      composition,
+      growth,
       repeatedMetrics,
       evidenceDistances,
       markContrasts,

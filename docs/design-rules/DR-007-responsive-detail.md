@@ -30,6 +30,12 @@ text, different content, or narrower layouts.
 evidence. Retain useful whitespace and bounded reading widths in that case;
 do not manufacture content to meet an occupancy target.
 
+**Comparative allocation:** [DR-019](DR-019-spatial-economy.md) adds opt-in
+viewport-growth yield: fractional growth of qualifying evidence divided by
+fractional growth of usable region area, with reference identities preserved.
+Its explicit finite-set exception distinguishes an already complete task from
+empty container growth. The metric cannot decide which evidence is useful.
+
 **Review:** Assess both the whole layout and detail at its intended reading size
 for every target viewport. A reduced overview alone cannot establish legibility
 on a large screen. Viewport dimensions refer to CSS pixels; account for browser

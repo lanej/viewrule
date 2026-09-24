@@ -30,8 +30,12 @@ why controls/prose use warnings and numeric alignment uses explicit annotations.
 | [DR-014](design-rules.md#dr-014--essential-interactions-do-not-require-a-pointer) — Input access | Existing axe checks report their actual static findings. | Real keyboard traversal, activation, dismissal, focus, touch, and screen-reader behavior require interaction review. |
 | [DR-015](design-rules.md#dr-015--layout-survives-content-variation-and-text-adaptation) — Content resilience | Existing clipping, overlap, font-size, and overflow checks run against difficult fixtures and configured `textScale`. | Truncation's effect on meaning, full zoom, spacing preferences, and unsupported locales remain unassessed. |
 | [DR-016](design-rules.md#dr-016--color-scales-match-the-structure-of-the-data) — Semantic color scales | Explicit `style`, `attribute`, and `consistent` checks can inspect a known renderer contract; `mark-contrast` measures a declared solid CSS mark/substrate relationship. | Variable structure, a meaningful center, actual color mapping, and useful redundant labels need review. |
+| [DR-017](design-rules/DR-017-alignment.md) — Alignment | `alignment-residual` bounds the maximum distance of declared peer edges or centers from their median anchor in CSS px. | Peer membership, the useful anchor, optical alignment, text baselines, and appropriate exceptions need review. |
+| [DR-018](design-rules/DR-018-rhythm.md) — Rhythm | `gap-variance` bounds the coefficient of variation of adjacent border-box gaps along one declared axis; overlapping sequences fail. | The intended sequence, equivalent relationships, group separation, and useful absolute spacing need review. |
+| [DR-019](design-rules/DR-019-spatial-economy.md) — Spatial economy | `viewport-growth-yield` compares fractional growth of visible, legible identities with fractional growth of usable region area against a named reference; `chrome-allocation` bounds a declared union-area ratio. | Relevant evidence units, exhaustive finite sets, justified chrome, information quality, and useful whitespace remain task judgments. |
+| [DR-020](design-rules/DR-020-balance.md) — Balance | `peer-footprint` bounds the coefficient of variation of declared peer areas or computed font sizes. | Equal priority, warranted differences, optical size, contrast, imagery, and perceived salience need review; symmetry is not required. |
 
-Each page/viewport lists all sixteen IDs as `checks-passed`, `findings`, or
+Each page/viewport lists all twenty IDs as `checks-passed`, `findings`, or
 `unassessed`. `checks-passed` means the configured conditions passed; it does not
 certify the complete requirement. Optional selectors with no visible matches
 remain unassessed. An unavailable capture cannot establish coverage.
@@ -42,6 +46,14 @@ engine checks. No new default heuristic, interaction runner, or subjective score
 added for DR-009–DR-016. New IDs are supported by the schema, policy, reports,
 `requiredDesignRules`, and explicit rule citations; unrelated checks do not gain
 those citations automatically.
+
+The [composition examples](examples/composition.html) exercise DR-017–DR-020
+through explicit groups and region contracts. These checks introduce no default
+thresholds or page-wide aesthetic score. Missing or insufficient required
+measurement evidence cannot establish a pass. A yield reference supplies observed
+identity, legibility, and area evidence; only non-reference targets have an assessed
+growth comparison. See the [full semantics](ui-review.md#composition-contracts)
+before authoring a contract.
 
 ## Project requirements
 

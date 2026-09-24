@@ -17,7 +17,12 @@ const defaults = {
   "relative-position": ["DR-006", "DR-007"],
   "reading-column": ["DR-006", "DR-007"],
   "vertical-order": ["DR-006", "DR-007"],
-  align: ["DR-006"],
+  align: ["DR-006", "DR-017"],
+  "alignment-residual": ["DR-017"],
+  "gap-variance": ["DR-018"],
+  "viewport-growth-yield": ["DR-007", "DR-019"],
+  "chrome-allocation": ["DR-019"],
+  "peer-footprint": ["DR-020"],
   "no-overlap": ["DR-006"],
   "no-clip": ["DR-006", "DR-007"],
   "visible-count": ["DR-006"],
@@ -45,6 +50,16 @@ const advice = {
   "vertical-order":
     "Restore the declared DOM and top-to-bottom order. Reflow supporting visuals after the prose and remove overlapping or multi-column positioning.",
   align: "Align the declared peers using their shared layout or spacing rules.",
+  "alignment-residual":
+    "Restore the declared peers' shared anchor. Separate intentionally different groups instead of forcing unrelated content onto one axis.",
+  "gap-variance":
+    "Restore consistent spacing between the declared equivalent peers. Scope different relationships separately and preserve readable content.",
+  "viewport-growth-yield":
+    "Use additional usable area to reveal distinct task evidence while preserving visible identities and readable type. For an exhausted finite task, declare its complete evidence set rather than manufacturing content.",
+  "chrome-allocation":
+    "Reduce the declared chrome allocation while preserving necessary navigation and controls. The application decides which space supports the task.",
+  "peer-footprint":
+    "Restore comparable footprint or type size among the declared equal-priority peers. Keep intentional differences scoped to their actual priority; symmetry is not required.",
   "no-overlap": "Reflow the affected peers so their content remains readable.",
   "no-clip":
     "Allow enough space for the full content or provide intentional local scrolling.",
@@ -143,6 +158,112 @@ export function evaluateDesign(report, rules, config) {
     });
   for (const rule of rules) {
     const pages = report.pages.filter((page) => active(rule, page));
+    if (rule.type === "viewport-growth-yield") {
+      for (const page of pages) {
+        const snapshot = page.metrics?.growth?.find(
+          (item) => item.rule === rule.id,
+        );
+        // Optional absence is still unassessed and never supplies a reference.
+        if (!snapshot) continue;
+        snapshot.comparison = {
+          status: "unassessed",
+          referenceViewport: rule.referenceViewport,
+        };
+        const unassessed = (message, actual) => {
+          snapshot.comparison.reason = message;
+          const evaluation = page.metrics.evaluations.find(
+            (item) => item.rule === rule.id,
+          );
+          if (evaluation) evaluation.status = "unassessed";
+          add(
+            page,
+            rule,
+            message,
+            actual,
+            "comparable visible evidence and strictly growing usable area",
+          );
+        };
+        if (!snapshot.valid) continue; // Local finding explains invalid evidence.
+        // Aggregate comparisons may have marked reused evidence unassessed in
+        // the prior run. Recompute coverage from the retained local observation.
+        const evaluation = page.metrics.evaluations.find(
+          (item) => item.rule === rule.id,
+        );
+        if (evaluation) evaluation.status = "checked";
+        if (page.viewport.name === rule.referenceViewport) {
+          snapshot.comparison.status = "reference";
+          continue;
+        }
+        const baseline = pages.find(
+          (candidate) =>
+            candidate.name === page.name &&
+            candidate.checkpoint === page.checkpoint &&
+            candidate.viewport.name === rule.referenceViewport,
+        );
+        const previous = baseline?.metrics?.growth?.find(
+          (item) => item.rule === rule.id,
+        );
+        if (!previous?.valid || !previous.area || !previous.keys.length) {
+          unassessed(
+            "Viewport-growth yield is unassessed: reference evidence is missing or invalid for this page and checkpoint.",
+            {
+              referenceViewport: rule.referenceViewport,
+              checkpoint: page.checkpoint ?? null,
+            },
+          );
+          continue;
+        }
+        if (
+          page.viewport.width < baseline.viewport.width ||
+          page.viewport.height < baseline.viewport.height ||
+          snapshot.area <= previous.area
+        ) {
+          unassessed(
+            "Viewport-growth yield is unassessed: target viewport dimensions must not shrink and usable area must strictly increase.",
+            { referenceArea: previous.area, targetArea: snapshot.area },
+          );
+          continue;
+        }
+        const lostKeys = previous.keys.filter(
+          (key) => !snapshot.keys.includes(key),
+        );
+        const areaGrowth = (snapshot.area - previous.area) / previous.area;
+        const evidenceGrowth =
+          (snapshot.keys.length - previous.keys.length) / previous.keys.length;
+        const growthYield = evidenceGrowth / areaGrowth;
+        const saturated = Boolean(
+          rule.finiteKeys?.every(
+            (key) => previous.keys.includes(key) && snapshot.keys.includes(key),
+          ),
+        );
+        snapshot.comparison = {
+          status: saturated ? "saturated" : "measured",
+          referenceViewport: rule.referenceViewport,
+          referenceArea: previous.area,
+          referenceCount: previous.keys.length,
+          areaGrowth,
+          evidenceGrowth,
+          yield: growthYield,
+          lostKeys,
+        };
+        if (lostKeys.length)
+          add(
+            page,
+            rule,
+            "Larger viewport lost previously visible task evidence.",
+            lostKeys,
+            previous.keys,
+          );
+        if (!saturated && growthYield < rule.minYield)
+          add(
+            page,
+            rule,
+            "Viewport-growth yield is below the task's configured minimum.",
+            snapshot.comparison,
+            { minYield: rule.minYield },
+          );
+      }
+    }
     if (rule.type === "comparison-set") {
       for (const page of pages) {
         const snapshot = page.metrics?.comparisons.find(
@@ -240,6 +361,7 @@ export function evaluateDesign(report, rules, config) {
       finding.evidenceKind =
         rule?.type === "attribute" ||
         rule?.type === "repeated-metric" ||
+        rule?.type === "viewport-growth-yield" ||
         (rule?.type === "consistent" && rule.attributes.length)
           ? "DOM and declared metadata"
           : "DOM/capture";

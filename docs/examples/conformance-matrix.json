@@ -100,6 +100,30 @@
           "bad": "not-applicable",
           "evidence": "Color does not encode a data variable.",
           "evidenceType": "rationale"
+        },
+        "DR-017": {
+          "good": "pass",
+          "bad": "pass",
+          "evidence": "Human review: the existing controlled pair preserves its shared anchors, peer rhythm, bounded spatial allocation, and declared priority. No new composition detector is claimed for this older example.",
+          "evidenceType": "human-review"
+        },
+        "DR-018": {
+          "good": "pass",
+          "bad": "pass",
+          "evidence": "Human review: the existing controlled pair preserves its shared anchors, peer rhythm, bounded spatial allocation, and declared priority. No new composition detector is claimed for this older example.",
+          "evidenceType": "human-review"
+        },
+        "DR-019": {
+          "good": "pass",
+          "bad": "pass",
+          "evidence": "Human review: the existing controlled pair preserves its shared anchors, peer rhythm, bounded spatial allocation, and declared priority. No new composition detector is claimed for this older example.",
+          "evidenceType": "human-review"
+        },
+        "DR-020": {
+          "good": "pass",
+          "bad": "pass",
+          "evidence": "Human review: the existing controlled pair preserves its shared anchors, peer rhythm, bounded spatial allocation, and declared priority. No new composition detector is claimed for this older example.",
+          "evidenceType": "human-review"
         }
       }
     },
@@ -224,6 +248,538 @@
           "evidence": "Accent selects the primary presentation role; it is not a category, magnitude, warning or risk color scale. Text and actions retain labels and measured contrast.",
           "evidenceType": "rationale",
           "rule": "../design-rules/DR-016-semantic-color.md"
+        },
+        "DR-017": {
+          "good": "pass",
+          "bad": "pass",
+          "evidence": "Human review: the existing controlled pair preserves its shared anchors, peer rhythm, bounded spatial allocation, and declared priority. No new composition detector is claimed for this older example.",
+          "evidenceType": "human-review"
+        },
+        "DR-018": {
+          "good": "pass",
+          "bad": "pass",
+          "evidence": "Human review: the existing controlled pair preserves its shared anchors, peer rhythm, bounded spatial allocation, and declared priority. No new composition detector is claimed for this older example.",
+          "evidenceType": "human-review"
+        },
+        "DR-019": {
+          "good": "pass",
+          "bad": "pass",
+          "evidence": "Human review: the existing controlled pair preserves its shared anchors, peer rhythm, bounded spatial allocation, and declared priority. No new composition detector is claimed for this older example.",
+          "evidenceType": "human-review"
+        },
+        "DR-020": {
+          "good": "pass",
+          "bad": "pass",
+          "evidence": "Human review: the existing controlled pair preserves its shared anchors, peer rhythm, bounded spatial allocation, and declared priority. No new composition detector is claimed for this older example.",
+          "evidenceType": "human-review"
+        }
+      }
+    },
+    {
+      "id": "DR-017",
+      "target": "DR-017",
+      "rules": {
+        "DR-001": {
+          "good": "not-applicable",
+          "bad": "not-applicable",
+          "evidence": "No plotted scales.",
+          "evidenceType": "rationale"
+        },
+        "DR-002": {
+          "good": "not-applicable",
+          "bad": "not-applicable",
+          "evidence": "No graphical magnitude encoding.",
+          "evidenceType": "rationale"
+        },
+        "DR-003": {
+          "good": "pass",
+          "bad": "pass",
+          "evidence": "The shared title, scope, labels and time units are preserved by the native context check and same-content assertions.",
+          "evidenceType": "automated"
+        },
+        "DR-004": {
+          "good": "not-applicable",
+          "bad": "not-applicable",
+          "evidence": "All fixture facts are known; no missing or estimated values.",
+          "evidenceType": "rationale"
+        },
+        "DR-005": {
+          "good": "pass",
+          "bad": "pass",
+          "evidence": "Both variants use identical semantic labels and colors.",
+          "evidenceType": "human-review"
+        },
+        "DR-006": {
+          "good": "pass",
+          "bad": "pass",
+          "evidence": "Labels and supporting context stay with their evidence; the declared anchor tolerance belongs to DR-017.",
+          "evidenceType": "human-review"
+        },
+        "DR-007": {
+          "good": "pass",
+          "bad": "pass",
+          "evidence": "The baseline comparison identities and readable type survive both widths; DR-019 separately measures incremental yield.",
+          "evidenceType": "human-review"
+        },
+        "DR-008": {
+          "good": "pass",
+          "bad": "pass",
+          "evidence": "No ornamental additions; the controlled mutation changes only the target relationship.",
+          "evidenceType": "human-review"
+        },
+        "DR-009": {
+          "good": "not-applicable",
+          "bad": "not-applicable",
+          "evidence": "Static inspection; no asynchronous status transition.",
+          "evidenceType": "rationale"
+        },
+        "DR-010": {
+          "good": "not-applicable",
+          "bad": "not-applicable",
+          "evidence": "No navigation or state transition.",
+          "evidenceType": "rationale"
+        },
+        "DR-011": {
+          "good": "not-applicable",
+          "bad": "not-applicable",
+          "evidence": "No commitment action.",
+          "evidenceType": "rationale"
+        },
+        "DR-012": {
+          "good": "not-applicable",
+          "bad": "not-applicable",
+          "evidence": "No mutation or recovery flow.",
+          "evidenceType": "rationale"
+        },
+        "DR-013": {
+          "good": "pass",
+          "bad": "pass",
+          "evidence": "The declared dispatch task and priority remain the same. Equal-priority footprint allocation is measured specifically by DR-020.",
+          "evidenceType": "human-review"
+        },
+        "DR-014": {
+          "good": "not-applicable",
+          "bad": "not-applicable",
+          "evidence": "Read-only content; no essential pointer interaction.",
+          "evidenceType": "rationale"
+        },
+        "DR-015": {
+          "good": "pass",
+          "bad": "pass",
+          "evidence": "Readable type and all distinctions fit the two declared capture widths; wider localization remains human review.",
+          "evidenceType": "human-review"
+        },
+        "DR-016": {
+          "good": "not-applicable",
+          "bad": "not-applicable",
+          "evidence": "Color does not encode a data variable.",
+          "evidenceType": "rationale"
+        },
+        "DR-017": {
+          "good": "pass",
+          "bad": "fail",
+          "evidence": "Alignment residual is the maximum absolute deviation from the peer median; the measured residual is 24 CSS pixels in Bad.",
+          "evidenceType": "automated",
+          "checks": ["composition-alignment"]
+        },
+        "DR-018": {
+          "good": "pass",
+          "bad": "pass",
+          "evidence": "Review equivalent relationship spacing; only DR-018 inserts an unjustified group gap.",
+          "evidenceType": "human-review"
+        },
+        "DR-019": {
+          "good": "pass",
+          "bad": "pass",
+          "evidence": "Review task-scoped spatial allocation. Only DR-019 mutates the growing queue capacity; it preserves all baseline identities.",
+          "evidenceType": "human-review"
+        },
+        "DR-020": {
+          "good": "pass",
+          "bad": "pass",
+          "evidence": "Review priority and peer allocation; only DR-020 enlarges an equal-priority peer.",
+          "evidenceType": "human-review"
+        }
+      }
+    },
+    {
+      "id": "DR-018",
+      "target": "DR-018",
+      "rules": {
+        "DR-001": {
+          "good": "not-applicable",
+          "bad": "not-applicable",
+          "evidence": "No plotted scales.",
+          "evidenceType": "rationale"
+        },
+        "DR-002": {
+          "good": "not-applicable",
+          "bad": "not-applicable",
+          "evidence": "No graphical magnitude encoding.",
+          "evidenceType": "rationale"
+        },
+        "DR-003": {
+          "good": "pass",
+          "bad": "pass",
+          "evidence": "The shared title, scope, labels and time units are preserved by the native context check and same-content assertions.",
+          "evidenceType": "automated"
+        },
+        "DR-004": {
+          "good": "not-applicable",
+          "bad": "not-applicable",
+          "evidence": "All fixture facts are known; no missing or estimated values.",
+          "evidenceType": "rationale"
+        },
+        "DR-005": {
+          "good": "pass",
+          "bad": "pass",
+          "evidence": "Both variants use identical semantic labels and colors.",
+          "evidenceType": "human-review"
+        },
+        "DR-006": {
+          "good": "pass",
+          "bad": "pass",
+          "evidence": "Labels and supporting context stay with their evidence; the declared anchor tolerance belongs to DR-017.",
+          "evidenceType": "human-review"
+        },
+        "DR-007": {
+          "good": "pass",
+          "bad": "pass",
+          "evidence": "The baseline comparison identities and readable type survive both widths; DR-019 separately measures incremental yield.",
+          "evidenceType": "human-review"
+        },
+        "DR-008": {
+          "good": "pass",
+          "bad": "pass",
+          "evidence": "No ornamental additions; the controlled mutation changes only the target relationship.",
+          "evidenceType": "human-review"
+        },
+        "DR-009": {
+          "good": "not-applicable",
+          "bad": "not-applicable",
+          "evidence": "Static inspection; no asynchronous status transition.",
+          "evidenceType": "rationale"
+        },
+        "DR-010": {
+          "good": "not-applicable",
+          "bad": "not-applicable",
+          "evidence": "No navigation or state transition.",
+          "evidenceType": "rationale"
+        },
+        "DR-011": {
+          "good": "not-applicable",
+          "bad": "not-applicable",
+          "evidence": "No commitment action.",
+          "evidenceType": "rationale"
+        },
+        "DR-012": {
+          "good": "not-applicable",
+          "bad": "not-applicable",
+          "evidence": "No mutation or recovery flow.",
+          "evidenceType": "rationale"
+        },
+        "DR-013": {
+          "good": "pass",
+          "bad": "pass",
+          "evidence": "The declared dispatch task and priority remain the same. Equal-priority footprint allocation is measured specifically by DR-020.",
+          "evidenceType": "human-review"
+        },
+        "DR-014": {
+          "good": "not-applicable",
+          "bad": "not-applicable",
+          "evidence": "Read-only content; no essential pointer interaction.",
+          "evidenceType": "rationale"
+        },
+        "DR-015": {
+          "good": "pass",
+          "bad": "pass",
+          "evidence": "Readable type and all distinctions fit the two declared capture widths; wider localization remains human review.",
+          "evidenceType": "human-review"
+        },
+        "DR-016": {
+          "good": "not-applicable",
+          "bad": "not-applicable",
+          "evidence": "Color does not encode a data variable.",
+          "evidenceType": "rationale"
+        },
+        "DR-017": {
+          "good": "pass",
+          "bad": "pass",
+          "evidence": "Review shared intentional anchors; only DR-017 mutates the declared left alignment.",
+          "evidenceType": "human-review"
+        },
+        "DR-018": {
+          "good": "pass",
+          "bad": "fail",
+          "evidence": "Population standard deviation divided by mean gap is 0 in Good and 0.5 in Bad.",
+          "evidenceType": "automated",
+          "checks": ["composition-rhythm"]
+        },
+        "DR-019": {
+          "good": "pass",
+          "bad": "pass",
+          "evidence": "Review task-scoped spatial allocation. Only DR-019 mutates the growing queue capacity; it preserves all baseline identities.",
+          "evidenceType": "human-review"
+        },
+        "DR-020": {
+          "good": "pass",
+          "bad": "pass",
+          "evidence": "Review priority and peer allocation; only DR-020 enlarges an equal-priority peer.",
+          "evidenceType": "human-review"
+        }
+      }
+    },
+    {
+      "id": "DR-019",
+      "target": "DR-019",
+      "rules": {
+        "DR-001": {
+          "good": "not-applicable",
+          "bad": "not-applicable",
+          "evidence": "No plotted scales.",
+          "evidenceType": "rationale"
+        },
+        "DR-002": {
+          "good": "not-applicable",
+          "bad": "not-applicable",
+          "evidence": "No graphical magnitude encoding.",
+          "evidenceType": "rationale"
+        },
+        "DR-003": {
+          "good": "pass",
+          "bad": "pass",
+          "evidence": "The shared title, scope, labels and time units are preserved by the native context check and same-content assertions.",
+          "evidenceType": "automated"
+        },
+        "DR-004": {
+          "good": "not-applicable",
+          "bad": "not-applicable",
+          "evidence": "All fixture facts are known; no missing or estimated values.",
+          "evidenceType": "rationale"
+        },
+        "DR-005": {
+          "good": "pass",
+          "bad": "pass",
+          "evidence": "Both variants use identical semantic labels and colors.",
+          "evidenceType": "human-review"
+        },
+        "DR-006": {
+          "good": "pass",
+          "bad": "pass",
+          "evidence": "Labels and supporting context stay with their evidence; the declared anchor tolerance belongs to DR-017.",
+          "evidenceType": "human-review"
+        },
+        "DR-007": {
+          "good": "pass",
+          "bad": "pass",
+          "evidence": "The baseline comparison identities and readable type survive both widths; DR-019 separately measures incremental yield.",
+          "evidenceType": "human-review"
+        },
+        "DR-008": {
+          "good": "pass",
+          "bad": "pass",
+          "evidence": "No ornamental additions; the controlled mutation changes only the target relationship.",
+          "evidenceType": "human-review"
+        },
+        "DR-009": {
+          "good": "not-applicable",
+          "bad": "not-applicable",
+          "evidence": "Static inspection; no asynchronous status transition.",
+          "evidenceType": "rationale"
+        },
+        "DR-010": {
+          "good": "not-applicable",
+          "bad": "not-applicable",
+          "evidence": "No navigation or state transition.",
+          "evidenceType": "rationale"
+        },
+        "DR-011": {
+          "good": "not-applicable",
+          "bad": "not-applicable",
+          "evidence": "No commitment action.",
+          "evidenceType": "rationale"
+        },
+        "DR-012": {
+          "good": "not-applicable",
+          "bad": "not-applicable",
+          "evidence": "No mutation or recovery flow.",
+          "evidenceType": "rationale"
+        },
+        "DR-013": {
+          "good": "pass",
+          "bad": "pass",
+          "evidence": "The declared dispatch task and priority remain the same. Equal-priority footprint allocation is measured specifically by DR-020.",
+          "evidenceType": "human-review"
+        },
+        "DR-014": {
+          "good": "not-applicable",
+          "bad": "not-applicable",
+          "evidence": "Read-only content; no essential pointer interaction.",
+          "evidenceType": "rationale"
+        },
+        "DR-015": {
+          "good": "pass",
+          "bad": "pass",
+          "evidence": "Readable type and all distinctions fit the two declared capture widths; wider localization remains human review.",
+          "evidenceType": "human-review"
+        },
+        "DR-016": {
+          "good": "not-applicable",
+          "bad": "not-applicable",
+          "evidence": "Color does not encode a data variable.",
+          "evidenceType": "rationale"
+        },
+        "DR-017": {
+          "good": "pass",
+          "bad": "pass",
+          "evidence": "Review shared intentional anchors; only DR-017 mutates the declared left alignment.",
+          "evidenceType": "human-review"
+        },
+        "DR-018": {
+          "good": "pass",
+          "bad": "pass",
+          "evidence": "Review equivalent relationship spacing; only DR-018 inserts an unjustified group gap.",
+          "evidenceType": "human-review"
+        },
+        "DR-019": {
+          "good": "pass",
+          "bad": "fail",
+          "evidence": "Compare each page and checkpoint to its compact capture: fractional identity-count growth divided by fractional usable-region area growth. Bad has zero yield; Good exceeds 0.8.",
+          "evidenceType": "automated",
+          "checks": ["composition-growth"]
+        },
+        "DR-020": {
+          "good": "pass",
+          "bad": "pass",
+          "evidence": "Review priority and peer allocation; only DR-020 enlarges an equal-priority peer.",
+          "evidenceType": "human-review"
+        }
+      }
+    },
+    {
+      "id": "DR-020",
+      "target": "DR-020",
+      "rules": {
+        "DR-001": {
+          "good": "not-applicable",
+          "bad": "not-applicable",
+          "evidence": "No plotted scales.",
+          "evidenceType": "rationale"
+        },
+        "DR-002": {
+          "good": "not-applicable",
+          "bad": "not-applicable",
+          "evidence": "No graphical magnitude encoding.",
+          "evidenceType": "rationale"
+        },
+        "DR-003": {
+          "good": "pass",
+          "bad": "pass",
+          "evidence": "The shared title, scope, labels and time units are preserved by the native context check and same-content assertions.",
+          "evidenceType": "automated"
+        },
+        "DR-004": {
+          "good": "not-applicable",
+          "bad": "not-applicable",
+          "evidence": "All fixture facts are known; no missing or estimated values.",
+          "evidenceType": "rationale"
+        },
+        "DR-005": {
+          "good": "pass",
+          "bad": "pass",
+          "evidence": "Both variants use identical semantic labels and colors.",
+          "evidenceType": "human-review"
+        },
+        "DR-006": {
+          "good": "pass",
+          "bad": "pass",
+          "evidence": "Labels and supporting context stay with their evidence; the declared anchor tolerance belongs to DR-017.",
+          "evidenceType": "human-review"
+        },
+        "DR-007": {
+          "good": "pass",
+          "bad": "pass",
+          "evidence": "The baseline comparison identities and readable type survive both widths; DR-019 separately measures incremental yield.",
+          "evidenceType": "human-review"
+        },
+        "DR-008": {
+          "good": "pass",
+          "bad": "pass",
+          "evidence": "No ornamental additions; the controlled mutation changes only the target relationship.",
+          "evidenceType": "human-review"
+        },
+        "DR-009": {
+          "good": "not-applicable",
+          "bad": "not-applicable",
+          "evidence": "Static inspection; no asynchronous status transition.",
+          "evidenceType": "rationale"
+        },
+        "DR-010": {
+          "good": "not-applicable",
+          "bad": "not-applicable",
+          "evidence": "No navigation or state transition.",
+          "evidenceType": "rationale"
+        },
+        "DR-011": {
+          "good": "not-applicable",
+          "bad": "not-applicable",
+          "evidence": "No commitment action.",
+          "evidenceType": "rationale"
+        },
+        "DR-012": {
+          "good": "not-applicable",
+          "bad": "not-applicable",
+          "evidence": "No mutation or recovery flow.",
+          "evidenceType": "rationale"
+        },
+        "DR-013": {
+          "good": "pass",
+          "bad": "pass",
+          "evidence": "The declared dispatch task and priority remain the same. Equal-priority footprint allocation is measured specifically by DR-020.",
+          "evidenceType": "human-review"
+        },
+        "DR-014": {
+          "good": "not-applicable",
+          "bad": "not-applicable",
+          "evidence": "Read-only content; no essential pointer interaction.",
+          "evidenceType": "rationale"
+        },
+        "DR-015": {
+          "good": "pass",
+          "bad": "pass",
+          "evidence": "Readable type and all distinctions fit the two declared capture widths; wider localization remains human review.",
+          "evidenceType": "human-review"
+        },
+        "DR-016": {
+          "good": "not-applicable",
+          "bad": "not-applicable",
+          "evidence": "Color does not encode a data variable.",
+          "evidenceType": "rationale"
+        },
+        "DR-017": {
+          "good": "pass",
+          "bad": "pass",
+          "evidence": "Review shared intentional anchors; only DR-017 mutates the declared left alignment.",
+          "evidenceType": "human-review"
+        },
+        "DR-018": {
+          "good": "pass",
+          "bad": "pass",
+          "evidence": "Review equivalent relationship spacing; only DR-018 inserts an unjustified group gap.",
+          "evidenceType": "human-review"
+        },
+        "DR-019": {
+          "good": "pass",
+          "bad": "pass",
+          "evidence": "Review task-scoped spatial allocation. Only DR-019 mutates the growing queue capacity; it preserves all baseline identities.",
+          "evidenceType": "human-review"
+        },
+        "DR-020": {
+          "good": "pass",
+          "bad": "fail",
+          "evidence": "The area coefficient of variation is approximately 0.298 in Bad and zero in Good; heading font sizes remain equal.",
+          "evidenceType": "automated",
+          "checks": ["composition-balance"]
         }
       }
     }

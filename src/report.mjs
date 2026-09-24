@@ -75,6 +75,21 @@ function pageView(page, reference, documents) {
     elementRate: region.elementsPer100kPixels.toFixed(1),
     verticalGap: region.largestVerticalGap.toFixed(1),
   }));
+  const composition = (page.metrics?.composition ?? []).map((measurement) => ({
+    ...measurement,
+    evidence: JSON.stringify(measurement, null, 2),
+  }));
+  const growth = (page.metrics?.growth ?? []).map((measurement) => ({
+    ...measurement,
+    count: measurement.keys.length,
+    areaLabel: measurement.area.toFixed(0),
+    comparisonStatus: measurement.comparison?.status ?? "unassessed",
+    yieldLabel:
+      measurement.comparison?.yield == null
+        ? "—"
+        : measurement.comparison.yield.toFixed(3),
+    evidence: JSON.stringify(measurement, null, 2),
+  }));
   return {
     ...page,
     captureLabel:
@@ -95,6 +110,10 @@ function pageView(page, reference, documents) {
     })),
     hasDensity: density.length > 0,
     density,
+    hasComposition: composition.length > 0,
+    composition,
+    hasGrowth: growth.length > 0,
+    growth,
     hasFindings: page.findings.length > 0,
     findings: page.findings.map((finding) => ({
       ...finding,

@@ -101,6 +101,9 @@ test(
             "decision.html",
             "decision.js",
             "decision.css",
+            "composition.html",
+            "composition.js",
+            "composition.css",
             "pattern-review.html",
             "pattern-review.js",
             "pattern-review.css",
@@ -1486,6 +1489,319 @@ test(
       ),
     );
 
+    // Four declared composition relationships share one baseline and one
+    // controlled counterexample each, exercised through the installed CLI.
+    const compositionRules = JSON.parse(
+      await readFile(
+        path.join(exampleDirectory, "composition-rules.json"),
+        "utf8",
+      ),
+    );
+    const compositionConfig = JSON.parse(
+      await readFile(
+        path.join(exampleDirectory, "composition-config.json"),
+        "utf8",
+      ),
+    );
+    Object.assign(compositionConfig, { baseURL, sourcePaths: ["src"] });
+    await writeFile(rulesPath, JSON.stringify(compositionRules));
+    await writeFile(
+      path.join(project, ".ui-review/config.json"),
+      JSON.stringify(compositionConfig),
+    );
+    const compositionCheck = await cli(["check"]);
+    assert.equal(
+      compositionCheck.code,
+      1,
+      compositionCheck.stderr || compositionCheck.stdout,
+    );
+    const compositionReportFile = JSON.parse(compositionCheck.stdout).report;
+    const compositionReport = JSON.parse(
+      await readFile(compositionReportFile, "utf8"),
+    );
+    const compositionEvidence = path.join(
+      repository,
+      "dist/composition-evidence",
+    );
+    await mkdir(compositionEvidence, { recursive: true });
+    await cp(
+      path.dirname(compositionReportFile),
+      path.join(compositionEvidence, "report"),
+      { recursive: true },
+    );
+    for (const capture of compositionReport.pages) {
+      const [family, quality] = capture.name.split("-");
+      const expected =
+        quality === "bad" &&
+        (family !== "economy" || capture.viewport.name === "wide")
+          ? [`composition-${family === "economy" ? "growth" : family}`]
+          : [];
+      assert.deepEqual(
+        [...new Set(capture.findings.map((finding) => finding.rule))],
+        expected,
+        JSON.stringify(capture.findings),
+      );
+      const measured = capture.metrics.composition;
+      if (family === "alignment") {
+        assert.equal(
+          measured.find((entry) => entry.rule === "composition-alignment")
+            .maxResidual,
+          quality === "good" ? 0 : 24,
+        );
+      } else if (family === "rhythm") {
+        const rhythm = measured.find(
+          (entry) => entry.rule === "composition-rhythm",
+        );
+        assert.deepEqual(rhythm.gaps, quality === "good" ? [12, 12] : [12, 36]);
+        assert.equal(
+          rhythm.coefficientOfVariation,
+          quality === "good" ? 0 : 0.5,
+        );
+      } else if (family === "balance") {
+        const balance = measured.find(
+          (entry) => entry.rule === "composition-balance",
+        );
+        assert.ok(
+          quality === "good"
+            ? balance.coefficientOfVariation < 0.001
+            : balance.coefficientOfVariation > 0.29,
+        );
+        assert.equal(
+          measured.find((entry) => entry.rule === "composition-peer-type")
+            .coefficientOfVariation,
+          0,
+        );
+      } else {
+        const growth = capture.metrics.growth[0];
+        assert.deepEqual(growth.keys.slice(0, 3), [
+          "AL-104",
+          "BI-208",
+          "CE-312",
+        ]);
+        assert.equal(
+          growth.keys.length,
+          quality === "good" && capture.viewport.name === "wide" ? 6 : 3,
+        );
+        if (capture.viewport.name === "wide") {
+          assert.equal(growth.comparison.referenceCount, 3);
+          assert.deepEqual(growth.comparison.lostKeys, []);
+          assert.equal(growth.comparison.referenceArea, 686 * 336);
+          assert.equal(growth.area, 1166 * 336);
+          assert.equal(growth.comparison.areaGrowth, 480 / 686);
+          assert.equal(
+            growth.comparison.yield,
+            quality === "good" ? 686 / 480 : 0,
+          );
+        }
+        const chrome = measured.find(
+          (entry) => entry.rule === "composition-chrome",
+        );
+        assert.ok(chrome.valid && chrome.ratio < 0.45);
+      }
+    }
+    const savedGlobalDirectory = env.VIEWRULE_CONFIG_DIR;
+    env.VIEWRULE_CONFIG_DIR = path.join(project, "composition-global");
+    await mkdir(env.VIEWRULE_CONFIG_DIR);
+    await writeFile(
+      path.join(env.VIEWRULE_CONFIG_DIR, "rules.json"),
+      JSON.stringify([
+        {
+          ...compositionRules.find((rule) => rule.id === "composition-growth"),
+          id: "global-growth",
+          pages: ["economy-good"],
+        },
+      ]),
+    );
+    await writeFile(rulesPath, "[]");
+    await writeFile(
+      path.join(project, ".ui-review/config.json"),
+      JSON.stringify({
+        ...compositionConfig,
+        pages: [
+          compositionConfig.pages.find((page) => page.name === "economy-good"),
+        ],
+        viewports: [compositionConfig.viewports[0]],
+      }),
+    );
+    const referenceOnly = await cli(["contract"]);
+    assert.equal(referenceOnly.code, 2);
+    assert.match(
+      referenceOnly.stderr,
+      /global-growth.*at least two captured viewports/,
+    );
+    env.VIEWRULE_CONFIG_DIR = savedGlobalDirectory;
+    // The same workflow records useful finite whitespace, nested chrome union,
+    // a concrete prominence regression, and missing evidence isolated by checkpoint.
+    await writeFile(
+      path.join(project, "composition-checkpoint.mjs"),
+      `export default async function ({ page, checkpoint }) {
+      if (checkpoint.name === 'missing-identity' && page.viewportSize().width < 1000)
+        await page.locator('.queue li').first().evaluate((el) => el.removeAttribute('data-shipment'));
+      if (checkpoint.name === 'lost-identity' && page.viewportSize().width > 1000)
+        await page.locator('.queue li').first().evaluate((el) => {
+          el.setAttribute('data-shipment', 'AL-999');
+          el.querySelector('strong').textContent = 'AL-999';
+        });
+      if (checkpoint.name === 'oversized-chrome')
+        await page.locator('#good .economy-surface > header').evaluate((el) => { el.style.minHeight = '600px'; });
+      if (checkpoint.name === 'unequal-type')
+        await page.locator('.coverage-peers h4').nth(1).evaluate((el) => { el.style.fontSize = '24px'; });
+    }`,
+    );
+    const finiteRule = {
+      ...compositionRules.find((rule) => rule.id === "composition-growth"),
+      id: "composition-finite",
+      pages: ["economy-finite"],
+      finiteKeys: ["AL-104", "BI-208", "CE-312"],
+    };
+    await writeFile(
+      rulesPath,
+      JSON.stringify([
+        ...compositionRules.flatMap((rule) => {
+          if (!rule.pages) return [rule];
+          const pages = rule.pages.filter((name) =>
+            ["economy-good", "balance-good"].includes(name),
+          );
+          if (rule.id === "composition-chrome") pages.push("chrome-regression");
+          return pages.length ? [{ ...rule, pages }] : [];
+        }),
+        finiteRule,
+      ]),
+    );
+    await writeFile(
+      path.join(project, ".ui-review/config.json"),
+      JSON.stringify({
+        ...compositionConfig,
+        pages: [
+          {
+            ...compositionConfig.pages.find(
+              (page) => page.name === "economy-good",
+            ),
+            checkpoints: [
+              { name: "intact", setup: "composition-checkpoint.mjs" },
+              { name: "missing-identity", setup: "composition-checkpoint.mjs" },
+              { name: "lost-identity", setup: "composition-checkpoint.mjs" },
+            ],
+          },
+          {
+            ...compositionConfig.pages.find(
+              (page) => page.name === "balance-good",
+            ),
+            checkpoints: [
+              { name: "unequal-type", setup: "composition-checkpoint.mjs" },
+            ],
+          },
+          {
+            name: "economy-finite",
+            path: "/examples/composition.html?rule=DR-019&quality=good&mode=finite",
+            ready: "#composition-examples[data-ready]",
+          },
+          {
+            name: "chrome-regression",
+            path: "/examples/composition.html?rule=DR-019&quality=good",
+            ready: "#composition-examples[data-ready]",
+            checkpoints: [
+              { name: "oversized-chrome", setup: "composition-checkpoint.mjs" },
+            ],
+          },
+        ],
+      }),
+    );
+    const compositionRegressionCheck = await cli(["check"]);
+    assert.equal(
+      compositionRegressionCheck.code,
+      1,
+      compositionRegressionCheck.stderr || compositionRegressionCheck.stdout,
+    );
+    const compositionRegressionFile = JSON.parse(
+      compositionRegressionCheck.stdout,
+    ).report;
+    const compositionRegression = JSON.parse(
+      await readFile(compositionRegressionFile, "utf8"),
+    );
+    await cp(
+      path.dirname(compositionRegressionFile),
+      path.join(compositionEvidence, "regression-report"),
+      { recursive: true },
+    );
+    for (const capture of compositionRegression.pages) {
+      if (capture.name === "economy-finite") {
+        assert.deepEqual(capture.findings, []);
+        const growth = capture.metrics.growth[0];
+        assert.equal(growth.keys.length, 3);
+        if (capture.viewport.name === "wide") {
+          assert.equal(growth.comparison.yield, 0);
+          assert.equal(growth.comparison.status, "saturated");
+        }
+      } else if (capture.name === "economy-good") {
+        const growth = capture.metrics.growth[0];
+        if (capture.checkpoint === "missing-identity") {
+          assert.equal(growth.valid, capture.viewport.name === "wide");
+          assert.equal(growth.comparison.status, "unassessed");
+          assert.ok(
+            capture.findings.some(
+              (finding) => finding.rule === "composition-growth",
+            ),
+          );
+          assert.equal(
+            capture.metrics.evaluations.find(
+              (entry) => entry.rule === "composition-growth",
+            ).status,
+            "unassessed",
+          );
+          if (capture.viewport.name === "wide")
+            assert.match(
+              growth.comparison.reason,
+              /reference evidence is missing or invalid/,
+            );
+        } else if (
+          capture.checkpoint === "lost-identity" &&
+          capture.viewport.name === "wide"
+        ) {
+          assert.equal(growth.valid, true);
+          assert.equal(growth.keys.length, 6);
+          assert.equal(growth.comparison.yield, 686 / 480);
+          assert.deepEqual(growth.comparison.lostKeys, ["AL-104"]);
+          assert.ok(
+            capture.findings.some(
+              (finding) =>
+                finding.rule === "composition-growth" &&
+                /lost previously visible task evidence/.test(finding.message),
+            ),
+          );
+        } else {
+          assert.deepEqual(capture.findings, []);
+          if (capture.viewport.name === "wide")
+            assert.equal(
+              growth.comparison.yield,
+              686 / 480,
+              "A missing identity in another checkpoint must not contaminate this comparison",
+            );
+        }
+      } else if (capture.name === "balance-good") {
+        assert.ok(
+          capture.findings.some(
+            (finding) => finding.rule === "composition-peer-type",
+          ),
+        );
+        assert.ok(
+          capture.metrics.composition.find(
+            (entry) => entry.rule === "composition-peer-type",
+          ).coefficientOfVariation > 0.2,
+        );
+      } else {
+        const chrome = capture.metrics.composition.find(
+          (entry) => entry.rule === "composition-chrome",
+        );
+        assert.ok(chrome.ratio > 0.45 && chrome.ratio <= 1);
+        assert.ok(
+          capture.findings.some(
+            (finding) => finding.rule === "composition-chrome",
+          ),
+        );
+      }
+    }
+
     const catalog = JSON.parse(
       await readFile(
         path.join(exampleDirectory, "behavior-catalog.json"),
@@ -1518,9 +1834,9 @@ test(
     const contextSchema = JSON.parse(
       (await cli(["schema", "--type", "context"])).stdout,
     );
-    assert.equal(contextSchema.properties.designRules.items.enum.length, 16);
+    assert.equal(contextSchema.properties.designRules.items.enum.length, 20);
     assert.deepEqual(
-      contextSchema.properties.designRules.items.enum.slice(8),
+      contextSchema.properties.designRules.items.enum.slice(8, 16),
       additions,
     );
     const conformance = JSON.parse(
@@ -1604,7 +1920,7 @@ test(
     const behaviorReport = JSON.parse(
       await readFile(JSON.parse(behaviorCheck.stdout).report, "utf8"),
     );
-    assert.equal(behaviorReport.designPolicy.rules.length, 16);
+    assert.equal(behaviorReport.designPolicy.rules.length, 20);
     for (const capture of behaviorReport.pages) {
       const findings = capture.findings.filter(
         (finding) => finding.rule !== "design-coverage",
@@ -1648,7 +1964,7 @@ test(
     }
     await writeFile(
       proposal,
-      JSON.stringify({ ...behaviorRules[0], designRules: ["DR-017"] }),
+      JSON.stringify({ ...behaviorRules[0], designRules: ["DR-021"] }),
     );
     assert.equal(
       (await cli(["add-rule", "--rule", proposal, "--dry-run"])).code,
@@ -2308,8 +2624,45 @@ test(
         "12",
       );
 
+      await page.setViewportSize({ width: 1280, height: 900 });
+      for (const id of ["DR-017", "DR-018", "DR-019", "DR-020"]) {
+        const variants = {};
+        for (const quality of ["good", "bad"]) {
+          await page.goto(
+            `${baseURL}/examples/composition.html?rule=${id}&quality=${quality}`,
+          );
+          await page.waitForSelector(
+            `#composition-examples[data-ready][data-rule="${id}"]`,
+          );
+          variants[quality] = await page
+            .locator(`#${quality} .composition-surface`)
+            .evaluate((surface) => ({
+              text: surface.textContent.replace(/\s+/g, " ").trim(),
+              headings: [...surface.querySelectorAll("h3, h4")].map((el) => ({
+                text: el.textContent,
+                size: globalThis.getComputedStyle(el).fontSize,
+              })),
+              identities: [...surface.querySelectorAll("[data-shipment]")].map(
+                (el) => el.getAttribute("data-shipment"),
+              ),
+              colors: [...surface.querySelectorAll("h3, h4, strong")].map(
+                (el) => globalThis.getComputedStyle(el).color,
+              ),
+              width: surface.getBoundingClientRect().width,
+            }));
+          await page.locator(`#${quality} .composition-surface`).screenshot({
+            path: path.join(compositionEvidence, `${id}-${quality}.png`),
+          });
+        }
+        assert.deepEqual(
+          variants.good,
+          variants.bad,
+          `${id} must preserve task text, identities, heading type, semantic color, and total surface width`,
+        );
+      }
+
       // Every canonical rule owns its examples and resolves links under /viewrule/.
-      for (let number = 1; number <= 16; number++) {
+      for (let number = 1; number <= 20; number++) {
         const id = `DR-${String(number).padStart(3, "0")}`;
         const url = `${baseURL}/viewrule/rules/${id.toLowerCase()}/`;
         await page.goto(url);
