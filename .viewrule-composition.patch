@@ -1,0 +1,329 @@
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index 6ea666121d2a485f61fcaf8cec715b65bf6931cf..d18bb709b8725267fc4ab363672f551754d7ca28 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -2,2 +2,17 @@
+ 
++## Unreleased
++
++- Add DR-017–DR-020: Alignment, Rhythm, Spatial Economy, and Balance. Keep
++  intentional asymmetry, content-driven sizing, and finite-task whitespace valid.
++- Add opt-in spacing-rhythm, group-separation, peer-size, region-budget, and
++  viewport-yield checks with scoped observations and normal report/coverage
++  integration. Reuse edge alignment for DR-017; do not infer semantic relevance,
++  optical balance, or a generic design score.
++- Exempt complete finite evidence sets from viewport-growth yield floors while
++  preserving reference identities and readable text. Compare the same page and
++  checkpoint only; missing evidence stays explicit.
++- Add a CLI calibration fixture and warning-only example contracts. Existing
++  application rules, presets, schema versions, approvals, and plugin pins are
++  unchanged. The new checks require an engine containing this change.
++
+ ## 0.8.0 — 2026-09-22
+diff --git a/README.md b/README.md
+index ac8c59ff695b2b3d3b289eca25ebd46a3e60af9f..0645fddad54b2ece81d4ee720643a3d50f7ed15f 100644
+--- a/README.md
++++ b/README.md
+@@ -46,6 +46,7 @@ The goal is to turn an expectation such as **“show eight complete carrier rows
+ desktop”** into a repeatable check, while keeping judgment with the person using the
+-interface. The [design policy](docs/design-rules.md) includes DR-001 through DR-016.
++interface. The [design policy](docs/design-rules.md) includes DR-001 through DR-020.
+ The first eight draw on Tufte's work on comparison and graphical integrity; the
+ next eight address state, continuity, action clarity, recovery, hierarchy, input
+-access, content resilience, and semantic color. Each states its scope and limits.
++access, content resilience, and semantic color. Four composition rules add
++alignment, rhythm, spatial economy, and balance. Each states its scope and limits.
+ These are our interpretations, not quotations, universal thresholds, or endorsements.
+@@ -130,2 +131,3 @@ and explicit native-check versus application-review coverage.
+ | Comparison | Required visible item counts and stable identities preserved across viewports |
++| Composition (opt-in) | Peer spacing, group separation, footprint ratios, declared chrome budgets, and finite-task viewport yield |
+ | Context and consistency | Visible context, allowed styles or attributes, and consistent declared encodings |
+@@ -244,6 +246,8 @@ into new Git worktrees. Each checkout keeps its own run state. See
+ 
+-`guidance` includes seven built-in preferences adapted from the original dotfiles:
++`guidance` includes built-in preferences adapted from the original dotfiles:
+ lead with the decision, keep comparisons visible, preserve quantitative context,
+ align evidence, minimize distracting decoration, retain readable density, and
+-review graphical integrity. Personal preferences and actual human feedback refine them.
++review graphical integrity. Composition guidance adds intentional anchors, spacing
++rhythm, task-scoped area budgets, and balance without enforcing symmetry.
++[Composition contracts](docs/composition.md) document the opt-in checks and examples. Personal preferences and actual human feedback refine them.
+ 
+diff --git a/docs/design-rules.md b/docs/design-rules.md
+index b0a1e7590dea6fdb6ca60edd1c7cb3ab24bd6042..d17408aeb1a587395749d33268575bf34d2b196d 100644
+--- a/docs/design-rules.md
++++ b/docs/design-rules.md
+@@ -1,2 +1,2 @@
+-# Design rules for evidence and interaction
++# Design rules for evidence, interaction, and composition
+ 
+@@ -4,3 +4,3 @@ Viewrule's design policy is defined by the individual files in [`docs/design-rul
+ 
+-DR-001–DR-008 apply ideas from Edward Tufte's *The Visual Display of Quantitative Information* and later writing. DR-009–DR-016 add task-scoped interaction and resilience requirements with their own cited sources. These are our interpretations, not quotations, endorsements, or universal prescriptions for every interface.
++DR-001–DR-008 apply ideas from Edward Tufte's *The Visual Display of Quantitative Information* and later writing. DR-009–DR-016 add task-scoped interaction and resilience requirements with their own cited sources. DR-017–DR-020 add scoped composition guidance for alignment, rhythm, spatial economy, and balance. These are our interpretations, not quotations, endorsements, or universal prescriptions for every interface.
+ 
+@@ -164 +164,27 @@ The [research notes](design-principles.md) explain the scope and limits of addit
+ - Carl Bergstrom and Jevin West, [The principle of proportional ink](https://www.callingbull.org/tools/tools_proportional_ink.html)
++
++## DR-017 — Rule of Alignment
++
++Related elements share intentional visual anchors.
++
++[Canonical rule →](design-rules/DR-017-alignment.md)
++
++## DR-018 — Rule of Rhythm
++
++Equivalent relationships use consistent spacing and clearer grouping.
++
++[Canonical rule →](design-rules/DR-018-rhythm.md)
++
++## DR-019 — Rule of Spatial Economy
++
++Allocate visual space according to task value, not container availability.
++
++[Canonical rule →](design-rules/DR-019-spatial-economy.md)
++
++## DR-020 — Rule of Balance
++
++Visual weight reflects semantic priority, not mirror symmetry.
++
++[Canonical rule →](design-rules/DR-020-balance.md)
++
++[Composition contracts, measurements, and calibration](composition.md).
+diff --git a/docs/ui-review-enforcement.md b/docs/ui-review-enforcement.md
+index 8d04e2704f3e8fec91cb3c98a1e5fe5df4485c27..d5031d64b01f403f97aaa98045d620e4654084bb 100644
+--- a/docs/ui-review-enforcement.md
++++ b/docs/ui-review-enforcement.md
+@@ -227 +227,15 @@ and DR-006/DR-007 assertions. No default rule is added: the application declares
+ which content must fit which boundary.
++
++## Composition coverage
++
++| Policy | Partial executable evidence | Still requires review |
++| --- | --- | --- |
++| DR-017 — Alignment | `align`; scoped `relative-position` | Intended peers/anchors, optical alignment, and text baselines |
++| DR-018 — Rhythm | `spacing-rhythm`, `group-separation` | Semantic groups, intentional rhythm changes, and non-proximity grouping cues |
++| DR-019 — Spatial Economy | `region-budget`, `viewport-yield`; existing `comparison-set` | Task relevance, useful whitespace, readable detail without added identities, and chrome classification |
++| DR-020 — Balance | `peer-size`; scoped `style`/alignment contracts | Priority, optical weight, and intentional asymmetry |
++
++All four retain `review` enforcement mode. Geometric checks do not promote the
++whole design principle to an automated guarantee. [Composition contracts](composition.md)
++define scope, units, finite-task saturation, and missing-evidence behavior.
++The warning-only example is opt-in; no application configuration is rewritten.
+diff --git a/docs/ui-review.md b/docs/ui-review.md
+index d65422562375faf44bce1233a8091bcca85ac0b0..e66b250d9db309b832a18c23c3ee3990aa09f21e 100644
+--- a/docs/ui-review.md
++++ b/docs/ui-review.md
+@@ -234,3 +234,3 @@ or semantic relevance; see [measurement limits](defaults.md#measurement-limits-a
+ 
+-Checks cite `DR-001` through `DR-016` using their type's default mapping or an
++Checks cite `DR-001` through `DR-020` using their type's default mapping or an
+ explicit `designRules` array. `attribute` requires an explicit citation. Optional
+@@ -443 +443,10 @@ would overstate what geometry can establish. Readable-type and map-size rules pr
+ compression from becoming smaller text or an unreadable geographic thumbnail.
++
++## Composition relationships
++
++DR-017–DR-020 add alignment, rhythm, spatial economy, and balance guidance.
++Existing `align` supplies edge measurements; opt-in `spacing-rhythm`,
++`group-separation`, `peer-size`, `region-budget`, and `viewport-yield` supply
++scoped relational checks. See [the complete field reference, formulas, missing-evidence
++behavior, and calibration fixture](composition.md). No generic symmetry or quality
++score is implemented, and existing application rules are not replaced.
+diff --git a/eslint.config.mjs b/eslint.config.mjs
+index a7f472816e32b8e5701f40a1014c968e26451ea9..12c9676988af5ccd34910c1c5080bdd4b157064a 100644
+--- a/eslint.config.mjs
++++ b/eslint.config.mjs
+@@ -37,2 +37,3 @@ export default [
+       "src/checks.mjs",
++      "src/composition.mjs",
+       "src/capture.mjs",
+diff --git a/presets/preferences.json b/presets/preferences.json
+index b253b1d23b26f5d68d5c3e9666ef87734767c7c4..9ae9707610739acd52393d931edc6ce3e7cc9f96 100644
+--- a/presets/preferences.json
++++ b/presets/preferences.json
+@@ -13,3 +13,7 @@
+   "Reduce redundant spacing before reducing readable type. Let wrapping and enlarged text determine item height; keep exact icon sizes, gaps, and column choices in the project contract. (DR-007)",
+-  "Carry an entity's visual identity from discovery to detail. Compare the actual graphic as well as its stable identity; matching symbol labels alone do not establish matching artwork. (DR-005)"
++  "Carry an entity's visual identity from discovery to detail. Compare the actual graphic as well as its stable identity; matching symbol labels alone do not establish matching artwork. (DR-005)",
++  "Declare visual peers and their intended anchors. Align comparable headings, labels, controls, and component edges; preserve purposeful indentation and optical exceptions. (DR-017)",
++  "Use consistent gaps for equivalent relationships and clearer separation between unrelated groups. Scope wrapped content separately; preserve text adaptation and usable controls. (DR-018)",
++  "Allocate space to task value, not container availability. Compare distinct visible evidence across viewports, cap only explicitly declared chrome, and preserve whitespace when a finite task is complete. (DR-019)",
++  "Give semantic peers deliberate comparable treatment while allowing asymmetry for unequal priorities. Footprint ratios are geometry proxies, not attention scores; never force equal heights by hiding content. (DR-020)"
+ ]
+diff --git a/scripts/test-package.mjs b/scripts/test-package.mjs
+index d4fc93dd330e47c9055722484e00c7eaccc247c3..5f724f0bafdf45bef42ea0766dbc8acbbaf8e565 100644
+--- a/scripts/test-package.mjs
++++ b/scripts/test-package.mjs
+@@ -6,2 +6,3 @@ import path from "node:path";
+ import { runPriorityCheckpoint } from "../docs/examples/priority-checkpoint.mjs";
++import { runCompositionCheckpoint } from "../docs/composition-checkpoint.mjs";
+ import { validateRules } from "../src/config.mjs";
+@@ -21,2 +22,3 @@ try {
+   await runPriorityCheckpoint(root);
++  await runCompositionCheckpoint(root);
+   execFileSync(process.execPath, ["scripts/site.mjs"], {
+diff --git a/src/config.mjs b/src/config.mjs
+index 2e61b24cce2d438e2abd394274bec1100fb2b05b..54b8fe8da1d14a7494505b46e71b46ceae73612a 100644
+--- a/src/config.mjs
++++ b/src/config.mjs
+@@ -4,2 +4,3 @@ import path from "node:path";
+ import { designRuleIds } from "./policy-ids.mjs";
++import { compositionSchemas } from "./composition-schema.mjs";
+ import { checkpointPath } from "./checkpoints.mjs";
+@@ -173,2 +174,3 @@ const common = {
+ const types = {
++  ...compositionSchemas,
+   "within-bounds": {
+@@ -446,2 +448,5 @@ export function validateRuleScopes(rules, config) {
+     );
++    if (r.type === "viewport-yield" && !config.viewports.some((v) =>
++      v.name === r.referenceViewport && selected(v.name, r.viewports)))
++      throw new Error(`Rule ${r.id}: referenceViewport must name an active viewport`);
+     if (r.type === "comparison-set") {
+diff --git a/src/design.mjs b/src/design.mjs
+index b74bb3ddc0009146276b07d9c57e4af8a90a85e7..37f450e32b8e6100fc96768474ee5d958d942363 100644
+--- a/src/design.mjs
++++ b/src/design.mjs
+@@ -5,2 +5,4 @@ import { designRuleRegistry } from "./policy-ids.mjs";
+ import { ruleApplies } from "./scopes.mjs";
++import { compositionDesignIds, compositionAdvice } from "./composition-schema.mjs";
++import { evaluateComposition } from "./composition-design.mjs";
+ 
+@@ -14,2 +16,3 @@ export const policyPaths = Object.freeze(
+ const defaults = {
++  ...compositionDesignIds,
+   "within-bounds": ["DR-006", "DR-007"],
+@@ -19,3 +22,3 @@ const defaults = {
+   "vertical-order": ["DR-006", "DR-007"],
+-  align: ["DR-006"],
++  align: ["DR-006", "DR-017"],
+   "no-overlap": ["DR-006"],
+@@ -36,2 +39,3 @@ const defaults = {
+ const advice = {
++  ...compositionAdvice,
+   "within-bounds":
+@@ -131,2 +135,3 @@ export async function readDesignPolicy() {
+ export function evaluateDesign(report, rules, config) {
++  evaluateComposition(report, rules);
+   const active = (rule, page) =>
+diff --git a/src/policy-ids.mjs b/src/policy-ids.mjs
+index 56e47d4cfd190b1e2c047e42b2002c1fda2bb52b..5cd626378caece6763f615da9bae439252709517 100644
+--- a/src/policy-ids.mjs
++++ b/src/policy-ids.mjs
+@@ -84,2 +84,22 @@ export const designRuleRegistry = Object.freeze([
+   },
++  {
++    id: "DR-017",
++    file: "DR-017-alignment.md",
++    enforcement: "review",
++  },
++  {
++    id: "DR-018",
++    file: "DR-018-rhythm.md",
++    enforcement: "review",
++  },
++  {
++    id: "DR-019",
++    file: "DR-019-spatial-economy.md",
++    enforcement: "review",
++  },
++  {
++    id: "DR-020",
++    file: "DR-020-balance.md",
++    enforcement: "review",
++  },
+ ]);
+diff --git a/src/review.mjs b/src/review.mjs
+index 9b3c003912e56cbbe5d0e6d31c6964a891fb9702..e6437b7201b65b3b01b7604aba1f1e5f5e6bdb60 100644
+--- a/src/review.mjs
++++ b/src/review.mjs
+@@ -9,2 +9,4 @@ import { fingerprint, writeJSON, feedbackEntries } from "./state.mjs";
+ import { inspectPage } from "./checks.mjs";
++import { inspectComposition } from "./composition.mjs";
++import { compositionTypes } from "./composition-schema.mjs";
+ import {
+@@ -219,5 +221,15 @@ export async function runReview(
+         );
+-        const inspection = await page.evaluate(inspectPage, active);
+-        result.findings.push(...inspection.findings);
+-        result.metrics = inspection.metrics;
++        const inspection = await page.evaluate(inspectPage,
++          active.filter((rule) => !compositionTypes.includes(rule.type)));
++        const compositionRules = active.filter((rule) => compositionTypes.includes(rule.type));
++        const composition = compositionRules.length
++          ? await page.evaluate(inspectComposition, compositionRules)
++          : { findings: [], metrics: [], evaluations: [] };
++        result.findings.push(...inspection.findings, ...composition.findings);
++        result.metrics = {
++          ...inspection.metrics,
++          composition: composition.metrics,
++          evaluatedRules: inspection.metrics.evaluatedRules + compositionRules.length,
++          evaluations: [...inspection.metrics.evaluations, ...composition.evaluations],
++        };
+         result.coverage = {
+diff --git a/src/types.d.ts b/src/types.d.ts
+index d89fd9d56c70775d67e5b0a54166d164b84fc95d..1e0b3bdeb0b599f22c1b22037bf71d252f7c104c 100644
+--- a/src/types.d.ts
++++ b/src/types.d.ts
+@@ -149,3 +149,8 @@ export interface Rule {
+     | "evidence-proximity"
+-    | "mark-contrast";
++    | "mark-contrast"
++    | "spacing-rhythm"
++    | "group-separation"
++    | "peer-size"
++    | "region-budget"
++    | "viewport-yield";
+   selector: string;
+@@ -197,2 +202,31 @@ export interface Rule {
+   groups?: { selector: string; optional: boolean }[];
++  axis?: "x" | "y";
++  maxSpread?: number;
++  groupSelector?: string;
++  dimension?: "width" | "height" | "area";
++  maxRatio?: number;
++  expectedKeys?: string[];
++  referenceViewport?: string;
++  minYield?: number;
++}
++export interface CompositionMetric {
++  rule: string;
++  type: string;
++  element: string;
++  gaps?: number[];
++  spread?: number;
++  maxWithin?: number;
++  minBetween?: number;
++  sizes?: number[];
++  ratio?: number | null;
++  regionArea?: number;
++  occupiedArea?: number;
++  keys?: string[];
++  valid?: boolean;
++  viewportArea?: number;
++  comparison?: "reference" | "unassessed" | "compared" | "saturated";
++  areaGrowth?: number;
++  evidenceGrowth?: number;
++  yield?: number;
++  saturated?: boolean;
+ }
+@@ -234,3 +268,5 @@ export interface PageResult {
+   details?: Awaited<ReturnType<typeof import("./capture.mjs").captureDetails>>;
+-  metrics?: ReturnType<typeof import("./checks.mjs").inspectPage>["metrics"];
++  metrics?: ReturnType<typeof import("./checks.mjs").inspectPage>["metrics"] & {
++    composition?: CompositionMetric[];
++  };
+   coverage?: { layoutRules: string[]; accessibility: boolean };
+diff --git a/src/composition.mjs b/src/composition.mjs
+--- a/src/composition.mjs
++++ b/src/composition.mjs
+@@ -26,7 +26,7 @@
+   });
+   const area = (r) => Math.max(0, r.right - r.left) * Math.max(0, r.bottom - r.top);
+   const visibleBox = (el) => {
+-    let box = intersect(rect(el), viewport);
++    const box = intersect(rect(el), viewport);
+     for (let parent = el.parentElement; parent; parent = parent.parentElement) {
+       const s = getComputedStyle(parent), r = rect(parent);
+       // Axis-aligned client-box clipping. Not painted occlusion or clip-path.
