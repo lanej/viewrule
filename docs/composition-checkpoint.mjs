@@ -5,6 +5,7 @@ import { execFile } from "node:child_process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { validateRules } from "../src/config.mjs";
+import { evaluateComposition } from "../src/composition-design.mjs";
 
 // A concrete rejected/accepted CLI calibration, not a second geometry engine.
 export async function runCompositionCheckpoint(root) {
@@ -142,6 +143,32 @@ export async function runCompositionCheckpoint(root) {
         assert.equal(yieldMetric.yield, 0);
       }
     }
+    // Reevaluate actual captured measurements as references disappear/reappear.
+    // Incremental review resets raw findings but reuses the observation objects.
+    const replay = structuredClone(report);
+    const reference = replay.pages.find(
+      (p) => p.name === "finite" && p.viewport.name === "desktop",
+    );
+    const target = replay.pages.find(
+      (p) => p.name === "finite" && p.viewport.name === "wide",
+    );
+    const metric = target.metrics.composition.find(
+      (m) => m.type === "viewport-yield",
+    );
+    const evaluation = target.metrics.evaluations.find(
+      (entry) => entry.rule === metric.rule,
+    );
+    replay.pages = [target];
+    evaluateComposition(replay, rules);
+    assert.equal(evaluation.status, "missing");
+    assert.equal(metric.comparison, "unassessed");
+    assert.equal(Object.hasOwn(metric, "yield"), false);
+    target.findings = [];
+    replay.pages = [reference, target];
+    evaluateComposition(replay, rules);
+    assert.equal(evaluation.status, "checked");
+    assert.equal(metric.comparison, "saturated");
+    assert.deepEqual(target.findings, []);
     await writeFile(
       path.join(directory, "result.json"),
       JSON.stringify(
