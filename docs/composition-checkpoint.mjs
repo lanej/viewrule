@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readFile, mkdir, writeFile, rm } from "node:fs/promises";
+import { readFile, mkdir, writeFile, rm, cp } from "node:fs/promises";
 import { createServer } from "node:http";
 import { execFile } from "node:child_process";
 import path from "node:path";
@@ -86,6 +86,11 @@ export async function runCompositionCheckpoint(root) {
     });
     const result = JSON.parse(await invocation);
     const report = JSON.parse(await readFile(result.report, "utf8"));
+    // Preserve the full synthetic report outside the hidden project state
+    // so the existing artifact upload retains its captures and HTML.
+    await cp(path.dirname(result.report), path.join(directory, "report"), {
+      recursive: true,
+    });
     assert.equal(report.pages.length, 6);
     for (const page of report.pages) {
       const ids = page.findings.map((f) => f.rule);

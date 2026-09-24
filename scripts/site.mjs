@@ -262,7 +262,7 @@ await writeFile(
   landing,
   (await readFile(landing, "utf8")).replace(
     "<h1>Design guidance and executable review.</h1>",
-    '<h1>Design guidance and executable review.</h1><p><a href="rules/">Browse all 16 design rules →</a></p>',
+    '<h1>Design guidance and executable review.</h1><p><a href="rules/">Browse all design rules →</a></p>',
   ),
 );
 
