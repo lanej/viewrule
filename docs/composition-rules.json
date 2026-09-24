@@ -62,7 +62,16 @@
     "selector": "#task",
     "items": "[data-evidence]",
     "keyAttribute": "data-evidence",
-    "expectedKeys": ["P-01", "P-02", "P-03", "P-04", "P-05", "P-06", "P-07", "P-08"],
+    "expectedKeys": [
+      "P-01",
+      "P-02",
+      "P-03",
+      "P-04",
+      "P-05",
+      "P-06",
+      "P-07",
+      "P-08"
+    ],
     "referenceViewport": "desktop",
     "minYield": 0.5,
     "minFontSize": 14,

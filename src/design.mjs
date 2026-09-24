@@ -3,7 +3,10 @@ import { createHash } from "node:crypto";
 import path from "node:path";
 import { designRuleRegistry } from "./policy-ids.mjs";
 import { ruleApplies } from "./scopes.mjs";
-import { compositionDesignIds, compositionAdvice } from "./composition-schema.mjs";
+import {
+  compositionDesignIds,
+  compositionAdvice,
+} from "./composition-schema.mjs";
 import { evaluateComposition } from "./composition-design.mjs";
 
 export const policyDirectory = path.resolve(

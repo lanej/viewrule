@@ -446,9 +446,15 @@ export function validateRuleScopes(rules, config) {
       config.viewports.map((v) => v.name),
       `Rule ${r.id}: viewport`,
     );
-    if (r.type === "viewport-yield" && !config.viewports.some((v) =>
-      v.name === r.referenceViewport && selected(v.name, r.viewports)))
-      throw new Error(`Rule ${r.id}: referenceViewport must name an active viewport`);
+    if (
+      r.type === "viewport-yield" &&
+      !config.viewports.some(
+        (v) => v.name === r.referenceViewport && selected(v.name, r.viewports),
+      )
+    )
+      throw new Error(
+        `Rule ${r.id}: referenceViewport must name an active viewport`,
+      );
     if (r.type === "comparison-set") {
       const active = config.viewports.filter((v) =>
         selected(v.name, r.viewports),
