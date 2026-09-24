@@ -65,8 +65,9 @@ Only same-page, same-checkpoint captures are compared, against `preserveFrom`.
 Both target dimensions must be at least the reference dimensions and measured
 area must grow. Use deterministic fixture data, the same text scale and initial
 scroll state, and explicitly scoped viewports. Configuration requires a captured
-reference and at least one larger target per applicable page. Narrow/mobile or
-changed-aspect-ratio layouts need separate contracts, not extrapolation.
+reference and at least one larger target per applicable page. Narrow/mobile
+layouts and comparisons where one dimension shrinks need separate contracts,
+not extrapolation. An aspect-ratio change is allowed when neither dimension shrinks.
 
 A reference with no comparisons, missing capture/metrics, undeclared visible
 identities, or any failed comparison prerequisite produces an unassessed yield
@@ -106,3 +107,9 @@ oversized peer heading, stretched comparisons, and duplicate-key inflation. It
 also checks finite saturation, missing reference evidence, and type-size failure.
 No fixture is a human-approved visual reference. Browser geometry does not replace
 native-scale visual review or establish that the declared task is valuable.
+
+Existing canonical examples retain their recorded DR-001–DR-016 assessments.
+Their conformance matrix explicitly marks DR-017–DR-020 as `unassessed`, with a
+rationale for each. This is neither a pass nor a claim that the new rules are
+inapplicable. The regression still requires an entry for every registered rule,
+and the composition checkpoint supplies separate evidence for the new contracts.
