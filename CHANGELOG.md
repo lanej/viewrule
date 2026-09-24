@@ -1,5 +1,17 @@
 # Changelog
 
+## Unreleased
+
+- Add DR-017 Alignment, DR-018 Rhythm, DR-019 Spatial Economy, and DR-020 Balance
+  with opt-in relational checks, canonical requirements, and accepted/rejected
+  composition examples. Measure median-anchor residual, adjacent-gap variation,
+  declared chrome allocation, and peer area or font-size variation without a
+  universal aesthetic or symmetry score.
+- Compare viewport-growth yield against a named reference using visible, legible
+  evidence identities and usable region area. Preserve reference evidence, expose
+  missing/invalid measurement evidence, and support an explicit exhaustive finite
+  set already visible at both sizes. No default numeric thresholds are added.
+
 ## 0.8.0 — 2026-09-22
 
 - Retire Claude Stop enforcement. Legacy `hook` commands return an empty decision;

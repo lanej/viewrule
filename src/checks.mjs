@@ -5,6 +5,10 @@ export function inspectPage(rules) {
   /** @type {import("./types.js").Finding[]} */
   const findings = [];
   const density = [];
+  /** @type {import("./types.js").CompositionMeasurement[]} */
+  const composition = [];
+  /** @type {import("./types.js").GrowthMeasurement[]} */
+  const growth = [];
   const repeatedMetrics = [],
     evidenceDistances = [],
     markContrasts = [];
@@ -32,6 +36,29 @@ export function inspectPage(rules) {
     while ((node = walker.nextNode()))
       if (node.textContent.trim() && visible(node.parentElement))
         nodes.push(node);
+    return nodes;
+  };
+  const renderedTextNodes = (el) => {
+    const nodes = [],
+      walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+    let node;
+    while ((node = walker.nextNode())) {
+      if (
+        !node.textContent.trim() ||
+        getComputedStyle(node.parentElement).visibility !== "visible"
+      )
+        continue;
+      // A display:contents parent has no box, but its text still renders and
+      // inherits its type size. Test the text range and nearest generated box.
+      let box = node.parentElement;
+      while (box && getComputedStyle(box).display === "contents")
+        box = box.parentElement;
+      if (!box?.checkVisibility({ checkOpacity: true })) continue;
+      const range = document.createRange();
+      range.selectNodeContents(node);
+      if ([...range.getClientRects()].some((r) => r.width > 0 && r.height > 0))
+        nodes.push(node);
+    }
     return nodes;
   };
   const textBounds = (el) => {
@@ -99,6 +126,202 @@ export function inspectPage(rules) {
         : null,
     });
   const width = document.documentElement.clientWidth;
+  const viewportBounds = { left: 0, right: width, top: 0, bottom: innerHeight };
+  const clipBox = (box, bounds) => ({
+    left: Math.max(box.left, bounds.left),
+    right: Math.min(box.right, bounds.right),
+    top: Math.max(box.top, bounds.top),
+    bottom: Math.min(box.bottom, bounds.bottom),
+  });
+  const boxArea = (box) =>
+    Math.max(0, box.right - box.left) * Math.max(0, box.bottom - box.top);
+  const inside = (box, bounds) =>
+    box.left >= bounds.left &&
+    box.right <= bounds.right &&
+    box.top >= bounds.top &&
+    box.bottom <= bounds.bottom;
+  const hasBoxTransform = (el) => {
+    for (let current = el; current; current = current.parentElement) {
+      const style = getComputedStyle(current);
+      if (style.display === "contents") continue;
+      if (
+        Number(style.zoom) !== 1 ||
+        style.perspective !== "none" ||
+        (style.scale !== "none" &&
+          style.scale.split(" ").some((value) => Number(value) !== 1)) ||
+        (style.rotate !== "none" &&
+          !/(?:^| )0(?:deg|rad|grad|turn)$/.test(style.rotate))
+      )
+        return true;
+      if (style.transform !== "none") {
+        const matrix = new DOMMatrix(style.transform);
+        if (
+          [matrix.m11, matrix.m22, matrix.m33, matrix.m44].some(
+            (value) => value !== 1,
+          ) ||
+          [
+            matrix.m12,
+            matrix.m13,
+            matrix.m14,
+            matrix.m21,
+            matrix.m23,
+            matrix.m24,
+            matrix.m31,
+            matrix.m32,
+            matrix.m34,
+          ].some((value) => value !== 0)
+        )
+          return true;
+      }
+    }
+    return false;
+  };
+  const overflowBounds = (el, style) => {
+    const bounds = rect(el),
+      number = (value) => parseFloat(value) || 0,
+      borderLeft = number(style.borderLeftWidth),
+      borderRight = number(style.borderRightWidth),
+      borderTop = number(style.borderTopWidth),
+      borderBottom = number(style.borderBottomWidth);
+    // Recover fractional padding edges from the rendered box. The capture
+    // browser hides native scrollbars: reserved gutters change layout, but do
+    // not clip painted evidence inside the padding box.
+    let layoutWidth =
+      number(style.width) +
+      (style.boxSizing === "border-box"
+        ? 0
+        : borderLeft +
+          borderRight +
+          number(style.paddingLeft) +
+          number(style.paddingRight));
+    let layoutHeight =
+      number(style.height) +
+      (style.boxSizing === "border-box"
+        ? 0
+        : borderTop +
+          borderBottom +
+          number(style.paddingTop) +
+          number(style.paddingBottom));
+    // For content-box sizing, CSSOM's used size excludes reserved gutters.
+    // Restore their integer allocation only when deriving transformed scale.
+    if (style.boxSizing !== "border-box") {
+      layoutWidth += Math.max(0, el.offsetWidth - Math.round(layoutWidth));
+      layoutHeight += Math.max(0, el.offsetHeight - Math.round(layoutHeight));
+    }
+    // CSSOM rounds serialized sizes. Preserve scale 1 for ordinary boxes and
+    // pure translations instead of inferring a transform from that rounding.
+    const transformed = hasBoxTransform(el);
+    const scale = (rendered, layout) =>
+      transformed && layout > 0 ? rendered / layout : 1;
+    const scaleX = scale(bounds.width, layoutWidth),
+      scaleY = scale(bounds.height, layoutHeight);
+    return {
+      left: bounds.left + borderLeft * scaleX,
+      right: bounds.right - borderRight * scaleX,
+      top: bounds.top + borderTop * scaleY,
+      bottom: bounds.bottom - borderBottom * scaleY,
+    };
+  };
+  const positionedContainer = (el, fixed) => {
+    let candidate = el.offsetParent;
+    // offsetParent can stop at an effective-zoom boundary that does not
+    // establish a containing block. Continue past those plain static boxes.
+    while (candidate) {
+      const style = getComputedStyle(candidate);
+      if (
+        (!fixed && style.position !== "static") ||
+        [
+          "transform",
+          "translate",
+          "rotate",
+          "scale",
+          "perspective",
+          "filter",
+          "backdropFilter",
+        ].some((property) => style[property] !== "none") ||
+        /\b(layout|paint|strict|content)\b/.test(style.contain) ||
+        /\b(transform|translate|rotate|scale|perspective|filter|backdrop-filter|contain)\b/.test(
+          style.willChange,
+        ) ||
+        style.contentVisibility === "auto"
+      )
+        return candidate;
+      candidate = candidate.offsetParent;
+    }
+    return null;
+  };
+  const unclipped = (box, subject, includeSelf = false) => {
+    let containingBlock = null;
+    for (let el = subject; el; el = el.parentElement) {
+      // Out-of-flow content bypasses overflow ancestors between it and its
+      // containing block. offsetParent supplies Chromium's actual boundary,
+      // including transformed containing blocks for fixed-position content.
+      if (containingBlock && el !== containingBlock) continue;
+      containingBlock = null;
+      const style = getComputedStyle(el);
+      if (
+        (includeSelf || el !== subject) &&
+        style.display !== "contents" &&
+        (style.overflowX !== "visible" || style.overflowY !== "visible")
+      ) {
+        const bounds = overflowBounds(el, style);
+        if (
+          (style.overflowX !== "visible" &&
+            (box.left < bounds.left || box.right > bounds.right)) ||
+          (style.overflowY !== "visible" &&
+            (box.top < bounds.top || box.bottom > bounds.bottom))
+        )
+          return false;
+      }
+      if (
+        el instanceof HTMLElement &&
+        style.display !== "contents" &&
+        ["absolute", "fixed"].includes(style.position)
+      ) {
+        containingBlock = positionedContainer(el, style.position === "fixed");
+        // A null containing block is the viewport, checked by inside().
+        if (!containingBlock) return true;
+      }
+    }
+    return true;
+  };
+  const unionArea = (rectangles) => {
+    const boxes = rectangles.filter((box) => boxArea(box) > 0);
+    const xs = [...new Set(boxes.flatMap((box) => [box.left, box.right]))].sort(
+      (a, b) => a - b,
+    );
+    let area = 0;
+    for (let i = 1; i < xs.length; i++) {
+      let length = 0,
+        end = -Infinity;
+      const intervals = boxes
+        .filter((box) => box.left < xs[i] && box.right > xs[i - 1])
+        .map((box) => [box.top, box.bottom])
+        .sort((a, b) => a[0] - b[0]);
+      for (const [a, b] of intervals) {
+        length += Math.max(0, b - Math.max(a, end));
+        end = Math.max(end, b);
+      }
+      area += (xs[i] - xs[i - 1]) * length;
+    }
+    return area;
+  };
+  const variation = (values) => {
+    const mean = values.reduce((sum, value) => sum + value, 0) / values.length;
+    const variance =
+      values.reduce((sum, value) => sum + (value - mean) ** 2, 0) /
+      values.length;
+    return {
+      mean,
+      coefficientOfVariation: mean ? Math.sqrt(variance) / mean : 0,
+    };
+  };
+  const compositionTypes = [
+    "alignment-residual",
+    "gap-variance",
+    "peer-footprint",
+    "chrome-allocation",
+  ];
   const overflow =
     Math.max(
       document.documentElement.scrollWidth,
@@ -128,6 +351,32 @@ export function inspectPage(rules) {
       status: els.length ? "checked" : rule.optional ? "skipped" : "missing",
     });
     if (!els.length) {
+      if (!rule.optional && compositionTypes.includes(rule.type)) {
+        evaluations.at(-1).status = "unassessed";
+        composition.push({
+          rule: rule.id,
+          type: rule.type,
+          element: null,
+          status: "unassessed",
+          valid: false,
+          problems: ["Required selector has no visible matches."],
+        });
+      }
+      if (!rule.optional && rule.type === "viewport-growth-yield") {
+        evaluations.at(-1).status = "unassessed";
+        growth.push({
+          rule: rule.id,
+          element: null,
+          status: "unassessed",
+          valid: false,
+          width: 0,
+          height: 0,
+          area: 0,
+          keys: [],
+          items: [],
+          problems: ["Required selector has no visible matches."],
+        });
+      }
       if (!rule.optional)
         add(
           rule,
@@ -138,7 +387,305 @@ export function inspectPage(rules) {
         );
       continue;
     }
-    if (rule.type === "within-bounds") {
+    if (compositionTypes.includes(rule.type)) {
+      for (const el of els) {
+        const fontSizePeers =
+          rule.type === "peer-footprint" && rule.measure === "font-size";
+        const items = [...el.querySelectorAll(rule.items)].filter(
+          (item) =>
+            item.closest(rule.selector) === el &&
+            (visible(item) ||
+              (fontSizePeers &&
+                getComputedStyle(item).display === "contents" &&
+                renderedTextNodes(item).length > 0)),
+        );
+        const problems = [];
+        /** @type {import("./types.js").CompositionMeasurement} */
+        const observation = {
+          rule: rule.id,
+          type: rule.type,
+          element: describe(el),
+          status: "measured",
+          valid: true,
+          count: items.length,
+          problems,
+        };
+        composition.push(observation);
+        const minimum =
+          rule.type === "gap-variance"
+            ? 3
+            : rule.type === "chrome-allocation"
+              ? 1
+              : 2;
+        if (items.length < minimum)
+          problems.push(
+            `Measurement needs at least ${minimum} visible selected items.`,
+          );
+        if (
+          rule.type !== "chrome-allocation" &&
+          items.some((item, i) =>
+            items.some((other, j) => i !== j && item.contains(other)),
+          )
+        )
+          problems.push("Declared peers must not contain one another.");
+        if (rule.type === "chrome-allocation" && els.length !== 1)
+          problems.push(
+            "Chrome allocation needs exactly one visible usable region.",
+          );
+        if (!problems.length && rule.type === "alignment-residual") {
+          const anchors = items.map((item) => {
+            const box = rect(item);
+            return rule.edge === "center-x"
+              ? box.left + box.width / 2
+              : rule.edge === "center-y"
+                ? box.top + box.height / 2
+                : box[rule.edge];
+          });
+          const sorted = [...anchors].sort((a, b) => a - b),
+            middle = Math.floor(sorted.length / 2),
+            median =
+              sorted.length % 2
+                ? sorted[middle]
+                : (sorted[middle - 1] + sorted[middle]) / 2,
+            maxResidual = Math.max(
+              ...anchors.map((anchor) => Math.abs(anchor - median)),
+            );
+          Object.assign(observation, {
+            edge: rule.edge,
+            anchors,
+            median,
+            maxResidual,
+          });
+          if (maxResidual > rule.maxResidual)
+            add(
+              rule,
+              "Declared peer anchors exceed the configured residual from their median.",
+              el,
+              observation,
+              { maxResidual: rule.maxResidual, unit: "CSS px" },
+            );
+        } else if (!problems.length && rule.type === "gap-variance") {
+          const horizontal = rule.axis === "x";
+          const boxes = items
+            .map(rect)
+            .sort((a, b) => (horizontal ? a.left - b.left : a.top - b.top));
+          const gaps = boxes
+            .slice(1)
+            .map((box, i) =>
+              horizontal
+                ? box.left - boxes[i].right
+                : box.top - boxes[i].bottom,
+            );
+          Object.assign(observation, { axis: rule.axis, gaps });
+          if (gaps.some((gap) => gap < 0))
+            problems.push("Declared peers overlap on the measured axis.");
+          const crossStart = Math.max(
+            ...boxes.map((box) => (horizontal ? box.top : box.left)),
+          );
+          const crossEnd = Math.min(
+            ...boxes.map((box) => (horizontal ? box.bottom : box.right)),
+          );
+          if (crossEnd <= crossStart)
+            problems.push(
+              "Gap variance needs a single shared row or column band.",
+            );
+          if (!problems.length) {
+            Object.assign(observation, variation(gaps));
+            if (
+              observation.coefficientOfVariation >
+              rule.maxCoefficientOfVariation
+            )
+              add(
+                rule,
+                "Peer gaps exceed the configured population coefficient of variation.",
+                el,
+                observation,
+                { maxCoefficientOfVariation: rule.maxCoefficientOfVariation },
+              );
+          }
+        } else if (!problems.length && rule.type === "peer-footprint") {
+          const values = items.map((item) =>
+            rule.measure === "area"
+              ? boxArea(rect(item))
+              : parseFloat(getComputedStyle(item).fontSize),
+          );
+          Object.assign(observation, { measure: rule.measure, values });
+          if (values.some((value) => !Number.isFinite(value) || value <= 0))
+            problems.push(
+              "Peer footprint needs positive finite values for every peer.",
+            );
+          else {
+            Object.assign(observation, variation(values));
+            if (
+              observation.coefficientOfVariation >
+              rule.maxCoefficientOfVariation
+            )
+              add(
+                rule,
+                "Peer visual-footprint proxy exceeds the configured population coefficient of variation.",
+                el,
+                observation,
+                { maxCoefficientOfVariation: rule.maxCoefficientOfVariation },
+              );
+          }
+        } else if (!problems.length && rule.type === "chrome-allocation") {
+          const bounds = clipBox(rect(el), viewportBounds),
+            regionArea = boxArea(bounds),
+            chromeArea = unionArea(
+              items.map((item) => clipBox(rect(item), bounds)),
+            );
+          Object.assign(observation, { regionArea, chromeArea });
+          if (!regionArea)
+            problems.push("Usable region must intersect the initial viewport.");
+          else {
+            observation.ratio = chromeArea / regionArea;
+            if (observation.ratio > rule.maxRatio)
+              add(
+                rule,
+                "Declared chrome consumes more than its configured share of the usable region.",
+                el,
+                observation,
+                { maxRatio: rule.maxRatio },
+              );
+          }
+        }
+        if (problems.length) {
+          observation.valid = false;
+          observation.status = "unassessed";
+          evaluations.at(-1).status = "unassessed";
+          add(
+            rule,
+            `Composition measurement is unassessed: ${problems.join(" ")}`,
+            el,
+            observation,
+            "supported geometry and sufficient declared peers",
+          );
+        }
+      }
+    } else if (rule.type === "viewport-growth-yield") {
+      const el = els.length === 1 ? els[0] : null,
+        bounds = el ? clipBox(rect(el), viewportBounds) : viewportBounds;
+      /** @type {import("./types.js").GrowthMeasurement} */
+      const observation = {
+        rule: rule.id,
+        element: el ? describe(el) : null,
+        status: "measured",
+        valid: true,
+        width: el ? Math.max(0, bounds.right - bounds.left) : 0,
+        height: el ? Math.max(0, bounds.bottom - bounds.top) : 0,
+        area: el ? boxArea(bounds) : 0,
+        keys: [],
+        items: [],
+        problems: [],
+      };
+      growth.push(observation);
+      if (!el)
+        observation.problems.push(
+          "Viewport-growth yield needs exactly one visible usable region.",
+        );
+      else {
+        if (!observation.area)
+          observation.problems.push(
+            "Usable region must intersect the initial viewport.",
+          );
+        const items = [...el.querySelectorAll(rule.items)].filter(visible);
+        if (!items.length)
+          observation.problems.push(
+            "Evidence selector needs visible selected items.",
+          );
+        const counts = new Map();
+        for (const item of items) {
+          const key = item.getAttribute(rule.keyAttribute)?.trim() || null,
+            reasons = [],
+            nodes = renderedTextNodes(item),
+            sizes = nodes.map((node) =>
+              parseFloat(getComputedStyle(node.parentElement).fontSize),
+            ),
+            minFontSize = sizes.length ? Math.min(...sizes) : null;
+          if (!key)
+            observation.problems.push(
+              `Evidence ${describe(item)} has no stable identity in ${rule.keyAttribute}.`,
+            );
+          else {
+            counts.set(key, (counts.get(key) || 0) + 1);
+            if (rule.finiteKeys && !rule.finiteKeys.includes(key))
+              observation.problems.push(
+                `Evidence identity ${key} is outside finiteKeys.`,
+              );
+          }
+          if (!inside(rect(item), bounds))
+            reasons.push("outside usable region or viewport");
+          if (!unclipped(rect(item), item))
+            reasons.push("clipped by ancestor overflow");
+          if (!nodes.length) reasons.push("no visible text");
+          if (
+            nodes.length &&
+            (!Number.isFinite(minFontSize) || minFontSize < rule.minFontSize)
+          )
+            reasons.push("below readable type size");
+          for (const node of nodes) {
+            const range = document.createRange();
+            range.setStart(node, node.textContent.search(/\S/));
+            range.setEnd(node, node.textContent.trimEnd().length);
+            if (
+              [...range.getClientRects()].some(
+                (box) =>
+                  box.width > 0 &&
+                  box.height > 0 &&
+                  (!inside(box, bounds) ||
+                    !unclipped(box, node.parentElement, true)),
+              )
+            ) {
+              reasons.push(
+                "text outside usable region, viewport, or overflow clip",
+              );
+              break;
+            }
+          }
+          if (!key) reasons.push("missing identity");
+          if (key && rule.finiteKeys && !rule.finiteKeys.includes(key))
+            reasons.push("outside finiteKeys");
+          observation.items.push({
+            element: describe(item),
+            key,
+            eligible: !reasons.length,
+            reasons,
+            minFontSize,
+          });
+        }
+        for (const [key, count] of counts)
+          if (count > 1) {
+            observation.problems.push(
+              `Evidence identity ${key} appears ${count} times among visible selected items.`,
+            );
+            for (const item of observation.items.filter(
+              (item) => item.key === key,
+            )) {
+              item.eligible = false;
+              item.reasons.push("duplicate identity");
+            }
+          }
+        observation.keys = observation.items
+          .filter((item) => item.eligible)
+          .map((item) => item.key);
+        if (!observation.keys.length)
+          observation.problems.push(
+            "Growth measurement needs at least one fully visible, readable evidence identity.",
+          );
+      }
+      if (observation.problems.length) {
+        observation.valid = false;
+        observation.status = "unassessed";
+        evaluations.at(-1).status = "unassessed";
+        add(
+          rule,
+          `Viewport-growth observation is unassessed: ${observation.problems.join(" ")}`,
+          el,
+          observation,
+          "one usable region with uniquely identified evidence",
+        );
+      }
+    } else if (rule.type === "within-bounds") {
       for (const el of els) {
         const container = el.parentElement?.closest(rule.container);
         if (!container || !visible(container)) {
@@ -1023,6 +1570,8 @@ export function inspectPage(rules) {
       pageHeight: document.documentElement.scrollHeight,
       evaluatedRules: evaluated,
       density,
+      composition,
+      growth,
       repeatedMetrics,
       evidenceDistances,
       markContrasts,

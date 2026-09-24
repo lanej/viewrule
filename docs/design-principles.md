@@ -17,9 +17,12 @@ DR-001–DR-008 remain stable; the additional sources clarify selected applicati
 | [Carbon: Data table usage](https://carbondesignsystem.com/components/data-table/usage/) | Table composition includes titles, toolbars, actions, selection, sorting, and task-dependent layout choices. | Use a React fixture containing controls, metrics, a table, a trend, and prose. Allow a compact composition and a sidebar composition under the same constraints. No universal row-height or density target is added. |
 
 These additions extend the original [Tufte-inspired policy](design-rules.md).
-The [presets](defaults.md) state their exact selectors and severities. Ten built-in
-guidance statements now retain the original seven preferences and add controls,
-prose, and numeric scanning. Existing projects opt into new rules deliberately;
+The [presets](defaults.md) state their exact selectors and severities. Built-in
+guidance retains the original seven preferences and adds controls, prose, numeric
+scanning, component relationships, and composition. The DR-017–DR-020 formulas
+are Viewrule-authored measurement conventions; these sources do not establish
+universal residual, gap-variance, yield, chrome, or footprint thresholds.
+Existing projects opt into new rules deliberately;
 upgrades do not rewrite application rule files.
 
 ## What the evidence establishes

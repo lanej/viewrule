@@ -44,10 +44,12 @@ detail tiles alongside the overview so those details can be inspected.
 
 The goal is to turn an expectation such as **“show eight complete carrier rows on
 desktop”** into a repeatable check, while keeping judgment with the person using the
-interface. The [design policy](docs/design-rules.md) includes DR-001 through DR-016.
+interface. The [design policy](docs/design-rules.md) includes DR-001 through DR-020.
 The first eight draw on Tufte's work on comparison and graphical integrity; the
 next eight address state, continuity, action clarity, recovery, hierarchy, input
-access, content resilience, and semantic color. Each states its scope and limits.
+access, content resilience, and semantic color. Four composition rules add
+declared-peer alignment, spacing rhythm, spatial economy, and balance. Each states
+what can be falsified computationally and what requires human judgment.
 These are our interpretations, not quotations, universal thresholds, or endorsements.
 
 See [good and bad design examples](docs/design-examples.md) for illustrated rule
@@ -122,6 +124,15 @@ See the [new rule examples](docs/examples/behavior.html) for paired good/bad
 interaction and resilience demonstrations, shared synthetic data, cited rationales,
 and explicit native-check versus application-review coverage.
 
+The [composition examples](docs/examples/composition.html) pair accepted and
+rejected layouts under explicit peer and region contracts. Their
+[measurement reference](docs/ui-review.md#composition-contracts) defines alignment
+residual, gap variation, chrome allocation, peer footprint, and viewport-growth
+yield: the fractional growth in visible, legible evidence divided by the fractional
+growth in usable area. Stable identities and a named reference viewport make empty
+container growth distinguishable from additional evidence; declared finite tasks
+can retain useful whitespace. None of these metrics is a universal aesthetic score.
+
 ## What it detects
 
 | Concern | Evidence Viewrule checks |
@@ -130,6 +141,7 @@ and explicit native-check versus application-review coverage.
 | Comparison | Required visible item counts and stable identities preserved across viewports |
 | Context and consistency | Visible context, allowed styles or attributes, and consistent declared encodings |
 | Density and legibility | Adjacent text distance, minimum text size, and optional text/box coverage or empty-band constraints |
+| Composition | Median-anchor residual, adjacent peer-gap variation, declared chrome allocation, comparative viewport-growth yield, and equal-priority footprint variation |
 | Capture and accessibility | Complete detail-tile coverage and automatically detectable axe accessibility findings |
 
 Rule findings report their selector, observed value, expected value, reason, and
@@ -246,6 +258,9 @@ into new Git worktrees. Each checkout keeps its own run state. See
 lead with the decision, keep comparisons visible, preserve quantitative context,
 align evidence, minimize distracting decoration, retain readable density, and
 review graphical integrity. Personal preferences and actual human feedback refine them.
+Additional guidance covers controls, reading, component relationships, and scoped
+composition contracts. Declare related peers, equivalent gaps, task evidence, and
+equal priorities before selecting metrics; symmetry is not a requirement.
 
 New projects get editable **baseline** rules: 14px main-content text, clipping
 warnings, and a warning for headers over 160px. **Analytical** adds declared
@@ -253,6 +268,7 @@ comparison identities, eight desktop/twelve large-screen alternatives, nearby
 text values, complete labels, shared context, and aligned metric peers. These are
 calibratable starting constraints; a finite task can require fewer alternatives.
 Neither preset imposes a viewport occupancy score.
+Composition checks are opt-in and introduce no default numeric thresholds.
 
 Use `viewrule init --preset analytical` for a new comparison workspace,
 or `viewrule preset --name analytical` to inspect rules for an existing application.
@@ -377,7 +393,10 @@ tables. The analytical preset therefore checks visible identities, readable type
 and distance between actual text values. Its regression fixtures reject stretching
 alone and accept bounded finite comparisons with surrounding whitespace. These
 checks cannot establish relevance or every source of comparison effort. The
-[fixture corpus](https://github.com/lanej/viewrule/blob/main/test/README.md) states exactly
+[viewport-growth-yield contract](docs/ui-review.md#composition-contracts) adds a
+comparative return on usable area, with identity preservation and explicit finite
+saturation. It still depends on the project's declaration of relevant evidence.
+The [fixture corpus](https://github.com/lanej/viewrule/blob/main/test/README.md) states exactly
 what is verified; further work is tracked in the [roadmap](https://github.com/lanej/viewrule/blob/main/ROADMAP.md).
 
 DOM evidence cannot certify chart truth, semantic context, every form of clipping

@@ -132,6 +132,11 @@ export interface Rule {
     | "reading-column"
     | "vertical-order"
     | "align"
+    | "alignment-residual"
+    | "gap-variance"
+    | "peer-footprint"
+    | "chrome-allocation"
+    | "viewport-growth-yield"
     | "no-overlap"
     | "no-clip"
     | "visible-count"
@@ -157,7 +162,14 @@ export interface Rule {
   feedbackId?: string;
   designRules?: string[];
   sources?: string[];
-  edge?: "left" | "right" | "top" | "bottom";
+  edge?: "left" | "right" | "top" | "bottom" | "center-x" | "center-y";
+  axis?: "x" | "y";
+  maxResidual?: number;
+  maxCoefficientOfVariation?: number;
+  maxRatio?: number;
+  referenceViewport?: string;
+  minYield?: number;
+  finiteKeys?: string[];
   tolerance?: number;
   min?: number;
   max?: number;
@@ -183,7 +195,7 @@ export interface Rule {
   minFontSize?: number;
   required?: string[];
   region?: string;
-  measure?: "boxes" | "text";
+  measure?: "boxes" | "text" | "area" | "font-size";
   minCoverage?: number;
   maxVerticalGap?: number;
   container?: string;
@@ -195,6 +207,57 @@ export interface Rule {
   substrate?: string;
   minRatio?: number;
   groups?: { selector: string; optional: boolean }[];
+}
+export interface CompositionMeasurement {
+  rule: string;
+  type: string;
+  element: string | null;
+  status: "measured" | "unassessed";
+  valid: boolean;
+  problems: string[];
+  count?: number;
+  edge?: Rule["edge"];
+  anchors?: number[];
+  median?: number;
+  maxResidual?: number;
+  axis?: Rule["axis"];
+  measure?: Rule["measure"];
+  values?: number[];
+  gaps?: number[];
+  mean?: number;
+  coefficientOfVariation?: number;
+  regionArea?: number;
+  chromeArea?: number;
+  ratio?: number;
+}
+export interface GrowthMeasurement {
+  rule: string;
+  element: string | null;
+  status: "measured" | "unassessed";
+  valid: boolean;
+  width: number;
+  height: number;
+  area: number;
+  keys: string[];
+  items: {
+    element: string;
+    key: string | null;
+    eligible: boolean;
+    reasons: string[];
+    minFontSize: number | null;
+  }[];
+  problems: string[];
+  comparison?: {
+    status: "reference" | "measured" | "saturated" | "unassessed";
+    referenceViewport: string;
+    referenceArea?: number;
+    referenceCount?: number;
+    areaGrowth?: number;
+    evidenceGrowth?: number;
+    yield?: number | null;
+    lostKeys?: string[];
+    reason?: string;
+  };
 }
 export interface Finding {
   rule: string;

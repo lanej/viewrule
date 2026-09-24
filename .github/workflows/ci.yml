@@ -86,6 +86,14 @@ jobs:
           path: dist/pattern-review-evidence/
           if-no-files-found: warn
           retention-days: 7
+      - name: Preserve composition example evidence
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: composition-example-evidence
+          path: dist/composition-evidence/
+          if-no-files-found: warn
+          retention-days: 7
       - name: Benchmark analytical detectors
         id: benchmark
         run: |

@@ -114,6 +114,9 @@ export async function runReview(
       plan.units.some((unit) => unit.kind === "page" && unit.action === "run")
     )
       browser = await chromium.launch({
+        // Growth clipping uses the padding edge painted with native scrollbars
+        // hidden. Keep this Playwright default explicit for measurement parity.
+        args: ["--hide-scrollbars"],
         executablePath:
           plan?.executable ??
           (process.env.VIEWRULE_BROWSER_PATH ||

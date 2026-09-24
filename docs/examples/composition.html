@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Composition, measured in context · Viewrule</title>
+    <link rel="stylesheet" href="composition.css" />
+    <script src="composition.js" defer></script>
+  </head>
+  <body>
+    <main id="composition-examples">
+      <header class="composition-intro">
+        <nav><a href="index.html">Examples</a> / Composition</nav>
+        <h1>Composition, measured in context</h1>
+        <p>
+          One small dispatch task per pair. The same invented data, readable
+          type, and content order; one controlled layout change.
+        </p>
+        <label
+          >Design rule
+          <select id="rule-picker">
+            <option value="DR-017">DR-017 · Alignment</option>
+            <option value="DR-018">DR-018 · Rhythm</option>
+            <option value="DR-019">DR-019 · Spatial Economy</option>
+            <option value="DR-020">DR-020 · Balance</option>
+          </select></label
+        >
+        <p id="composition-task"></p>
+      </header>
+      <div class="composition-pair">
+        <section id="good">
+          <h2>Good for this task</h2>
+          <p class="explanation"></p>
+          <div class="sample"></div>
+        </section>
+        <section id="bad">
+          <h2>Bad for this task</h2>
+          <p class="explanation"></p>
+          <div class="sample"></div>
+        </section>
+      </div>
+      <p class="composition-limit">
+        These authored relationships are measurable; relevance, grouping,
+        priority, and appropriate whitespace remain human judgments. No symmetry
+        or universal aesthetic score is required. Open one variant at 800 × 900
+        and 1280 × 900 to inspect viewport-growth yield.
+      </p>
+    </main>
+    <template id="scene-DR-017">
+      <article class="composition-surface alignment-surface">
+        <header>
+          <span class="eyebrow">Morning dispatch · invented data</span>
+          <h3>Carrier handoffs</h3>
+          <p>Compare the pickup windows for three equal-priority carriers.</p>
+        </header>
+        <ul class="handoffs">
+          <li>
+            <span class="carrier-name">Alder Parcel</span
+            ><span>08:30–09:00</span><span>Dock 2</span>
+          </li>
+          <li>
+            <span class="carrier-name">Birch Freight</span
+            ><span>09:00–09:30</span><span>Dock 4</span>
+          </li>
+          <li>
+            <span class="carrier-name">Cedar Express</span
+            ><span>09:30–10:00</span><span>Dock 1</span>
+          </li>
+        </ul>
+        <footer>All times local · 24 September 2026</footer>
+      </article>
+    </template>
+    <template id="scene-DR-018">
+      <article class="composition-surface rhythm-surface">
+        <header>
+          <span class="eyebrow">Morning dispatch · invented data</span>
+          <h3>Handoff checklist</h3>
+          <p>Review three equally related steps before releasing the queue.</p>
+        </header>
+        <ol class="steps">
+          <li>
+            <span class="step-number">1</span>
+            <div>
+              <strong>Confirm pickup windows</strong
+              ><span>Check the carrier schedule for this shift.</span>
+            </div>
+          </li>
+          <li>
+            <span class="step-number">2</span>
+            <div>
+              <strong>Match dock assignments</strong
+              ><span>Use the assigned dock for each carrier.</span>
+            </div>
+          </li>
+          <li>
+            <span class="step-number">3</span>
+            <div>
+              <strong>Review the release queue</strong
+              ><span>Resolve held shipments before handoff.</span>
+            </div>
+          </li>
+        </ol>
+        <footer>One checklist · three equally related steps</footer>
+      </article>
+    </template>
+    <template id="scene-DR-019">
+      <article class="composition-surface economy-surface">
+        <header>
+          <span class="eyebrow">Morning dispatch · invented data</span>
+          <h3>Release queue</h3>
+          <p>
+            Compare shipment identities and docks; a wider workspace can expose
+            more of the same queue.
+          </p>
+        </header>
+        <div class="queue-region" aria-label="Shipment comparison">
+          <ul class="queue">
+            <li data-shipment="AL-104">
+              <strong>AL-104</strong><span>Alder Parcel · Dock 2</span>
+            </li>
+            <li data-shipment="BI-208">
+              <strong>BI-208</strong><span>Birch Freight · Dock 4</span>
+            </li>
+            <li data-shipment="CE-312">
+              <strong>CE-312</strong><span>Cedar Express · Dock 1</span>
+            </li>
+            <li data-shipment="AL-116">
+              <strong>AL-116</strong><span>Alder Parcel · Dock 2</span>
+            </li>
+            <li data-shipment="BI-220">
+              <strong>BI-220</strong><span>Birch Freight · Dock 4</span>
+            </li>
+            <li data-shipment="CE-324">
+              <strong>CE-324</strong><span>Cedar Express · Dock 1</span>
+            </li>
+          </ul>
+        </div>
+        <footer>
+          Same six-record queue · first three retained at both widths
+        </footer>
+      </article>
+    </template>
+    <template id="scene-DR-020">
+      <article class="composition-surface balance-surface">
+        <header>
+          <span class="eyebrow">Morning dispatch · invented data</span>
+          <h3>Carrier coverage</h3>
+          <p>
+            Inspect three equal-priority handoff plans. None is selected or
+            urgent.
+          </p>
+        </header>
+        <div class="coverage-peers">
+          <section>
+            <h4>Alder Parcel</h4>
+            <p>Dock 2</p>
+            <span>08:30–09:00</span>
+          </section>
+          <section>
+            <h4>Birch Freight</h4>
+            <p>Dock 4</p>
+            <span>09:00–09:30</span>
+          </section>
+          <section>
+            <h4>Cedar Express</h4>
+            <p>Dock 1</p>
+            <span>09:30–10:00</span>
+          </section>
+        </div>
+        <footer>Equal task priority · comparable visual allocation</footer>
+      </article>
+    </template>
+  </body>
+</html>
