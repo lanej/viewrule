@@ -1530,14 +1530,27 @@ test(
       ),
     );
     const registeredRules = contextSchema.properties.designRules.items.enum;
-    assert.deepEqual(registeredRules.slice(16), ["DR-017", "DR-018", "DR-019", "DR-020"]);
+    assert.deepEqual(registeredRules.slice(16), [
+      "DR-017",
+      "DR-018",
+      "DR-019",
+      "DR-020",
+    ]);
     for (const example of conformance.examples) {
       assert.equal(example.target, example.id);
       assert.deepEqual(Object.keys(example.rules), registeredRules);
       const failures = [];
       for (const [id, assessment] of Object.entries(example.rules)) {
-        assert.ok(["pass", "fail", "not-applicable", "unassessed"].includes(assessment.good));
-        assert.ok(["pass", "fail", "not-applicable", "unassessed"].includes(assessment.bad));
+        assert.ok(
+          ["pass", "fail", "not-applicable", "unassessed"].includes(
+            assessment.good,
+          ),
+        );
+        assert.ok(
+          ["pass", "fail", "not-applicable", "unassessed"].includes(
+            assessment.bad,
+          ),
+        );
         assert.ok(
           assessment.evidence?.trim(),
           `${example.id}/${id} needs evidence`,

@@ -151,10 +151,7 @@
           "evidence": "Fixed labels expose measure, day, snapshot time, scope and units. Both variants retain the same known counts.",
           "evidenceType": "automated",
           "rule": "../design-rules/DR-003-quantity-context.md",
-          "checks": [
-            "context",
-            "shared-content"
-          ]
+          "checks": ["context", "shared-content"]
         },
         "DR-004": {
           "good": "not-applicable",
@@ -176,11 +173,7 @@
           "evidence": "Scope, the action and its reason remain local; both sections fit together on desktop, and critical text stays unclipped.",
           "evidenceType": "automated",
           "rule": "../design-rules/DR-006-related-evidence.md",
-          "checks": [
-            "context",
-            "no-clipping",
-            "same-order"
-          ]
+          "checks": ["context", "no-clipping", "same-order"]
         },
         "DR-007": {
           "good": "pass",
@@ -202,10 +195,7 @@
           "evidence": "Disclosure shows the actual three fixture identities awaiting correction; it does not claim correction or dispatch.",
           "evidenceType": "behavioral",
           "rule": "../design-rules/DR-009-state-honesty.md",
-          "checks": [
-            "keyboard-disclosure",
-            "context"
-          ]
+          "checks": ["keyboard-disclosure", "context"]
         },
         "DR-010": {
           "good": "pass",
@@ -213,10 +203,7 @@
           "evidence": "Disclosure preserves scope, counts and invoking focus in both variants.",
           "evidenceType": "behavioral",
           "rule": "../design-rules/DR-010-context-continuity.md",
-          "checks": [
-            "continuity",
-            "keyboard-disclosure"
-          ]
+          "checks": ["continuity", "keyboard-disclosure"]
         },
         "DR-011": {
           "good": "pass",
@@ -238,10 +225,7 @@
           "evidence": "Good assigns the shared accent and primary type scale to actionable exceptions; Bad assigns them to daily volume. Native style checks reject the old Good and the wrong assignment, but a reviewer still judges task priority.",
           "evidenceType": "human-review",
           "rule": "../design-rules/DR-013-task-emphasis.md",
-          "checks": [
-            "native-emphasis",
-            "paint-not-metadata"
-          ]
+          "checks": ["native-emphasis", "paint-not-metadata"]
         },
         "DR-014": {
           "good": "pass",
@@ -249,10 +233,7 @@
           "evidence": "Real Tab/Enter/Escape sequence, visible focus, ARIA linkage and shared action target. Not full accessibility certification.",
           "evidenceType": "behavioral",
           "rule": "../design-rules/DR-014-keyboard-access.md",
-          "checks": [
-            "keyboard-disclosure",
-            "continuity"
-          ]
+          "checks": ["keyboard-disclosure", "continuity"]
         },
         "DR-015": {
           "good": "pass",
