@@ -183,9 +183,10 @@ export function inspectPage(rules) {
       borderRight = number(style.borderRightWidth),
       borderTop = number(style.borderTopWidth),
       borderBottom = number(style.borderBottomWidth);
-    // clientWidth/Height round to integers. Recover fractional padding edges
-    // from the rendered box; use client sizes only for scrollbar allocation.
-    const layoutWidth =
+    // Recover fractional padding edges from the rendered box. The capture
+    // browser hides native scrollbars: reserved gutters change layout, but do
+    // not clip painted evidence inside the padding box.
+    let layoutWidth =
       number(style.width) +
       (style.boxSizing === "border-box"
         ? 0
@@ -193,7 +194,7 @@ export function inspectPage(rules) {
           borderRight +
           number(style.paddingLeft) +
           number(style.paddingRight));
-    const layoutHeight =
+    let layoutHeight =
       number(style.height) +
       (style.boxSizing === "border-box"
         ? 0
@@ -201,27 +202,24 @@ export function inspectPage(rules) {
           borderBottom +
           number(style.paddingTop) +
           number(style.paddingBottom));
+    // For content-box sizing, CSSOM's used size excludes reserved gutters.
+    // Restore their integer allocation only when deriving transformed scale.
+    if (style.boxSizing !== "border-box") {
+      layoutWidth += Math.max(0, el.offsetWidth - Math.round(layoutWidth));
+      layoutHeight += Math.max(0, el.offsetHeight - Math.round(layoutHeight));
+    }
     // CSSOM rounds serialized sizes. Preserve scale 1 for ordinary boxes and
     // pure translations instead of inferring a transform from that rounding.
     const transformed = hasBoxTransform(el);
     const scale = (rendered, layout) =>
       transformed && layout > 0 ? rendered / layout : 1;
     const scaleX = scale(bounds.width, layoutWidth),
-      scaleY = scale(bounds.height, layoutHeight),
-      scrollbarX = Math.max(
-        0,
-        Math.round(layoutWidth - borderLeft - borderRight) - el.clientWidth,
-      ),
-      scrollbarY = Math.max(
-        0,
-        Math.round(layoutHeight - borderTop - borderBottom) - el.clientHeight,
-      ),
-      leftScrollbar = Math.max(0, el.clientLeft - Math.round(borderLeft));
+      scaleY = scale(bounds.height, layoutHeight);
     return {
-      left: bounds.left + (borderLeft + leftScrollbar) * scaleX,
-      right: bounds.right - (borderRight + scrollbarX - leftScrollbar) * scaleX,
+      left: bounds.left + borderLeft * scaleX,
+      right: bounds.right - borderRight * scaleX,
       top: bounds.top + borderTop * scaleY,
-      bottom: bounds.bottom - (borderBottom + scrollbarY) * scaleY,
+      bottom: bounds.bottom - borderBottom * scaleY,
     };
   };
   const positionedContainer = (el, fixed) => {
@@ -391,8 +389,15 @@ export function inspectPage(rules) {
     }
     if (compositionTypes.includes(rule.type)) {
       for (const el of els) {
+        const fontSizePeers =
+          rule.type === "peer-footprint" && rule.measure === "font-size";
         const items = [...el.querySelectorAll(rule.items)].filter(
-          (item) => visible(item) && item.closest(rule.selector) === el,
+          (item) =>
+            item.closest(rule.selector) === el &&
+            (visible(item) ||
+              (fontSizePeers &&
+                getComputedStyle(item).display === "contents" &&
+                renderedTextNodes(item).length > 0)),
         );
         const problems = [];
         /** @type {import("./types.js").CompositionMeasurement} */

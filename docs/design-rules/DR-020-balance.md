@@ -19,6 +19,8 @@ the population standard deviation divided by the mean with
 insufficient peers, or unusable measurements cannot establish comparable
 allocation. Choose the actual label elements for a font-size contract; a card's
 inherited size cannot establish the size of every descendant.
+Rendered `display: contents` labels participate in font-size comparisons;
+hidden labels do not. Area measurements need box-generating items.
 
 **Application:** Compare the footprint of equal-role option cards, or the type
 size of peer values whose importance is intended to be equal. These are separate

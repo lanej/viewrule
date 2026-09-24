@@ -480,6 +480,9 @@ remains unassessed.
   matters. Multiple rows or mixed relationship types need separate groups.
 - `peer-footprint`: Choose `measure: "area"` for border-box width × height in
   CSS px² or `"font-size"` for the selected item's computed CSS size in CSS px.
+  Font-size comparisons include labels whose text renders through
+  `display: contents`, even though the selected label has no border box.
+  Hidden labels remain excluded; geometric measurements need box-generating items.
   At least two peers must have positive finite measurements. Compare population
   standard deviation divided by mean with `maxCoefficientOfVariation`. For
   example, equal measurements have zero variation. Declare equal-priority peers;
@@ -511,6 +514,11 @@ item does not qualify. Reports retain excluded items and reasons. This model doe
 not detect all occlusion, painted shape boundaries, pseudo-element or canvas text,
 optical text size, or relevance. Give each item a coherent evidence unit; splitting
 one fact into several annotated elements cannot establish more useful information.
+
+Overflow bounds use the padding edges painted by the capture browser, which hides
+native scrollbars. Reserved scrollbar gutters affect layout but do not, by
+themselves, exclude evidence painted into that space. Content beyond the captured
+overflow boundary still does not qualify.
 
 For each non-reference target, compare with the explicitly named `referenceViewport`
 of the **same page and checkpoint**. Both captures must exist within the rule's

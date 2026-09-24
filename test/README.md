@@ -155,6 +155,9 @@ readable and undersized `display: contents` text, preserves hidden text exclusio
 accepts a fully fitting percentage-width child in a fractional content-box overflow
 wrapper despite CSSOM rounding, and distinguishes an
 absolute item's escape from a static wrapper from actual containing-block clipping.
+It also retains evidence painted into a reserved scrollbar gutter under the capture
+browser's hidden-scrollbar setting. Equal and unequal font-size comparisons include
+rendered `display: contents` labels while excluding a hidden label.
 Native-scale Good
 and Bad images and both reports are retained in `dist/composition-evidence/`.
 These thresholds measure authored relationships, not general beauty, symmetry,

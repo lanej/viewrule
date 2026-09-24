@@ -1644,8 +1644,15 @@ test(
         });
       if (checkpoint.name === 'oversized-chrome')
         await page.locator('#good .economy-surface > header').evaluate((el) => { el.style.minHeight = '600px'; });
-      if (checkpoint.name === 'unequal-type')
-        await page.locator('.coverage-peers h4').nth(1).evaluate((el) => { el.style.fontSize = '24px'; });
+      if (['unequal-type', 'equal-contents-type'].includes(checkpoint.name))
+        await page.locator('.coverage-peers h4').nth(1).evaluate((el, unequal) => {
+          el.style.display = 'contents';
+          el.style.fontSize = unequal ? '24px' : '16px';
+          const hidden = el.cloneNode(true);
+          hidden.style.display = 'none';
+          hidden.style.fontSize = '80px';
+          el.parentElement.append(hidden);
+        }, checkpoint.name === 'unequal-type');
       if (checkpoint.name === 'rendered-evidence')
         await page.locator('#good .queue').evaluate((queue) => {
           const rows = [...queue.querySelectorAll('li')];
@@ -1663,6 +1670,15 @@ test(
           const readable = items[0].querySelector('span');
           readable.style.display = 'contents';
           readable.style.fontSize = '14px';
+          const gutterStyle = document.createElement('style');
+          gutterStyle.textContent = '.queue .gutter-regression::-webkit-scrollbar { width:16px; height:16px; }';
+          document.head.append(gutterStyle);
+          rows[0].classList.add('gutter-regression');
+          rows[0].tabIndex = 0;
+          rows[0].style.cssText = 'position:relative;box-sizing:border-box;width:200px;height:88px;padding:0;border:1px solid;overflow:scroll;scrollbar-gutter:stable';
+          Object.assign(items[0].style, { position:'absolute', left:'0', top:'0', width:'198px', height:'86px' });
+          if (rows[0].clientWidth !== 182 || items[0].getBoundingClientRect().width !== 198)
+            throw new Error('The gutter fixture must reserve 16px while its evidence fills the painted padding box.');
           const hiddenNote = document.createElement('span');
           hiddenNote.hidden = true;
           hiddenNote.style.fontSize = '8px';
@@ -1727,6 +1743,10 @@ test(
               (page) => page.name === "balance-good",
             ),
             checkpoints: [
+              {
+                name: "equal-contents-type",
+                setup: "composition-checkpoint.mjs",
+              },
               { name: "unequal-type", setup: "composition-checkpoint.mjs" },
             ],
           },
@@ -1790,7 +1810,11 @@ test(
           14,
           "Rendered display:contents text counts, while the hidden 8px note does not",
         );
-        assert.equal(readable.eligible, true);
+        assert.equal(
+          readable.eligible,
+          true,
+          "Readable evidence painted into a reserved, hidden scrollbar gutter remains eligible",
+        );
         const fractional = growth.items.find((item) => item.key === "BI-208");
         assert.equal(
           fractional.eligible,
@@ -1877,16 +1901,27 @@ test(
             );
         }
       } else if (capture.name === "balance-good") {
-        assert.ok(
-          capture.findings.some(
-            (finding) => finding.rule === "composition-peer-type",
-          ),
+        const peers = capture.metrics.composition.find(
+          (entry) => entry.rule === "composition-peer-type",
         );
-        assert.ok(
-          capture.metrics.composition.find(
-            (entry) => entry.rule === "composition-peer-type",
-          ).coefficientOfVariation > 0.2,
+        assert.equal(
+          peers.count,
+          3,
+          "Rendered boxless labels count; hidden labels do not",
         );
+        if (capture.checkpoint === "equal-contents-type") {
+          assert.deepEqual(capture.findings, []);
+          assert.deepEqual(peers.values, [16, 16, 16]);
+          assert.equal(peers.coefficientOfVariation, 0);
+        } else {
+          assert.ok(
+            capture.findings.some(
+              (finding) => finding.rule === "composition-peer-type",
+            ),
+          );
+          assert.deepEqual(peers.values, [16, 24, 16]);
+          assert.ok(peers.coefficientOfVariation > 0.2);
+        }
       } else {
         const chrome = capture.metrics.composition.find(
           (entry) => entry.rule === "composition-chrome",
