@@ -1,0 +1,96 @@
+[
+  {
+    "severity": "warning",
+    "viewports": ["desktop", "wide"],
+    "id": "composition-alignment",
+    "type": "align",
+    "selector": ".titles h3",
+    "edge": "top",
+    "tolerance": 1,
+    "reason": "These headings are peers, not different hierarchy levels.",
+    "designRules": ["DR-017"]
+  },
+  {
+    "severity": "warning",
+    "viewports": ["desktop", "wide"],
+    "id": "composition-rhythm",
+    "type": "spacing-rhythm",
+    "selector": ".toolbar",
+    "items": "button",
+    "axis": "x",
+    "maxSpread": 1,
+    "reason": "Equivalent queue actions share a spacing rhythm."
+  },
+  {
+    "severity": "warning",
+    "viewports": ["desktop", "wide"],
+    "id": "composition-groups",
+    "type": "group-separation",
+    "selector": ".groups",
+    "groupSelector": ".group",
+    "items": "button",
+    "axis": "x",
+    "minRatio": 2,
+    "reason": "Navigation and decision actions use proximity to signal separate groups."
+  },
+  {
+    "severity": "warning",
+    "viewports": ["desktop", "wide"],
+    "id": "composition-peers",
+    "type": "peer-size",
+    "selector": ".peers",
+    "items": ".peer",
+    "dimension": "width",
+    "maxRatio": 1.05,
+    "reason": "These delivery options have equal priority; the sidebar does not belong to this peer set."
+  },
+  {
+    "severity": "warning",
+    "viewports": ["desktop", "wide"],
+    "id": "composition-budget",
+    "type": "region-budget",
+    "selector": ".budget",
+    "items": "[data-chrome]",
+    "maxRatio": 0.35,
+    "reason": "Supporting chrome must leave the declared region available for its task."
+  },
+  {
+    "severity": "warning",
+    "viewports": ["desktop", "wide"],
+    "id": "composition-yield",
+    "type": "viewport-yield",
+    "selector": "#task",
+    "items": "[data-evidence]",
+    "keyAttribute": "data-evidence",
+    "expectedKeys": [
+      "P-01",
+      "P-02",
+      "P-03",
+      "P-04",
+      "P-05",
+      "P-06",
+      "P-07",
+      "P-08"
+    ],
+    "referenceViewport": "desktop",
+    "minYield": 0.5,
+    "minFontSize": 14,
+    "reason": "More viewport area should expose more of this finite parcel queue, not just stretch existing items.",
+    "pages": ["good", "bad"]
+  },
+  {
+    "severity": "warning",
+    "viewports": ["desktop", "wide"],
+    "id": "composition-finite-yield",
+    "type": "viewport-yield",
+    "selector": "#task",
+    "items": "[data-evidence]",
+    "keyAttribute": "data-evidence",
+    "expectedKeys": ["P-01", "P-02", "P-03", "P-04"],
+    "referenceViewport": "desktop",
+    "minYield": 0.5,
+    "minFontSize": 14,
+    "reason": "More viewport area should expose more of this finite parcel queue, not just stretch existing items.",
+    "pages": ["finite"]
+  }
+]

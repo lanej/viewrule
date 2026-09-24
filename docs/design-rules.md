@@ -1,8 +1,8 @@
-# Design rules for evidence and interaction
+# Design rules for evidence, interaction, and composition
 
 Viewrule's design policy is defined by the individual files in [`docs/design-rules/`](design-rules/). This page is the human-readable index; rule files are canonical and are loaded directly by the engine.
 
-DR-001–DR-008 apply ideas from Edward Tufte's *The Visual Display of Quantitative Information* and later writing. DR-009–DR-016 add task-scoped interaction and resilience requirements with their own cited sources. These are our interpretations, not quotations, endorsements, or universal prescriptions for every interface.
+DR-001–DR-008 apply ideas from Edward Tufte's *The Visual Display of Quantitative Information* and later writing. DR-009–DR-016 add task-scoped interaction and resilience requirements with their own cited sources. DR-017–DR-020 add scoped composition guidance for alignment, rhythm, spatial economy, and balance. These are our interpretations, not quotations, endorsements, or universal prescriptions for every interface.
 
 [Detection and enforcement](ui-review-enforcement.md) describes the implemented checks and their limits. [UI review](ui-review.md) covers setup. The [illustrated examples](design-examples.md) pair good and bad versions of common components, and the generated `/rules/` site provides one canonical page per design rule, with interactive good/bad examples embedded beside the requirement and verification guidance. The `/examples/` gallery is optional browsing; rule pages do not depend on it.
 
@@ -162,3 +162,29 @@ The [research notes](design-principles.md) explain the scope and limits of addit
 - Edward Tufte, [Sparkline theory and practice](https://www.edwardtufte.com/notebook/sparkline-theory-and-practice-edward-tufte/)
 - Edward Tufte, [Making better inferences from statistical graphics](https://www.edwardtufte.com/notebook/making-better-inferences-from-statistical-graphics-edward-tufte/)
 - Carl Bergstrom and Jevin West, [The principle of proportional ink](https://www.callingbull.org/tools/tools_proportional_ink.html)
+
+## DR-017 — Rule of Alignment
+
+Related elements share intentional visual anchors.
+
+[Canonical rule →](design-rules/DR-017-alignment.md)
+
+## DR-018 — Rule of Rhythm
+
+Equivalent relationships use consistent spacing and clearer grouping.
+
+[Canonical rule →](design-rules/DR-018-rhythm.md)
+
+## DR-019 — Rule of Spatial Economy
+
+Allocate visual space according to task value, not container availability.
+
+[Canonical rule →](design-rules/DR-019-spatial-economy.md)
+
+## DR-020 — Rule of Balance
+
+Visual weight reflects semantic priority, not mirror symmetry.
+
+[Canonical rule →](design-rules/DR-020-balance.md)
+
+[Composition contracts, measurements, and calibration](composition.md).

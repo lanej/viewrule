@@ -1,5 +1,20 @@
 # Changelog
 
+## Unreleased
+
+- Add DR-017–DR-020: Alignment, Rhythm, Spatial Economy, and Balance. Keep
+  intentional asymmetry, content-driven sizing, and finite-task whitespace valid.
+- Add opt-in spacing-rhythm, group-separation, peer-size, region-budget, and
+  viewport-yield checks with scoped observations and normal report/coverage
+  integration. Reuse edge alignment for DR-017; do not infer semantic relevance,
+  optical balance, or a generic design score.
+- Exempt complete finite evidence sets from viewport-growth yield floors while
+  preserving reference identities and readable text. Compare the same page and
+  checkpoint only; missing evidence stays explicit.
+- Add a CLI calibration fixture and warning-only example contracts. Existing
+  application rules, baseline/analytical contracts, schema versions, approvals, and plugin pins are
+  unchanged. The new checks require an engine containing this change.
+
 ## 0.8.0 — 2026-09-22
 
 - Retire Claude Stop enforcement. Legacy `hook` commands return an empty decision;

@@ -1518,9 +1518,9 @@ test(
     const contextSchema = JSON.parse(
       (await cli(["schema", "--type", "context"])).stdout,
     );
-    assert.equal(contextSchema.properties.designRules.items.enum.length, 16);
+    assert.equal(contextSchema.properties.designRules.items.enum.length, 20);
     assert.deepEqual(
-      contextSchema.properties.designRules.items.enum.slice(8),
+      contextSchema.properties.designRules.items.enum.slice(8, 16),
       additions,
     );
     const conformance = JSON.parse(
@@ -1530,9 +1530,22 @@ test(
       ),
     );
     const registeredRules = contextSchema.properties.designRules.items.enum;
+    // Historical example assessments must not silently claim coverage
+    // of newly registered policies. Keep the full partition explicit.
+    assert.deepEqual(conformance.policyScope, registeredRules.slice(0, 16));
+    assert.deepEqual(conformance.unassessedPolicy, [
+      "DR-017",
+      "DR-018",
+      "DR-019",
+      "DR-020",
+    ]);
+    assert.deepEqual(
+      [...conformance.policyScope, ...conformance.unassessedPolicy],
+      registeredRules,
+    );
     for (const example of conformance.examples) {
       assert.equal(example.target, example.id);
-      assert.deepEqual(Object.keys(example.rules), registeredRules);
+      assert.deepEqual(Object.keys(example.rules), conformance.policyScope);
       const failures = [];
       for (const [id, assessment] of Object.entries(example.rules)) {
         assert.ok(["pass", "fail", "not-applicable"].includes(assessment.good));
@@ -1604,7 +1617,7 @@ test(
     const behaviorReport = JSON.parse(
       await readFile(JSON.parse(behaviorCheck.stdout).report, "utf8"),
     );
-    assert.equal(behaviorReport.designPolicy.rules.length, 16);
+    assert.equal(behaviorReport.designPolicy.rules.length, 20);
     for (const capture of behaviorReport.pages) {
       const findings = capture.findings.filter(
         (finding) => finding.rule !== "design-coverage",

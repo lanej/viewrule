@@ -3,6 +3,11 @@ import { createHash } from "node:crypto";
 import path from "node:path";
 import { designRuleRegistry } from "./policy-ids.mjs";
 import { ruleApplies } from "./scopes.mjs";
+import {
+  compositionDesignIds,
+  compositionAdvice,
+} from "./composition-schema.mjs";
+import { evaluateComposition } from "./composition-design.mjs";
 
 export const policyDirectory = path.resolve(
   import.meta.dirname,
@@ -12,12 +17,13 @@ export const policyPaths = Object.freeze(
   designRuleRegistry.map(({ file }) => path.join(policyDirectory, file)),
 );
 const defaults = {
+  ...compositionDesignIds,
   "within-bounds": ["DR-006", "DR-007"],
   "required-elements": ["DR-006"],
   "relative-position": ["DR-006", "DR-007"],
   "reading-column": ["DR-006", "DR-007"],
   "vertical-order": ["DR-006", "DR-007"],
-  align: ["DR-006"],
+  align: ["DR-006", "DR-017"],
   "no-overlap": ["DR-006"],
   "no-clip": ["DR-006", "DR-007"],
   "visible-count": ["DR-006"],
@@ -34,6 +40,7 @@ const defaults = {
   "max-text-gap": ["DR-006", "DR-007"],
 };
 const advice = {
+  ...compositionAdvice,
   "within-bounds":
     "Reflow or resize the content and its declared container so labels remain inside the visible region. Preserve readable text and exact values.",
   "required-elements":
@@ -129,6 +136,7 @@ export async function readDesignPolicy() {
  * @param {import("./types.js").Rule[]} rules
  * @param {import("./types.js").ProjectConfig} config */
 export function evaluateDesign(report, rules, config) {
+  evaluateComposition(report, rules);
   const active = (rule, page) =>
     ruleApplies(rule, page.name, page.viewport.name);
   const add = (page, rule, message, actual, expected) =>

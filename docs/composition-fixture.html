@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Composition calibration — shipment review</title>
+    <script>
+      document.documentElement.dataset.variant =
+        new URL(location.href).searchParams.get("variant") || "good";
+    </script>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: #f6f7f8;
+        color: #202b38;
+        font:
+          16px/1.4 system-ui,
+          sans-serif;
+      }
+      main {
+        display: grid;
+        grid-template-columns: 140px minmax(0, 1fr);
+        gap: 28px;
+        padding: 24px;
+      }
+      aside {
+        padding: 16px;
+        border-right: 1px solid #ccd3da;
+      }
+      aside p {
+        margin: 0 0 16px;
+      }
+      h1 {
+        font-size: 26px;
+        margin: 0 0 6px;
+      }
+      h2,
+      h3 {
+        font-size: 16px;
+        margin: 0;
+      }
+      .intro {
+        margin: 0 0 20px;
+        color: #465568;
+      }
+      .titles,
+      .toolbar,
+      .groups,
+      .group,
+      .peers {
+        display: flex;
+        align-items: flex-start;
+      }
+      .titles {
+        gap: 32px;
+        margin-bottom: 16px;
+      }
+      .toolbar {
+        gap: 12px;
+        margin-bottom: 18px;
+      }
+      button {
+        font: inherit;
+        min-height: 36px;
+        padding: 6px 12px;
+        color: inherit;
+        background: white;
+        border: 1px solid #9caaba;
+        border-radius: 4px;
+      }
+      .toolbar button {
+        width: 112px;
+      }
+      .groups {
+        gap: 32px;
+        margin-bottom: 20px;
+      }
+      .group {
+        gap: 8px;
+      }
+      .group button {
+        width: 76px;
+      }
+      .peers {
+        gap: 12px;
+        margin: 10px 0 20px;
+      }
+      .peer {
+        width: 120px;
+        min-height: 58px;
+        padding: 12px;
+        border: 1px solid #b9c3cd;
+        border-radius: 4px;
+        background: white;
+      }
+      .budget {
+        position: relative;
+        height: 92px;
+        margin-bottom: 20px;
+        background: white;
+        border: 1px solid #b9c3cd;
+      }
+      .chrome {
+        position: relative;
+        height: 24px;
+        background: #e3e8ee;
+      }
+      .chrome span {
+        position: absolute;
+        inset: 0;
+        padding-left: 10px;
+      }
+      .budget p {
+        margin: 8px 10px;
+      }
+      .evidence {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+        margin-top: 10px;
+      }
+      .evidence > div {
+        height: 42px;
+        padding: 8px 12px;
+        border: 1px solid #ccd3da;
+        background: white;
+      }
+      .evidence > div:nth-child(n + 5) {
+        display: none;
+      }
+      [data-variant="bad"] .titles h3:last-child {
+        transform: translateY(12px);
+      }
+      [data-variant="bad"] .toolbar button:nth-child(2) {
+        margin-right: 24px;
+      }
+      [data-variant="bad"] .group {
+        gap: 24px;
+      }
+      [data-variant="bad"] .groups {
+        gap: 8px;
+      }
+      [data-variant="bad"] .peer:last-child {
+        width: 210px;
+      }
+      [data-variant="bad"] .chrome {
+        height: 58px;
+      }
+      @media (min-width: 1200px) {
+        .evidence {
+          grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+        [data-variant="good"] .evidence > div:nth-child(n + 5) {
+          display: block;
+        }
+      }
+      @media (max-width: 700px) {
+        main {
+          grid-template-columns: 1fr;
+          padding: 16px;
+          gap: 16px;
+        }
+        aside {
+          border-right: 0;
+          border-bottom: 1px solid #ccd3da;
+        }
+        .toolbar,
+        .groups,
+        .peers {
+          flex-wrap: wrap;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main id="composition-ready">
+      <aside aria-label="Workspace context">
+        <p><strong>Operations</strong></p>
+        <p>Outbound parcels</p>
+        <p>Review queue</p>
+      </aside>
+      <section id="task">
+        <h1>Shipment review</h1>
+        <p class="intro">
+          Review the selected parcels and choose the next action.
+        </p>
+        <div class="titles">
+          <h3>Queue actions</h3>
+          <h3>Review controls</h3>
+          <h3>Selected items</h3>
+        </div>
+        <div class="toolbar" aria-label="Queue actions">
+          <button>Assign</button><button>Export</button><button>Archive</button>
+        </div>
+        <div class="groups" aria-label="Review controls">
+          <div class="group" aria-label="Navigation">
+            <button>Back</button><button>Next</button>
+          </div>
+          <div class="group" aria-label="Decisions">
+            <button>Hold</button><button>Accept</button>
+          </div>
+        </div>
+        <h2>Delivery options</h2>
+        <div class="peers">
+          <div class="peer">Ground</div>
+          <div class="peer">Express</div>
+          <div class="peer">Regional</div>
+        </div>
+        <div class="budget">
+          <div class="chrome" data-chrome>
+            <span data-chrome>Queue context</span>
+          </div>
+          <p>Review the evidence below before assigning a response.</p>
+        </div>
+        <h2>Parcels awaiting review</h2>
+        <div class="evidence">
+          <div data-evidence="P-01">P-01 · Address review</div>
+          <div data-evidence="P-02">P-02 · Delivery review</div>
+          <div data-evidence="P-03">P-03 · Address review</div>
+          <div data-evidence="P-04">P-04 · Delivery review</div>
+          <div data-evidence="P-05">P-05 · Address review</div>
+          <div data-evidence="P-06">P-06 · Delivery review</div>
+          <div data-evidence="P-07">P-07 · Address review</div>
+          <div data-evidence="P-08">P-08 · Delivery review</div>
+        </div>
+      </section>
+    </main>
+    <script>
+      if (document.documentElement.dataset.variant === "finite")
+        document
+          .querySelectorAll(".evidence > div:nth-child(n+5)")
+          .forEach((el) => el.remove());
+    </script>
+  </body>
+</html>
