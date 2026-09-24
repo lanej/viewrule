@@ -12,6 +12,20 @@ export function evaluateComposition(report, rules) {
     for (const page of pages) {
       const metric = page.metrics?.composition?.find((m) => m.rule === rule.id);
       if (!metric?.valid) continue;
+      // Reused captures contain aggregate fields from the previous run.
+      // Recompute coverage and comparisons from the raw, valid measurement.
+      const evaluation = page.metrics.evaluations.find(
+        (entry) => entry.rule === rule.id,
+      );
+      if (evaluation) evaluation.status = "checked";
+      for (const field of [
+        "comparison",
+        "areaGrowth",
+        "evidenceGrowth",
+        "yield",
+        "saturated",
+      ])
+        delete metric[field];
       const fail = (message, actual, expected, missing = false) => {
         if (missing) {
           const evaluation = page.metrics.evaluations.find(
