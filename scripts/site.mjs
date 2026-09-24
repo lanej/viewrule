@@ -1,6 +1,7 @@
 import { cp, mkdir, readFile, writeFile, rm } from "node:fs/promises";
 import path from "node:path";
 import { createServer } from "node:http";
+import { marked } from "marked";
 import { readDesignPolicy } from "../src/design.mjs";
 
 import { buildGuide } from "./guide.mjs";
@@ -152,6 +153,7 @@ for (const rule of policy.rules) {
   const slug = rule.id.toLowerCase();
   const directory = path.join(rulesRoot, slug);
   await mkdir(directory, { recursive: true });
+  const composition = Number(rule.id.slice(3)) >= 17;
   const example = ruleExamples[rule.id];
   const principle = rule.body.match(/^\*\*Principle:\*\* (.+)$/m)?.[1] || "";
   const sections = sectionsFrom(
@@ -160,14 +162,23 @@ for (const rule of policy.rules) {
   ruleCards.push(
     `<a class="rule-card" href="${slug}/"><span>${rule.id}</span><strong>${escapeHtml(rule.title)}</strong><small>${rule.enforcement}</small></a>`,
   );
-  const sectionHtml = sections
+  // Composition policies contain executable formulas and explicit falsifiers;
+  // preserve their Markdown structure instead of flattening code into paragraphs.
+  const sectionHtml = composition
+    ? (await marked.parse(rule.body)).replaceAll(
+        'href="../composition.md"',
+        'href="https://github.com/lanej/viewrule/blob/main/docs/composition.md"',
+      )
+    : sections
     .map(
       ({ label, text }) =>
         `<section><h2>${label}</h2><p>${markdownInline(text)}</p></section>`,
     )
     .join("\n");
-  const behavioral = Number(rule.id.slice(3)) >= 9;
-  const interactive = behavioral
+  const behavioral = Number(rule.id.slice(3)) >= 9 && !composition;
+  const interactive = composition
+    ? `<p><a href="../../examples/composition.html">Open the rendered composition fixture</a> · <a href="https://github.com/lanej/viewrule/blob/main/docs/composition.md">Measurement contract and accepted/rejected cases</a></p><p>The native checkpoint changes actual geometry, spacing, type, and comparison layout against fixed contracts. It does not record human approval.</p>`
+    : behavioral
     ? `<div id="behavior-examples" data-fixed-rule="${rule.id}">${behaviorBody
         .replace(
           /<label\s*>Design rule[\s\S]*?<\/label>/,
@@ -202,7 +213,7 @@ for (const rule of policy.rules) {
 <link rel="stylesheet" href="../rule.css" />
 <link rel="stylesheet" href="../../assets/examples/behavior.css" />
 <link rel="stylesheet" href="../../assets/examples/evidence.css" />
-<script type="module" src="../../assets/examples/${behavioral ? "behavior" : "evidence"}.js"></script>
+${composition ? "" : `<script type="module" src="../../assets/examples/${behavioral ? "behavior" : "evidence"}.js"></script>`}
 </head>
 <body>
 <main>
@@ -216,7 +227,7 @@ for (const rule of policy.rules) {
 ${sectionHtml}
 <section class="examples" aria-labelledby="examples-title">
 <h2 id="examples-title">Examples</h2>
-<p class="lede">The pair isolates this rule. A good example is not approval of the entire interface.</p>
+<p class="lede">${composition ? "The executable fixture supplies scoped counterexamples, not an overall design score." : "The pair isolates this rule. A good example is not approval of the entire interface."}</p>
 ${interactive}
 </section>
 <section>
@@ -262,7 +273,7 @@ await writeFile(
   landing,
   (await readFile(landing, "utf8")).replace(
     "<h1>Design guidance and executable review.</h1>",
-    '<h1>Design guidance and executable review.</h1><p><a href="rules/">Browse all 16 design rules →</a></p>',
+    `<h1>Design guidance and executable review.</h1><p><a href="rules/">Browse all ${policy.rules.length} design rules →</a></p>`,
   ),
 );
 
