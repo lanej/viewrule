@@ -1646,6 +1646,39 @@ test(
         await page.locator('#good .economy-surface > header').evaluate((el) => { el.style.minHeight = '600px'; });
       if (checkpoint.name === 'unequal-type')
         await page.locator('.coverage-peers h4').nth(1).evaluate((el) => { el.style.fontSize = '24px'; });
+      if (checkpoint.name === 'rendered-evidence')
+        await page.locator('#good .queue').evaluate((queue) => {
+          const rows = [...queue.querySelectorAll('li')];
+          const items = rows.map((row) => {
+            const item = document.createElement('div');
+            item.className = 'rendered-item';
+            item.setAttribute('data-shipment', row.getAttribute('data-shipment'));
+            item.style.cssText = 'display:flex;flex-direction:column';
+            item.append(...row.childNodes);
+            row.removeAttribute('data-shipment');
+            row.append(item);
+            return item;
+          });
+          queue.style.position = 'relative';
+          const readable = items[0].querySelector('span');
+          readable.style.display = 'contents';
+          readable.style.fontSize = '14px';
+          const hiddenNote = document.createElement('span');
+          hiddenNote.hidden = true;
+          hiddenNote.style.fontSize = '8px';
+          hiddenNote.textContent = 'Hidden operational note';
+          items[0].append(hiddenNote);
+          const unreadable = items[3].querySelector('span');
+          unreadable.style.display = 'contents';
+          unreadable.style.fontSize = '8px';
+          rows[1].style.cssText = 'width:200.333px;height:88px;padding:0;border:1px solid;box-sizing:content-box;overflow:hidden';
+          items[1].style.width = '100%';
+          items[1].style.height = '88px';
+          rows[2].style.cssText = 'width:20px;height:20px;padding:0;border:0;overflow:hidden;position:static';
+          items[2].style.cssText = 'display:flex;flex-direction:column;position:absolute;top:200px;left:0;width:200px;height:88px';
+          rows[4].style.cssText = 'width:20px;height:20px;padding:0;border:0;overflow:hidden;position:relative';
+          items[4].style.cssText = 'display:flex;flex-direction:column;position:absolute;top:0;left:0;width:200px;height:88px';
+        });
     }`,
     );
     const finiteRule = {
@@ -1666,6 +1699,12 @@ test(
           return pages.length ? [{ ...rule, pages }] : [];
         }),
         finiteRule,
+        {
+          ...compositionRules.find((rule) => rule.id === "composition-growth"),
+          id: "composition-rendered-evidence",
+          pages: ["rendered-evidence"],
+          items: ".rendered-item",
+        },
       ]),
     );
     await writeFile(
@@ -1697,6 +1736,17 @@ test(
             ready: "#composition-examples[data-ready]",
           },
           {
+            name: "rendered-evidence",
+            path: "/examples/composition.html?rule=DR-019&quality=good",
+            ready: "#composition-examples[data-ready]",
+            checkpoints: [
+              {
+                name: "rendered-evidence",
+                setup: "composition-checkpoint.mjs",
+              },
+            ],
+          },
+          {
             name: "chrome-regression",
             path: "/examples/composition.html?rule=DR-019&quality=good",
             ready: "#composition-examples[data-ready]",
@@ -1725,7 +1775,55 @@ test(
       { recursive: true },
     );
     for (const capture of compositionRegression.pages) {
-      if (capture.name === "economy-finite") {
+      if (capture.name === "rendered-evidence") {
+        const growth = capture.metrics.growth[0];
+        assert.equal(growth.valid, true);
+        assert.deepEqual(
+          growth.keys,
+          capture.viewport.name === "compact"
+            ? ["AL-104", "BI-208", "CE-312"]
+            : ["AL-104", "BI-208", "CE-312", "CE-324"],
+        );
+        const readable = growth.items.find((item) => item.key === "AL-104");
+        assert.equal(
+          readable.minFontSize,
+          14,
+          "Rendered display:contents text counts, while the hidden 8px note does not",
+        );
+        assert.equal(readable.eligible, true);
+        const fractional = growth.items.find((item) => item.key === "BI-208");
+        assert.equal(
+          fractional.eligible,
+          true,
+          "The fully fitting percentage-width child must not be clipped by rounded clientWidth or serialized CSSOM dimensions",
+        );
+        assert.deepEqual(fractional.reasons, []);
+        const escaped = growth.items.find((item) => item.key === "CE-312");
+        assert.equal(
+          escaped.eligible,
+          true,
+          "An absolute item escapes an intervening static overflow wrapper when the queue establishes its containing block",
+        );
+        assert.deepEqual(escaped.reasons, []);
+        if (capture.viewport.name === "wide") {
+          const unreadable = growth.items.find((item) => item.key === "AL-116");
+          assert.equal(unreadable.minFontSize, 8);
+          assert.equal(unreadable.eligible, false);
+          assert.ok(unreadable.reasons.includes("below readable type size"));
+          const clipped = growth.items.find((item) => item.key === "BI-220");
+          assert.equal(clipped.eligible, false);
+          assert.ok(clipped.reasons.includes("clipped by ancestor overflow"));
+          assert.deepEqual(growth.comparison.lostKeys, []);
+          assert.equal(growth.comparison.referenceCount, 3);
+          assert.equal(growth.comparison.yield, 1 / 3 / (480 / 686));
+          assert.deepEqual(
+            capture.findings.map((finding) => finding.rule),
+            ["composition-rendered-evidence"],
+          );
+        } else {
+          assert.deepEqual(capture.findings, []);
+        }
+      } else if (capture.name === "economy-finite") {
         assert.deepEqual(capture.findings, []);
         const growth = capture.metrics.growth[0];
         assert.equal(growth.keys.length, 3);

@@ -38,6 +38,29 @@ export function inspectPage(rules) {
         nodes.push(node);
     return nodes;
   };
+  const renderedTextNodes = (el) => {
+    const nodes = [],
+      walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+    let node;
+    while ((node = walker.nextNode())) {
+      if (
+        !node.textContent.trim() ||
+        getComputedStyle(node.parentElement).visibility !== "visible"
+      )
+        continue;
+      // A display:contents parent has no box, but its text still renders and
+      // inherits its type size. Test the text range and nearest generated box.
+      let box = node.parentElement;
+      while (box && getComputedStyle(box).display === "contents")
+        box = box.parentElement;
+      if (!box?.checkVisibility({ checkOpacity: true })) continue;
+      const range = document.createRange();
+      range.selectNodeContents(node);
+      if ([...range.getClientRects()].some((r) => r.width > 0 && r.height > 0))
+        nodes.push(node);
+    }
+    return nodes;
+  };
   const textBounds = (el) => {
     const boxes = textNodes(el).flatMap((node) => {
       const range = document.createRange();
@@ -117,19 +140,150 @@ export function inspectPage(rules) {
     box.right <= bounds.right &&
     box.top >= bounds.top &&
     box.bottom <= bounds.bottom;
-  const unclipped = (box, start) => {
-    for (let el = start; el; el = el.parentElement) {
-      const style = getComputedStyle(el),
-        bounds = rect(el),
-        left = bounds.left + el.clientLeft,
-        top = bounds.top + el.clientTop;
+  const hasBoxTransform = (el) => {
+    for (let current = el; current; current = current.parentElement) {
+      const style = getComputedStyle(current);
+      if (style.display === "contents") continue;
       if (
-        (style.overflowX !== "visible" &&
-          (box.left < left || box.right > left + el.clientWidth)) ||
-        (style.overflowY !== "visible" &&
-          (box.top < top || box.bottom > top + el.clientHeight))
+        Number(style.zoom) !== 1 ||
+        style.perspective !== "none" ||
+        (style.scale !== "none" &&
+          style.scale.split(" ").some((value) => Number(value) !== 1)) ||
+        (style.rotate !== "none" &&
+          !/(?:^| )0(?:deg|rad|grad|turn)$/.test(style.rotate))
       )
-        return false;
+        return true;
+      if (style.transform !== "none") {
+        const matrix = new DOMMatrix(style.transform);
+        if (
+          [matrix.m11, matrix.m22, matrix.m33, matrix.m44].some(
+            (value) => value !== 1,
+          ) ||
+          [
+            matrix.m12,
+            matrix.m13,
+            matrix.m14,
+            matrix.m21,
+            matrix.m23,
+            matrix.m24,
+            matrix.m31,
+            matrix.m32,
+            matrix.m34,
+          ].some((value) => value !== 0)
+        )
+          return true;
+      }
+    }
+    return false;
+  };
+  const overflowBounds = (el, style) => {
+    const bounds = rect(el),
+      number = (value) => parseFloat(value) || 0,
+      borderLeft = number(style.borderLeftWidth),
+      borderRight = number(style.borderRightWidth),
+      borderTop = number(style.borderTopWidth),
+      borderBottom = number(style.borderBottomWidth);
+    // clientWidth/Height round to integers. Recover fractional padding edges
+    // from the rendered box; use client sizes only for scrollbar allocation.
+    const layoutWidth =
+      number(style.width) +
+      (style.boxSizing === "border-box"
+        ? 0
+        : borderLeft +
+          borderRight +
+          number(style.paddingLeft) +
+          number(style.paddingRight));
+    const layoutHeight =
+      number(style.height) +
+      (style.boxSizing === "border-box"
+        ? 0
+        : borderTop +
+          borderBottom +
+          number(style.paddingTop) +
+          number(style.paddingBottom));
+    // CSSOM rounds serialized sizes. Preserve scale 1 for ordinary boxes and
+    // pure translations instead of inferring a transform from that rounding.
+    const transformed = hasBoxTransform(el);
+    const scale = (rendered, layout) =>
+      transformed && layout > 0 ? rendered / layout : 1;
+    const scaleX = scale(bounds.width, layoutWidth),
+      scaleY = scale(bounds.height, layoutHeight),
+      scrollbarX = Math.max(
+        0,
+        Math.round(layoutWidth - borderLeft - borderRight) - el.clientWidth,
+      ),
+      scrollbarY = Math.max(
+        0,
+        Math.round(layoutHeight - borderTop - borderBottom) - el.clientHeight,
+      ),
+      leftScrollbar = Math.max(0, el.clientLeft - Math.round(borderLeft));
+    return {
+      left: bounds.left + (borderLeft + leftScrollbar) * scaleX,
+      right: bounds.right - (borderRight + scrollbarX - leftScrollbar) * scaleX,
+      top: bounds.top + borderTop * scaleY,
+      bottom: bounds.bottom - (borderBottom + scrollbarY) * scaleY,
+    };
+  };
+  const positionedContainer = (el, fixed) => {
+    let candidate = el.offsetParent;
+    // offsetParent can stop at an effective-zoom boundary that does not
+    // establish a containing block. Continue past those plain static boxes.
+    while (candidate) {
+      const style = getComputedStyle(candidate);
+      if (
+        (!fixed && style.position !== "static") ||
+        [
+          "transform",
+          "translate",
+          "rotate",
+          "scale",
+          "perspective",
+          "filter",
+          "backdropFilter",
+        ].some((property) => style[property] !== "none") ||
+        /\b(layout|paint|strict|content)\b/.test(style.contain) ||
+        /\b(transform|translate|rotate|scale|perspective|filter|backdrop-filter|contain)\b/.test(
+          style.willChange,
+        ) ||
+        style.contentVisibility === "auto"
+      )
+        return candidate;
+      candidate = candidate.offsetParent;
+    }
+    return null;
+  };
+  const unclipped = (box, subject, includeSelf = false) => {
+    let containingBlock = null;
+    for (let el = subject; el; el = el.parentElement) {
+      // Out-of-flow content bypasses overflow ancestors between it and its
+      // containing block. offsetParent supplies Chromium's actual boundary,
+      // including transformed containing blocks for fixed-position content.
+      if (containingBlock && el !== containingBlock) continue;
+      containingBlock = null;
+      const style = getComputedStyle(el);
+      if (
+        (includeSelf || el !== subject) &&
+        style.display !== "contents" &&
+        (style.overflowX !== "visible" || style.overflowY !== "visible")
+      ) {
+        const bounds = overflowBounds(el, style);
+        if (
+          (style.overflowX !== "visible" &&
+            (box.left < bounds.left || box.right > bounds.right)) ||
+          (style.overflowY !== "visible" &&
+            (box.top < bounds.top || box.bottom > bounds.bottom))
+        )
+          return false;
+      }
+      if (
+        el instanceof HTMLElement &&
+        style.display !== "contents" &&
+        ["absolute", "fixed"].includes(style.position)
+      ) {
+        containingBlock = positionedContainer(el, style.position === "fixed");
+        // A null containing block is the viewport, checked by inside().
+        if (!containingBlock) return true;
+      }
     }
     return true;
   };
@@ -438,7 +592,7 @@ export function inspectPage(rules) {
         for (const item of items) {
           const key = item.getAttribute(rule.keyAttribute)?.trim() || null,
             reasons = [],
-            nodes = textNodes(item),
+            nodes = renderedTextNodes(item),
             sizes = nodes.map((node) =>
               parseFloat(getComputedStyle(node.parentElement).fontSize),
             ),
@@ -456,7 +610,7 @@ export function inspectPage(rules) {
           }
           if (!inside(rect(item), bounds))
             reasons.push("outside usable region or viewport");
-          if (!unclipped(rect(item), item.parentElement))
+          if (!unclipped(rect(item), item))
             reasons.push("clipped by ancestor overflow");
           if (!nodes.length) reasons.push("no visible text");
           if (
@@ -473,7 +627,8 @@ export function inspectPage(rules) {
                 (box) =>
                   box.width > 0 &&
                   box.height > 0 &&
-                  (!inside(box, bounds) || !unclipped(box, node.parentElement)),
+                  (!inside(box, bounds) ||
+                    !unclipped(box, node.parentElement, true)),
               )
             ) {
               reasons.push(

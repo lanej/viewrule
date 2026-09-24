@@ -46,7 +46,7 @@ score, or rule requiring exactly one primary button on every page.
 **Review:** Compare an explicit task and attention order with the rendered result.
 Project-specific token checks may detect known deviations; no generic hierarchy
 score establishes that the emphasis is appropriate.
-For declared equal-priority peers, [DR-020](DR-020-balance.md) adds opt-in
+For declared equal-priority peers, [DR-020](https://github.com/lanej/viewrule/blob/main/docs/design-rules/DR-020-balance.md) adds opt-in
 area and font-size variation checks. These proxies do not determine the task's
 priority or measure perceived salience.
 [Good/bad example](../examples/behavior.html?rule=DR-013).

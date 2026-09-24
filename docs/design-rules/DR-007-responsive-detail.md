@@ -30,7 +30,7 @@ text, different content, or narrower layouts.
 evidence. Retain useful whitespace and bounded reading widths in that case;
 do not manufacture content to meet an occupancy target.
 
-**Comparative allocation:** [DR-019](DR-019-spatial-economy.md) adds opt-in
+**Comparative allocation:** [DR-019](https://github.com/lanej/viewrule/blob/main/docs/design-rules/DR-019-spatial-economy.md) adds opt-in
 viewport-growth yield: fractional growth of qualifying evidence divided by
 fractional growth of usable region area, with reference identities preserved.
 Its explicit finite-set exception distinguishes an already complete task from

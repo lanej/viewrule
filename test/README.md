@@ -150,7 +150,12 @@ shared content, type, identities, semantic color, and total surface width. A
 checkpoint workflow checks complete finite-universe whitespace, nested chrome
 rectangle union and excessive allocation, unequal peer heading type, and missing
 growth identity evidence isolated from an intact checkpoint, and loss of a baseline
-identity despite a growing total. Native-scale Good
+identity despite a growing total. One concrete queue capture also distinguishes
+readable and undersized `display: contents` text, preserves hidden text exclusion,
+accepts a fully fitting percentage-width child in a fractional content-box overflow
+wrapper despite CSSOM rounding, and distinguishes an
+absolute item's escape from a static wrapper from actual containing-block clipping.
+Native-scale Good
 and Bad images and both reports are retained in `dist/composition-evidence/`.
 These thresholds measure authored relationships, not general beauty, symmetry,
 semantic utility, or human approval.
