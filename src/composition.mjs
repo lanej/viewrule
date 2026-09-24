@@ -26,7 +26,7 @@ export function inspectComposition(rules) {
   });
   const area = (r) => Math.max(0, r.right - r.left) * Math.max(0, r.bottom - r.top);
   const visibleBox = (el) => {
-    let box = intersect(rect(el), viewport);
+    const box = intersect(rect(el), viewport);
     for (let parent = el.parentElement; parent; parent = parent.parentElement) {
       const s = getComputedStyle(parent), r = rect(parent);
       // Axis-aligned client-box clipping. Not painted occlusion or clip-path.

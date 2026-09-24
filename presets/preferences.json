@@ -11,5 +11,9 @@
   "Align numeric amounts and headers consistently; use suitable precision and tabular digits to support scanning. Distinguish identifiers from amounts. (DR-006)",
   "Keep each component's identifying graphic, title, and description associated. Measure their relative placement and require visuals per item; a parent grid declaration or one visible icon cannot establish the whole list is correct. (DR-006, DR-008)",
   "Reduce redundant spacing before reducing readable type. Let wrapping and enlarged text determine item height; keep exact icon sizes, gaps, and column choices in the project contract. (DR-007)",
-  "Carry an entity's visual identity from discovery to detail. Compare the actual graphic as well as its stable identity; matching symbol labels alone do not establish matching artwork. (DR-005)"
+  "Carry an entity's visual identity from discovery to detail. Compare the actual graphic as well as its stable identity; matching symbol labels alone do not establish matching artwork. (DR-005)",
+  "Declare visual peers and their intended anchors. Align comparable headings, labels, controls, and component edges; preserve purposeful indentation and optical exceptions. (DR-017)",
+  "Use consistent gaps for equivalent relationships and clearer separation between unrelated groups. Scope wrapped content separately; preserve text adaptation and usable controls. (DR-018)",
+  "Allocate space to task value, not container availability. Compare distinct visible evidence across viewports, cap only explicitly declared chrome, and preserve whitespace when a finite task is complete. (DR-019)",
+  "Give semantic peers deliberate comparable treatment while allowing asymmetry for unequal priorities. Footprint ratios are geometry proxies, not attention scores; never force equal heights by hiding content. (DR-020)"
 ]

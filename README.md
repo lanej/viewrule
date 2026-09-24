@@ -44,10 +44,11 @@ detail tiles alongside the overview so those details can be inspected.
 
 The goal is to turn an expectation such as **“show eight complete carrier rows on
 desktop”** into a repeatable check, while keeping judgment with the person using the
-interface. The [design policy](docs/design-rules.md) includes DR-001 through DR-016.
+interface. The [design policy](docs/design-rules.md) includes DR-001 through DR-020.
 The first eight draw on Tufte's work on comparison and graphical integrity; the
 next eight address state, continuity, action clarity, recovery, hierarchy, input
-access, content resilience, and semantic color. Each states its scope and limits.
+access, content resilience, and semantic color. Four composition rules add
+alignment, rhythm, spatial economy, and balance. Each states its scope and limits.
 These are our interpretations, not quotations, universal thresholds, or endorsements.
 
 See [good and bad design examples](docs/design-examples.md) for illustrated rule
@@ -128,6 +129,7 @@ and explicit native-check versus application-review coverage.
 | --- | --- |
 | Layout | Alignment of declared peers, overlap, clipping, component height, control bounds, and page overflow |
 | Comparison | Required visible item counts and stable identities preserved across viewports |
+| Composition (opt-in) | Peer spacing, group separation, footprint ratios, declared chrome budgets, and finite-task viewport yield |
 | Context and consistency | Visible context, allowed styles or attributes, and consistent declared encodings |
 | Density and legibility | Adjacent text distance, minimum text size, and optional text/box coverage or empty-band constraints |
 | Capture and accessibility | Complete detail-tile coverage and automatically detectable axe accessibility findings |
@@ -242,10 +244,12 @@ into new Git worktrees. Each checkout keeps its own run state. See
 
 ### The default opinion
 
-`guidance` includes seven built-in preferences adapted from the original dotfiles:
+`guidance` includes built-in preferences adapted from the original dotfiles:
 lead with the decision, keep comparisons visible, preserve quantitative context,
 align evidence, minimize distracting decoration, retain readable density, and
-review graphical integrity. Personal preferences and actual human feedback refine them.
+review graphical integrity. Composition guidance adds intentional anchors, spacing
+rhythm, task-scoped area budgets, and balance without enforcing symmetry.
+[Composition contracts](docs/composition.md) document the opt-in checks and examples. Personal preferences and actual human feedback refine them.
 
 New projects get editable **baseline** rules: 14px main-content text, clipping
 warnings, and a warning for headers over 160px. **Analytical** adds declared

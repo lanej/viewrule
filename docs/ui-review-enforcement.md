@@ -225,3 +225,17 @@ The installed regression checks a long currency label crossing its SVG's left
 edge and a contained alternative in the same capture, with specific excess, rule,
 and DR-006/DR-007 assertions. No default rule is added: the application declares
 which content must fit which boundary.
+
+## Composition coverage
+
+| Policy | Partial executable evidence | Still requires review |
+| --- | --- | --- |
+| DR-017 — Alignment | `align`; scoped `relative-position` | Intended peers/anchors, optical alignment, and text baselines |
+| DR-018 — Rhythm | `spacing-rhythm`, `group-separation` | Semantic groups, intentional rhythm changes, and non-proximity grouping cues |
+| DR-019 — Spatial Economy | `region-budget`, `viewport-yield`; existing `comparison-set` | Task relevance, useful whitespace, readable detail without added identities, and chrome classification |
+| DR-020 — Balance | `peer-size`; scoped `style`/alignment contracts | Priority, optical weight, and intentional asymmetry |
+
+All four retain `review` enforcement mode. Geometric checks do not promote the
+whole design principle to an automated guarantee. [Composition contracts](composition.md)
+define scope, units, finite-task saturation, and missing-evidence behavior.
+The warning-only example is opt-in; no application configuration is rewritten.

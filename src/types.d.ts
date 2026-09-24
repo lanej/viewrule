@@ -147,7 +147,12 @@ export interface Rule {
     | "region-density"
     | "repeated-metric"
     | "evidence-proximity"
-    | "mark-contrast";
+    | "mark-contrast"
+    | "spacing-rhythm"
+    | "group-separation"
+    | "peer-size"
+    | "region-budget"
+    | "viewport-yield";
   selector: string;
   severity: "error" | "warning";
   reason: string;
@@ -195,6 +200,35 @@ export interface Rule {
   substrate?: string;
   minRatio?: number;
   groups?: { selector: string; optional: boolean }[];
+  axis?: "x" | "y";
+  maxSpread?: number;
+  groupSelector?: string;
+  dimension?: "width" | "height" | "area";
+  maxRatio?: number;
+  expectedKeys?: string[];
+  referenceViewport?: string;
+  minYield?: number;
+}
+export interface CompositionMetric {
+  rule: string;
+  type: string;
+  element: string;
+  gaps?: number[];
+  spread?: number;
+  maxWithin?: number;
+  minBetween?: number;
+  sizes?: number[];
+  ratio?: number | null;
+  regionArea?: number;
+  occupiedArea?: number;
+  keys?: string[];
+  valid?: boolean;
+  viewportArea?: number;
+  comparison?: "reference" | "unassessed" | "compared" | "saturated";
+  areaGrowth?: number;
+  evidenceGrowth?: number;
+  yield?: number;
+  saturated?: boolean;
 }
 export interface Finding {
   rule: string;
@@ -232,7 +266,9 @@ export interface PageResult {
   findings: Finding[];
   screenshot?: string;
   details?: Awaited<ReturnType<typeof import("./capture.mjs").captureDetails>>;
-  metrics?: ReturnType<typeof import("./checks.mjs").inspectPage>["metrics"];
+  metrics?: ReturnType<typeof import("./checks.mjs").inspectPage>["metrics"] & {
+    composition?: CompositionMetric[];
+  };
   coverage?: { layoutRules: string[]; accessibility: boolean };
   accessibilityNeedsReview?: { id: string; help: string; targets: unknown[] }[];
   designCoverage?: {

@@ -35,6 +35,7 @@ export default [
       "docs/examples/*.js",
       "docs/app/*.js",
       "src/checks.mjs",
+      "src/composition.mjs",
       "src/capture.mjs",
       "src/review.mjs",
       "benchmarks/analytical/repair-evaluator.mjs",

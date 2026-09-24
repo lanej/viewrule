@@ -4,6 +4,7 @@ import { createHash } from "node:crypto";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { runPriorityCheckpoint } from "../docs/examples/priority-checkpoint.mjs";
+import { runCompositionCheckpoint } from "../docs/composition-checkpoint.mjs";
 import { validateRules } from "../src/config.mjs";
 
 // Exercise the packed engine's installed review and contract-authoring workflows.
@@ -19,6 +20,7 @@ try {
     ),
   );
   await runPriorityCheckpoint(root);
+  await runCompositionCheckpoint(root);
   execFileSync(process.execPath, ["scripts/site.mjs"], {
     cwd: root,
     stdio: "inherit",

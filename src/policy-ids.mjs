@@ -82,6 +82,26 @@ export const designRuleRegistry = Object.freeze([
     file: "DR-016-semantic-color.md",
     enforcement: "review",
   },
+  {
+    id: "DR-017",
+    file: "DR-017-alignment.md",
+    enforcement: "review",
+  },
+  {
+    id: "DR-018",
+    file: "DR-018-rhythm.md",
+    enforcement: "review",
+  },
+  {
+    id: "DR-019",
+    file: "DR-019-spatial-economy.md",
+    enforcement: "review",
+  },
+  {
+    id: "DR-020",
+    file: "DR-020-balance.md",
+    enforcement: "review",
+  },
 ]);
 
 export const designRuleIds = Object.freeze(

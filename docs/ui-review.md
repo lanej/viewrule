@@ -232,7 +232,7 @@ are specified; populate it for a named critical set. All active count targets st
 need configuration. Neither text size nor text distance proves visual readability
 or semantic relevance; see [measurement limits](defaults.md#measurement-limits-and-evidence).
 
-Checks cite `DR-001` through `DR-016` using their type's default mapping or an
+Checks cite `DR-001` through `DR-020` using their type's default mapping or an
 explicit `designRules` array. `attribute` requires an explicit citation. Optional
 `requiredDesignRules` in project config makes missing executed evidence for the
 listed IDs an error in each configured page/viewport. This is a coverage
@@ -441,3 +441,12 @@ supporting content instead of rewarding the large map's bounding box. Use existi
 `max-height` for explicitly identified scalar displays; a new scalar-quality score
 would overstate what geometry can establish. Readable-type and map-size rules prevent
 compression from becoming smaller text or an unreadable geographic thumbnail.
+
+## Composition relationships
+
+DR-017–DR-020 add alignment, rhythm, spatial economy, and balance guidance.
+Existing `align` supplies edge measurements; opt-in `spacing-rhythm`,
+`group-separation`, `peer-size`, `region-budget`, and `viewport-yield` supply
+scoped relational checks. See [the complete field reference, formulas, missing-evidence
+behavior, and calibration fixture](composition.md). No generic symmetry or quality
+score is implemented, and existing application rules are not replaced.
