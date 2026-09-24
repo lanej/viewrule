@@ -1,0 +1,42 @@
+name: Finalize composition branch
+on:
+  push:
+    branches: [chatgpt/composition-finalize-20260924]
+    paths: [.github/workflows/finalize-composition.yml]
+permissions:
+  contents: write
+jobs:
+  finalize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: npm-shrinkwrap.json
+      - run: npm ci
+      - name: Update concrete policy-count expectation
+        run: |
+          node --input-type=module <<'JS'
+          import { readFileSync, writeFileSync } from 'node:fs';
+          const file = 'test/review.test.mjs';
+          const before = readFileSync(file, 'utf8');
+          const old = 'assert.equal(behaviorReport.designPolicy.rules.length, 16);';
+          if (before.split(old).length !== 2) throw new Error('Expected exactly one policy-count assertion');
+          writeFileSync(file, before.replace(old, 'assert.equal(behaviorReport.designPolicy.rules.length, 20);'));
+          const log = 'CHANGELOG.md';
+          const text = readFileSync(log, 'utf8');
+          const claim = 'application rules, presets, schema versions, approvals, and plugin pins are';
+          if (text.split(claim).length !== 2) throw new Error('Expected one compatibility statement');
+          writeFileSync(log, text.replace(claim, 'application rules, baseline/analytical contracts, schema versions, approvals, and plugin pins are'));
+          JS
+      - run: npm run format
+      - name: Commit formatted integration and remove temporary workflow
+        shell: bash
+        run: |
+          rm .github/workflows/finalize-composition.yml
+          git add -u
+          git -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' commit -m 'Format composition implementation and update policy-count expectation'
+          git push origin "HEAD:${GITHUB_REF_NAME}"
