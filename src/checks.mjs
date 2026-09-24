@@ -361,7 +361,11 @@ export function inspectPage(rules) {
           );
           continue;
         }
-        if (rule.type === "comparison-set" && rule.growthYield && !textBounds(el)) {
+        if (
+          rule.type === "comparison-set" &&
+          rule.growthYield &&
+          !textBounds(el)
+        ) {
           evaluations.at(-1).status = "missing";
           add(
             rule,

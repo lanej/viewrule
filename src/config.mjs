@@ -480,13 +480,19 @@ export function validateRuleScopes(rules, config) {
         if (!r.minVisibleByViewport[v.name])
           throw new Error(`Rule ${r.id}: missing visible count for ${v.name}`);
       if (r.growthYield)
-        for (const page of config.pages.filter((p) => selected(p.name, r.pages))) {
-          const viewports = active.filter((v) => selected(v.name, page.viewports));
+        for (const page of config.pages.filter((p) =>
+          selected(p.name, r.pages),
+        )) {
+          const viewports = active.filter((v) =>
+            selected(v.name, page.viewports),
+          );
           const reference = viewports.find((v) => v.name === r.preserveFrom);
           if (
             !reference ||
             !viewports.some(
-              (v) => v.width >= reference.width && v.height >= reference.height &&
+              (v) =>
+                v.width >= reference.width &&
+                v.height >= reference.height &&
                 v.width * v.height > reference.width * reference.height,
             )
           )

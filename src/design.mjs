@@ -257,20 +257,27 @@ export function evaluateDesign(report, rules, config) {
           (rule) => active(rule, page) && designIdsFor(rule).includes(id),
         );
         const observed = assigned.filter((rule) => {
-          if (!page.metrics?.evaluations.some(
-            (e) => e.rule === rule.id && e.status === "checked",
-          )) return false;
+          if (
+            !page.metrics?.evaluations.some(
+              (e) => e.rule === rule.id && e.status === "checked",
+            )
+          )
+            return false;
           if (id !== "DR-019" || !rule.growthYield) return true;
-          const growth = page.viewportGrowth?.find((item) => item.rule === rule.id);
+          const growth = page.viewportGrowth?.find(
+            (item) => item.rule === rule.id,
+          );
           if (!growth || growth.status === "unassessed") return false;
           if (growth.status !== "reference") return true;
-          return report.pages.some((target) =>
-            target.name === page.name &&
-            (target.checkpoint ?? null) === (page.checkpoint ?? null) &&
-            target.viewportGrowth?.some((item) =>
-              item.rule === rule.id &&
-              ["measured", "saturated"].includes(item.status),
-            ),
+          return report.pages.some(
+            (target) =>
+              target.name === page.name &&
+              (target.checkpoint ?? null) === (page.checkpoint ?? null) &&
+              target.viewportGrowth?.some(
+                (item) =>
+                  item.rule === rule.id &&
+                  ["measured", "saturated"].includes(item.status),
+              ),
           );
         });
         const hasFindings = page.findings.some((finding) =>

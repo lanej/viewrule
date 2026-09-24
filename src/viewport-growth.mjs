@@ -38,12 +38,14 @@ export function evaluateViewportGrowth(pages, rule) {
     );
     const isReference = page.viewport.name === rule.preserveFrom;
     if (
-      !isReference && baseline &&
+      !isReference &&
+      baseline &&
       (page.viewport.width < baseline.viewport.width ||
         page.viewport.height < baseline.viewport.height ||
         (page.viewport.width === baseline.viewport.width &&
           page.viewport.height === baseline.viewport.height))
-    ) continue;
+    )
+      continue;
 
     const current = snapshot(page);
     const prior = snapshot(baseline);
@@ -76,16 +78,20 @@ export function evaluateViewportGrowth(pages, rule) {
     };
     let problem;
     if (!baseline || !prior || !current || !baselineArea || !currentArea)
-      problem = "Yield needs captured comparison evidence and positive viewport areas in the same page/checkpoint.";
+      problem =
+        "Yield needs captured comparison evidence and positive viewport areas in the same page/checkpoint.";
     else if (invalid.has(page) || invalid.has(baseline))
-      problem = "Yield is unassessed because a comparison prerequisite failed or was not checked; repair it before interpreting growth.";
+      problem =
+        "Yield is unassessed because a comparison prerequisite failed or was not checked; repair it before interpreting growth.";
     else if (undeclared.length)
       problem = `Yield evidence is outside the declared inventory: ${undeclared.join(", ")}.`;
     else if (!referenceCount)
-      problem = "Yield needs at least one complete comparison in the reference viewport.";
+      problem =
+        "Yield needs at least one complete comparison in the reference viewport.";
     else if (isReference) observation.status = "reference";
     else if (currentArea <= baselineArea)
-      problem = "Yield needs a positive increase in measured CSS viewport area.";
+      problem =
+        "Yield needs a positive increase in measured CSS viewport area.";
     else {
       const areaGrowth = (currentArea - baselineArea) / baselineArea;
       const evidenceGrowth = (count - referenceCount) / referenceCount;
@@ -106,7 +112,8 @@ export function evaluateViewportGrowth(pages, rule) {
       if (lost.length)
         problem = `Larger viewport lost reference identities: ${lost.join(", ")}.`;
       else if (count < requiredCount)
-        problem = "Viewport growth exposed too few distinct declared comparisons; stretching or duplicating containers does not earn yield.";
+        problem =
+          "Viewport growth exposed too few distinct declared comparisons; stretching or duplicating containers does not earn yield.";
     }
     (page.viewportGrowth ??= []).push(observation);
     if (problem)
@@ -123,9 +130,12 @@ export function evaluateViewportGrowth(pages, rule) {
           preserveFrom: rule.preserveFrom,
           requiredCount: observation.requiredCount,
         },
-        designRules: [...new Set([...(rule.designRules ?? ["DR-006", "DR-007"]), "DR-019"])],
+        designRules: [
+          ...new Set([...(rule.designRules ?? ["DR-006", "DR-007"]), "DR-019"]),
+        ],
         evidenceKind: "DOM and declared comparison identities",
-        suggestion: "Expose additional declared evidence without losing identities, context, or readable type. Preserve whitespace when the finite inventory is already visible; do not change the inventory to obtain a pass.",
+        suggestion:
+          "Expose additional declared evidence without losing identities, context, or readable type. Preserve whitespace when the finite inventory is already visible; do not change the inventory to obtain a pass.",
       });
   }
 }

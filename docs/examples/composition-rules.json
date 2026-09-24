@@ -53,7 +53,20 @@
     "minFontSize": 16,
     "growthYield": {
       "min": 1,
-      "availableKeys": ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l"]
+      "availableKeys": [
+        "a",
+        "b",
+        "c",
+        "d",
+        "e",
+        "f",
+        "g",
+        "h",
+        "i",
+        "j",
+        "k",
+        "l"
+      ]
     },
     "viewports": ["desktop", "wide"],
     "severity": "error",
