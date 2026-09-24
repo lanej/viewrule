@@ -26,7 +26,10 @@ export const compositionSchemas = {
     items: selector,
     keyAttribute: selector,
     expectedKeys: {
-      type: "array", minItems: 1, uniqueItems: true, items: selector,
+      type: "array",
+      minItems: 1,
+      uniqueItems: true,
+      items: selector,
     },
     referenceViewport: selector,
     minYield: { type: "number", minimum: 0 },
@@ -42,9 +45,14 @@ export const compositionDesignIds = {
   "viewport-yield": ["DR-007", "DR-019"],
 };
 export const compositionAdvice = {
-  "spacing-rhythm": "Restore the declared spacing rhythm through shared layout relationships. Preserve wrapping, readable type, and intentional differences between groups.",
-  "group-separation": "Bring members of each declared group closer together, or separate unrelated groups. Preserve usable targets and the task's reading order.",
-  "peer-size": "Restore the declared footprint relationship between semantic peers. Do not force equal heights on different amounts of content or equal weight on different priorities.",
-  "region-budget": "Reduce the declared chrome's share of the visible task region without hiding required context, navigation, or controls. Review the native-scale capture.",
-  "viewport-yield": "Use added viewport area to expose more distinct declared evidence while preserving previously visible identities and readable type. A finite task may retain whitespace once all declared evidence is visible.",
+  "spacing-rhythm":
+    "Restore the declared spacing rhythm through shared layout relationships. Preserve wrapping, readable type, and intentional differences between groups.",
+  "group-separation":
+    "Bring members of each declared group closer together, or separate unrelated groups. Preserve usable targets and the task's reading order.",
+  "peer-size":
+    "Restore the declared footprint relationship between semantic peers. Do not force equal heights on different amounts of content or equal weight on different priorities.",
+  "region-budget":
+    "Reduce the declared chrome's share of the visible task region without hiding required context, navigation, or controls. Review the native-scale capture.",
+  "viewport-yield":
+    "Use added viewport area to expose more distinct declared evidence while preserving previously visible identities and readable type. A finite task may retain whitespace once all declared evidence is visible.",
 };

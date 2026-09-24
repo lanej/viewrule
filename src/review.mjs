@@ -219,9 +219,13 @@ export async function runReview(
         const active = rules.filter((r) =>
           ruleApplies(r, pageConfig.name, viewport.name),
         );
-        const inspection = await page.evaluate(inspectPage,
-          active.filter((rule) => !compositionTypes.includes(rule.type)));
-        const compositionRules = active.filter((rule) => compositionTypes.includes(rule.type));
+        const inspection = await page.evaluate(
+          inspectPage,
+          active.filter((rule) => !compositionTypes.includes(rule.type)),
+        );
+        const compositionRules = active.filter((rule) =>
+          compositionTypes.includes(rule.type),
+        );
         const composition = compositionRules.length
           ? await page.evaluate(inspectComposition, compositionRules)
           : { findings: [], metrics: [], evaluations: [] };
@@ -229,8 +233,12 @@ export async function runReview(
         result.metrics = {
           ...inspection.metrics,
           composition: composition.metrics,
-          evaluatedRules: inspection.metrics.evaluatedRules + compositionRules.length,
-          evaluations: [...inspection.metrics.evaluations, ...composition.evaluations],
+          evaluatedRules:
+            inspection.metrics.evaluatedRules + compositionRules.length,
+          evaluations: [
+            ...inspection.metrics.evaluations,
+            ...composition.evaluations,
+          ],
         };
         result.coverage = {
           layoutRules: active.map((r) => r.id),

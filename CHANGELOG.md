@@ -12,7 +12,7 @@
   preserving reference identities and readable text. Compare the same page and
   checkpoint only; missing evidence stays explicit.
 - Add a CLI calibration fixture and warning-only example contracts. Existing
-  application rules, presets, schema versions, approvals, and plugin pins are
+  application rules, baseline/analytical contracts, schema versions, approvals, and plugin pins are
   unchanged. The new checks require an engine containing this change.
 
 ## 0.8.0 — 2026-09-22
