@@ -1,0 +1,94 @@
+name: Update composition contract integration
+on:
+  push:
+    branches: [chatgpt/composition-finalize-20260924]
+    paths: [.github/workflows/composition-contract-update.yml]
+permissions:
+  contents: write
+jobs:
+  integrate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: npm-shrinkwrap.json
+      - run: npm ci
+      - name: Update registry assertions and preserve honest example scope
+        run: |
+          node --input-type=module <<'JS'
+          import { readFileSync, writeFileSync } from 'node:fs';
+          const replace = (file, old, next) => {
+            const source = readFileSync(file, 'utf8');
+            if (source.split(old).length !== 2) throw new Error(`Expected exactly one matching section in ${file}: ${old}`);
+            writeFileSync(file, source.replace(old, next));
+          };
+          replace('test/design-contract.test.mjs', 'assert.equal(ruleIndex.rules.length, 16);', 'assert.equal(ruleIndex.rules.length, 20);');
+          replace('test/review.test.mjs', 'assert.equal(contextSchema.properties.designRules.items.enum.length, 16);', 'assert.equal(contextSchema.properties.designRules.items.enum.length, 20);');
+          replace('test/review.test.mjs', 'contextSchema.properties.designRules.items.enum.slice(8),', 'contextSchema.properties.designRules.items.enum.slice(8, 16),');
+          replace('test/review.test.mjs', 'const registeredRules = contextSchema.properties.designRules.items.enum;', `const registeredRules = contextSchema.properties.designRules.items.enum;
+              // Historical example assessments must not silently claim coverage
+              // of newly registered policies. Keep the full partition explicit.
+              assert.deepEqual(conformance.policyScope, registeredRules.slice(0, 16));
+              assert.deepEqual(conformance.unassessedPolicy, ["DR-017", "DR-018", "DR-019", "DR-020"]);
+              assert.deepEqual([...conformance.policyScope, ...conformance.unassessedPolicy], registeredRules);`);
+          replace('test/review.test.mjs', 'assert.deepEqual(Object.keys(example.rules), registeredRules);', 'assert.deepEqual(Object.keys(example.rules), conformance.policyScope);');
+          const matrixPath = 'docs/examples/conformance-matrix.json';
+          const matrix = JSON.parse(readFileSync(matrixPath, 'utf8'));
+          if (matrix.policyScope || matrix.unassessedPolicy) throw new Error('Unexpected existing matrix scope');
+          const scoped = {schemaVersion: matrix.schemaVersion,
+            policyScope: Array.from({length:16}, (_,i) => `DR-${String(i+1).padStart(3,'0')}`),
+            unassessedPolicy: ['DR-017','DR-018','DR-019','DR-020'],
+            scopeRationale: 'These existing canonical examples were assessed against DR-001 through DR-016. The composition policies are explicitly unassessed here, not passing or inapplicable. Their separate engine calibration does not establish whole-gallery composition conformance.',
+            examples: matrix.examples};
+          writeFileSync(matrixPath, JSON.stringify(scoped, null, 2) + '\n');
+          replace('scripts/site.mjs', 'Browse all 16 design rules', 'Browse all design rules');
+          replace('docs/composition-checkpoint.mjs', 'import { readFile, mkdir, writeFile, rm } from "node:fs/promises";', 'import { readFile, mkdir, writeFile, rm, cp } from "node:fs/promises";');
+          replace('docs/composition-checkpoint.mjs', 'const report = JSON.parse(await readFile(result.report, "utf8"));', `const report = JSON.parse(await readFile(result.report, "utf8"));
+              // Preserve the full synthetic report outside the hidden project state
+              // so the existing artifact upload retains its captures and HTML.
+              await cp(path.dirname(result.report), path.join(directory, "report"), { recursive: true });`);
+          const doc = 'docs/composition.md';
+          writeFileSync(doc, readFileSync(doc, 'utf8') + '\n## Existing example coverage\n\nThe older canonical example matrix explicitly retains its assessed DR-001–DR-016\npolicy scope and lists DR-017–DR-020 as unassessed. Registration of a new policy\ndoes not retroactively approve those examples or establish conformance isolation\nunder that policy. Their existing assertions remain intact within the declared\nscope; the composition calibration exercises the new measurements separately.\n');
+          JS
+      - run: npm run format
+      - run: npm run lint && npm run analyze && npm run guide:check && npm run site:build
+      - name: Publish only this helper branch through Git APIs
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          rm .github/workflows/composition-contract-update.yml
+          node --input-type=module <<'JS'
+          import { readFileSync } from 'node:fs';
+          import { execFileSync } from 'node:child_process';
+          const branch = 'chatgpt/composition-finalize-20260924';
+          if (process.env.GITHUB_REF_NAME !== branch || process.env.GITHUB_REPOSITORY !== 'lanej/viewrule') throw new Error('Unexpected scope');
+          const git = (...args) => execFileSync('git', args, {encoding:'utf8'}).trim();
+          const parent = git('rev-parse', 'HEAD');
+          const api = async (endpoint, method, data) => {
+            const response = await fetch(`https://api.github.com/repos/lanej/viewrule/${endpoint}`, {method,
+              headers: {Authorization:`Bearer ${process.env.GH_TOKEN}`,Accept:'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28'},
+              body:data === undefined ? undefined : JSON.stringify(data)});
+            if (!response.ok) throw new Error(`${endpoint}: ${response.status} ${await response.text()}`);
+            return response.json();
+          };
+          const current = await api(`git/ref/heads/${branch}`, 'GET');
+          if (current.object.sha !== parent) throw new Error('Branch advanced; refusing to overwrite');
+          const files = git('diff', '--name-only', '-z').split('\0').filter(Boolean);
+          const tree = [];
+          for (const file of files) {
+            if (file === '.github/workflows/composition-contract-update.yml') {
+              tree.push({path:file,mode:'100644',type:'blob',sha:null});
+            } else {
+              const blob = await api('git/blobs', 'POST', {content:readFileSync(file, 'utf8'),encoding:'utf-8'});
+              tree.push({path:file,mode:'100644',type:'blob',sha:blob.sha});
+            }
+          }
+          const nextTree = await api('git/trees', 'POST', {base_tree:git('rev-parse','HEAD^{tree}'),tree});
+          const commit = await api('git/commits','POST',{message:'Update policy registry assertions and explicit historical example scope',tree:nextTree.sha,parents:[parent]});
+          await api(`git/refs/heads/${branch}`,'PATCH',{sha:commit.sha,force:false});
+          console.log(`Published ${commit.sha}; tree ${nextTree.sha}`);
+          JS
