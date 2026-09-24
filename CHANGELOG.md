@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.9.0 — 2026-09-24
 
 - Add DR-017 Alignment, DR-018 Rhythm, DR-019 Spatial Economy, and DR-020 Balance
   with opt-in relational checks, canonical requirements, and accepted/rejected
@@ -11,6 +11,16 @@
   evidence identities and usable region area. Preserve reference evidence, expose
   missing/invalid measurement evidence, and support an explicit exhaustive finite
   set already visible at both sizes. No default numeric thresholds are added.
+- Include rendered `display: contents` text in growth legibility and peer type
+  comparisons. Preserve fractional overflow bounds and actual positioned clipping;
+  reserved hidden-scrollbar gutters do not exclude painted evidence.
+- Update Claude plugin to 0.9.0 and the checksummed 0.9.0 engine.
+
+Upgrade: rerun plugin setup to install the new engine, then run a fresh review.
+Composition checks are opt-in; existing application rules, thresholds, human
+approvals, configuration/report schema v1, and legacy aliases remain supported.
+These relational measurements do not establish task relevance, perceived visual
+weight, or overall design quality. See the [measurement semantics and limits](docs/ui-review.md#composition-contracts).
 
 ## 0.8.0 — 2026-09-22
 

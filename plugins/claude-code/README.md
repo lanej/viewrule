@@ -22,7 +22,9 @@ Setup removes recognized legacy Viewrule Stop handlers, installs the checksummed
 engine release in `engine.json` and its Playwright Chromium browser, then helps
 configure your running application. Installing the
 plugin alone makes no engine or browser download, and does not enable enforcement.
-Version 0.8.0 pins engine 0.8.0 with explicit evidence verification, optional Git gates,
+Version 0.9.0 pins engine 0.9.0 with opt-in composition checks for alignment, rhythm,
+spatial economy, and balance, including comparative viewport-growth yield.
+It retains explicit evidence verification, optional Git gates,
 runtime application URLs, and automatic Stop-hook migration. It retains worktree-aware project discovery,
 native globs, read-only planning, opt-in incremental evidence reuse, authored design
 contracts, and offline rule lookup.

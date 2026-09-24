@@ -12,7 +12,7 @@ opens the running app in Chromium, checks configured constraints, and reports
 violations with evidence and design-rule citations. Other agents and CI can use
 the same CLI directly.
 
-**Status:** experimental 0.8.0, distributed through
+**Status:** experimental 0.9.0, distributed through
 [GitHub Releases](https://github.com/lanej/viewrule/releases). No npm registry release
 is available yet. Node.js 22.18+ and npm are required. Linux is exercised in CI;
 macOS and Windows have not been validated.
@@ -176,14 +176,14 @@ and the [plugin guide](https://github.com/lanej/viewrule/blob/main/plugins/claud
 
 ### CLI, other agents, or the demo
 
-Download `viewrule-0.8.0.tgz` and `SHA256SUMS` from the
-[v0.8.0 release](https://github.com/lanej/viewrule/releases/tag/v0.8.0).
+Download `viewrule-0.9.0.tgz` and `SHA256SUMS` from the
+[v0.9.0 release](https://github.com/lanej/viewrule/releases/tag/v0.9.0).
 From that download directory, verify the checksum and install:
 
 ```sh
 # Linux; on macOS use: shasum -a 256 -c SHA256SUMS
 sha256sum -c SHA256SUMS
-npm install --global ./viewrule-0.8.0.tgz
+npm install --global ./viewrule-0.9.0.tgz
 viewrule install-browser
 viewrule --version
 ```
