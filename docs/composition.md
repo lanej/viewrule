@@ -121,3 +121,11 @@ No optical-baseline detector, salience model, arbitrary anchor-count score,
 spacing-token entropy score, inferred container inflation, or automatic relevance
 classifier is provided. These require explicit review or more narrowly defined
 contracts. The available measurements do not pretend to establish those claims.
+
+## Existing example coverage
+
+The older canonical example matrix explicitly retains its assessed DR-001–DR-016
+policy scope and lists DR-017–DR-020 as unassessed. Registration of a new policy
+does not retroactively approve those examples or establish conformance isolation
+under that policy. Their existing assertions remain intact within the declared
+scope; the composition calibration exercises the new measurements separately.
