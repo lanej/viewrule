@@ -113,6 +113,54 @@ export async function runCompositionScenario({
       assert.ok(chrome.valid && chrome.ratio < 0.45);
     }
   }
+  // Peer inference is advisory discovery, not an implicit rule. The rejected
+  // form exposes a same-row control offset without any authored selector; the
+  // accepted counterpart aligns the same three controls.
+  await writeFile(rulesPath, "[]");
+  await writeFile(
+    path.join(project, ".ui-review/config.json"),
+    JSON.stringify({
+      ...compositionConfig,
+      pages: [
+        {
+          name: "peer-inference-good",
+          path: "/examples/peer-inference.html?quality=good",
+          ready: "#peer-inference-example[data-ready]",
+        },
+        {
+          name: "peer-inference-bad",
+          path: "/examples/peer-inference.html?quality=bad",
+          ready: "#peer-inference-example[data-ready]",
+        },
+      ],
+      viewports: [compositionConfig.viewports[0]],
+    }),
+  );
+  const peerInferenceCheck = await cli(["check"]);
+  assert.equal(
+    peerInferenceCheck.code,
+    0,
+    peerInferenceCheck.stderr || peerInferenceCheck.stdout,
+  );
+  const peerInferenceReport = JSON.parse(
+    await readFile(JSON.parse(peerInferenceCheck.stdout).report, "utf8"),
+  );
+  for (const capture of peerInferenceReport.pages) {
+    assert.deepEqual(capture.findings, []);
+    const candidates = capture.metrics.peerInference;
+    if (capture.name === "peer-inference-bad") {
+      assert.equal(candidates.length, 1, JSON.stringify(candidates));
+      const [candidate] = candidates;
+      assert.equal(candidate.kind, "form-control-alignment");
+      assert.equal(candidate.controls.length, 3);
+      assert.ok(candidate.maxResidual > 10);
+      assert.deepEqual(candidate.designRules, ["DR-017"]);
+      assert.match(candidate.suggestion, /materialize a scoped DR-017 rule/);
+    } else {
+      assert.deepEqual(candidates, []);
+    }
+  }
+
   const savedGlobalDirectory = env.VIEWRULE_CONFIG_DIR;
   env.VIEWRULE_CONFIG_DIR = path.join(project, "composition-global");
   await mkdir(env.VIEWRULE_CONFIG_DIR);
