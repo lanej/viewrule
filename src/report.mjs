@@ -90,13 +90,78 @@ function pageView(page, reference, documents) {
         : measurement.comparison.yield.toFixed(3),
     evidence: JSON.stringify(measurement, null, 2),
   }));
+  const imageWidth = page.metrics?.viewportWidth ?? page.viewport.width;
+  const imageHeight = page.metrics?.pageHeight ?? page.viewport.height;
+  const percent = (value, total) =>
+    `${((Math.max(0, Math.min(total, value)) / total) * 100).toFixed(4)}%`;
+  const boxStyle = (box) =>
+    [
+      `left:${percent(box.x, imageWidth)}`,
+      `top:${percent(box.y, imageHeight)}`,
+      `width:${percent(box.width, imageWidth)}`,
+      `height:${percent(box.height, imageHeight)}`,
+    ].join(";");
   const peerInference = (page.metrics?.peerInference ?? []).map(
-    (candidate) => ({
-      ...candidate,
-      residualLabel: candidate.maxResidual.toFixed(1),
-      thresholdLabel: candidate.discoveryThreshold.toFixed(1),
-      evidence: JSON.stringify(candidate, null, 2),
-    }),
+    (candidate, index) => {
+      const padding = 8;
+      const left = Math.max(
+          0,
+          Math.min(...candidate.controls.map((control) => control.box.x)) -
+            padding,
+        ),
+        top = Math.max(
+          0,
+          Math.min(...candidate.controls.map((control) => control.box.y)) -
+            padding,
+        ),
+        right = Math.min(
+          imageWidth,
+          Math.max(
+            ...candidate.controls.map(
+              (control) => control.box.x + control.box.width,
+            ),
+          ) + padding,
+        ),
+        bottom = Math.min(
+          imageHeight,
+          Math.max(
+            ...candidate.controls.map(
+              (control) => control.box.y + control.box.height,
+            ),
+          ) + padding,
+        ),
+        group = {
+          x: left,
+          y: top,
+          width: right - left,
+          height: bottom - top,
+        };
+      return {
+        ...candidate,
+        number: index + 1,
+        residualLabel: candidate.maxResidual.toFixed(1),
+        thresholdLabel: candidate.discoveryThreshold.toFixed(1),
+        groupStyle: boxStyle(group),
+        guideStyle: [
+          `left:${percent(group.x, imageWidth)}`,
+          `top:${percent(candidate.median, imageHeight)}`,
+          `width:${percent(group.width, imageWidth)}`,
+        ].join(";"),
+        controls: candidate.controls.map((control) => {
+          const delta = control.box.y - candidate.median;
+          return {
+            ...control,
+            style: boxStyle(control.box),
+            deltaLabel: `${delta > 0 ? "+" : ""}${delta.toFixed(1)}px`,
+            deltaClass:
+              Math.abs(delta) > candidate.discoveryThreshold
+                ? "peer-delta peer-delta-outlier"
+                : "peer-delta",
+          };
+        }),
+        evidence: JSON.stringify(candidate, null, 2),
+      };
+    },
   );
   return {
     ...page,
