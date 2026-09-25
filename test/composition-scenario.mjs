@@ -14,7 +14,7 @@ export async function runCompositionScenario({
   evidenceDirectory = path.join(repository, "dist/composition-evidence"),
 }) {
   // Four declared composition relationships share one baseline and one
-  // controlled counterexample each, exercised through the installed CLI.
+  // controlled counterexample each, exercised through the supplied CLI.
   const compositionRules = JSON.parse(
     await readFile(
       path.join(exampleDirectory, "composition-rules.json"),

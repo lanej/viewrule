@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { execFile } from "node:child_process";
 import { createServer } from "node:http";
-import { mkdtemp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
+import { mkdtemp, mkdir, readFile, rm, copyFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { runCompositionScenario } from "../test/composition-scenario.mjs";
@@ -33,7 +33,7 @@ const server = createServer(async (req, res) => {
         ".css": "text/css",
       }[path.extname(name)],
     );
-    res.end(await readFile(path.join(exampleDirectory, name)));
+    res.end(await readFile(path.join(project, "src", name)));
   } catch {
     res.writeHead(500).end("Example unavailable");
   }
@@ -42,10 +42,12 @@ try {
   await mkdir(path.join(project, ".ui-review"));
   await mkdir(path.join(project, "src"));
   await mkdir(path.join(project, "global"));
-  await writeFile(
-    path.join(project, "src/fixture.txt"),
-    "Composition development fixture\n",
-  );
+  // Freeze and fingerprint the same fixture bytes the browser will inspect.
+  for (const file of files)
+    await copyFile(
+      path.join(exampleDirectory, file),
+      path.join(project, "src", file),
+    );
   await rm(evidenceDirectory, { recursive: true, force: true });
   await new Promise((resolve, reject) => {
     server.once("error", reject);

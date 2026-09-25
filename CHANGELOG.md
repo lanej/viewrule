@@ -7,6 +7,9 @@
   are partial validation and do not replace the full release gate.
 - Plugin 0.9.1 starts rendered work with a short composition preflight and retrieves
   relevant guidance without repeatedly loading unchanged policy. Engine pin remains 0.9.0.
+- Retain a [paired workflow pilot](benchmarks/workflow/prevention-pilot-2026-09-24.md)
+  with before/after sources and captures. Both workflows met the measured task
+  requirements; mixed effort and harness limits do not establish improvement.
 
 ## 0.9.0 — 2026-09-24
 
