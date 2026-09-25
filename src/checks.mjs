@@ -323,6 +323,12 @@ export function inspectPage(rules) {
       "textarea",
     ].join(",");
     const controls = [...document.querySelectorAll(controlSelector)]
+      .filter(
+        (element) =>
+          element instanceof HTMLInputElement ||
+          element instanceof HTMLSelectElement ||
+          element instanceof HTMLTextAreaElement,
+      )
       .filter(visible)
       .map((element) => ({ element, box: rect(element) }));
     if (controls.length < 2) return [];
@@ -390,9 +396,10 @@ export function inspectPage(rules) {
 
     const groups = new Map();
     controls.forEach((control, index) => {
-      const root = find(index);
-      if (!groups.has(root)) groups.set(root, []);
-      groups.get(root).push(control);
+      const root = find(index),
+        group = groups.get(root) ?? [];
+      group.push(control);
+      groups.set(root, group);
     });
     const candidates = [];
     for (const group of groups.values()) {
