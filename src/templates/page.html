@@ -42,11 +42,45 @@
   {{/hasDesignCoverage}}
   <div class="compare">
     {{#screenshot}}
-    <figure>
-      <figcaption>{{captureLabel}}</figcaption>
-      <a href="{{screenshot}}"
-        ><img src="{{screenshot}}" alt="{{captureLabel}} {{stateName}}"
-      /></a>
+    <figure class="capture-figure">
+      <figcaption>
+        <span>{{captureLabel}}</span>
+        {{#hasPeerInference}}
+        <label class="peer-overlay-control"
+          ><input class="peer-overlay-toggle" type="checkbox" checked /> Show
+          inferred structure</label
+        >
+        {{/hasPeerInference}}
+      </figcaption>
+      <div class="capture-picture">
+        <a href="{{screenshot}}"
+          ><img src="{{screenshot}}" alt="{{captureLabel}} {{stateName}}"
+        /></a>
+        {{#hasPeerInference}}
+        <div
+          class="peer-overlay-layer"
+          aria-label="Advisory inferred peer relationships"
+        >
+          {{#peerInference}}
+          <span class="peer-group-outline" style="{{groupStyle}}"
+            ><span class="peer-group-badge"
+              >Inferred {{number}} · DR-017</span
+            ></span
+          >
+          <span class="peer-anchor-guide" style="{{guideStyle}}"
+            ><span class="peer-anchor-label">median top anchor</span></span
+          >
+          {{#controls}}
+          <span
+            class="peer-member-outline"
+            style="{{style}}"
+            title="{{label}} · {{element}}"
+            ><span class="{{deltaClass}}">Δ {{deltaLabel}}</span></span
+          >
+          {{/controls}} {{/peerInference}}
+        </div>
+        {{/hasPeerInference}}
+      </div>
     </figure>
     {{/screenshot}} {{#approved}}
     <figure>
