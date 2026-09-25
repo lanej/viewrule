@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+- Add `npm run check:composition` for focused source iteration using the exact
+  composition scenario retained in the installed regression. Its separate reports
+  are partial validation and do not replace the full release gate.
+- Plugin 0.9.1 starts rendered work with a short composition preflight and retrieves
+  relevant guidance without repeatedly loading unchanged policy. Engine pin remains 0.9.0.
+
 ## 0.9.0 — 2026-09-24
 
 - Add DR-017 Alignment, DR-018 Rhythm, DR-019 Spatial Economy, and DR-020 Balance

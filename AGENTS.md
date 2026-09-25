@@ -61,6 +61,13 @@ through an isolated plugin copy, then exercises one workflow. Keep concrete reje
 and passing preset fixtures there; assert their specific findings and measurements.
 Do not add helper tests, snapshots, or viewport/edge-case matrices.
 
+For DR-017–DR-020 iteration, `npm run check:composition` runs the existing shared
+composition scenario against the current source. It produces separate evidence in
+`dist/composition-focus/`; it is partial validation and never supplies a release
+archive. Run the full installed workflow before delivery. For each escaped defect,
+retain its failing reproduction and a legitimate passing counterpart in the same
+scenario; identify the browser or evidence assumption that caused the omission.
+
 For documentation and instruction changes, check links, examples, frontmatter/imports,
 and the diff. Do not add a test suite or run a local browser regression just for prose.
 For JS syntax-only changes, use `node --check` on the affected files. Report commands
