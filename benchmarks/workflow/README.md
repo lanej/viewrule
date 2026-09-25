@@ -9,6 +9,12 @@ or establish prevention or efficiency gains. Its
 The gallery now leads with an annotated, richer composition calibration case and
 labels unchanged pilot pairs explicitly; that illustration is separate from the trial.
 
+A fresh [capacity-desk trial](capacity-trial-2026-09-25/README.md) adds one more
+complex task with a validated browser/tool adapter and frozen acceptance. Both
+workflows repaired different mobile presentation defects missed by their automated
+checks; both stopped at the token limit. Its annotated original before/after
+captures and full evidence archive preserve that result without an efficacy claim.
+
 The reusable [saved-review comparison](saved-comparison-2026-09-24/README.md) now
 exercises the complete Parcel desk application under fixed acceptance criteria.
 It retains both source revisions, original evidence, generated annotations, and
