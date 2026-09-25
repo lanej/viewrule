@@ -142,9 +142,22 @@ export async function runCompositionScenario({
     0,
     peerInferenceCheck.stderr || peerInferenceCheck.stdout,
   );
+  const peerInferenceReportFile = JSON.parse(
+    peerInferenceCheck.stdout,
+  ).report;
   const peerInferenceReport = JSON.parse(
-    await readFile(JSON.parse(peerInferenceCheck.stdout).report, "utf8"),
+    await readFile(peerInferenceReportFile, "utf8"),
   );
+  const peerInferenceHTML = await readFile(
+    path.join(path.dirname(peerInferenceReportFile), "index.html"),
+    "utf8",
+  );
+  assert.match(peerInferenceHTML, /Show\s+inferred structure/);
+  assert.match(peerInferenceHTML, /Inferred 1 · DR-017/);
+  assert.match(peerInferenceHTML, /peer-anchor-guide/);
+  assert.match(peerInferenceHTML, /peer-member-outline/);
+  assert.match(peerInferenceHTML, /Δ [-+]?\d+\.\dpx/);
+  assert.match(peerInferenceHTML, /href="capture-2\.png"/);
   for (const capture of peerInferenceReport.pages) {
     assert.deepEqual(capture.findings, []);
     const candidates = capture.metrics.peerInference;
