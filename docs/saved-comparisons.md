@@ -1,6 +1,6 @@
 # Compare two saved reviews
 
-Available in the development checkout; not included in the published 0.9.0 engine.
+Available in engine 0.10.0 and later.
 
 `viewrule compare` produces a portable HTML comparison from two existing version 1
 review reports and their adjacent PNG files. The command requires no running
