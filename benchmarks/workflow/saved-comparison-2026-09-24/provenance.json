@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "purpose": "Deterministic complete-application repair and saved-comparison calibration; not an agent efficacy trial.",
+  "baseCommit": "bb763a2639d1d487ac573c91fffc596442f7ffc2",
+  "sourceSHA256": {
+    "src/comparison.mjs": "c9642d32fa531c0525d867ef867fa041a9d207eab6cdf0807b696d1dc309ef20",
+    "src/capture.mjs": "a97d14c5945337b9fc2a1b418488677e112d90de47986174eb1584e8246ce270",
+    "src/config.mjs": "bfa1eac399afbeaf2c53da2d7e21235fd4c380de7350be85ecd90e3bd50023c3",
+    "src/review.mjs": "aa6e24384d66ad3eb0359ab937f8592e3a20f3de271e2dc439335619e960030f",
+    "src/cli.mjs": "d7b92c92bd2861b6fcb576d57eee48dbb50db33af934f774d21c18034798b4e8",
+    "src/templates/comparison.html": "68067203c2e2f817ca657d9a2e50fe76828a7ae342bd43ac3ed5eb4319b30e09",
+    "src/types.d.ts": "914e200a1305d5fe1268755c6097ed88acb0e353a52a25172a394d05495d0249",
+    "test/saved-comparison-scenario.mjs": "e21772708910971eb912e4daa2fc44711c6d13ddcd818b338d2d84dad967058e",
+    "test/review.test.mjs": "bbb683d89cae73cfb109d7f937425fd7941494206c8cab851b779e0d88f515fc",
+    "test/templates/comparison-before.css": "da0db66c1eca78ed08429aeb8ed090123bdc7293a922f9807aa63bd3502b0fe3",
+    "test/templates/comparison-annotations.json": "a07b9ec6e807fdc9b1960a1eb7b8e7c31e03e6d3ca9e154b3a5d25c6ce667632",
+    "benchmarks/workflow/saved-comparison-protocol.md": "3d6ad2938fec38da72415412b00580fe8e9b6e0f02f91eefeafc19bee6091b9a"
+  },
+  "testedPackageSHA256": "b56adbad233566302c133c2d140d41e6001f92c4dc0e00abaf50788608f8d554",
+  "browser": "151.0.7922.34",
+  "browserExecutable": "Chromium headless shell selected using VIEWRULE_BROWSER_PATH",
+  "before": {
+    "id": "2026-09-25T03-00-27-931Z-162c8656",
+    "createdAt": "2026-09-25T03:00:27.932Z",
+    "sha256": "7ee77ec79336f7dd3e12b51e185df3796169b9d91586482ab93983e8842f8031"
+  },
+  "after": {
+    "id": "2026-09-25T03-00-31-885Z-08006c29",
+    "createdAt": "2026-09-25T03:00:31.886Z",
+    "sha256": "58b8c3b7c0342b441c2fea01ede750dc1d6530a7815589ee1054992b38e54cd3"
+  },
+  "humanApproval": false,
+  "manualInspection": "Inspected desktop/wide exports and mobile before/after presentation, including the byte-identical mobile label and conditionally worded commentary. Browser inspection reported no page errors and all six originals decoded."
+}

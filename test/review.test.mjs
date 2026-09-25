@@ -21,6 +21,7 @@ import { execFile } from "node:child_process";
 import { chromium } from "playwright";
 import { inspectPage } from "../src/checks.mjs";
 import { runCompositionScenario } from "./composition-scenario.mjs";
+import { runSavedComparisonScenario } from "./saved-comparison-scenario.mjs";
 import { config } from "./fixtures.mjs";
 import {
   analyticalHtml,
@@ -52,6 +53,27 @@ test(
     const server = createServer(async (req, res) => {
       const pathname = new URL(req.url, "http://localhost").pathname;
       // Exercise deployment below a project prefix, including relative assets.
+      if (pathname.startsWith("/saved-comparison/")) {
+        const file =
+          pathname === "/saved-comparison/"
+            ? "index.html"
+            : pathname.slice("/saved-comparison/".length);
+        if (!["index.html", "app.css", "app.js", "data.js"].includes(file)) {
+          res.writeHead(404);
+          return res.end();
+        }
+        res.setHeader(
+          "Content-Type",
+          file.endsWith(".js")
+            ? "text/javascript"
+            : file.endsWith(".css")
+              ? "text/css"
+              : "text/html",
+        );
+        return res.end(
+          await readFile(path.join(project, "saved-comparison-app/src", file)),
+        );
+      }
       if (pathname.startsWith("/incremental/")) {
         const relative = pathname.slice("/incremental/".length);
         if (
@@ -1225,6 +1247,13 @@ test(
         appFindings.some((f) => f.rule === id),
         `Mock app should expose ${id}`,
       );
+    await runSavedComparisonScenario({
+      cli,
+      baseURL,
+      project,
+      mockDirectory,
+      repository: path.resolve(import.meta.dirname, ".."),
+    });
     // New policy IDs are first-class without pretending all their semantics are
     // automatically assessed. Both sides use one scoped contract and real DOM.
     const exampleDirectory = path.join(
@@ -1499,6 +1528,46 @@ test(
       repository,
       env,
     });
+    // Existing captures without annotation regions retain growth states, rather
+    // than inventing boxes or converting saturated/reference yield to zero.
+    const growthReport = path.join(
+      compositionEvidence,
+      "regression-report/report.json",
+    );
+    const growthOutput = path.join(
+      repository,
+      "dist/saved-comparison-evidence/growth-reference",
+    );
+    const growthCompare = await cli([
+      "compare",
+      "--before",
+      growthReport,
+      "--after",
+      growthReport,
+      "--output",
+      growthOutput,
+    ]);
+    assert.equal(growthCompare.code, 0, growthCompare.stderr);
+    const growthComparison = JSON.parse(
+      await readFile(path.join(growthOutput, "comparison.json"), "utf8"),
+    );
+    assert.ok(growthComparison.states.every((s) => s.callouts.length === 0));
+    const growthRows = growthComparison.states
+      .flatMap((s) => s.measurements)
+      .filter((m) => m.label.endsWith("Viewport-growth yield"));
+    assert.ok(
+      growthRows.some(
+        (m) => m.before === "saturated" && m.values.delta === null,
+      ),
+    );
+    assert.ok(
+      growthRows.some(
+        (m) => m.before === "reference" && m.values.delta === null,
+      ),
+    );
+    assert.ok(
+      growthRows.some((m) => m.values.before > 0 && m.values.delta === 0),
+    );
 
     const catalog = JSON.parse(
       await readFile(

@@ -9,6 +9,12 @@ or establish prevention or efficiency gains. Its
 The gallery now leads with an annotated, richer composition calibration case and
 labels unchanged pilot pairs explicitly; that illustration is separate from the trial.
 
+The reusable [saved-review comparison](saved-comparison-2026-09-24/README.md) now
+exercises the complete Parcel desk application under fixed acceptance criteria.
+It retains both source revisions, original evidence, generated annotations, and
+unchanged mobile captures. This is a repair/report calibration, not an additional
+agent efficacy experiment.
+
 The [pattern-review example](../../docs/examples/pattern-review.html) materializes
 the header, disclosure, and composition cases below from a user-supplied screenshot,
 with invented neutral data. The existing installed regression runs its before,

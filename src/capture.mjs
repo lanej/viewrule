@@ -5,6 +5,45 @@ export const detailDefaults = {
   maxTiles: 64,
 };
 
+/** Optional annotation geometry; never establishes rule coverage or visibility.
+ * @param {import("playwright").Page} page
+ * @param {{id: string, selector: string}[]} regions */
+export async function captureRegions(page, regions) {
+  return page.evaluate(
+    (declarations) =>
+      declarations.map(({ id, selector }) => {
+        /** @type {{id: string, selector: string, reason?: string, box?: {x: number, y: number, width: number, height: number}}} */
+        const result = { id, selector };
+        try {
+          const matches = document.querySelectorAll(selector);
+          if (matches.length !== 1)
+            throw new Error("Region must match exactly one element.");
+          const element = matches[0];
+          const box = element.getBoundingClientRect();
+          if (
+            !element.checkVisibility({
+              checkOpacity: true,
+              checkVisibilityCSS: true,
+            }) ||
+            box.width <= 0 ||
+            box.height <= 0
+          )
+            throw new Error("Region has no visible positive bounding box.");
+          result.box = {
+            x: box.x + scrollX,
+            y: box.y + scrollY,
+            width: box.width,
+            height: box.height,
+          };
+        } catch (error) {
+          result.reason = error.message;
+        }
+        return result;
+      }),
+    regions,
+  );
+}
+
 /** @param {number} width
  * @param {number} height
  * @param {import("./types.js").DetailOptions} [options] */

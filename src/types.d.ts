@@ -7,6 +7,17 @@ export interface Viewport {
   width: number;
   height: number;
 }
+export interface ComparisonAnnotations {
+  version: 1;
+  title: string;
+  summary?: string;
+  callouts: {
+    page: string;
+    region: string;
+    title: string;
+    interpretation: string;
+  }[];
+}
 export interface DetailOptions {
   width: number;
   height: number;
@@ -118,6 +129,7 @@ export interface ProjectConfig {
     ready: string;
     media?: "screen" | "print";
     textScale?: number;
+    captureRegions?: { id: string; selector: string }[];
     viewports?: Selection;
     checkpoints?: Checkpoint[];
   }[];
@@ -286,6 +298,9 @@ export type DesignPolicy = Awaited<
   ReturnType<typeof import("./design.mjs").readDesignPolicy>
 >;
 export interface PageResult {
+  captureRegions?: Awaited<
+    ReturnType<typeof import("./capture.mjs").captureRegions>
+  >;
   evidence?: EvidenceProvenance;
   name: string;
   checkpoint?: string;

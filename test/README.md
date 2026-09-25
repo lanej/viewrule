@@ -50,6 +50,19 @@ reported separately. These are executable-contract tests, not claims of agent be
 Keep cases tied to concrete claims. Extend this workflow for a demonstrated omission;
 do not create a browser, viewport, or per-helper test matrix.
 
+The saved-comparison scenario applies a fixed presentation override to the complete
+Parcel desk application, then removes it under the same contract. Desktop and wide
+captures reject the declared framing, anchor, gap, and footprint defects; the mobile
+reflow is retained. Application assertions preserve shipment/chart data and exercise
+filters, selection, keyboard disclosure, tabs, and URL restoration on both revisions.
+The installed `compare` command preserves exact report/image bytes, exports annotated
+views, and leaves latest state unchanged. A damaged pair exposes changed contracts,
+unavailable geometry, old reused evidence, absent states, unsafe paths, and escaping.
+The viewer is checked for equal image scale, keyboard controls, working originals,
+and mobile overflow. Full output is retained in `dist/saved-comparison-evidence/`;
+the [predeclared protocol](../benchmarks/workflow/saved-comparison-protocol.md)
+distinguishes synthetic workflow validation from agent prevention efficacy.
+
 The [screenshot-informed pattern review](../docs/examples/pattern-review.html) uses
 one synthetic DOM/data template in four states. At 1440×1000 CSS px, the packed CLI
 rejects the before header/toolbar and composition overhead, then rejects the

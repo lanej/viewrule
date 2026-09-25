@@ -30,6 +30,14 @@ shared changes invalidate dependents. `check --full` always captures again.
 Reuse requires a nonsecret environment identity and an explicit maximum age.
 See [configuration, evidence provenance, and conservative fallbacks](docs/incremental-review.md).
 
+## Saved before/after comparisons
+
+`viewrule compare --before BEFORE/report.json --after AFTER/report.json --output comparison`
+builds a portable comparison from saved reviews, preserving original screenshots
+and reports with hashes. Optional recorded DOM regions supply numbered callouts;
+scoped measurements and authored interpretation stay separate. `--image` exports
+the annotated result. See [configuration, usage, and comparison limits](docs/saved-comparisons.md).
+
 ## Why it exists
 
 A UI can look polished while making a decision harder: too few alternatives fit on
