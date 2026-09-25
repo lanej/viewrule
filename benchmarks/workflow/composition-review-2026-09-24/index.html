@@ -1,0 +1,705 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>See the composition change · Viewrule</title>
+    <style>
+      :root {
+        font:
+          16px/1.5 system-ui,
+          sans-serif;
+        color: #202c3b;
+        background: #f3f5f7;
+        color-scheme: light;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+      }
+      main {
+        max-width: 1840px;
+        margin: auto;
+        padding: 32px;
+      }
+      h1,
+      h2,
+      h3,
+      p,
+      figure {
+        margin: 0;
+      }
+      h1 {
+        font-size: 34px;
+        line-height: 1.2;
+        letter-spacing: -1px;
+      }
+      h2 {
+        font-size: 23px;
+        line-height: 1.3;
+      }
+      h3 {
+        font-size: 17px;
+      }
+      p {
+        max-width: 100ch;
+      }
+      a {
+        color: #205b88;
+        text-underline-offset: 3px;
+      }
+      a:focus-visible,
+      summary:focus-visible,
+      input:focus-visible {
+        outline: 3px solid #ad4b00;
+        outline-offset: 3px;
+      }
+      header > p {
+        margin-top: 12px;
+        color: #485971;
+      }
+      .eyebrow {
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: #58697f;
+        margin-bottom: 8px;
+      }
+      .facts {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px 32px;
+        margin: 22px 0;
+      }
+      .facts strong {
+        display: block;
+        font-size: 24px;
+        letter-spacing: -0.5px;
+      }
+      .facts span {
+        font-size: 14px;
+        color: #485971;
+      }
+      .board {
+        border: 1px solid #cbd4df;
+        border-radius: 12px;
+        background: white;
+        padding: 24px;
+        margin-top: 24px;
+      }
+      .board-intro {
+        display: flex;
+        justify-content: space-between;
+        gap: 24px;
+        align-items: start;
+      }
+      .board-intro p {
+        font-size: 14px;
+        color: #58697f;
+        margin-top: 8px;
+      }
+      .annotation-controls {
+        border: 0;
+        padding: 0;
+        margin: 22px 0;
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      .annotation-controls legend {
+        font-size: 14px;
+        font-weight: 650;
+        margin-bottom: 8px;
+      }
+      .annotation-controls label {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        border: 1px solid #bcc9d8;
+        border-radius: 6px;
+        padding: 7px 10px;
+        font-size: 14px;
+        cursor: pointer;
+      }
+      .annotation-controls label:has(input:checked) {
+        background: #eaf0f6;
+        border-color: #395c7a;
+      }
+      .annotation-controls input {
+        accent-color: #395c7a;
+      }
+      .pair {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 28px;
+      }
+      .panel-title {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: 12px;
+        margin-bottom: 12px;
+      }
+      .panel-title strong {
+        font-size: 18px;
+      }
+      .panel-title span {
+        font-size: 14px;
+        color: #58697f;
+      }
+      .capture {
+        position: relative;
+        width: 100%;
+      }
+      .capture img {
+        display: block;
+        width: 100%;
+        height: auto;
+      }
+      .marker {
+        position: absolute;
+        outline: 2px solid var(--mark);
+        outline-offset: 1px;
+        pointer-events: none;
+        z-index: 1;
+      }
+      .marker b {
+        position: absolute;
+        right: 0;
+        top: 0;
+        transform: translateY(-85%);
+        font:
+          700 13px/22px system-ui,
+          sans-serif;
+        width: 22px;
+        text-align: center;
+        border-radius: 50%;
+        color: white;
+        background: var(--mark);
+        box-shadow: 0 0 0 2px white;
+      }
+      .m1 {
+        --mark: #945000;
+      }
+      .m2 {
+        --mark: #06668e;
+      }
+      .m3 {
+        --mark: #7647a1;
+      }
+      .m4 {
+        --mark: #087564;
+      }
+      .board:has(#raw:checked) .marker {
+        display: none;
+      }
+      .board:has(#header:checked) .marker:not(.m1),
+      .board:has(#chart:checked) .marker:not(.m2),
+      .board:has(#ranking:checked) .marker:not(.m3),
+      .board:has(#context:checked) .marker:not(.m4) {
+        display: none;
+      }
+      .raw-link {
+        font-size: 13px;
+        margin-top: 12px;
+      }
+      .callouts {
+        display: grid;
+        gap: 14px;
+        margin-top: 22px;
+      }
+      .callout {
+        border-left: 3px solid var(--mark);
+        padding-left: 13px;
+      }
+      .callout h3 {
+        color: var(--mark);
+        margin-bottom: 3px;
+      }
+      .callout p {
+        font-size: 14px;
+        color: #485971;
+      }
+      .callout strong {
+        color: #202c3b;
+      }
+      .preserved {
+        background: #edf4f0;
+        border: 1px solid #c3d4c9;
+        padding: 15px;
+        border-radius: 8px;
+        margin-top: 18px;
+      }
+      .preserved p {
+        font-size: 14px;
+        margin-top: 5px;
+      }
+      .scale-note {
+        margin-top: 16px;
+        font-size: 13px;
+        color: #58697f;
+      }
+      .support {
+        margin-top: 26px;
+        display: grid;
+        gap: 18px;
+      }
+      .support details {
+        padding: 18px 22px;
+        border: 1px solid #cbd4df;
+        border-radius: 10px;
+        background: white;
+      }
+      .support summary {
+        cursor: pointer;
+        font-weight: 650;
+      }
+      .support p {
+        margin: 12px 0;
+        font-size: 15px;
+      }
+      .support .capture {
+        max-width: 1100px;
+        margin-top: 14px;
+      }
+      .measurements {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 16px;
+        font-size: 15px;
+      }
+      .measurements th,
+      .measurements td {
+        text-align: left;
+        border-bottom: 1px solid #d5dde6;
+        padding: 9px 10px;
+      }
+      .measurements thead {
+        background: #eef2f6;
+      }
+      .notes {
+        margin: 28px 0 12px;
+        font-size: 14px;
+        color: #485971;
+      }
+      .notes p + p {
+        margin-top: 12px;
+      }
+      code {
+        font-size: 0.9em;
+      }
+      footer {
+        font-size: 13px;
+        color: #58697f;
+        margin-top: 24px;
+      }
+      @media (max-width: 850px) {
+        main {
+          padding: 18px;
+        }
+        .board {
+          padding: 18px;
+        }
+        .pair {
+          grid-template-columns: 1fr;
+          gap: 26px;
+        }
+        .board-intro {
+          display: block;
+        }
+        h1 {
+          font-size: 28px;
+        }
+        .panel-title {
+          flex-wrap: wrap;
+        }
+        .measurements {
+          font-size: 13px;
+        }
+        .measurements th,
+        .measurements td {
+          padding: 8px 4px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <p class="eyebrow">Viewrule · Annotated calibration case</p>
+        <h1>Review the whole composition.</h1>
+        <p>
+          A richer decision view: twelve history samples, three weighted ranking
+          factors, three context groups, six disclosures, and a review action.
+          The change is in how those parts work together.
+        </p>
+        <div class="facts">
+          <div>
+            <strong>1,266 → 452 px</strong
+            ><span>Total surface height · rounded CSS px</span>
+          </div>
+          <div>
+            <strong>Same required evidence</strong
+            ><span
+              >Values, denominators, periods, weights, and sampled type
+              sizes</span
+            >
+          </div>
+          <div>
+            <strong>Still needs judgment</strong
+            ><span>Declared checks cannot establish task sufficiency</span>
+          </div>
+        </div>
+      </header>
+      <section
+        id="comparison-board"
+        class="board"
+        aria-labelledby="board-heading"
+      >
+        <div class="board-intro">
+          <div>
+            <h2 id="board-heading">What changed—and where</h2>
+            <p>
+              Existing calibration fixture, not a pilot treatment result. Same
+              capture conditions and display scale. Outlines are annotations;
+              original screenshots are linked below.
+            </p>
+          </div>
+        </div>
+        <fieldset class="annotation-controls">
+          <legend>Highlight a change</legend>
+          <label
+            ><input type="radio" name="focus" id="all" checked />All four</label
+          ><label
+            ><input type="radio" name="focus" id="header" />1 · Header</label
+          ><label><input type="radio" name="focus" id="chart" />2 · Chart</label
+          ><label
+            ><input type="radio" name="focus" id="ranking" />3 · Ranking</label
+          ><label
+            ><input type="radio" name="focus" id="context" />4 · Context</label
+          ><label
+            ><input type="radio" name="focus" id="raw" />Originals only</label
+          >
+        </fieldset>
+        <div class="pair">
+          <figure>
+            <figcaption class="panel-title">
+              <strong>Before · rejected</strong><span>1,266 px tall</span>
+            </figcaption>
+            <div class="capture">
+              <img
+                src="before.png"
+                width="1400"
+                height="1267"
+                alt="Before: stacked header and history above five tall evidence cards and a separate context band."
+              /><span
+                aria-hidden="true"
+                class="marker m1"
+                style="
+                  left: 1.3571%;
+                  top: 1.4996%;
+                  width: 97.2857%;
+                  height: 13.8911%;
+                "
+                ><b>1</b></span
+              ><span
+                aria-hidden="true"
+                class="marker m2"
+                style="
+                  left: 1.3571%;
+                  top: 15.3907%;
+                  width: 97.2857%;
+                  height: 26.3615%;
+                "
+                ><b>2</b></span
+              ><span
+                aria-hidden="true"
+                class="marker m3"
+                style="
+                  left: 2.7143%;
+                  top: 51.5613%;
+                  width: 56.3426%;
+                  height: 28.4136%;
+                "
+                ><b>3</b></span
+              ><span
+                aria-hidden="true"
+                class="marker m4"
+                style="
+                  left: 60.0569%;
+                  top: 51.5613%;
+                  width: 18.1138%;
+                  height: 28.4136%;
+                "
+                ><b>4</b></span
+              ><span
+                aria-hidden="true"
+                class="marker m4"
+                style="
+                  left: 79.1708%;
+                  top: 51.5613%;
+                  width: 18.115%;
+                  height: 28.4136%;
+                "
+                ><b>4</b></span
+              ><span
+                aria-hidden="true"
+                class="marker m4"
+                style="
+                  left: 2.7143%;
+                  top: 81.0798%;
+                  width: 94.5714%;
+                  height: 15.8149%;
+                "
+                ><b>4</b></span
+              >
+            </div>
+            <p class="raw-link">
+              <a href="before.png">Open original at 1400 px wide</a>
+            </p>
+          </figure>
+          <div>
+            <figure>
+              <figcaption class="panel-title">
+                <strong>After · declared checks pass</strong
+                ><span>452 px tall</span>
+              </figcaption>
+              <div class="capture">
+                <img
+                  src="composition.png"
+                  width="1400"
+                  height="453"
+                  alt="After: one header, history beside aligned ranking rows, and a shared context group."
+                /><span
+                  aria-hidden="true"
+                  class="marker m1"
+                  style="
+                    left: 1.3571%;
+                    top: 4.1943%;
+                    width: 97.2857%;
+                    height: 10.3753%;
+                  "
+                  ><b>1</b></span
+                ><span
+                  aria-hidden="true"
+                  class="marker m2"
+                  style="
+                    left: 1.3571%;
+                    top: 17.2185%;
+                    width: 52.1295%;
+                    height: 42.8256%;
+                  "
+                  ><b>2</b></span
+                ><span
+                  aria-hidden="true"
+                  class="marker m3"
+                  style="
+                    left: 55.2009%;
+                    top: 26.9316%;
+                    width: 43.442%;
+                    height: 61.279%;
+                  "
+                  ><b>3</b></span
+                ><span
+                  aria-hidden="true"
+                  class="marker m4"
+                  style="
+                    left: 1.3571%;
+                    top: 62.6932%;
+                    width: 52.1295%;
+                    height: 32.9574%;
+                  "
+                  ><b>4</b></span
+                >
+              </div>
+              <p class="raw-link">
+                <a href="composition.png">Open original at 1400 px wide</a>
+              </p>
+            </figure>
+            <div class="callouts">
+              <div class="callout m1">
+                <h3>1 · Put shared context in one header</h3>
+                <p>
+                  <strong>176 → 47 px.</strong> Identity, confidence, direction,
+                  ranking window, and action share a row. The required context
+                  stays visible.
+                </p>
+              </div>
+              <div class="callout m2">
+                <h3>2 · Place history beside the decision evidence</h3>
+                <p>
+                  <strong>234 → 150 px figure height.</strong> Twelve samples
+                  retain the labeled 0–50% scale; the latest value moves next to
+                  the range controls. Chart area changes under the authored task
+                  contract.
+                </p>
+              </div>
+              <div class="callout m3">
+                <h3>3 · Compare factors as aligned rows</h3>
+                <p>
+                  The rate, trend, and volume retain their values and comparison
+                  context. <strong>45% / 35% / 20%</strong> weights use aligned
+                  0–100% tracks. Required facts stay in the summary; supporting
+                  explanations use Details.
+                </p>
+              </div>
+              <div class="callout m4">
+                <h3>4 · Separate context from ranking</h3>
+                <p>
+                  Three tall context cards become three aligned rows under
+                  <strong>one “Not used in ranking” label</strong>.
+                  Missing-value notices and counts remain visible; diagnostics
+                  can still expand.
+                </p>
+              </div>
+            </div>
+            <div class="preserved">
+              <h3>Preserved in the initial view</h3>
+              <p>
+                26.4% · 231 of 875 records · −8.6% versus cycles E–H · 875
+                records · ranking weights · all three context summaries. Sampled
+                text sizes are unchanged; chart and action scope remain
+                distinct.
+              </p>
+            </div>
+          </div>
+        </div>
+        <p class="scale-note">
+          Both originals are 1400 px wide, captured within a 1440 × 1000 CSS px
+          viewport at device scale 1. Full-element capture includes the before
+          state below the viewport. Display scaling does not change the reported
+          CSS measurements.
+        </p>
+      </section>
+      <section class="support" aria-label="Controls that explain the result">
+        <details>
+          <summary>
+            Why the intermediate component pass still fails · 1,067 px tall
+          </summary>
+          <p>
+            The header and toolbar satisfy their component bounds, and
+            explanations use disclosure. But the five-card row and separate
+            context band still stretch the assembled view. Required ranking
+            cards do not fit completely in the initial viewport.
+            <strong
+              >Passing components did not establish a passing
+              composition.</strong
+            >
+          </p>
+          <div class="capture">
+            <img
+              src="components.png"
+              width="1400"
+              height="1068"
+              alt="Component-only pass: compact toolbar and disclosures, but tall cards still push required comparisons down."
+            />
+          </div>
+          <p>
+            <a href="components.png">Open the original intermediate capture</a>
+          </p>
+        </details>
+        <details>
+          <summary>
+            Why small alone is insufficient · hidden-evidence control
+          </summary>
+          <p>
+            This variant is also 452 px tall. It still fails: the denominator,
+            trend, and comparison window sit behind closed Details. Compactness
+            does not compensate for missing decision evidence.
+          </p>
+          <div class="capture">
+            <img
+              src="hidden.png"
+              width="1400"
+              height="453"
+              alt="Rejected compact control: the denominator and trend are hidden despite the short layout."
+            />
+          </div>
+          <p>
+            <a href="hidden.png">Open the original rejected compact capture</a>
+          </p>
+        </details>
+      </section>
+      <section class="notes" aria-labelledby="measure-heading">
+        <h2 id="measure-heading">Measurements and boundaries</h2>
+        <table class="measurements">
+          <thead>
+            <tr>
+              <th>Measured scope</th>
+              <th>Before</th>
+              <th>Components only</th>
+              <th>Composition</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th>Total surface height</th>
+              <td>1,266 px</td>
+              <td>1,067 px</td>
+              <td>452 px</td>
+            </tr>
+            <tr>
+              <th>Header height</th>
+              <td>176 px</td>
+              <td>121 px</td>
+              <td>47 px</td>
+            </tr>
+            <tr>
+              <th>Toolbar height</th>
+              <td>100 px</td>
+              <td>52 px</td>
+              <td>44 px</td>
+            </tr>
+            <tr>
+              <th>History figure height</th>
+              <td>234 px</td>
+              <td>234 px</td>
+              <td>150 px</td>
+            </tr>
+            <tr>
+              <th>Declared rule findings</th>
+              <td>7 rule IDs</td>
+              <td>5 rule IDs</td>
+              <td>0</td>
+            </tr>
+          </tbody>
+        </table>
+        <p>
+          The preserved source fixture and its existing installed regression
+          supply these observations. Fresh captures match the validated images
+          byte for byte. Findings count rule IDs, not independent real-world
+          defects. The right-hand evidence panel changes membership, so its
+          height is not compared across stages.
+        </p>
+        <p>
+          This is an existing, authored calibration example—not a new agent
+          trial or an outcome of the short preflight. The controls establish
+          specific rendered requirements and sampled interactions. Relevance,
+          decision sufficiency, and general design quality remain human
+          judgments. No human approval is inferred.
+        </p>
+        <p>
+          <a href="validated-captures.json"
+            >Measurements and interaction observations</a
+          >
+          · <a href="report.json">Retained CLI report</a> ·
+          <a href="provenance.json">Source and image hashes</a> ·
+          <a href="../../../docs/examples/pattern-review-design.md"
+            >Task contract</a
+          >
+          ·
+          <a href="../prevention-before-after-2026-09-24.md"
+            >Original pilot gallery</a
+          >
+        </p>
+      </section>
+      <footer>
+        Presentation annotations are separate HTML/CSS overlays. “Originals
+        only” removes them. All names, data, and chart samples are synthetic.
+      </footer>
+    </main>
+  </body>
+</html>

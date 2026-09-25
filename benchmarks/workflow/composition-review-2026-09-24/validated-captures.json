@@ -1,0 +1,474 @@
+{
+  "viewport": {
+    "name": "desktop",
+    "width": 1440,
+    "height": 1000
+  },
+  "deviceScaleFactor": 1,
+  "browser": "151.0.7922.34",
+  "contractHash": "e7a3073fef0859dc29106a69e65281f5cb177d6437493e606151d1956b950eb1",
+  "findings": {
+    "before": {
+      "component": ["pattern-header", "pattern-toolbar"],
+      "composition": [
+        "pattern-chart-overhead",
+        "pattern-inline-header",
+        "pattern-overhead",
+        "pattern-ranking-visible",
+        "pattern-surface-overhead"
+      ]
+    },
+    "components": {
+      "component": [],
+      "composition": [
+        "pattern-chart-overhead",
+        "pattern-inline-header",
+        "pattern-overhead",
+        "pattern-ranking-visible",
+        "pattern-surface-overhead"
+      ]
+    },
+    "composition": {
+      "component": [],
+      "composition": []
+    },
+    "hidden": {
+      "component": [],
+      "composition": ["pattern-required"]
+    }
+  },
+  "layouts": {
+    "before": {
+      "surfaceHeight": 1265.65625,
+      "evidenceHeight": 652.46875,
+      "headerHeight": 176,
+      "toolbarHeight": 100,
+      "chartHeight": 234,
+      "chartWidth": 1362,
+      "cardHeights": [360, 360, 360, 360, 360, 200.375],
+      "facts": {
+        ".group-identity": "Emerging pattern — Sample group Q7",
+        ".observation-window": "Ranking window: cycles I–L",
+        ".confidence": "High confidence",
+        ".direction": "Decreasing",
+        ".rate-value": "26.4%",
+        ".denominator": "231 of 875 classified records",
+        ".trend-value": "−8.6%",
+        ".trend-comparison": "Relative change vs cycles E–H",
+        ".volume-value": "875 records",
+        ".rate-weight": "Ranking weight: 45%",
+        ".trend-weight": "Ranking weight: 35%",
+        ".volume-weight": "Ranking weight: 20%",
+        ".processing-context .context-value": "Average duration: unavailable · Retries observed: 2 of 7 runs",
+        ".corroboration-context .context-value": "Confirmed reviews: 3 recent · 7 total",
+        ".mix-context .context-value": "Subtype share: unavailable · Subgroup review rate: 47.2%"
+      },
+      "fontSizes": [
+        "21px",
+        "14px",
+        "14px",
+        "14px",
+        "22px",
+        "14px",
+        "22px",
+        "14px",
+        "22px",
+        "14px",
+        "14px",
+        "14px",
+        "14px",
+        "14px",
+        "14px"
+      ],
+      "secondary": [
+        "Records needing review divided by all classified records in\n                  cycles I–L, rounded to one decimal place.",
+        "Compares the current review rate with the prior four-cycle\n                  rate of 28.875%. A decrease is not an all-clear.",
+        "All classified records in this group's ranking window. Volume\n                  is separate from the 231 records needing review.",
+        "Duration samples were not collected in cycle L. Retry\n                  observations describe processing conditions only.",
+        "Confirmed manual observations provide background. They do not\n                  change the score or establish a new ranking signal.",
+        "The subgroup uses a different population from Q7's headline\n                  rate. It is supporting context, not an additional weighted\n                  factor."
+      ],
+      "chartPoints": "0,113.6 90.9090909090909,103.2 181.8181818181818,108.8 272.72727272727275,90.4 363.6363636363636,99.6 454.54545454545456,81.6 545.4545454545455,87.2 636.3636363636364,74.4 727.2727272727273,83.2 818.1818181818181,89.6 909.0909090909091,95.6 1000,100.8"
+    },
+    "components": {
+      "surfaceHeight": 1066.546875,
+      "evidenceHeight": 555.875,
+      "headerHeight": 121.484375,
+      "toolbarHeight": 52,
+      "chartHeight": 234,
+      "chartWidth": 1362,
+      "cardHeights": [310, 310, 310, 310, 310, 153.78125],
+      "facts": {
+        ".group-identity": "Emerging pattern — Sample group Q7",
+        ".observation-window": "Ranking window: cycles I–L",
+        ".confidence": "High confidence",
+        ".direction": "Decreasing",
+        ".rate-value": "26.4%",
+        ".denominator": "231 of 875 classified records",
+        ".trend-value": "−8.6%",
+        ".trend-comparison": "Relative change vs cycles E–H",
+        ".volume-value": "875 records",
+        ".rate-weight": "Ranking weight: 45%",
+        ".trend-weight": "Ranking weight: 35%",
+        ".volume-weight": "Ranking weight: 20%",
+        ".processing-context .context-value": "Average duration: unavailable · Retries observed: 2 of 7 runs",
+        ".corroboration-context .context-value": "Confirmed reviews: 3 recent · 7 total",
+        ".mix-context .context-value": "Subtype share: unavailable · Subgroup review rate: 47.2%"
+      },
+      "fontSizes": [
+        "21px",
+        "14px",
+        "14px",
+        "14px",
+        "22px",
+        "14px",
+        "22px",
+        "14px",
+        "22px",
+        "14px",
+        "14px",
+        "14px",
+        "14px",
+        "14px",
+        "14px"
+      ],
+      "secondary": [
+        "Records needing review divided by all classified records in\n                  cycles I–L, rounded to one decimal place.",
+        "Compares the current review rate with the prior four-cycle\n                  rate of 28.875%. A decrease is not an all-clear.",
+        "All classified records in this group's ranking window. Volume\n                  is separate from the 231 records needing review.",
+        "Duration samples were not collected in cycle L. Retry\n                  observations describe processing conditions only.",
+        "Confirmed manual observations provide background. They do not\n                  change the score or establish a new ranking signal.",
+        "The subgroup uses a different population from Q7's headline\n                  rate. It is supporting context, not an additional weighted\n                  factor."
+      ],
+      "chartPoints": "0,113.6 90.9090909090909,103.2 181.8181818181818,108.8 272.72727272727275,90.4 363.6363636363636,99.6 454.54545454545456,81.6 545.4545454545455,87.2 636.3636363636364,74.4 727.2727272727273,83.2 818.1818181818181,89.6 909.0909090909091,95.6 1000,100.8"
+    },
+    "composition": {
+      "surfaceHeight": 452.296875,
+      "evidenceHeight": 321.59375,
+      "headerHeight": 47,
+      "toolbarHeight": 44,
+      "chartHeight": 150,
+      "chartWidth": 729.8125,
+      "cardHeights": [109.59375, 84, 84, 32, 32, 32],
+      "facts": {
+        ".group-identity": "Emerging pattern — Sample group Q7",
+        ".observation-window": "Ranking window: cycles I–L",
+        ".confidence": "High confidence",
+        ".direction": "Decreasing",
+        ".rate-value": "26.4%",
+        ".denominator": "231 of 875 classified records",
+        ".trend-value": "−8.6%",
+        ".trend-comparison": "Relative change vs cycles E–H",
+        ".volume-value": "875 records",
+        ".rate-weight": "Ranking weight: 45%",
+        ".trend-weight": "Ranking weight: 35%",
+        ".volume-weight": "Ranking weight: 20%",
+        ".processing-context .context-value": "Average duration: unavailable · Retries observed: 2 of 7 runs",
+        ".corroboration-context .context-value": "Confirmed reviews: 3 recent · 7 total",
+        ".mix-context .context-value": "Subtype share: unavailable · Subgroup review rate: 47.2%"
+      },
+      "fontSizes": [
+        "21px",
+        "14px",
+        "14px",
+        "14px",
+        "22px",
+        "14px",
+        "22px",
+        "14px",
+        "22px",
+        "14px",
+        "14px",
+        "14px",
+        "14px",
+        "14px",
+        "14px"
+      ],
+      "secondary": [
+        "Records needing review divided by all classified records in\n                  cycles I–L, rounded to one decimal place.",
+        "Compares the current review rate with the prior four-cycle\n                  rate of 28.875%. A decrease is not an all-clear.",
+        "All classified records in this group's ranking window. Volume\n                  is separate from the 231 records needing review.",
+        "Duration samples were not collected in cycle L. Retry\n                  observations describe processing conditions only.",
+        "Confirmed manual observations provide background. They do not\n                  change the score or establish a new ranking signal.",
+        "The subgroup uses a different population from Q7's headline\n                  rate. It is supporting context, not an additional weighted\n                  factor."
+      ],
+      "chartPoints": "0,113.6 90.9090909090909,103.2 181.8181818181818,108.8 272.72727272727275,90.4 363.6363636363636,99.6 454.54545454545456,81.6 545.4545454545455,87.2 636.3636363636364,74.4 727.2727272727273,83.2 818.1818181818181,89.6 909.0909090909091,95.6 1000,100.8",
+      "compositionGeometry": {
+        "titleCenters": [197.578125, 197.5703125, 197.5703125],
+        "controlCenters": [256.578125, 256.5703125],
+        "latestGap": 10,
+        "contextRows": [
+          {
+            "height": 32,
+            "labelLeft": 39,
+            "labelHeight": 20.296875,
+            "valueHeight": 20.296875,
+            "role": "context-role"
+          },
+          {
+            "height": 32,
+            "labelLeft": 39,
+            "labelHeight": 20.296875,
+            "valueHeight": 20.296875,
+            "role": "context-role"
+          },
+          {
+            "height": 32,
+            "labelLeft": 39,
+            "labelHeight": 20.296875,
+            "valueHeight": 20.296875,
+            "role": "context-role"
+          }
+        ],
+        "currentRatio": 0.5279911247653183,
+        "priorRatio": 0.5774876258747227,
+        "rateBarCenters": [352.875, 352.875],
+        "weights": [
+          {
+            "percent": 45,
+            "ratio": 0.45,
+            "left": 1281,
+            "width": 120,
+            "height": 6,
+            "valueGap": 4,
+            "subjectLeft": 792.8125,
+            "rowLeft": 792.8125,
+            "detailLeft": 792.8125,
+            "detailGap": 4,
+            "scale": "weight-heading"
+          },
+          {
+            "percent": 35,
+            "ratio": 0.35,
+            "left": 1281,
+            "width": 120,
+            "height": 6,
+            "valueGap": 4,
+            "subjectLeft": 792.8125,
+            "rowLeft": 792.8125,
+            "detailLeft": 792.8125,
+            "detailGap": 4,
+            "scale": "weight-heading"
+          },
+          {
+            "percent": 20,
+            "ratio": 0.2,
+            "left": 1281,
+            "width": 120,
+            "height": 6,
+            "valueGap": 4,
+            "subjectLeft": 792.8125,
+            "rowLeft": 792.8125,
+            "detailLeft": 792.8125,
+            "detailGap": 4,
+            "scale": "weight-heading"
+          }
+        ]
+      }
+    },
+    "hidden": {
+      "surfaceHeight": 452.296875,
+      "evidenceHeight": 319.296875,
+      "headerHeight": 47,
+      "toolbarHeight": 44,
+      "chartHeight": 150,
+      "chartWidth": 729.8125,
+      "cardHeights": [107.296875, 84, 84, 32, 32, 32],
+      "facts": {
+        ".group-identity": "Emerging pattern — Sample group Q7",
+        ".observation-window": "Ranking window: cycles I–L",
+        ".confidence": "High confidence",
+        ".direction": "Decreasing",
+        ".rate-value": "26.4%",
+        ".denominator": "231 of 875 classified records",
+        ".trend-value": "−8.6%",
+        ".trend-comparison": "Relative change vs cycles E–H",
+        ".volume-value": "875 records",
+        ".rate-weight": "Ranking weight: 45%",
+        ".trend-weight": "Ranking weight: 35%",
+        ".volume-weight": "Ranking weight: 20%",
+        ".processing-context .context-value": "Average duration: unavailable · Retries observed: 2 of 7 runs",
+        ".corroboration-context .context-value": "Confirmed reviews: 3 recent · 7 total",
+        ".mix-context .context-value": "Subtype share: unavailable · Subgroup review rate: 47.2%"
+      },
+      "fontSizes": [
+        "21px",
+        "14px",
+        "14px",
+        "14px",
+        "22px",
+        "14px",
+        "22px",
+        "14px",
+        "22px",
+        "14px",
+        "14px",
+        "14px",
+        "14px",
+        "14px",
+        "14px"
+      ],
+      "secondary": [
+        "Records needing review divided by all classified records in\n                  cycles I–L, rounded to one decimal place.",
+        "Compares the current review rate with the prior four-cycle\n                  rate of 28.875%. A decrease is not an all-clear.",
+        "All classified records in this group's ranking window. Volume\n                  is separate from the 231 records needing review.",
+        "Duration samples were not collected in cycle L. Retry\n                  observations describe processing conditions only.",
+        "Confirmed manual observations provide background. They do not\n                  change the score or establish a new ranking signal.",
+        "The subgroup uses a different population from Q7's headline\n                  rate. It is supporting context, not an additional weighted\n                  factor."
+      ],
+      "chartPoints": "0,113.6 90.9090909090909,103.2 181.8181818181818,108.8 272.72727272727275,90.4 363.6363636363636,99.6 454.54545454545456,81.6 545.4545454545455,87.2 636.3636363636364,74.4 727.2727272727273,83.2 818.1818181818181,89.6 909.0909090909091,95.6 1000,100.8",
+      "compositionGeometry": {
+        "titleCenters": [197.578125, 197.5703125, 197.5703125],
+        "controlCenters": [256.578125, 256.5703125],
+        "latestGap": 10,
+        "contextRows": [
+          {
+            "height": 32,
+            "labelLeft": 39,
+            "labelHeight": 20.296875,
+            "valueHeight": 20.296875,
+            "role": "context-role"
+          },
+          {
+            "height": 32,
+            "labelLeft": 39,
+            "labelHeight": 20.296875,
+            "valueHeight": 20.296875,
+            "role": "context-role"
+          },
+          {
+            "height": 32,
+            "labelLeft": 39,
+            "labelHeight": 20.296875,
+            "valueHeight": 20.296875,
+            "role": "context-role"
+          }
+        ],
+        "currentRatio": 0.5279911247653183,
+        "priorRatio": 0.5774876258747227,
+        "rateBarCenters": [350.578125, 350.578125],
+        "weights": [
+          {
+            "percent": 45,
+            "ratio": 0.45,
+            "left": 1281,
+            "width": 120,
+            "height": 6,
+            "valueGap": 4,
+            "subjectLeft": 792.8125,
+            "rowLeft": 792.8125,
+            "detailLeft": 792.8125,
+            "detailGap": 4,
+            "scale": "weight-heading"
+          },
+          {
+            "percent": 35,
+            "ratio": 0.35,
+            "left": 1281,
+            "width": 120,
+            "height": 6,
+            "valueGap": 4,
+            "subjectLeft": 792.8125,
+            "rowLeft": 792.8125,
+            "detailLeft": 792.8125,
+            "detailGap": 4,
+            "scale": "weight-heading"
+          },
+          {
+            "percent": 20,
+            "ratio": 0.2,
+            "left": 1281,
+            "width": 120,
+            "height": 6,
+            "valueGap": 4,
+            "subjectLeft": 792.8125,
+            "rowLeft": 792.8125,
+            "detailLeft": 792.8125,
+            "detailGap": 4,
+            "scale": "weight-heading"
+          }
+        ]
+      }
+    }
+  },
+  "disclosureNames": [
+    "Details: Rate calculation",
+    "Details: Trend calculation",
+    "Details: Volume calculation",
+    "Details: Processing diagnostics",
+    "Details: Corroboration notes",
+    "Details: Collection notes"
+  ],
+  "contextDisclosures": [
+    {
+      "context": "processing",
+      "before": {
+        "x": 704.8125,
+        "y": 489.875,
+        "width": 64,
+        "height": 32
+      },
+      "expanded": {
+        "x": 704.8125,
+        "y": 489.875,
+        "width": 64,
+        "height": 32
+      },
+      "closed": {
+        "x": 704.8125,
+        "y": 489.875,
+        "width": 64,
+        "height": 32
+      }
+    },
+    {
+      "context": "corroboration",
+      "before": {
+        "x": 704.8125,
+        "y": 525.875,
+        "width": 64,
+        "height": 32
+      },
+      "expanded": {
+        "x": 704.8125,
+        "y": 525.875,
+        "width": 64,
+        "height": 32
+      },
+      "closed": {
+        "x": 704.8125,
+        "y": 525.875,
+        "width": 64,
+        "height": 32
+      }
+    },
+    {
+      "context": "mix",
+      "before": {
+        "x": 704.8125,
+        "y": 561.875,
+        "width": 64,
+        "height": 32
+      },
+      "expanded": {
+        "x": 704.8125,
+        "y": 561.875,
+        "width": 64,
+        "height": 32
+      },
+      "closed": {
+        "x": 704.8125,
+        "y": 561.875,
+        "width": 64,
+        "height": 32
+      }
+    }
+  ],
+  "interactions": "Passed: revised default route, inline header and chart controls, aligned one-line context rows with a shared pill, correct current/prior chart geometry, proportional weights on shared tracks, aligned review-rate and weight bars, Details below left-hand row subjects, visible disclosure labels retained in accessible names, stationary context controls through expansion/collapse, history range and fixed ranking scope, keyboard disclosure/focus, required facts retained, Q7-only local action, retained action state, Pages prefix assets.",
+  "unassessed": [
+    "Relevance and decision sufficiency of the declared factors.",
+    "Whether framing is redundant for the actual task.",
+    "Ranking semantics and chart truth beyond this synthetic dataset.",
+    "Generality and agent outcome/cost improvement; no paired agent trial has run."
+  ]
+}

@@ -6,6 +6,8 @@ released and candidate guidance on two adapted generation tasks, with one sessio
 per arm/task and documented harness limitations. It does not complete this protocol
 or establish prevention or efficiency gains. Its
 [before/after gallery](prevention-before-after-2026-09-24.md) retains both versions.
+The gallery now leads with an annotated, richer composition calibration case and
+labels unchanged pilot pairs explicitly; that illustration is separate from the trial.
 
 The [pattern-review example](../../docs/examples/pattern-review.html) materializes
 the header, disclosure, and composition cases below from a user-supplied screenshot,
