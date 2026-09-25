@@ -17,13 +17,13 @@ capabilities present in their installed help and documentation. Older engines th
 0.5.1 also predate the Impeccable-specific command adapter. Do not
 install or download a newer engine during a check or verification.
 
-For substantive rendered work, read
-`${CLAUDE_PLUGIN_ROOT}/skills/review/component-composition.md` once for the task.
-Follow task and rough composition -> component pass -> assembled-composition pass,
-revising either level as needed. These are workflow responsibilities, not new CLI
-commands, a requirement for two full runs, or automatic design-quality enforcement.
+For substantive rendered work, start with the short
+`${CLAUDE_PLUGIN_ROOT}/skills/review/preflight.md`. Read it once and reuse unchanged
+decisions during the task. Consult `component-composition.md` beside it only for
+relevant header, toolbar, disclosure, or assembled-view detail. Component and
+composition review are responsibilities that one configured run can cover.
 
-Before relevant UI work, run `guide` for a compact index, then `guide <ID>` for only
+When relevant guidance is not already known for this task, run `guide` for a compact index, then `guide <ID>` for only
 the relevant pages (P-001 decision context, P-002 disclosure, P-003 action lists,
 P-004 Tufte, P-005 encodings). Follow selected evidence IDs, examples, and related
 pages as needed. Do not load the entire corpus. Direct offline reads begin at
@@ -54,8 +54,10 @@ intent needed for the task, invoke `/viewrule:design` before substantive UI work
 For read-only review, report the contract gap without authoring or migrating files.
 A linter cannot establish that the document is complete or its decisions are good;
 keep unresolved material requirements and unassessed verification explicit.
-Run `contract`, `guidance`, and `docs`. Read the policy at the returned path, relevant
-measurement definitions, project rules, and applicable approved references.
+Run `contract` to read the effective boundaries. Retrieve `guidance` and `docs`
+when their preferences or installed references are not already available and
+unchanged in this task. Read only applicable policy, measurement definitions,
+project rules, and approved references; refresh after the relevant inputs change.
 Identify what the user needs to compare or decide. Cite DR IDs when translating
 that task into constraints; use stable selectors and CSS-pixel viewports.
 Summarize the task, critical comparisons, blocking boundaries, warnings, and qualitative
@@ -63,13 +65,9 @@ choices before choosing the layout. Use `/viewrule:add-rule` for requested new b
 The contract shows effective merged rules, document hashes, and changes since the
 previous report. Use stable DESIGN.md section references in authored rule `sources`.
 
-Before implementation, sketch shared context, view controls, evidence, and actions.
-Identify the affected functional units and their component/composition obligations
-in DESIGN.md. Refine units in their intended containers using existing components,
-stories, or in-page regions; do not build a new primitive library or harness. Assemble
-early, then assess repeated context, cumulative header/control overhead, action scope,
-and disclosure. Keep routine decision evidence visible; sparse can be appropriate.
-For read-only review, inspect those responsibilities without changing source or intent.
+Use the preflight to sketch the affected view before implementation. Reuse existing
+components and stories; no new primitive library or rendering harness is required.
+For read-only review, inspect these responsibilities without changing source or intent.
 
 With the intended app state running, validate both levels:
 

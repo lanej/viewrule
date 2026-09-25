@@ -420,6 +420,12 @@ the packed CLI through an isolated plugin copy, then exercises 4K evidence, feed
 repair, and stale-review enforcement against the shipped presets. The same workflow
 checks broken, compact, sidebar, stretched, finite, and missing-annotation cases with specific
 finding assertions. It does not evaluate Claude's visual judgment.
+For DR-017–DR-020 iteration, `npm run check:composition` runs that workflow's shared
+composition scenario directly against source and saves separate evidence in
+`dist/composition-focus/`. It is partial validation; retain the full installed
+workflow before delivery. The [short-preflight pilot](benchmarks/workflow/prevention-pilot-2026-09-24.md)
+records workflow observations separately from detector correctness, with saved
+before/after implementations and explicit measurement limits.
 For documentation-only changes, use targeted link, example, and diff checks instead
 of adding tests or rerunning the browser locally.
 

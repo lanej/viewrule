@@ -1,6 +1,14 @@
 # Component/composition workflow evaluation
 
-Status: **executable calibration case added; paired generation trial not run**.
+Status: **executable calibration case added; full paired generation protocol below
+not run**. A separate [short-preflight pilot](prevention-pilot-2026-09-24.md) compares
+released and candidate guidance on two adapted generation tasks, with one session
+per arm/task and documented harness limitations. It does not complete this protocol
+or establish prevention or efficiency gains. Its
+[before/after gallery](prevention-before-after-2026-09-24.md) retains both versions.
+The gallery now leads with an annotated, richer composition calibration case and
+labels unchanged pilot pairs explicitly; that illustration is separate from the trial.
+
 The [pattern-review example](../../docs/examples/pattern-review.html) materializes
 the header, disclosure, and composition cases below from a user-supplied screenshot,
 with invented neutral data. The existing installed regression runs its before,

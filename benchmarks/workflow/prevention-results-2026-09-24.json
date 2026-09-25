@@ -1,0 +1,347 @@
+{
+  "status": "completed-exploratory-pilot",
+  "manifest": {
+    "status": "frozen-before-first-session",
+    "baseline": "0b1073a15cb46f598a7a38dc6c3c92bc00910f81",
+    "treatment": "6b54088daafe51ca995ee940de280f815fe679dd",
+    "engine": "0.9.0",
+    "engineArchiveSHA256": "0a2fe72e8d259590d146c309e664cc05484d27ce1def937e1587feab3f705fb3",
+    "model": "gpt-6-astra",
+    "reasoning": "ultra",
+    "seconds": 480,
+    "maxTokens": 600000,
+    "trialCount": 4,
+    "repetitions": 1,
+    "scheduling": "sequential, counterbalanced first arm across tasks",
+    "isolation": "Fresh ephemeral sessions; workspace-write sandbox. Read isolation is an instruction boundary, not a container security boundary. No external research, other trials, engine source or evaluator access is permitted. Protected files are hash checked.",
+    "preventionDefinition": "First invocation of configured check snapshots the source before returning findings. This is the first checked implementation, not necessarily the first edit or render.",
+    "authoringCost": "Shared task, contract and harness preparation is outside generation timing; authoring labor was not instrumented. Do not claim end-to-end savings.",
+    "createdAt": "2026-09-25T00:48:39.922Z",
+    "runnerSHA256": "2370936609bab3fcbb3428f38e59cdcaa3d2b00edcc2fdc7ffe97db1b607396d",
+    "sessionSHA256": "c6a827baad273de4d48e018a8ca226bf23687856fe0718445068001da766745f",
+    "evaluatorValidationSHA256": "3d3716327ec677c61dafc3f13460d287b1ff2fb8796a16b3e557307ab744106f",
+    "frozenAt": "2026-09-25T00:51:05.048Z"
+  },
+  "runs": [
+    {
+      "id": "imports-baseline",
+      "arm": "baseline",
+      "taskName": "imports",
+      "sessionStatus": "completed",
+      "elapsedMs": 328120,
+      "usage": {
+        "totalTokens": 542953,
+        "inputTokens": 533721,
+        "cachedInputTokens": 466688,
+        "cacheWriteInputTokens": 0,
+        "outputTokens": 9232,
+        "reasoningOutputTokens": 1109
+      },
+      "protectedChanges": [],
+      "checkCalls": 1,
+      "assistanceCalls": 13,
+      "firstConfigured": {
+        "command": "check",
+        "args": ["check"],
+        "elapsedMs": 2022,
+        "code": 0,
+        "sourceSHA256": "7b0e861267e101f69fcdb21f2c59d46158414c2be27a5f5e501c804448db3d84",
+        "summary": {
+          "errors": 0,
+          "warnings": 0
+        },
+        "findings": [
+          {
+            "viewport": "compact",
+            "findings": []
+          },
+          {
+            "viewport": "wide",
+            "findings": []
+          }
+        ]
+      },
+      "finalConfiguredExit": 0,
+      "firstIndependent": [
+        {
+          "width": 800,
+          "failures": []
+        },
+        {
+          "width": 1280,
+          "failures": []
+        }
+      ],
+      "finalIndependent": [
+        {
+          "width": 800,
+          "failures": []
+        },
+        {
+          "width": 1280,
+          "failures": []
+        }
+      ],
+      "finalSourceSHA256": "7b0e861267e101f69fcdb21f2c59d46158414c2be27a5f5e501c804448db3d84",
+      "browserVersion": "151.0.7922.34",
+      "unassessed": [
+        "Blind human design judgment",
+        "Generalization beyond two tasks",
+        "End-to-end setup/authoring cost",
+        "Production automatic skill selection"
+      ],
+      "toolItems": {
+        "commandExecution": 21,
+        "fileChange": 1,
+        "mcpToolCall": 2,
+        "imageView": 5
+      },
+      "preflightReadObserved": false,
+      "adapterOverlapRejections": 2,
+      "docsLookupFailures": 1
+    },
+    {
+      "id": "imports-treatment",
+      "arm": "treatment",
+      "taskName": "imports",
+      "sessionStatus": "completed",
+      "elapsedMs": 279237,
+      "usage": {
+        "totalTokens": 564320,
+        "inputTokens": 557217,
+        "cachedInputTokens": 500480,
+        "cacheWriteInputTokens": 0,
+        "outputTokens": 7103,
+        "reasoningOutputTokens": 1448
+      },
+      "protectedChanges": [],
+      "checkCalls": 2,
+      "assistanceCalls": 12,
+      "firstConfigured": {
+        "command": "check",
+        "args": ["check"],
+        "elapsedMs": 2999,
+        "code": 0,
+        "sourceSHA256": "cac3d8b7236e47ac3ca5f671017cce9b36beea9e8fd4cf19bb332fa293790290",
+        "summary": {
+          "errors": 0,
+          "warnings": 0
+        },
+        "findings": [
+          {
+            "viewport": "compact",
+            "findings": []
+          },
+          {
+            "viewport": "wide",
+            "findings": []
+          }
+        ]
+      },
+      "finalConfiguredExit": 0,
+      "firstIndependent": [
+        {
+          "width": 800,
+          "failures": []
+        },
+        {
+          "width": 1280,
+          "failures": []
+        }
+      ],
+      "finalIndependent": [
+        {
+          "width": 800,
+          "failures": []
+        },
+        {
+          "width": 1280,
+          "failures": []
+        }
+      ],
+      "finalSourceSHA256": "2b2458089f1a5df4a230a6146d62e9b58b4ef0d8b21a4cb57cbfff915e033657",
+      "browserVersion": "151.0.7922.34",
+      "unassessed": [
+        "Blind human design judgment",
+        "Generalization beyond two tasks",
+        "End-to-end setup/authoring cost",
+        "Production automatic skill selection"
+      ],
+      "toolItems": {
+        "commandExecution": 21,
+        "mcpToolCall": 2,
+        "imageView": 9
+      },
+      "preflightReadObserved": true,
+      "adapterOverlapRejections": 3,
+      "docsLookupFailures": 1
+    },
+    {
+      "id": "rollout-treatment",
+      "arm": "treatment",
+      "taskName": "rollout",
+      "sessionStatus": "completed",
+      "elapsedMs": 352826,
+      "usage": {
+        "totalTokens": 450757,
+        "inputTokens": 440684,
+        "cachedInputTokens": 379776,
+        "cacheWriteInputTokens": 0,
+        "outputTokens": 10073,
+        "reasoningOutputTokens": 1729
+      },
+      "protectedChanges": [],
+      "checkCalls": 1,
+      "assistanceCalls": 8,
+      "firstConfigured": {
+        "command": "check",
+        "args": ["check"],
+        "elapsedMs": 2406,
+        "code": 0,
+        "sourceSHA256": "22c319ddba3806c685be65af584f4e92dd8c416966abb0d4c3638fb8505d5915",
+        "summary": {
+          "errors": 0,
+          "warnings": 0
+        },
+        "findings": [
+          {
+            "viewport": "compact",
+            "findings": []
+          },
+          {
+            "viewport": "wide",
+            "findings": []
+          }
+        ]
+      },
+      "finalConfiguredExit": 0,
+      "firstIndependent": [
+        {
+          "width": 800,
+          "failures": []
+        },
+        {
+          "width": 1280,
+          "failures": []
+        }
+      ],
+      "finalIndependent": [
+        {
+          "width": 800,
+          "failures": []
+        },
+        {
+          "width": 1280,
+          "failures": []
+        }
+      ],
+      "finalSourceSHA256": "22c319ddba3806c685be65af584f4e92dd8c416966abb0d4c3638fb8505d5915",
+      "browserVersion": "151.0.7922.34",
+      "unassessed": [
+        "Blind human design judgment",
+        "Generalization beyond two tasks",
+        "End-to-end setup/authoring cost",
+        "Production automatic skill selection"
+      ],
+      "toolItems": {
+        "commandExecution": 11,
+        "fileChange": 1,
+        "mcpToolCall": 2,
+        "imageView": 5
+      },
+      "preflightReadObserved": true,
+      "adapterOverlapRejections": 1,
+      "docsLookupFailures": 1
+    },
+    {
+      "id": "rollout-baseline",
+      "arm": "baseline",
+      "taskName": "rollout",
+      "sessionStatus": "completed",
+      "elapsedMs": 340289,
+      "usage": {
+        "totalTokens": 465718,
+        "inputTokens": 455698,
+        "cachedInputTokens": 390016,
+        "cacheWriteInputTokens": 0,
+        "outputTokens": 10020,
+        "reasoningOutputTokens": 1582
+      },
+      "protectedChanges": [],
+      "checkCalls": 1,
+      "assistanceCalls": 11,
+      "firstConfigured": {
+        "command": "check",
+        "args": ["check"],
+        "elapsedMs": 1754,
+        "code": 0,
+        "sourceSHA256": "85074a9d785a143478763e652a2df3e9379597e64f6a8f7c691b3c66ef4e5377",
+        "summary": {
+          "errors": 0,
+          "warnings": 0
+        },
+        "findings": [
+          {
+            "viewport": "compact",
+            "findings": []
+          },
+          {
+            "viewport": "wide",
+            "findings": []
+          }
+        ]
+      },
+      "finalConfiguredExit": 0,
+      "firstIndependent": [
+        {
+          "width": 800,
+          "failures": []
+        },
+        {
+          "width": 1280,
+          "failures": []
+        }
+      ],
+      "finalIndependent": [
+        {
+          "width": 800,
+          "failures": []
+        },
+        {
+          "width": 1280,
+          "failures": []
+        }
+      ],
+      "finalSourceSHA256": "85074a9d785a143478763e652a2df3e9379597e64f6a8f7c691b3c66ef4e5377",
+      "browserVersion": "151.0.7922.34",
+      "unassessed": [
+        "Blind human design judgment",
+        "Generalization beyond two tasks",
+        "End-to-end setup/authoring cost",
+        "Production automatic skill selection"
+      ],
+      "toolItems": {
+        "commandExecution": 23,
+        "fileChange": 1,
+        "mcpToolCall": 1,
+        "imageView": 5
+      },
+      "preflightReadObserved": false,
+      "adapterOverlapRejections": 3,
+      "docsLookupFailures": 1
+    }
+  ],
+  "unassessed": [
+    "Generalization or statistical significance",
+    "Blind human design judgment",
+    "Full larger workflow protocol and changed-task follow-up",
+    "Automatic skill selection",
+    "End-to-end authoring cost and dollar cost"
+  ],
+  "harnessLimitations": [
+    "The adapter forwarded plugin docs to an engine without that command.",
+    "The adapter rejected overlapping assistance calls instead of queuing them.",
+    "Browser MCP remained offered despite disable requests, but interactive browsers were unavailable.",
+    "Read isolation was instructional rather than container-enforced."
+  ]
+}

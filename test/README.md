@@ -162,3 +162,14 @@ Native-scale Good
 and Bad images and both reports are retained in `dist/composition-evidence/`.
 These thresholds measure authored relationships, not general beauty, symmetry,
 semantic utility, or human approval.
+
+For local composition-detector iteration, run `npm run check:composition`. The
+command uses `test/composition-scenario.mjs`, the exact scenario called by the
+installed workflow, against the current source CLI. It includes the controlled
+pairs and escaped-defect reproductions above, with identical assertions and
+accessibility checks. Evidence goes to `dist/composition-focus/` and is clearly
+separate from installed-package evidence. The command neither builds the public
+site nor installs/packs the engine, and never creates or replaces the release
+archive. Run `npm test` for complete installed-package validation before delivery;
+a focused pass is not a full test pass. Failed assertions and capture errors remain
+nonzero exits. Keep one assertion source rather than maintaining a lighter duplicate.
