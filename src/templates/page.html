@@ -59,7 +59,7 @@
         {{#hasPeerInference}}
         <div
           class="peer-overlay-layer"
-          aria-label="Advisory inferred peer relationships"
+          aria-hidden="true"
         >
           {{#peerInference}}
           <span class="peer-group-outline" style="{{groupStyle}}"
@@ -225,6 +225,7 @@
         {{#peerInference}}
         <tr>
           <td>
+            <strong>Inferred {{number}}</strong><br />
             <code>{{kind}}</code><br />
             <small>{{container}} · {{layout}}</small>
           </td>
