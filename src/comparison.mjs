@@ -303,6 +303,7 @@ function measurement(label, unit, a, b, comparable) {
   return {
     label,
     unit,
+    reason: "",
     values: {
       before: Number.isFinite(a) ? a : null,
       after: Number.isFinite(b) ? b : null,
@@ -316,7 +317,7 @@ function measurement(label, unit, a, b, comparable) {
   };
 }
 
-function compositionMeasurements(a, b, comparable) {
+function compositionMeasurements(a, b, comparable, referenceGap) {
   const kinds = {
     "alignment-residual": ["maxResidual", "Maximum anchor residual", "CSS px"],
     "gap-variance": ["coefficientOfVariation", "Gap variation", "CV"],
@@ -366,19 +367,17 @@ function compositionMeasurements(a, b, comparable) {
       entries[0].comparison?.status === "measured";
     const left = aa[0],
       right = bb[0];
+    const reason = referenceGap(a, b, left, right);
     const row = measurement(
       `${id} · Viewport-growth yield`,
       "ratio",
       measured(aa) ? left.comparison.yield : null,
       measured(bb) ? right.comparison.yield : null,
-      comparable &&
-        left?.comparison?.referenceViewport ===
-          right?.comparison?.referenceViewport,
+      comparable && !reason,
     );
+    row.reason = reason;
     const status = (entries) =>
-      entries.length === 1 &&
-      entries[0].valid &&
-      entries[0].comparison?.status !== "measured"
+      entries.length === 1 && entries[0].comparison?.status !== "measured"
         ? entries[0].comparison?.status || "Unavailable"
         : "Unavailable";
     if (!measured(aa)) row.before = status(aa);
@@ -457,11 +456,10 @@ export async function compareReviews(
     const contract = contractComparison(before.report, after.report);
     const previous = new Map(before.report.pages.map((p) => [stateKey(p), p]));
     const current = new Map(after.report.pages.map((p) => [stateKey(p), p]));
-    const states = [];
+    const stateGaps = new Map();
     for (const key of new Set([...previous.keys(), ...current.keys()])) {
       const a = previous.get(key),
-        b = current.get(key),
-        page = b || a;
+        b = current.get(key);
       const old = oldImages.get(key),
         now = newImages.get(key);
       const reasons = gaps(before.report, after.report, a, b, contract);
@@ -486,6 +484,41 @@ export async function compareReviews(
           reasons.push(
             "PNG dimensions do not match the recorded CSS capture dimensions.",
           );
+      stateGaps.set(key, reasons);
+    }
+    // A derived yield depends on both captures, even when the target is fresh.
+    const referenceGap = (a, b, left, right) => {
+      const name = left?.comparison?.referenceViewport;
+      if (!name || name !== right?.comparison?.referenceViewport)
+        return "Growth reference viewports differ or were not recorded.";
+      const references = (report, page) =>
+        report.pages.filter(
+          (p) =>
+            page &&
+            p.name === page.name &&
+            (p.checkpoint ?? null) === (page.checkpoint ?? null) &&
+            p.viewport.name === name,
+        );
+      const aa = references(before.report, a),
+        bb = references(after.report, b);
+      if (
+        aa.length !== 1 ||
+        bb.length !== 1 ||
+        stateKey(aa[0]) !== stateKey(bb[0])
+      )
+        return "Growth reference state is absent, ambiguous, or has different dimensions.";
+      const reasons = stateGaps.get(stateKey(aa[0]));
+      return reasons.length
+        ? `Growth reference ${name}: ${reasons.join(" ")}`
+        : "";
+    };
+    const states = [];
+    for (const [key, reasons] of stateGaps) {
+      const a = previous.get(key),
+        b = current.get(key),
+        page = b || a;
+      const old = oldImages.get(key),
+        now = newImages.get(key);
       const comparable = reasons.length === 0;
       const width = Math.max(
         old?.overview.width || 1,
@@ -580,7 +613,7 @@ export async function compareReviews(
         reasons,
         sides,
         callouts,
-        measurements: compositionMeasurements(a, b, comparable),
+        measurements: compositionMeasurements(a, b, comparable, referenceGap),
       });
     }
     const result = {

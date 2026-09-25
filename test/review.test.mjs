@@ -1569,6 +1569,65 @@ test(
       growthRows.some((m) => m.values.before > 0 && m.values.delta === 0),
     );
 
+    assert.ok(
+      growthRows.some(
+        (m) => m.before === "unassessed" && m.values.delta === null,
+      ),
+    );
+    // A fresh target cannot establish a derived delta from stale reference evidence.
+    // Target-local geometry remains comparable; the valid pair above still yields 0.
+    const staleRun = path.join(project, "stale-growth-reference");
+    await cp(path.dirname(growthReport), staleRun, { recursive: true });
+    const staleReport = JSON.parse(await readFile(growthReport, "utf8"));
+    const reference = staleReport.pages.find(
+      (p) =>
+        p.name === "economy-good" &&
+        p.checkpoint === "intact" &&
+        p.viewport.name === "compact",
+    );
+    reference.evidence = {
+      kind: "reused",
+      createdAt: "2000-01-01T00:00:00.000Z",
+    };
+    await writeFile(
+      path.join(staleRun, "report.json"),
+      JSON.stringify(staleReport),
+    );
+    const staleOutput = path.join(
+      repository,
+      "dist/saved-comparison-evidence/stale-growth-reference",
+    );
+    const staleCompare = await cli([
+      "compare",
+      "--before",
+      growthReport,
+      "--after",
+      path.join(staleRun, "report.json"),
+      "--output",
+      staleOutput,
+    ]);
+    assert.equal(staleCompare.code, 0, staleCompare.stderr);
+    const staleComparison = JSON.parse(
+      await readFile(path.join(staleOutput, "comparison.json"), "utf8"),
+    );
+    const freshTarget = staleComparison.states.find(
+      (s) =>
+        s.page === "economy-good" &&
+        s.checkpoint === "intact" &&
+        s.viewport.name === "wide",
+    );
+    assert.equal(freshTarget.comparable, true);
+    const dependentYield = freshTarget.measurements.find((m) =>
+      m.label.endsWith("Viewport-growth yield"),
+    );
+    assert.ok(dependentYield.values.before > 0);
+    assert.equal(dependentYield.values.delta, null);
+    assert.match(dependentYield.reason, /Growth reference compact:.*predates/);
+    assert.match(
+      await readFile(path.join(staleOutput, "index.html"), "utf8"),
+      /Growth reference compact:.*predates/,
+    );
+
     const catalog = JSON.parse(
       await readFile(
         path.join(exampleDirectory, "behavior-catalog.json"),

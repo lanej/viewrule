@@ -103,7 +103,10 @@ composition observations: maximum anchor residual (CSS px), population gap or pe
 footprint coefficient of variation (unitless), chrome allocation (area ratio),
 and viewport-growth yield (fractional qualifying-evidence growth divided by
 fractional usable-area growth). These are the saved engine measurements; compare
-does not recalculate them from images. Missing/invalid or multi-container
+does not recalculate them from images. A yield delta also requires the corresponding
+reference viewport in both runs to pass the same capture and compatibility checks;
+a fresh larger capture cannot compensate for stale or missing reference evidence.
+Missing/invalid or multi-container
 observations have no numeric delta. Reference, saturated, and unassessed growth
 states retain their names instead of becoming zero yield. Displayed numbers round
 to three decimals; originals retain full precision. A negative delta is not a

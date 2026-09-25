@@ -359,7 +359,11 @@
               <tbody>
                 {{#measurements}}
                 <tr>
-                  <th>{{label}}</th>
+                  <th>
+                    {{label}}{{#reason}}
+                    <p>{{reason}}</p>
+                    {{/reason}}
+                  </th>
                   <td>{{before}}</td>
                   <td>{{after}}</td>
                   <td>{{delta}}</td>
@@ -396,7 +400,11 @@
             <tbody>
               {{#measurements}}
               <tr>
-                <th>{{label}}</th>
+                <th>
+                  {{label}}{{#reason}}
+                  <p>{{reason}}</p>
+                  {{/reason}}
+                </th>
                 <td>{{unit}}</td>
                 <td>{{before}}</td>
                 <td>{{after}}</td>
