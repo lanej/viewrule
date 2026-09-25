@@ -146,6 +146,11 @@ export async function runCompositionScenario({
   const peerInferenceReport = JSON.parse(
     await readFile(peerInferenceReportFile, "utf8"),
   );
+  await cp(
+    path.dirname(peerInferenceReportFile),
+    path.join(compositionEvidence, "peer-inference-report"),
+    { recursive: true },
+  );
   const peerInferenceHTML = await readFile(
     path.join(path.dirname(peerInferenceReportFile), "index.html"),
     "utf8",
