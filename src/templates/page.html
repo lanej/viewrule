@@ -167,7 +167,54 @@
     both sizes; its minimum-yield threshold is exempt. Yield does not establish
     evidence quality, task relevance, or visual quality.
   </p>
-  {{/hasGrowth}} {{#hasFindings}}
+  {{/hasGrowth}} {{#hasPeerInference}}
+  <details open>
+    <summary>
+      Advisory inferred peer relationships · {{peerInferenceCount}} candidate
+      {{#peerInferenceCount}}issue{{/peerInferenceCount}}
+    </summary>
+    <p>
+      These are heuristic review candidates, not configured findings and not
+      pass/fail evidence. Viewrule inferred a likely horizontal form-control
+      relationship from rendered structure and geometry; confirm task intent
+      before turning one into a DR-017 contract.
+    </p>
+    <table>
+      <thead>
+        <tr>
+          <th>Candidate</th>
+          <th>Observed alignment</th>
+          <th>Interpretation and next action</th>
+          <th>Evidence</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#peerInference}}
+        <tr>
+          <td>
+            <code>{{kind}}</code><br />
+            <small>{{container}} · {{layout}}</small>
+          </td>
+          <td>
+            top-anchor residual {{residualLabel}}px<br />
+            <small>discovery trigger {{thresholdLabel}}px</small>
+          </td>
+          <td>
+            {{reason}}
+            <p>{{suggestion}}</p>
+          </td>
+          <td>
+            <details>
+              <summary>Controls, anchors, and inference signals</summary>
+              <pre>{{evidence}}</pre>
+            </details>
+          </td>
+        </tr>
+        {{/peerInference}}
+      </tbody>
+    </table>
+  </details>
+  {{/hasPeerInference}} {{#hasFindings}}
   <table>
     <thead>
       <tr>
