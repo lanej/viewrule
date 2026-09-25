@@ -90,6 +90,12 @@ function pageView(page, reference, documents) {
         : measurement.comparison.yield.toFixed(3),
     evidence: JSON.stringify(measurement, null, 2),
   }));
+  const peerInference = (page.metrics?.peerInference ?? []).map((candidate) => ({
+    ...candidate,
+    residualLabel: candidate.maxResidual.toFixed(1),
+    thresholdLabel: candidate.discoveryThreshold.toFixed(1),
+    evidence: JSON.stringify(candidate, null, 2),
+  }));
   return {
     ...page,
     captureLabel:
@@ -114,6 +120,9 @@ function pageView(page, reference, documents) {
     composition,
     hasGrowth: growth.length > 0,
     growth,
+    hasPeerInference: peerInference.length > 0,
+    peerInferenceCount: peerInference.length,
+    peerInference,
     hasFindings: page.findings.length > 0,
     findings: page.findings.map((finding) => ({
       ...finding,
