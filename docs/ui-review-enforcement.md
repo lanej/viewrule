@@ -200,7 +200,11 @@ remediation suggestion. This is deliberately not a configured finding: inferred
 peer membership can be wrong, the trigger is not a project acceptance threshold,
 and the candidate never changes the check exit code or design-rule coverage. Use it
 to inspect a likely omission, then author a scoped `alignment-residual` rule only
-when the task actually requires that relationship.
+when the task actually requires that relationship. The report visualizes the same
+saved candidate geometry over the original capture with a dashed group outline,
+individual control boxes, a median-anchor guide, and signed per-control offsets.
+That overlay is evidence navigation only: it is toggleable, does not modify the PNG,
+does not use pixel inference, and has no enforcement authority.
 
 ## Enforcement and repair
 
