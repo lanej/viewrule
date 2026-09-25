@@ -21,6 +21,7 @@ import { execFile } from "node:child_process";
 import { chromium } from "playwright";
 import { inspectPage } from "../src/checks.mjs";
 import { runCompositionScenario } from "./composition-scenario.mjs";
+import { runSavedComparisonScenario } from "./saved-comparison-scenario.mjs";
 import { config } from "./fixtures.mjs";
 import {
   analyticalHtml,
@@ -52,6 +53,27 @@ test(
     const server = createServer(async (req, res) => {
       const pathname = new URL(req.url, "http://localhost").pathname;
       // Exercise deployment below a project prefix, including relative assets.
+      if (pathname.startsWith("/saved-comparison/")) {
+        const file =
+          pathname === "/saved-comparison/"
+            ? "index.html"
+            : pathname.slice("/saved-comparison/".length);
+        if (!["index.html", "app.css", "app.js", "data.js"].includes(file)) {
+          res.writeHead(404);
+          return res.end();
+        }
+        res.setHeader(
+          "Content-Type",
+          file.endsWith(".js")
+            ? "text/javascript"
+            : file.endsWith(".css")
+              ? "text/css"
+              : "text/html",
+        );
+        return res.end(
+          await readFile(path.join(project, "saved-comparison-app/src", file)),
+        );
+      }
       if (pathname.startsWith("/incremental/")) {
         const relative = pathname.slice("/incremental/".length);
         if (
@@ -1225,6 +1247,13 @@ test(
         appFindings.some((f) => f.rule === id),
         `Mock app should expose ${id}`,
       );
+    await runSavedComparisonScenario({
+      cli,
+      baseURL,
+      project,
+      mockDirectory,
+      repository: path.resolve(import.meta.dirname, ".."),
+    });
     // New policy IDs are first-class without pretending all their semantics are
     // automatically assessed. Both sides use one scoped contract and real DOM.
     const exampleDirectory = path.join(
@@ -1499,6 +1528,105 @@ test(
       repository,
       env,
     });
+    // Existing captures without annotation regions retain growth states, rather
+    // than inventing boxes or converting saturated/reference yield to zero.
+    const growthReport = path.join(
+      compositionEvidence,
+      "regression-report/report.json",
+    );
+    const growthOutput = path.join(
+      repository,
+      "dist/saved-comparison-evidence/growth-reference",
+    );
+    const growthCompare = await cli([
+      "compare",
+      "--before",
+      growthReport,
+      "--after",
+      growthReport,
+      "--output",
+      growthOutput,
+    ]);
+    assert.equal(growthCompare.code, 0, growthCompare.stderr);
+    const growthComparison = JSON.parse(
+      await readFile(path.join(growthOutput, "comparison.json"), "utf8"),
+    );
+    assert.ok(growthComparison.states.every((s) => s.callouts.length === 0));
+    const growthRows = growthComparison.states
+      .flatMap((s) => s.measurements)
+      .filter((m) => m.label.endsWith("Viewport-growth yield"));
+    assert.ok(
+      growthRows.some(
+        (m) => m.before === "saturated" && m.values.delta === null,
+      ),
+    );
+    assert.ok(
+      growthRows.some(
+        (m) => m.before === "reference" && m.values.delta === null,
+      ),
+    );
+    assert.ok(
+      growthRows.some((m) => m.values.before > 0 && m.values.delta === 0),
+    );
+
+    assert.ok(
+      growthRows.some(
+        (m) => m.before === "unassessed" && m.values.delta === null,
+      ),
+    );
+    // A fresh target cannot establish a derived delta from stale reference evidence.
+    // Target-local geometry remains comparable; the valid pair above still yields 0.
+    const staleRun = path.join(project, "stale-growth-reference");
+    await cp(path.dirname(growthReport), staleRun, { recursive: true });
+    const staleReport = JSON.parse(await readFile(growthReport, "utf8"));
+    const reference = staleReport.pages.find(
+      (p) =>
+        p.name === "economy-good" &&
+        p.checkpoint === "intact" &&
+        p.viewport.name === "compact",
+    );
+    reference.evidence = {
+      kind: "reused",
+      createdAt: "2000-01-01T00:00:00.000Z",
+    };
+    await writeFile(
+      path.join(staleRun, "report.json"),
+      JSON.stringify(staleReport),
+    );
+    const staleOutput = path.join(
+      repository,
+      "dist/saved-comparison-evidence/stale-growth-reference",
+    );
+    const staleCompare = await cli([
+      "compare",
+      "--before",
+      growthReport,
+      "--after",
+      path.join(staleRun, "report.json"),
+      "--output",
+      staleOutput,
+    ]);
+    assert.equal(staleCompare.code, 0, staleCompare.stderr);
+    const staleComparison = JSON.parse(
+      await readFile(path.join(staleOutput, "comparison.json"), "utf8"),
+    );
+    const freshTarget = staleComparison.states.find(
+      (s) =>
+        s.page === "economy-good" &&
+        s.checkpoint === "intact" &&
+        s.viewport.name === "wide",
+    );
+    assert.equal(freshTarget.comparable, true);
+    const dependentYield = freshTarget.measurements.find((m) =>
+      m.label.endsWith("Viewport-growth yield"),
+    );
+    assert.ok(dependentYield.values.before > 0);
+    assert.equal(dependentYield.values.delta, null);
+    assert.match(dependentYield.reason, /Growth reference compact:.*predates/);
+    assert.match(
+      await readFile(path.join(staleOutput, "index.html"), "utf8"),
+      /Growth reference compact:.*predates/,
+    );
 
     const catalog = JSON.parse(
       await readFile(

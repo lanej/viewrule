@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- Add `viewrule compare` for two saved reviews, preserving exact reports and PNGs
+  with hashes, matched before/after views, optional numbered DOM-region callouts,
+  scoped measurement deltas, separate authored interpretation, and image export.
+  Changed contracts and missing/incompatible evidence remain explicitly unpaired.
+  The complete Parcel desk regression retains a fixed-contract repair and its
+  application interaction checks; it is not an agent efficacy claim.
+
 - Add `npm run check:composition` for focused source iteration using the exact
   composition scenario retained in the installed regression. Its separate reports
   are partial validation and do not replace the full release gate.

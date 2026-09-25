@@ -12,7 +12,7 @@ import {
   renderDesignPolicy,
   renderProjectDocuments,
 } from "./report.mjs";
-import { captureDetails } from "./capture.mjs";
+import { captureDetails, captureRegions } from "./capture.mjs";
 import { readDesignPolicy, evaluateDesign } from "./design.mjs";
 import { defaultPreferences } from "./presets.mjs";
 import { runCheckpoint } from "./checkpoints.mjs";
@@ -197,6 +197,11 @@ export async function runReview(
             "*,*::before,*::after{animation:none!important;transition:none!important;caret-color:transparent!important}",
         });
         await page.evaluate(() => window.scrollTo(0, 0));
+        if (pageConfig.captureRegions?.length)
+          result.captureRegions = await captureRegions(
+            page,
+            pageConfig.captureRegions,
+          );
         result.screenshot = `capture-${report.pages.length}.png`;
         await page.screenshot({
           path: path.join(dir, result.screenshot),

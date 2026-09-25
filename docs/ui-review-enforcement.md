@@ -1,5 +1,11 @@
 # Detecting and enforcing design rules
 
+Saved-run [comparisons](saved-comparisons.md) can display scoped measurements and
+optional recorded DOM regions with authored commentary. Comparison annotations
+have no enforcement authority, satisfy no design-rule coverage, and do not record
+approval. Missing region geometry is an explicit presentation gap; use a required
+rule when the region's presence is part of acceptance.
+
 The [design rules](design-rules.md) define the intended outcomes. `viewrule`
 checks configured, observable conditions and cites the relevant rule IDs in its
 HTML report, JSON output, and verification findings. Each run preserves a local

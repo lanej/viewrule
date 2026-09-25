@@ -99,6 +99,14 @@ jobs:
         run: |
           npm run benchmark
           node scripts/repair-trial.mjs verify
+      - name: Preserve saved comparison evidence
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: saved-comparison-evidence
+          path: dist/saved-comparison-evidence/
+          if-no-files-found: warn
+          retention-days: 7
       - name: Preserve benchmark evidence
         if: ${{ !cancelled() && steps.benchmark.outcome != 'skipped' }}
         uses: actions/upload-artifact@v4

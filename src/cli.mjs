@@ -42,6 +42,8 @@ const help = `viewrule — rendered UI checks and a versioned design feedback lo
                                        --target selects bundled Impeccable; otherwise use configured providers
   check [--url URL] [--incremental | --full]
                                        Validate the contract, capture pages, check rules, write HTML + JSON
+  compare --before REPORT --after REPORT --output DIR [--annotations FILE] [--image]
+                                       Compare saved reviews; preserve originals and export annotated evidence
   feedback --report PATH --decision approve|adjust --note TEXT [--scope project|global]
                                        Save feedback; approval preserves screenshots
   learn --feedback ID --rule FILE [--scope project|global]
@@ -69,6 +71,11 @@ try {
       url: { type: "string" },
       project: { type: "string", multiple: true },
       report: { type: "string" },
+      before: { type: "string" },
+      after: { type: "string" },
+      output: { type: "string" },
+      annotations: { type: "string" },
+      image: { type: "boolean" },
       decision: { type: "string" },
       note: { type: "string" },
       scope: { type: "string" },
@@ -86,6 +93,15 @@ try {
     },
   });
   const command = positionals[0];
+  if (
+    [args.before, args.after, args.output, args.annotations, args.image].some(
+      (value) => value !== undefined,
+    ) &&
+    command !== "compare"
+  )
+    throw new Error(
+      "--before, --after, --output, --annotations, and --image are only supported by compare",
+    );
   const gitEvent = ["pre-commit", "pre-push"].includes(command);
   const project =
     args.project !== undefined || ["init", "lint"].includes(command)
@@ -138,7 +154,24 @@ try {
     process.exitCode = result.status === "fail" ? 1 : 0;
   } else if (positionals.length !== 1)
     throw new Error("Expected one command; use --help.");
-  else if (command === "init") {
+  else if (command === "compare") {
+    if (!args.before || !args.after || !args.output)
+      throw new Error(
+        "compare requires --before REPORT --after REPORT --output DIR",
+      );
+    const { compareReviews } = await import("./comparison.mjs");
+    console.log(
+      JSON.stringify(
+        await compareReviews(
+          args.before,
+          args.after,
+          args.output,
+          args.annotations,
+          args.image,
+        ),
+      ),
+    );
+  } else if (command === "init") {
     const starter = await presetRules(args.preset ?? "baseline");
     const dir = path.join(project, ".ui-review");
     await mkdir(dir, { recursive: true });

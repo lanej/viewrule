@@ -70,6 +70,10 @@ configuration provenance; Viewrule does not install or update the provider.
 
 ### Changes since approval
 
+For an explicit pair of saved runs, use [`viewrule compare`](saved-comparisons.md).
+It preserves originals and can render numbered DOM-region annotations and measured
+deltas without recording feedback or changing the approved baseline below.
+
 HTML and JSON lead with new, persistent, and resolved findings relative to the
 last project-approved review, including source-check findings with their provider
 authority. A first run has no regression baseline; its findings are current findings.

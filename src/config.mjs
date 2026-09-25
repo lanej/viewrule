@@ -140,6 +140,11 @@ export const configSchema = object(
           ready: text,
           media: { enum: ["screen", "print"] },
           textScale: { type: "number", minimum: 1, maximum: 4 },
+          captureRegions: {
+            type: "array",
+            maxItems: 32,
+            items: object({ id: text, selector: text }, ["id", "selector"]),
+          },
           viewports: scopeSchema,
           checkpoints: { type: "array", minItems: 1, items: checkpointSchema },
         },
@@ -334,6 +339,10 @@ export function validateConfig(config, project) {
   );
   validateSourceChecks(config.sourceChecks ?? []);
   for (const p of config.pages) {
+    unique(
+      (p.captureRegions ?? []).map((region) => region.id),
+      `capture region on page ${p.name}`,
+    );
     if (new URL(p.path, url).origin !== url.origin)
       throw new Error(
         config.baseURL

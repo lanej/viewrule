@@ -85,6 +85,7 @@ Plugin cache files are immutable during setup; no parent-repository paths are ne
 | `src/config.mjs` | Ajv validation, project loading, defaults, rule merging |
 | `src/review.mjs` | Browser lifecycle and review orchestration |
 | `src/capture.mjs` | Native-scale tile planning, capture, and coverage accounting |
+| `src/comparison.mjs` | Explicit saved-run comparison, original artifact preservation, recorded-region callouts, and optional report image export |
 | `src/checks.mjs` | Browser-side DOM geometry and style observations |
 | `src/design.mjs` | Design policy loading, cross-viewport rules, citations, suggestions |
 | `src/report.mjs`, `src/templates/` | Report view models and escaped Mustache HTML reports/policy pages |
