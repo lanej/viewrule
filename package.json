@@ -1,6 +1,6 @@
 {
   "name": "viewrule",
-  "version": "0.9.0",
+  "version": "0.10.0",
   "description": "Design guidance and executable UI constraints for coding agents, with full-resolution evidence and human feedback.",
   "type": "module",
   "license": "MIT",

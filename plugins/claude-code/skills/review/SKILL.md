@@ -101,6 +101,19 @@ With the intended app state running, validate both levels:
    blockers, or unresolved judgments. Do not repeat unchanged failing runs or keep
    retrying when the measurement cannot express the intended design.
 
+For implementation or repair work, retain the first checked report path before
+making corrections and the final fresh report path after them. With engine 0.10.0+
+(`--help` lists `compare`), run `compare --before <first-report> --after <final-report>
+--output <new-directory>` and inspect the paired originals and gap reasons. Add
+`--image` when a shareable image helps; author interpretations separately from
+measurements. Use the installed `docs/saved-comparisons.md` for optional region
+annotations, declared before capture. Preserve both runs, including failures and
+unchanged results; never retrofit geometry or remove an unsuccessful attempt.
+A read-only review needs no artificial second run, and unchanged source needs no
+repeat check just to manufacture an after image. Older engines retain their raw
+reports without comparison export. Report changed contracts as comparison gaps,
+not measured repairs, and do not infer approval or semantic preservation from a delta.
+
 Box/text coverage is a proxy: stretched empty containers or smaller unreadable type
 do not establish useful density. Preserve visible comparison identities, readable
 labels, truthful context, and task-appropriate whitespace. Full-resolution capture

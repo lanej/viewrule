@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.10.0 — 2026-09-25
 
 - Add `viewrule compare` for two saved reviews, preserving exact reports and PNGs
   with hashes, matched before/after views, optional numbered DOM-region callouts,
@@ -8,6 +8,11 @@
   Changed contracts and missing/incompatible evidence remain explicitly unpaired.
   The complete Parcel desk regression retains a fixed-contract repair and its
   application interaction checks; it is not an agent efficacy claim.
+
+- Require compatible target and reference captures before displaying a growth-yield
+  delta; preserve explicit unassessed growth states.
+- Plugin 0.10.0 pins this engine and retains first/final comparisons in normal
+  implementation and repair work, including unchanged and unsuccessful outcomes.
 
 - Add `npm run check:composition` for focused source iteration using the exact
   composition scenario retained in the installed regression. Its separate reports
@@ -17,6 +22,11 @@
 - Retain a [paired workflow pilot](benchmarks/workflow/prevention-pilot-2026-09-24.md)
   with before/after sources and captures. Both workflows met the measured task
   requirements; mixed effort and harness limits do not establish improvement.
+
+Upgrade: rerun plugin setup, then capture fresh review evidence. The new comparison
+command is additive; rules, thresholds, approvals, schema v1 and legacy aliases are
+unchanged. Comparisons preserve evidence and expose gaps; they do not establish
+semantic preservation or overall design quality.
 
 ## 0.9.0 — 2026-09-24
 
