@@ -142,9 +142,7 @@ export async function runCompositionScenario({
     0,
     peerInferenceCheck.stderr || peerInferenceCheck.stdout,
   );
-  const peerInferenceReportFile = JSON.parse(
-    peerInferenceCheck.stdout,
-  ).report;
+  const peerInferenceReportFile = JSON.parse(peerInferenceCheck.stdout).report;
   const peerInferenceReport = JSON.parse(
     await readFile(peerInferenceReportFile, "utf8"),
   );
