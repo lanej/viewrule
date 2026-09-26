@@ -9,6 +9,8 @@ export function inspectPage(rules) {
   const composition = [];
   /** @type {import("./types.js").GrowthMeasurement[]} */
   const growth = [];
+  /** @type {import("./types.js").TextLegibilityMeasurement[]} */
+  const textLegibility = [];
   const repeatedMetrics = [],
     evidenceDistances = [],
     markContrasts = [];
@@ -322,6 +324,102 @@ export function inspectPage(rules) {
     "peer-footprint",
     "chrome-allocation",
   ];
+  const textTypes = ["no-text-overlap", "select-label-space"];
+  const visibleTextPeer = (el) => {
+    if (visible(el)) return true;
+    const style = getComputedStyle(el);
+    if (style.display !== "contents" || style.visibility !== "visible")
+      return false;
+    let parent = el.parentElement;
+    while (parent && getComputedStyle(parent).display === "contents")
+      parent = parent.parentElement;
+    // Include an empty/generated boxless peer so it cannot silently disappear
+    // from the contract. Hidden ancestors still exclude responsive alternatives.
+    return (
+      parent?.checkVisibility({
+        checkOpacity: true,
+        checkVisibilityCSS: true,
+      }) ?? false
+    );
+  };
+  // Range rectangles describe layout fragments, not painted glyphs. Reject
+  // geometry that would make those rectangles misleading before comparing them.
+  const textGeometryProblem = (el) => {
+    if (!(el instanceof HTMLElement)) return "Only HTML text is supported.";
+    if (hasBoxTransform(el)) return "Scaled or rotated text is unsupported.";
+    for (let current = el; current; current = current.parentElement) {
+      const style = getComputedStyle(current);
+      if (style.writingMode !== "horizontal-tb")
+        return "Vertical writing is unsupported.";
+      if (
+        style.clipPath !== "none" ||
+        style.maskImage !== "none" ||
+        style.clip !== "auto" ||
+        style.filter !== "none" ||
+        style.textShadow !== "none" ||
+        parseFloat(style.webkitTextStrokeWidth) > 0 ||
+        /\b(paint|strict|content)\b/.test(style.contain)
+      )
+        return "Clipping or paint effects require visual review.";
+    }
+    return null;
+  };
+  const generatedText = (el) =>
+    ["::before", "::after"].some((pseudo) => {
+      const style = getComputedStyle(el, pseudo);
+      return (
+        style.display !== "none" &&
+        style.visibility === "visible" &&
+        !["none", "normal", '""'].includes(style.content)
+      );
+    });
+  const selectedLabelWidth = (el, style, label) => {
+    // Ask this browser's native layout for a one-option select's intrinsic
+    // border-box width, including its theme allocation. Never guess an arrow
+    // inset or infer native clipping from scrollWidth. Shadow isolation avoids
+    // duplicate IDs and application selectors affecting the probe.
+    const values = [...style].map((key) => [key, style.getPropertyValue(key)]);
+    const host = document.createElement("div");
+    host.style.cssText =
+      "all:initial!important;position:fixed!important;inset:0 auto auto 0!important;width:0!important;height:0!important;visibility:hidden!important;contain:strict!important;";
+    const root = host.attachShadow({ mode: "closed" });
+    const probe = document.createElement("select");
+    probe.lang = el.closest("[lang]")?.getAttribute("lang") || "";
+    for (const [key, value] of values)
+      probe.style.setProperty(key, value, "important");
+    for (const [key, value] of Object.entries({
+      position: "fixed",
+      inset: "0 auto auto 0",
+      display: "inline-block",
+      width: "max-content",
+      height: "auto",
+      "min-width": "0",
+      "max-width": "none",
+      "min-height": "0",
+      "max-height": "none",
+      margin: "0",
+      "aspect-ratio": "auto",
+      contain: "none",
+      "content-visibility": "visible",
+      "field-sizing": "fixed",
+      visibility: "hidden",
+      animation: "none",
+      transition: "none",
+      transform: "none",
+      translate: "none",
+      rotate: "none",
+      scale: "none",
+    }))
+      probe.style.setProperty(key, value, "important");
+    probe.append(new Option(label));
+    root.append(probe);
+    try {
+      document.documentElement.append(host);
+      return rect(probe).width;
+    } finally {
+      host.remove();
+    }
+  };
   const overflow =
     Math.max(
       document.documentElement.scrollWidth,
@@ -351,6 +449,16 @@ export function inspectPage(rules) {
       status: els.length ? "checked" : rule.optional ? "skipped" : "missing",
     });
     if (!els.length) {
+      if (!rule.optional && textTypes.includes(rule.type)) {
+        evaluations.at(-1).status = "unassessed";
+        textLegibility.push({
+          rule: rule.id,
+          type: rule.type,
+          element: null,
+          status: "unassessed",
+          problems: ["Required selector has no visible matches."],
+        });
+      }
       if (!rule.optional && compositionTypes.includes(rule.type)) {
         evaluations.at(-1).status = "unassessed";
         composition.push({
@@ -387,7 +495,178 @@ export function inspectPage(rules) {
         );
       continue;
     }
-    if (compositionTypes.includes(rule.type)) {
+    if (textTypes.includes(rule.type)) {
+      for (const el of els) {
+        /** @type {import("./types.js").TextLegibilityMeasurement} */
+        const observation = {
+          rule: rule.id,
+          type: rule.type,
+          element: describe(el),
+          status: "measured",
+          problems: [],
+        };
+        const problems = new Set();
+        const problem = textGeometryProblem(el);
+        if (problem) problems.add(problem);
+        if (document.fonts.status !== "loaded")
+          problems.add("Fonts are still loading.");
+        if (rule.type === "no-text-overlap") {
+          const items = [...el.querySelectorAll(rule.items)].filter(
+            visibleTextPeer,
+          );
+          if (items.length < 2 || items.length > 64)
+            problems.add("A group needs 2–64 visible text peers.");
+          const fragments = [];
+          observation.peers = [];
+          for (const item of items.slice(0, 64)) {
+            const problem = textGeometryProblem(item);
+            if (problem) problems.add(problem);
+            if (items.some((other) => other !== item && item.contains(other)))
+              problems.add("Declared text peers must not contain one another.");
+            for (const descendant of [item, ...item.querySelectorAll("*")]) {
+              if (!visibleTextPeer(descendant)) continue;
+              if (
+                generatedText(descendant) ||
+                (getComputedStyle(descendant).display === "list-item" &&
+                  (getComputedStyle(descendant).listStyleType !== "none" ||
+                    getComputedStyle(descendant).listStyleImage !== "none")) ||
+                descendant.matches(
+                  "input, select, textarea, canvas, svg, img, iframe",
+                ) ||
+                descendant.shadowRoot
+              )
+                problems.add(
+                  "Generated, replaced, SVG, or shadow content is unsupported.",
+                );
+            }
+            const boxes = [];
+            const nodes = renderedTextNodes(item);
+            for (const node of nodes) {
+              const problem = textGeometryProblem(node.parentElement);
+              if (problem) problems.add(problem);
+              const range = document.createRange();
+              range.setStart(node, node.textContent.search(/\S/));
+              range.setEnd(node, node.textContent.trimEnd().length);
+              for (const box of range.getClientRects()) {
+                if (box.width <= 0 || box.height <= 0) continue;
+                if (!unclipped(box, node.parentElement, true))
+                  problems.add("Text fragments meet a clipping ancestor.");
+                boxes.push(box);
+              }
+            }
+            if (!boxes.length)
+              problems.add("A visible peer has no measurable text.");
+            fragments.push(boxes);
+            observation.peers.push({
+              element: describe(item),
+              text: nodes
+                .map((node) => node.textContent)
+                .join(" ")
+                .trim()
+                .slice(0, 120),
+              fragments: boxes.length,
+            });
+          }
+          if (fragments.reduce((sum, boxes) => sum + boxes.length, 0) > 256)
+            problems.add(
+              "A group exceeds the 256 text-fragment measurement limit.",
+            );
+          if (!problems.size) {
+            observation.overlaps = [];
+            observation.overlapCount = 0;
+            for (let first = 0; first < fragments.length; first++)
+              for (let second = first + 1; second < fragments.length; second++)
+                for (const a of fragments[first])
+                  for (const b of fragments[second]) {
+                    const width =
+                      Math.min(a.right, b.right) - Math.max(a.left, b.left);
+                    const height =
+                      Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top);
+                    if (width > rule.tolerance && height > rule.tolerance) {
+                      observation.overlapCount++;
+                      if (observation.overlaps.length < 64)
+                        observation.overlaps.push({
+                          first,
+                          second,
+                          width,
+                          height,
+                        });
+                    }
+                  }
+            if (observation.overlapCount)
+              add(
+                rule,
+                "Declared labels have overlapping text fragments.",
+                el,
+                observation,
+                { maxIntersectionPerAxis: rule.tolerance, units: "CSS px" },
+              );
+          }
+        } else {
+          const style = getComputedStyle(el);
+          if (
+            !(el instanceof HTMLSelectElement) ||
+            el.multiple ||
+            el.size > 1
+          ) {
+            problems.add("A single-selection dropdown is required.");
+          } else {
+            const option = el.selectedOptions[0];
+            if (!option?.label.trim())
+              problems.add("No nonempty selected label is available.");
+            if (option?.closest("optgroup") || option?.children.length)
+              problems.add("Grouped or rich option labels are unsupported.");
+            if (
+              !["auto", "menulist", "menulist-button"].includes(
+                style.appearance,
+              ) ||
+              style.backgroundImage !== "none" ||
+              parseFloat(style.textIndent) !== 0
+            )
+              problems.add(
+                "Custom select painting or text indentation is unsupported.",
+              );
+            if (!unclipped(rect(el), el))
+              problems.add("The control meets a clipping ancestor.");
+            if (!problems.size) {
+              const requiredWidth = selectedLabelWidth(el, style, option.label);
+              if (!Number.isFinite(requiredWidth) || requiredWidth <= 0) {
+                problems.add("Native intrinsic width is unavailable.");
+              } else {
+                observation.label = option.label.slice(0, 120);
+                observation.availableWidth = rect(el).width;
+                observation.requiredWidth = requiredWidth;
+                observation.deficit = Math.max(
+                  0,
+                  requiredWidth - observation.availableWidth,
+                );
+                if (observation.deficit > rule.tolerance)
+                  add(
+                    rule,
+                    "Selected label has less than its native intrinsic control width.",
+                    el,
+                    observation,
+                    { maxDeficit: rule.tolerance, units: "CSS px" },
+                  );
+              }
+            }
+          }
+        }
+        if (problems.size) {
+          observation.status = "unassessed";
+          observation.problems = [...problems];
+          evaluations.at(-1).status = "unassessed";
+          add(
+            rule,
+            `Text measurement is unassessed: ${observation.problems.join(" ")}`,
+            el,
+            observation,
+            "supported text geometry",
+          );
+        }
+        textLegibility.push(observation);
+      }
+    } else if (compositionTypes.includes(rule.type)) {
       for (const el of els) {
         const fontSizePeers =
           rule.type === "peer-footprint" && rule.measure === "font-size";
@@ -1572,6 +1851,7 @@ export function inspectPage(rules) {
       density,
       composition,
       growth,
+      textLegibility,
       repeatedMetrics,
       evidenceDistances,
       markContrasts,

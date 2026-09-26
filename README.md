@@ -40,6 +40,10 @@ the annotated result. See [configuration, usage, and comparison limits](docs/sav
 
 ## Why it exists
 
+Optional [text-legibility contracts](docs/text-legibility.md) check declared
+neighboring text fragments and selected native-label space. Unsupported evidence
+is explicit; these measurements do not certify readability or replace visual review.
+
 A UI can look polished while making a decision harder: too few alternatives fit on
 screen, related values sit far apart, chart context disappears, or a larger window
 adds empty space while hiding useful detail. Telling a coding agent to “make it

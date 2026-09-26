@@ -167,7 +167,34 @@
     both sizes; its minimum-yield threshold is exempt. Yield does not establish
     evidence quality, task relevance, or visual quality.
   </p>
-  {{/hasGrowth}} {{#hasFindings}}
+  {{/hasGrowth}} {{#hasTextLegibility}}
+  <details>
+    <summary>Scoped text geometry</summary>
+    <p>
+      Fragment intersections and native selected-label width are layout proxies,
+      not glyph-paint or readability certification. Unassessed measurements do
+      not establish coverage. Dimensions are CSS pixels.
+    </p>
+    <table>
+      <thead>
+        <tr>
+          <th>Rule / element</th>
+          <th>Status</th>
+          <th>Evidence and limits</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#textLegibility}}
+        <tr>
+          <td><code>{{rule}}</code><br />{{element}}</td>
+          <td>{{status}}</td>
+          <td><pre>{{evidence}}</pre></td>
+        </tr>
+        {{/textLegibility}}
+      </tbody>
+    </table>
+  </details>
+  {{/hasTextLegibility}} {{#hasFindings}}
   <table>
     <thead>
       <tr>

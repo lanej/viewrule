@@ -151,6 +151,8 @@ export interface Rule {
     | "viewport-growth-yield"
     | "no-overlap"
     | "no-clip"
+    | "no-text-overlap"
+    | "select-label-space"
     | "visible-count"
     | "max-height"
     | "min-size"
@@ -219,6 +221,20 @@ export interface Rule {
   substrate?: string;
   minRatio?: number;
   groups?: { selector: string; optional: boolean }[];
+}
+export interface TextLegibilityMeasurement {
+  rule: string;
+  type: string;
+  element: string | null;
+  status: "measured" | "unassessed";
+  problems: string[];
+  peers?: { element: string; text: string; fragments: number }[];
+  overlaps?: { first: number; second: number; width: number; height: number }[];
+  overlapCount?: number;
+  label?: string;
+  availableWidth?: number;
+  requiredWidth?: number;
+  deficit?: number;
 }
 export interface CompositionMeasurement {
   rule: string;
