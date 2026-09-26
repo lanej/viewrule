@@ -42,11 +42,42 @@
   {{/hasDesignCoverage}}
   <div class="compare">
     {{#screenshot}}
-    <figure>
-      <figcaption>{{captureLabel}}</figcaption>
-      <a href="{{screenshot}}"
-        ><img src="{{screenshot}}" alt="{{captureLabel}} {{stateName}}"
-      /></a>
+    <figure class="capture-figure">
+      <figcaption>
+        <span>{{captureLabel}}</span>
+        {{#hasPeerInference}}
+        <label class="peer-overlay-control"
+          ><input class="peer-overlay-toggle" type="checkbox" checked /> Show
+          inferred structure</label
+        >
+        {{/hasPeerInference}}
+      </figcaption>
+      <div class="capture-picture">
+        <a href="{{screenshot}}"
+          ><img src="{{screenshot}}" alt="{{captureLabel}} {{stateName}}"
+        /></a>
+        {{#hasPeerInference}}
+        <div class="peer-overlay-layer" aria-hidden="true">
+          {{#peerInference}}
+          <span class="peer-group-outline" style="{{groupStyle}}"
+            ><span class="peer-group-badge"
+              >Inferred {{number}} · DR-017</span
+            ></span
+          >
+          <span class="peer-anchor-guide" style="{{guideStyle}}"
+            ><span class="peer-anchor-label">median top anchor</span></span
+          >
+          {{#controls}}
+          <span
+            class="peer-member-outline"
+            style="{{style}}"
+            title="{{label}} · {{element}}"
+            ><span class="{{deltaClass}}">Δ {{deltaLabel}}</span></span
+          >
+          {{/controls}} {{/peerInference}}
+        </div>
+        {{/hasPeerInference}}
+      </div>
     </figure>
     {{/screenshot}} {{#approved}}
     <figure>
@@ -167,7 +198,54 @@
     both sizes; its minimum-yield threshold is exempt. Yield does not establish
     evidence quality, task relevance, or visual quality.
   </p>
-  {{/hasGrowth}} {{#hasFindings}}
+  {{/hasGrowth}} {{#hasPeerInference}}
+  <details open>
+    <summary>
+      Advisory inferred peer relationships · {{peerInferenceCount}} candidate(s)
+    </summary>
+    <p>
+      These are heuristic review candidates, not configured findings and not
+      pass/fail evidence. Viewrule inferred a likely horizontal form-control
+      relationship from rendered structure and geometry; confirm task intent
+      before turning one into a DR-017 contract.
+    </p>
+    <table>
+      <thead>
+        <tr>
+          <th>Candidate</th>
+          <th>Observed alignment</th>
+          <th>Interpretation and next action</th>
+          <th>Evidence</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#peerInference}}
+        <tr>
+          <td>
+            <strong>Inferred {{number}}</strong><br />
+            <code>{{kind}}</code><br />
+            <small>{{container}} · {{layout}}</small>
+          </td>
+          <td>
+            top-anchor residual {{residualLabel}}px<br />
+            <small>discovery trigger {{thresholdLabel}}px</small>
+          </td>
+          <td>
+            {{reason}}
+            <p>{{suggestion}}</p>
+          </td>
+          <td>
+            <details>
+              <summary>Controls, anchors, and inference signals</summary>
+              <pre>{{evidence}}</pre>
+            </details>
+          </td>
+        </tr>
+        {{/peerInference}}
+      </tbody>
+    </table>
+  </details>
+  {{/hasPeerInference}} {{#hasFindings}}
   <table>
     <thead>
       <tr>

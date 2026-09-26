@@ -171,10 +171,19 @@ absolute item's escape from a static wrapper from actual containing-block clippi
 It also retains evidence painted into a reserved scrollbar gutter under the capture
 browser's hidden-scrollbar setting. Equal and unequal font-size comparisons include
 rendered `display: contents` labels while excluding a hidden label.
-Native-scale Good
-and Bad images and both reports are retained in `dist/composition-evidence/`.
-These thresholds measure authored relationships, not general beauty, symmetry,
-semantic utility, or human approval.
+The same scenario also serves a synthetic form pair with no authored alignment
+selector. The accepted form aligns three same-row text-entry controls; the rejected
+form offsets the first control through an uneven label stack. The rejected capture
+must produce one advisory `metrics.peerInference` candidate citing DR-017 while
+the accepted counterpart produces none. Its report overlays the inferred group,
+member boxes, median anchor, and signed offsets on the unchanged saved capture and
+provides a toggle back to the original. Neither candidate nor overlay is a finding
+or changes the check exit code.
+
+Native-scale Good and Bad images and both reports are retained in
+`dist/composition-evidence/`. These thresholds and inference heuristics do not
+establish general beauty, symmetry, semantic utility, peer membership, or human
+approval.
 
 For local composition-detector iteration, run `npm run check:composition`. The
 command uses `test/composition-scenario.mjs`, the exact scenario called by the

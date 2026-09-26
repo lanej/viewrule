@@ -150,6 +150,7 @@ can retain useful whitespace. None of these metrics is a universal aesthetic sco
 | Context and consistency | Visible context, allowed styles or attributes, and consistent declared encodings |
 | Density and legibility | Adjacent text distance, minimum text size, and optional text/box coverage or empty-band constraints |
 | Composition | Median-anchor residual, adjacent peer-gap variation, declared chrome allocation, comparative viewport-growth yield, and equal-priority footprint variation |
+| Advisory discovery | Likely same-row text-entry peers whose rendered top anchors diverge; these candidates never fail a run or establish peer membership |
 | Capture and accessibility | Complete detail-tile coverage and automatically detectable axe accessibility findings |
 
 Rule findings report their selector, observed value, expected value, reason, and
