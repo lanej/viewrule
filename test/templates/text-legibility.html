@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+  <meta charset="utf-8" />
+  <title>Scoped label regression</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 20px;
+      font:
+        14px/20px system-ui,
+        sans-serif;
+      color: #192d3a;
+    }
+    h1 {
+      font-size: 22px;
+    }
+    h2 {
+      font-size: 16px;
+    }
+    section {
+      margin-block: 24px;
+    }
+    .row {
+      display: grid;
+      grid-template-columns: 22px 120px;
+      gap: 8px;
+    }
+    #repaired {
+      grid-template-columns: 84px 120px;
+    }
+    .label {
+      display: block;
+    }
+    #wrapped {
+      position: relative;
+      height: 64px;
+    }
+    #wrapped > .label:first-child {
+      width: 112px;
+    }
+    #wrapped > .label:last-child {
+      position: absolute;
+      left: 84px;
+      top: 20px;
+    }
+    .contents {
+      display: contents;
+    }
+    [hidden] {
+      display: none !important;
+    }
+    select {
+      font: inherit;
+      padding: 5px 28px 5px 9px;
+      border: 1px solid #677783;
+      width: 78px;
+      min-width: 0;
+    }
+    #wide,
+    #custom {
+      width: 250px;
+    }
+    #custom {
+      appearance: none;
+    }
+    #clipped .label:first-child {
+      overflow: hidden;
+    }
+    #generated .label:first-child {
+      display: contents;
+    }
+    #generated .label:first-child::before {
+      content: "Queued";
+    }
+  </style>
+  <h1>Text needs its own measurement</h1>
+  <p>
+    Reduced from the two escaped mobile defects in the archived capacity trial.
+  </p>
+  <section>
+    <h2>Before: separate boxes, colliding text</h2>
+    <div id="crowded" class="row">
+      <span class="label">Queued</span
+      ><span class="label">Used / capacity</span>
+    </div>
+  </section>
+  <section>
+    <h2>After: both labels get space</h2>
+    <div id="repaired" class="row">
+      <span class="label"
+        ><span class="contents">Queued</span
+        ><span hidden>Hidden duplicate</span></span
+      ><span class="label">Used / capacity</span>
+    </div>
+  </section>
+  <section>
+    <h2>Valid alternative: wrapping and overlapping element boxes</h2>
+    <div id="wrapped">
+      <span class="label">Warehouse ID capacity</span
+      ><span class="label">Queued</span>
+    </div>
+  </section>
+  <section>
+    <h2>Before / after: native selected label space</h2>
+    <label for="narrow">Before</label
+    ><select id="narrow">
+      <option value="identity">Warehouse ID</option>
+      <option>Projected capacity: highest to lowest</option>
+    </select>
+    <label for="wide">After</label
+    ><select id="wide">
+      <option label="Warehouse ID" value="identity">
+        This option's DOM text is not its displayed label
+      </option>
+      <option>Projected capacity: highest to lowest</option>
+    </select>
+  </section>
+  <section>
+    <h2>Unsupported evidence stays unassessed</h2>
+    <div id="clipped" class="row">
+      <span class="label">Queued</span
+      ><span class="label">Used / capacity</span>
+    </div>
+    <label for="custom">Custom paint</label
+    ><select id="custom">
+      <option>Warehouse ID</option>
+    </select>
+    <div id="generated">
+      <span class="label"></span><span class="label">Used capacity</span
+      ><span class="label">Projected</span>
+    </div>
+  </section>
+</html>

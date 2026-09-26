@@ -11,3 +11,10 @@
 **Exception:** Truncation can be appropriate when it does not remove the information needed for the current task and full text is deliberately accessible. Large tables may use clearly scoped scrolling. Not every cell must expand indefinitely.
 
 **Review:** Reuse existing clipping, overlap, and legibility checks with difficult fixture content, then inspect the meaning retained. Root-font scaling is not browser zoom, and one passing fixture does not certify every locale or text preference. [Good/bad example](../examples/behavior.html?rule=DR-015).
+
+**Computationally falsifiable:** Opt-in `no-text-overlap` falsifies separation of declared
+neighboring HTML text fragments, including wrapped lines. `select-label-space`
+falsifies a selected native label's intrinsic-width allocation in the capture
+browser. Unsupported geometry is unassessed. Neither measures glyph paint or
+certifies readability, acceptable truncation, or retained meaning; see the
+[measurement contract and limits](../text-legibility.md).

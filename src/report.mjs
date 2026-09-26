@@ -90,6 +90,12 @@ function pageView(page, reference, documents) {
         : measurement.comparison.yield.toFixed(3),
     evidence: JSON.stringify(measurement, null, 2),
   }));
+  const textLegibility = (page.metrics?.textLegibility ?? []).map(
+    (measurement) => ({
+      ...measurement,
+      evidence: JSON.stringify(measurement, null, 2),
+    }),
+  );
   return {
     ...page,
     captureLabel:
@@ -114,6 +120,8 @@ function pageView(page, reference, documents) {
     composition,
     hasGrowth: growth.length > 0,
     growth,
+    hasTextLegibility: textLegibility.length > 0,
+    textLegibility,
     hasFindings: page.findings.length > 0,
     findings: page.findings.map((finding) => ({
       ...finding,

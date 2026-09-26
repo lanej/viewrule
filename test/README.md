@@ -186,3 +186,15 @@ site nor installs/packs the engine, and never creates or replaces the release
 archive. Run `npm test` for complete installed-package validation before delivery;
 a focused pass is not a full test pass. Failed assertions and capture errors remain
 nonzero exits. Keep one assertion source rather than maintaining a lighter duplicate.
+
+The same installed workflow now retains the two escaped mobile text defects in
+`templates/text-legibility.html`: separate element boxes with intersecting label
+fragments, and a native select whose valid value does not imply enough selected
+label space. Legacy box/scroll checks pass those cases; the new opt-in rules fail
+their specific boundaries. Repairs and legitimate wrapping pass, while clipped
+text/custom control paint remain explicitly unassessed. No fixture score or old
+trial report is rewritten. Evidence is retained in `dist/text-legibility-evidence/`.
+The Parcel desk extension in `saved-comparison-scenario.mjs` also saves complete
+source, reports, and a portable annotated before/after for the real visible-caption
+change, with passing geometry on both sides and the application interactions
+exercised at mobile width. This is calibration, not independent efficacy evidence.

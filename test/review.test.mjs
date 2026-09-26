@@ -1519,6 +1519,118 @@ test(
       ),
     );
 
+    // Same installed workflow: retain both escaped assumptions, their repairs,
+    // legitimate wrapping, and explicit unsupported evidence in one capture.
+    await cp(
+      new URL("./templates/text-legibility.html", import.meta.url),
+      source,
+    );
+    const textRules = [
+      ...["crowded", "repaired", "wrapped", "clipped", "generated"].map(
+        (id) => ({
+          id: `text-${id}`,
+          type: "no-text-overlap",
+          selector: `#${id}`,
+          items: ".label",
+        }),
+      ),
+      ...["narrow", "wide", "custom"].map((id) => ({
+        id: `select-${id}`,
+        type: "select-label-space",
+        selector: `#${id}`,
+      })),
+    ].map((rule) => ({
+      ...rule,
+      tolerance: 1,
+      severity: "error",
+      reason: "Keep declared task labels readable.",
+    }));
+    const legacyTextRules = [
+      {
+        id: "legacy-label-boxes",
+        type: "no-overlap",
+        selector: "#crowded .label",
+        severity: "error",
+        reason: "Element boxes alone miss this text collision.",
+      },
+      {
+        id: "legacy-select-scroll",
+        type: "no-clip",
+        selector: "#narrow",
+        severity: "error",
+        reason: "Native scroll dimensions alone miss selected text loss.",
+      },
+    ];
+    await writeFile(
+      rulesPath,
+      JSON.stringify([...textRules, ...legacyTextRules]),
+    );
+    await writeFile(
+      path.join(project, ".ui-review/config.json"),
+      JSON.stringify({
+        version: 1,
+        baseURL,
+        sourcePaths: ["src"],
+        accessibility: false,
+        pages: [{ name: "Text legibility", path: "/", ready: "#wide" }],
+        viewports: [{ name: "mobile", width: 390, height: 844 }],
+      }),
+    );
+    const textCheck = await cli(["check"]);
+    assert.equal(textCheck.code, 1, textCheck.stderr || textCheck.stdout);
+    const textFile = JSON.parse(textCheck.stdout).report;
+    const textReport = JSON.parse(await readFile(textFile, "utf8"));
+    const textPage = textReport.pages[0];
+    assert.deepEqual(textPage.findings.map((f) => f.rule).sort(), [
+      "select-custom",
+      "select-narrow",
+      "text-clipped",
+      "text-crowded",
+      "text-generated",
+    ]);
+    const textMeasurements = textPage.metrics.textLegibility;
+    const textMeasurement = (id) => textMeasurements.find((m) => m.rule === id);
+    assert.equal(textMeasurement("text-crowded").overlapCount, 1);
+    assert.ok(textMeasurement("text-crowded").overlaps[0].width > 15);
+    for (const id of ["text-repaired", "text-wrapped"]) {
+      assert.equal(textMeasurement(id).status, "measured");
+      assert.equal(textMeasurement(id).overlapCount, 0);
+    }
+    assert.ok(textMeasurement("text-wrapped").peers[0].fragments >= 2);
+    assert.equal(textMeasurement("select-narrow").label, "Warehouse ID");
+    assert.equal(textMeasurement("select-wide").label, "Warehouse ID");
+    assert.equal(
+      textMeasurement("select-narrow").requiredWidth,
+      textMeasurement("select-wide").requiredWidth,
+    );
+    assert.ok(textMeasurement("select-narrow").deficit > 40);
+    assert.equal(textMeasurement("select-wide").deficit, 0);
+    for (const id of ["text-clipped", "text-generated", "select-custom"]) {
+      assert.equal(textMeasurement(id).status, "unassessed");
+      assert.ok(textMeasurement(id).problems.length);
+      assert.equal(
+        textPage.metrics.evaluations.find((r) => r.rule === id).status,
+        "unassessed",
+      );
+    }
+    assert.deepEqual(
+      textPage.findings.find((f) => f.rule === "text-crowded").designRules,
+      ["DR-006", "DR-015"],
+    );
+    assert.deepEqual(
+      textPage.findings.find((f) => f.rule === "select-narrow").designRules,
+      ["DR-015"],
+    );
+    await cp(
+      path.dirname(textFile),
+      path.join(repository, "dist/text-legibility-evidence/regression"),
+      { recursive: true },
+    );
+    assert.match(
+      await readFile(path.join(path.dirname(textFile), "index.html"), "utf8"),
+      /Scoped text geometry/,
+    );
+
     const compositionEvidence = await runCompositionScenario({
       cli,
       baseURL,

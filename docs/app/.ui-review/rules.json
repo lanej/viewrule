@@ -1,5 +1,22 @@
 [
   {
+    "id": "app-selected-filter-labels",
+    "type": "select-label-space",
+    "selector": ".filters select",
+    "tolerance": 1,
+    "severity": "error",
+    "reason": "Keep the current status and sorting criterion identifiable without opening the menu."
+  },
+  {
+    "id": "app-queue-heading-labels",
+    "type": "no-text-overlap",
+    "selector": ".queue-section .section-heading",
+    "items": "h2, #result-count",
+    "tolerance": 1,
+    "severity": "error",
+    "reason": "Keep the queue identity and result count readable together."
+  },
+  {
     "id": "app-navigation-context",
     "type": "no-overlap",
     "selector": "#sidebar, #workspace",
