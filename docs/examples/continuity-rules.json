@@ -1,0 +1,55 @@
+[
+  {
+    "id": "continuity-context",
+    "type": "context",
+    "selector": ".continuity-view",
+    "required": [
+      ".continuity-heading p",
+      ".continuity-filter",
+      "[data-role=destination-scope]",
+      "[data-role=destination-scope-value]",
+      "[data-role=summary]",
+      "[data-role=selected]"
+    ],
+    "severity": "error",
+    "designRules": ["DR-003", "DR-006", "DR-010"],
+    "reason": "Keep the destination scope explicit beside the destination control, truthful result summary, and selected shipment. Presence does not prove continuity; the journey checkpoint compares the actual value before and after return."
+  },
+  {
+    "id": "continuity-readable-type",
+    "type": "min-font-size",
+    "selector": ".continuity-view",
+    "min": 14,
+    "severity": "error",
+    "designRules": ["DR-007", "DR-015"],
+    "reason": "Supporting queue context remains readable."
+  },
+  {
+    "id": "continuity-input-target",
+    "type": "min-size",
+    "selector": "[data-role=filter]",
+    "minWidth": 44,
+    "minHeight": 44,
+    "severity": "error",
+    "designRules": ["DR-014"],
+    "reason": "Filtering remains usable at both supported widths."
+  },
+  {
+    "id": "continuity-action-target",
+    "type": "min-size",
+    "selector": "[data-role=open]",
+    "minWidth": 44,
+    "minHeight": 44,
+    "severity": "error",
+    "designRules": ["DR-014"],
+    "reason": "The inspected shipment retains the same usable return-focus target."
+  },
+  {
+    "id": "continuity-no-clipping",
+    "type": "no-clip",
+    "selector": ".continuity-view h4, .continuity-view p, .continuity-view button, .continuity-view strong",
+    "severity": "error",
+    "designRules": ["DR-015"],
+    "reason": "Do not hide shipment identity, destination or controls at narrow widths."
+  }
+]

@@ -1,0 +1,306 @@
+{
+  "schemaVersion": 1,
+  "target": "DR-010",
+  "browser": "151.0.7922.34",
+  "previousRevision": "a07b82afeb1900ef8e8bd7dc7c2a2dce4b9c90c7",
+  "sources": {
+    "behavior.html": "5a9b7b6d525de8f7749d698f3e995338f345c179521f26afe2cc19d26ef257e1",
+    "behavior.css": "fb53544e821f8d0bca6be612a4df6d4394787828b739610523a0558aa40e439e",
+    "continuity-scene.js": "90ad6bcbfaf14cf027a8fc67c36bd69e539bff6e9418c053d553ed1b524a43ec",
+    "continuity-rules.json": "04934356be5be582334d684bafe3a6946d609439aba2fedb4b33f621676a136e",
+    "continuity-before.json": "6fac7735962888314b5c2b8a454e67262ebb388e3f798e7b9b2534d23c797636",
+    "continuity-clarity-before.json": "acffa0b839fa450a4ce79a26f64fefe13947c6066048e9be3d200f11181c1c9d"
+  },
+  "scenarios": [
+    {
+      "name": "desktop",
+      "legacy": {
+        "good": {
+          "query": "Seattle",
+          "selected": "EP 1042",
+          "focus": "open"
+        },
+        "bad": {
+          "query": "",
+          "selected": "EP 1043",
+          "focus": "filter"
+        }
+      },
+      "current": {
+        "good": {
+          "query": "Seattle",
+          "selected": "EP 1042",
+          "focus": "open"
+        },
+        "bad": {
+          "query": "",
+          "selected": "EP 1042",
+          "focus": "open"
+        }
+      },
+      "native": {
+        "good": {
+          "findings": [],
+          "metrics": {
+            "viewportWidth": 1200,
+            "viewportHeight": 1000,
+            "pageHeight": 1000,
+            "evaluatedRules": 5,
+            "density": [],
+            "repeatedMetrics": [],
+            "evidenceDistances": [],
+            "markContrasts": [],
+            "comparisons": [],
+            "consistency": [],
+            "evaluations": [
+              {
+                "rule": "continuity-context",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "continuity-readable-type",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "continuity-input-target",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "continuity-action-target",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "continuity-no-clipping",
+                "matched": 10,
+                "status": "checked"
+              }
+            ]
+          }
+        },
+        "bad": {
+          "findings": [],
+          "metrics": {
+            "viewportWidth": 1200,
+            "viewportHeight": 1000,
+            "pageHeight": 1000,
+            "evaluatedRules": 5,
+            "density": [],
+            "repeatedMetrics": [],
+            "evidenceDistances": [],
+            "markContrasts": [],
+            "comparisons": [],
+            "consistency": [],
+            "evaluations": [
+              {
+                "rule": "continuity-context",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "continuity-readable-type",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "continuity-input-target",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "continuity-action-target",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "continuity-no-clipping",
+                "matched": 13,
+                "status": "checked"
+              }
+            ]
+          }
+        }
+      },
+      "passed": [
+        "real-filter",
+        "stable-selection",
+        "return-focus",
+        "keyboard-journey",
+        "native-baseline",
+        "query-isolation",
+        "truthful-results",
+        "explicit-working-set",
+        "shared-styles"
+      ]
+    },
+    {
+      "name": "mobile",
+      "legacy": {
+        "good": {
+          "query": "Seattle",
+          "selected": "EP 1042",
+          "focus": "open"
+        },
+        "bad": {
+          "query": "",
+          "selected": "EP 1043",
+          "focus": "filter"
+        }
+      },
+      "current": {
+        "good": {
+          "query": "Seattle",
+          "selected": "EP 1042",
+          "focus": "open"
+        },
+        "bad": {
+          "query": "",
+          "selected": "EP 1042",
+          "focus": "open"
+        }
+      },
+      "native": {
+        "good": {
+          "findings": [],
+          "metrics": {
+            "viewportWidth": 390,
+            "viewportHeight": 844,
+            "pageHeight": 1620,
+            "evaluatedRules": 5,
+            "density": [],
+            "repeatedMetrics": [],
+            "evidenceDistances": [],
+            "markContrasts": [],
+            "comparisons": [],
+            "consistency": [],
+            "evaluations": [
+              {
+                "rule": "continuity-context",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "continuity-readable-type",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "continuity-input-target",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "continuity-action-target",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "continuity-no-clipping",
+                "matched": 10,
+                "status": "checked"
+              }
+            ]
+          }
+        },
+        "bad": {
+          "findings": [],
+          "metrics": {
+            "viewportWidth": 390,
+            "viewportHeight": 844,
+            "pageHeight": 1731,
+            "evaluatedRules": 5,
+            "density": [],
+            "repeatedMetrics": [],
+            "evidenceDistances": [],
+            "markContrasts": [],
+            "comparisons": [],
+            "consistency": [],
+            "evaluations": [
+              {
+                "rule": "continuity-context",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "continuity-readable-type",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "continuity-input-target",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "continuity-action-target",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "continuity-no-clipping",
+                "matched": 13,
+                "status": "checked"
+              }
+            ]
+          }
+        }
+      },
+      "passed": [
+        "real-filter",
+        "stable-selection",
+        "return-focus",
+        "keyboard-journey",
+        "native-baseline",
+        "query-isolation",
+        "truthful-results",
+        "explicit-working-set",
+        "shared-styles"
+      ]
+    }
+  ],
+  "captures": [
+    {
+      "file": "dr-010-returned-good-desktop.png",
+      "quality": "good",
+      "viewport": {
+        "width": 1200,
+        "height": 1000
+      },
+      "fontScale": 1,
+      "state": "returned"
+    },
+    {
+      "file": "dr-010-returned-bad-desktop.png",
+      "quality": "bad",
+      "viewport": {
+        "width": 1200,
+        "height": 1000
+      },
+      "fontScale": 1,
+      "state": "returned"
+    },
+    {
+      "file": "dr-010-returned-good-mobile.png",
+      "quality": "good",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "fontScale": 1.25,
+      "state": "returned"
+    },
+    {
+      "file": "dr-010-returned-bad-mobile.png",
+      "quality": "bad",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "fontScale": 1.25,
+      "state": "returned"
+    }
+  ]
+}

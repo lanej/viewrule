@@ -477,3 +477,105 @@ body.behavior-gallery[data-behavior-rule="DR-009"] .gallery-heading p,
     padding: 1em;
   }
 }
+
+/* DR-010: a real destination-filtered queue, shared by both variants. */
+[data-rule="DR-010"] .sample {
+  min-height: 0;
+  padding: 1.25em;
+  font-size: max(1rem, 16px);
+  background: light-dark(#ffffff, #152131);
+}
+[data-rule="DR-010"] .sample[data-enlarged="true"] {
+  font-size: max(1.25rem, 20px);
+}
+[data-rule="DR-010"] .continuity-view {
+  color: light-dark(#1b293d, #edf2fa);
+}
+[data-rule="DR-010"] .continuity-heading h4 {
+  margin: 0;
+  font-size: 1.25em;
+}
+[data-rule="DR-010"] .continuity-heading p,
+[data-rule="DR-010"] .continuity-summary,
+[data-rule="DR-010"] .continuity-list p {
+  color: light-dark(#4a586b, #b8c5d8);
+  font-size: 0.9em;
+}
+[data-rule="DR-010"] .continuity-filter {
+  margin-top: 1.25em;
+  font-weight: 600;
+}
+[data-rule="DR-010"] .continuity-destination-scope {
+  margin: 0.75em 0 1em;
+  padding: 0.75em 1em;
+  border-left: 4px solid light-dark(#335da2, #a4bfea);
+  border-radius: 0.25em;
+  background: light-dark(#f2f6fc, #1d2c42);
+}
+[data-rule="DR-010"] .continuity-destination-scope-label {
+  display: block;
+  color: light-dark(#53647b, #b8c5d8);
+  font-size: max(0.875em, 14px);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+[data-rule="DR-010"] .continuity-destination-scope strong {
+  display: block;
+  margin-top: 0.1em;
+  font-size: 1.25em;
+}
+[data-rule="DR-010"] .continuity-destination-scope .continuity-summary {
+  margin: 0.25em 0 0;
+}
+[data-rule="DR-010"] input,
+[data-rule="DR-010"] button {
+  min-height: 44px;
+  font: inherit;
+}
+[data-rule="DR-010"] input {
+  width: 100%;
+  min-width: 0;
+  border-radius: 0.25em;
+}
+[data-rule="DR-010"] .continuity-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+[data-rule="DR-010"] .continuity-list li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.75em;
+  padding: 0.875em;
+  border: 1px solid light-dark(#ced6e2, #4b5a70);
+  border-radius: 0.375em;
+  margin-bottom: 0.625em;
+}
+[data-rule="DR-010"] .continuity-list li[aria-current="true"] {
+  border-color: light-dark(#335da2, #a4bfea);
+  background: light-dark(#eaf1ff, #20314b);
+}
+[data-rule="DR-010"] .continuity-list p {
+  margin: 0.25em 0 0;
+}
+[data-rule="DR-010"] .continuity-selection {
+  display: inline-block;
+  margin-left: 0.625em;
+  padding: 0.125em 0.45em;
+  border-radius: 999px;
+  background: light-dark(#dbe7fb, #2b4162);
+  color: light-dark(#244b85, #dce8fb);
+  font-size: max(0.875em, 14px);
+  font-weight: 600;
+}
+[data-rule="DR-010"] button {
+  background: light-dark(#ffffff, #152131);
+  border-color: light-dark(#7c8ea8, #889ab4);
+}
+[data-rule="DR-010"] dialog {
+  padding: 1.5em;
+  border-radius: 0.5em;
+  font: inherit;
+}

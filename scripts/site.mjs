@@ -121,6 +121,7 @@ await mkdir(assets, { recursive: true });
 for (const file of [
   "behavior.js",
   "priority-scene.js",
+  "continuity-scene.js",
   "behavior.css",
   "behavior-catalog.json",
   "evidence.js",
