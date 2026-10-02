@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Peer inference fixture · Viewrule</title>
+    <link rel="stylesheet" href="peer-inference.css" />
+    <script src="peer-inference.js" defer></script>
+  </head>
+  <body>
+    <main id="peer-inference-example">
+      <section class="fixture-card" aria-labelledby="fixture-title">
+        <header>
+          <span class="eyebrow">Synthetic configuration</span>
+          <h1 id="fixture-title">Review settings</h1>
+          <p>
+            Three same-role controls occupy one horizontal form row. The
+            rejected variant leaves the first control above its peers.
+          </p>
+        </header>
+        <div class="peer-row">
+          <div class="single-field">
+            <label for="allocation-limit">Allocation limit</label>
+            <span class="peer-slot" aria-hidden="true"></span>
+            <input
+              id="allocation-limit"
+              name="allocation-limit"
+              type="text"
+              value="2,750"
+              readonly
+            />
+          </div>
+          <div class="period-group" role="group" aria-labelledby="window-label">
+            <span id="window-label" class="period-title">Active window</span>
+            <div class="period-controls">
+              <label for="window-start">
+                <span>Start</span>
+                <input
+                  id="window-start"
+                  name="window-start"
+                  type="date"
+                  value="2026-09-25"
+                  readonly
+                />
+              </label>
+              <label for="window-end">
+                <span>End</span>
+                <input
+                  id="window-end"
+                  name="window-end"
+                  type="date"
+                  value="2027-09-25"
+                  readonly
+                />
+              </label>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

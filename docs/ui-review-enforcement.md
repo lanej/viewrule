@@ -191,6 +191,21 @@ parts and bounded spacing without prescribing grid/flex CSS or universal density
 Optional `consistent` settings compare SVG structure and shared identities across
 selected pages; existing page-local behavior remains the default.
 
+DR-017 also has a narrow advisory discovery path for ordinary text-entry controls.
+The browser groups nearby side-by-side inputs/selects/textareas only when similar
+control heights and a shared local grid/flex ancestor support the hypothesis. A
+top-anchor residual above the discovery trigger is preserved under
+`metrics.peerInference` with the controls, anchors, heuristic signals, reason, and
+remediation suggestion. This is deliberately not a configured finding: inferred
+peer membership can be wrong, the trigger is not a project acceptance threshold,
+and the candidate never changes the check exit code or design-rule coverage. Use it
+to inspect a likely omission, then author a scoped `alignment-residual` rule only
+when the task actually requires that relationship. The report visualizes the same
+saved candidate geometry over the original capture with a dashed group outline,
+individual control boxes, a median-anchor guide, and signed per-control offsets.
+That overlay is evidence navigation only: it is toggleable, does not modify the PNG,
+does not use pixel inference, and has no enforcement authority.
+
 ## Enforcement and repair
 
 `viewrule check` returns 0 when configured error checks pass, 1 for detected

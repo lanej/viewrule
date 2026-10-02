@@ -316,6 +316,166 @@ export function inspectPage(rules) {
       coefficientOfVariation: mean ? Math.sqrt(variance) / mean : 0,
     };
   };
+  const inferPeerGroups = () => {
+    const controlSelector = [
+      'input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="file"]):not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="image"])',
+      "select",
+      "textarea",
+    ].join(",");
+    const controls = [...document.querySelectorAll(controlSelector)]
+      .filter(
+        (element) =>
+          element instanceof HTMLInputElement ||
+          element instanceof HTMLSelectElement ||
+          element instanceof HTMLTextAreaElement,
+      )
+      .filter(visible)
+      .map((element) => ({ element, box: rect(element) }));
+    if (controls.length < 2) return [];
+
+    const layoutAncestor = (a, b) => {
+      let current = a.parentElement,
+        depth = 0;
+      while (current && current !== document.body && depth < 7) {
+        if (current.contains(b)) {
+          const display = getComputedStyle(current).display;
+          if (["grid", "inline-grid", "flex", "inline-flex"].includes(display))
+            return current;
+        }
+        current = current.parentElement;
+        depth++;
+      }
+      return null;
+    };
+    const label = (element) => {
+      const aria = element.getAttribute("aria-label")?.trim();
+      if (aria) return aria.slice(0, 80);
+      const associated = [...(element.labels ?? [])]
+        .map((item) => item.textContent.trim().replace(/\s+/g, " "))
+        .find(Boolean);
+      return (
+        associated?.slice(0, 80) ||
+        element.getAttribute("name") ||
+        element.id ||
+        describe(element)
+      );
+    };
+    const parent = controls.map((_, index) => index);
+    const find = (index) => {
+      while (parent[index] !== index) {
+        parent[index] = parent[parent[index]];
+        index = parent[index];
+      }
+      return index;
+    };
+    const unite = (a, b) => {
+      const left = find(a),
+        right = find(b);
+      if (left !== right) parent[right] = left;
+    };
+    for (let i = 0; i < controls.length; i++)
+      for (let j = i + 1; j < controls.length; j++) {
+        const a = controls[i],
+          b = controls[j];
+        const minHeight = Math.min(a.box.height, b.box.height),
+          maxHeight = Math.max(a.box.height, b.box.height);
+        if (!minHeight || minHeight / maxHeight < 0.75) continue;
+        const centerA = a.box.top + a.box.height / 2,
+          centerB = b.box.top + b.box.height / 2;
+        if (Math.abs(centerA - centerB) > Math.max(30, maxHeight * 0.8))
+          continue;
+        const overlap =
+          Math.min(a.box.right, b.box.right) - Math.max(a.box.left, b.box.left);
+        if (overlap > Math.min(a.box.width, b.box.width) * 0.25) continue;
+        const layout = layoutAncestor(a.element, b.element);
+        if (!layout) continue;
+        const layoutBox = rect(layout);
+        if (layoutBox.height > Math.max(240, maxHeight * 6)) continue;
+        unite(i, j);
+      }
+
+    const groups = new Map();
+    controls.forEach((control, index) => {
+      const root = find(index),
+        group = groups.get(root) ?? [];
+      group.push(control);
+      groups.set(root, group);
+    });
+    const candidates = [];
+    for (const group of groups.values()) {
+      if (group.length < 2 || group.length > 6) continue;
+      const centers = group.map(({ box }) => box.top + box.height / 2),
+        heights = group.map(({ box }) => box.height),
+        rowSpread = Math.max(...centers) - Math.min(...centers),
+        medianHeight = [...heights].sort((a, b) => a - b)[
+          Math.floor(heights.length / 2)
+        ];
+      if (rowSpread > Math.max(30, medianHeight * 0.8)) continue;
+      const anchors = group.map(({ box }) => box.top),
+        sorted = [...anchors].sort((a, b) => a - b),
+        middle = Math.floor(sorted.length / 2),
+        median =
+          sorted.length % 2
+            ? sorted[middle]
+            : (sorted[middle - 1] + sorted[middle]) / 2,
+        maxResidual = Math.max(
+          ...anchors.map((anchor) => Math.abs(anchor - median)),
+        ),
+        discoveryThreshold = Math.max(4, medianHeight * 0.1);
+      if (maxResidual <= discoveryThreshold) continue;
+      let container = group[0].element.parentElement;
+      while (
+        container &&
+        !group.every(({ element }) => container.contains(element))
+      )
+        container = container.parentElement;
+      const layout =
+        container &&
+        ["grid", "inline-grid", "flex", "inline-flex"].includes(
+          getComputedStyle(container).display,
+        )
+          ? getComputedStyle(container).display
+          : "nested";
+      candidates.push({
+        kind: "form-control-alignment",
+        status: "review",
+        container: container ? describe(container) : null,
+        layout,
+        edge: "top",
+        anchors,
+        median,
+        maxResidual,
+        discoveryThreshold,
+        controls: group.map(({ element, box }) => ({
+          element: describe(element),
+          label: label(element),
+          type:
+            element instanceof HTMLInputElement
+              ? element.type
+              : element.tagName.toLowerCase(),
+          box: {
+            x: box.x + scrollX,
+            y: box.y + scrollY,
+            width: box.width,
+            height: box.height,
+          },
+        })),
+        signals: [
+          "same class of visible form control",
+          "shared nearby grid or flex layout",
+          "side-by-side horizontal placement",
+          "similar rendered control heights",
+        ],
+        designRules: ["DR-017"],
+        reason:
+          "These visible form controls appear to be peers in one horizontal control row, but their top anchors diverge.",
+        suggestion:
+          "Review whether the controls are intended peers. If so, normalize label or sublabel slots so the controls share an anchor, then materialize a scoped DR-017 rule when the relationship is contractual.",
+      });
+    }
+    return candidates;
+  };
+  const peerInference = inferPeerGroups();
   const compositionTypes = [
     "alignment-residual",
     "gap-variance",
@@ -1575,6 +1735,7 @@ export function inspectPage(rules) {
       repeatedMetrics,
       evidenceDistances,
       markContrasts,
+      peerInference,
       comparisons,
       consistency,
       evaluations,
