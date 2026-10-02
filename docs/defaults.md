@@ -120,6 +120,11 @@ checkbox/radio label-target geometry need a deliberate project rule and inspecti
 
 ## Measurement limits and evidence
 
+Neighboring text and native selected labels need explicit application scopes.
+Use the opt-in [`no-text-overlap` and `select-label-space`](text-legibility.md)
+contracts where those relationships matter. They add no global thresholds or
+automatic rules to existing projects; unsupported observations stay unassessed.
+
 `min-size` compares each visible element's axis-aligned `getBoundingClientRect()`
 width and height with `minWidth`/`minHeight` in CSS px. It is not hit testing: rounded,
 rotated, clipped, obscured, or disconnected clickable regions may have different usable

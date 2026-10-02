@@ -182,6 +182,15 @@ directories are excluded. Without Git, the checker walks the project with those
 same exclusions. An external server's changing data cannot be detected by a source
 hash: rerun captures when data or application state changes.
 
+## Scoped text legibility
+
+`no-text-overlap` compares individual text fragments between authored neighboring
+labels, allowing wrapping. `select-label-space` compares a selected native label's
+intrinsic control width with its actual allocation. Both retain measured or
+unassessed observations in JSON and HTML; unsupported evidence cannot establish
+coverage. Read [semantics, examples, and limitations](text-legibility.md) before
+declaring either contract. Neither is enabled by default.
+
 ## Rules
 
 Put an array in `.ui-review/rules.json`. Project rules override global rules by
@@ -201,6 +210,8 @@ optional components, not required evidence.
 | `relative-position` | `from`, `to`, `relation`, `minGap`, `maxGap`, `tolerance` | Exactly one visible peer at each end, per component; `left-of` or `above` with a shared band and bounded border-box gap in CSS px |
 | `no-overlap` | — | Declared peers must not overlap; ancestor/descendant pairs are excluded. Findings include bounded text excerpts to distinguish anonymous SVG peers |
 | `no-clip` | — | Element's own hidden/clip overflow must not truncate content; does not inspect ancestor clipping |
+| `no-text-overlap` | `items`, `tolerance` | Compare rendered text fragments between declared descendant peers within each selected group; CSS px. Wrapping is allowed; see [scope and limits](#scoped-text-legibility). |
+| `select-label-space` | `tolerance` | Selected native dropdown label receives at least its single-option intrinsic control width in this browser, within CSS-pixel tolerance; see [scope and limits](#scoped-text-legibility). |
 | `visible-count` | `min` | At least this many complete element boxes fit in the initial viewport; does not detect occlusion |
 | `max-height` | `max` | Maximum element height in CSS pixels, useful for task-specific density warnings |
 | `min-font-size` | `min` | Minimum computed CSS font size of visible descendant DOM text; empty text scope fails |

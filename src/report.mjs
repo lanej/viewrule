@@ -90,6 +90,12 @@ function pageView(page, reference, documents) {
         : measurement.comparison.yield.toFixed(3),
     evidence: JSON.stringify(measurement, null, 2),
   }));
+  const textLegibility = (page.metrics?.textLegibility ?? []).map(
+    (measurement) => ({
+      ...measurement,
+      evidence: JSON.stringify(measurement, null, 2),
+    }),
+  );
   // Full-page captures can extend beyond the viewport when a page overflows.
   // Use the capture extents retained by detail planning for overlay coordinates.
   const imageWidth =
@@ -191,6 +197,8 @@ function pageView(page, reference, documents) {
     composition,
     hasGrowth: growth.length > 0,
     growth,
+    hasTextLegibility: textLegibility.length > 0,
+    textLegibility,
     hasPeerInference: peerInference.length > 0,
     peerInferenceCount: peerInference.length,
     peerInference,

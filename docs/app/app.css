@@ -422,12 +422,18 @@ small {
 }
 .filters {
   display: flex;
+  align-items: end;
   flex-wrap: wrap;
   gap: 8px;
   margin: 14px 0;
 }
 .filters label {
   min-width: 0;
+  display: grid;
+  gap: 4px;
+}
+.filter-caption {
+  color: var(--secondary);
 }
 .filters select {
   max-width: 100%;

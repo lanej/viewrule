@@ -35,3 +35,9 @@ visually associated. For compact discovery items, a mark can share the title's
 row while the description uses the full item width. Declare the intended relative
 placement and spacing, rather than prescribing one CSS layout technique. An
 individual missing graphic must not be concealed by other complete items.
+
+**Computationally falsifiable:** Declared neighboring labels can use `no-text-overlap` to detect
+intersecting rendered text fragments even when their element boxes are separate.
+Wrapped text is measured per fragment. This falsifies an authored separation
+constraint; selecting the neighbors and judging optical spacing still requires
+human review. See [supported geometry and unassessed cases](https://github.com/lanej/viewrule/blob/main/docs/text-legibility.md).
