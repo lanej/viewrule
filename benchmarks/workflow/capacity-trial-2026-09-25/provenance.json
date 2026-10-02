@@ -1,0 +1,51 @@
+{
+  "version": 1,
+  "status": "completed observations; both generation sessions stopped by token budget",
+  "protocol": "../capacity-trial-protocol.md",
+  "engineRelease": "https://github.com/lanej/viewrule/releases/tag/v0.10.0",
+  "engineArchiveSHA256": "a5ba10b82f12b7a9ac0d18c4d538783aa7ab0f6e4f7af345cc8c1f9285b1e81c",
+  "assistanceCommit": "29d89696f20bbfd3857dd2a7c2c0119616a8caec",
+  "releaseCommit": "0801208b264851c5dc30488a6ae21f4f9ca6e012",
+  "evidenceSHA256": "0b80b197190843bf7c783c3b8fa77c0be68062d958f0865698ac9da18dbb8497",
+  "archiveFiles": 315,
+  "summary": [
+    {
+      "arm": "baseline",
+      "status": "token-limit-exceeded",
+      "elapsedMs": 319846,
+      "usage": {
+        "totalTokens": 603943,
+        "inputTokens": 594368,
+        "cachedInputTokens": 512256,
+        "cacheWriteInputTokens": 0,
+        "outputTokens": 9575,
+        "reasoningOutputTokens": 2361
+      },
+      "agentChecks": 2,
+      "postFirstCheckedSourceTransitions": 1,
+      "protectedChanges": [],
+      "preflightContentReturned": false,
+      "modelReroutes": [],
+      "unfinishedCommandsAtStop": []
+    },
+    {
+      "arm": "preflight",
+      "status": "token-limit-exceeded",
+      "elapsedMs": 375762,
+      "usage": {
+        "totalTokens": 618556,
+        "inputTokens": 607391,
+        "cachedInputTokens": 525824,
+        "cacheWriteInputTokens": 0,
+        "outputTokens": 11165,
+        "reasoningOutputTokens": 1859
+      },
+      "agentChecks": 3,
+      "postFirstCheckedSourceTransitions": 2,
+      "protectedChanges": [],
+      "preflightContentReturned": true,
+      "modelReroutes": [],
+      "unfinishedCommandsAtStop": ["exec-e5071d9f-9f5c-4525-9e31-66846ef1d25f"]
+    }
+  ]
+}

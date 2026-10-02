@@ -179,6 +179,12 @@ the accepted counterpart produces none. Its report overlays the inferred group,
 member boxes, median anchor, and signed offsets on the unchanged saved capture and
 provides a toggle back to the original. Neither candidate nor overlay is a finding
 or changes the check exit code.
+The same scenario reproduces a page wider than its viewport, retaining its separate
+`page-overflow` error. Browser assertions compare member outlines and the median
+guide with the unchanged PNG's dimensions and saved control coordinates, then
+verify the overlay toggle. The regression caught both viewport-width scaling and
+border widths expanding the supposedly exact member boxes. Separate aligned,
+misaligned, original, and overflow report images are retained beside the reports.
 
 Native-scale Good and Bad images and both reports are retained in
 `dist/composition-evidence/`. These thresholds and inference heuristics do not

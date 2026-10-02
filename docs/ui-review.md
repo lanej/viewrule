@@ -239,8 +239,10 @@ The HTML report draws each candidate over the saved capture using only this reco
 geometry: a dashed inferred-group boundary, member control boxes, the median top
 anchor, and each member's signed offset. The overlay can be toggled off, and the
 capture link still opens the original PNG bytes. No pixel analysis is used to create
-or move the overlay. This makes the inferred structure inspectable without turning
-the inference into a rule.
+or move the overlay. The coordinate scale uses the recorded full-page capture
+extents, including horizontal overflow, rather than assuming viewport width.
+This makes the inferred structure inspectable without turning the inference into
+a rule.
 
 Checkboxes, radios, range/color/file controls, buttons, custom widgets, transformed
 optical alignment, and relationships outside the local layout heuristic remain

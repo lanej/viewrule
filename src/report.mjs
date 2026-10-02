@@ -90,8 +90,12 @@ function pageView(page, reference, documents) {
         : measurement.comparison.yield.toFixed(3),
     evidence: JSON.stringify(measurement, null, 2),
   }));
-  const imageWidth = page.metrics?.viewportWidth ?? page.viewport.width;
-  const imageHeight = page.metrics?.pageHeight ?? page.viewport.height;
+  // Full-page captures can extend beyond the viewport when a page overflows.
+  // Use the capture extents retained by detail planning for overlay coordinates.
+  const imageWidth =
+    page.details?.width ?? page.metrics?.viewportWidth ?? page.viewport.width;
+  const imageHeight =
+    page.details?.height ?? page.metrics?.pageHeight ?? page.viewport.height;
   const percent = (value, total) =>
     `${((Math.max(0, Math.min(total, value)) / total) * 100).toFixed(4)}%`;
   const boxStyle = (box) =>
