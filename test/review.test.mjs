@@ -1529,14 +1529,20 @@ test(
       source,
     );
     const textRules = [
-      ...["crowded", "repaired", "wrapped", "clipped", "generated"].map(
-        (id) => ({
-          id: `text-${id}`,
-          type: "no-text-overlap",
-          selector: `#${id}`,
-          items: ".label",
-        }),
-      ),
+      ...[
+        "crowded",
+        "repaired",
+        "wrapped",
+        "clipped",
+        "generated",
+        "visibility-crowded",
+        "visibility-repaired",
+      ].map((id) => ({
+        id: `text-${id}`,
+        type: "no-text-overlap",
+        selector: `#${id}`,
+        items: ".label",
+      })),
       ...["narrow", "wide", "custom"].map((id) => ({
         id: `select-${id}`,
         type: "select-label-space",
@@ -1590,16 +1596,35 @@ test(
       "text-clipped",
       "text-crowded",
       "text-generated",
+      "text-visibility-crowded",
     ]);
     const textMeasurements = textPage.metrics.textLegibility;
     const textMeasurement = (id) => textMeasurements.find((m) => m.rule === id);
     assert.equal(textMeasurement("text-crowded").overlapCount, 1);
     assert.ok(textMeasurement("text-crowded").overlaps[0].width > 15);
-    for (const id of ["text-repaired", "text-wrapped"]) {
+    for (const id of [
+      "text-repaired",
+      "text-wrapped",
+      "text-visibility-repaired",
+    ]) {
       assert.equal(textMeasurement(id).status, "measured");
       assert.equal(textMeasurement(id).overlapCount, 0);
     }
     assert.ok(textMeasurement("text-wrapped").peers[0].fragments >= 2);
+    assert.equal(textMeasurement("text-visibility-crowded").overlapCount, 1);
+    assert.ok(
+      textMeasurement("text-visibility-crowded").overlaps[0].width > 15,
+    );
+    for (const id of ["text-visibility-crowded", "text-visibility-repaired"]) {
+      const measurement = textMeasurement(id);
+      assert.equal(measurement.status, "measured");
+      assert.equal(measurement.peers.length, 3);
+      assert.equal(measurement.peers[0].text, "Queued");
+      assert.equal(
+        textPage.metrics.evaluations.find((r) => r.rule === id).status,
+        "checked",
+      );
+    }
     assert.equal(textMeasurement("select-narrow").label, "Warehouse ID");
     assert.equal(textMeasurement("select-wide").label, "Warehouse ID");
     assert.equal(

@@ -27,8 +27,15 @@
       grid-template-columns: 22px 120px;
       gap: 8px;
     }
-    #repaired {
+    #repaired,
+    #visibility-repaired {
       grid-template-columns: 84px 120px;
+    }
+    .visibility-wrapper {
+      visibility: hidden;
+    }
+    .visible-text {
+      visibility: visible;
     }
     .label {
       display: block;
@@ -93,6 +100,23 @@
         ><span class="contents">Queued</span
         ><span hidden>Hidden duplicate</span></span
       ><span class="label">Used / capacity</span>
+    </div>
+  </section>
+  <section>
+    <h2>Visible descendants still belong to their declared peers</h2>
+    <div id="visibility-crowded" class="row">
+      <span class="label visibility-wrapper"
+        ><span class="visible-text">Queued</span></span
+      ><span class="label">Used / capacity</span
+      ><span class="label">Projected</span
+      ><span class="label" hidden>Hidden duplicate</span>
+    </div>
+    <div id="visibility-repaired" class="row">
+      <span class="label visibility-wrapper"
+        ><span class="visible-text">Queued</span></span
+      ><span class="label">Used / capacity</span
+      ><span class="label">Projected</span
+      ><span class="label" hidden>Hidden duplicate</span>
     </div>
   </section>
   <section>

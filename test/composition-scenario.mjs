@@ -228,6 +228,53 @@ export async function runCompositionScenario({
     recursive: true,
   });
 
+  // A control partly left of the capture must retain its negative origin.
+  // Clamping only the origin shifts the outline's visible right edge.
+  await writeFile(
+    path.join(project, "peer-clipped-checkpoint.mjs"),
+    `export default async function ({ page }) {
+      await page.evaluate(() => {
+        document.body.innerHTML = '<main style="display:grid;grid-template-columns:150px 150px;gap:20px;position:relative;left:-20px;width:320px;margin-top:50px"><input id="clipped-first" aria-label="First" style="width:150px;margin-top:20px"><input id="clipped-second" aria-label="Second" style="width:150px"></main>';
+      });
+    }`,
+  );
+  await writeFile(
+    path.join(project, ".ui-review/config.json"),
+    JSON.stringify({
+      ...compositionConfig,
+      pages: [
+        {
+          name: "peer-inference-clipped",
+          path: "/examples/peer-inference.html?quality=bad",
+          ready: "#peer-inference-example[data-ready]",
+          checkpoints: [
+            { name: "clipped", setup: "peer-clipped-checkpoint.mjs" },
+          ],
+        },
+      ],
+      viewports: [compositionConfig.viewports[0]],
+    }),
+  );
+  const clippedCheck = await cli(["check"]);
+  assert.equal(
+    clippedCheck.code,
+    0,
+    clippedCheck.stderr || clippedCheck.stdout,
+  );
+  const clippedReportFile = JSON.parse(clippedCheck.stdout).report;
+  const clippedReport = JSON.parse(await readFile(clippedReportFile, "utf8"));
+  const [clippedCapture] = clippedReport.pages;
+  assert.deepEqual(clippedCapture.findings, []);
+  assert.equal(clippedCapture.metrics.peerInference.length, 1);
+  const clippedControl = clippedCapture.metrics.peerInference[0].controls[0];
+  assert.equal(clippedControl.box.x, -20);
+  assert.equal(clippedControl.box.width, 150);
+  await cp(
+    path.dirname(clippedReportFile),
+    path.join(compositionEvidence, "peer-clipped-report"),
+    { recursive: true },
+  );
+
   const browser = await chromium.launch({
     executablePath:
       env.VIEWRULE_BROWSER_PATH || env.UI_REVIEW_BROWSER_PATH || undefined,
@@ -239,6 +286,7 @@ export async function runCompositionScenario({
     for (const [reportFile, capture, index, prefix] of [
       [peerInferenceReportFile, peerInferenceReport.pages[1], 1, "peer"],
       [overflowReportFile, overflowCapture, 0, "peer-overflow"],
+      [clippedReportFile, clippedCapture, 0, "peer-clipped"],
     ]) {
       await page.goto(
         pathToFileURL(path.join(path.dirname(reportFile), "index.html")).href,
@@ -252,6 +300,12 @@ export async function runCompositionScenario({
         return element.decode();
       });
       const imageBox = await image.boundingBox();
+      assert.equal(
+        await figure
+          .locator(".capture-picture")
+          .evaluate((element) => globalThis.getComputedStyle(element).overflow),
+        "hidden",
+      );
       const png = await readFile(
         path.join(path.dirname(reportFile), capture.screenshot),
       );

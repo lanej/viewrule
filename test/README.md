@@ -182,9 +182,12 @@ or changes the check exit code.
 The same scenario reproduces a page wider than its viewport, retaining its separate
 `page-overflow` error. Browser assertions compare member outlines and the median
 guide with the unchanged PNG's dimensions and saved control coordinates, then
-verify the overlay toggle. The regression caught both viewport-width scaling and
-border widths expanding the supposedly exact member boxes. Separate aligned,
-misaligned, original, and overflow report images are retained beside the reports.
+verify the overlay toggle. The regression caught viewport-width scaling, border
+widths expanding member boxes, and origin clamping for a control 20 CSS px left of
+the capture. That control retains its measured 150 CSS px width and clips at the
+image edge instead of shifting its right edge; the in-bounds row remains the
+passing counterpart. Separate aligned, misaligned, original, overflow, and clipped
+report images are retained beside the reports.
 
 Native-scale Good and Bad images and both reports are retained in
 `dist/composition-evidence/`. These thresholds and inference heuristics do not
@@ -209,6 +212,10 @@ label space. Legacy box/scroll checks pass those cases; the new opt-in rules fai
 their specific boundaries. Repairs and legitimate wrapping pass, while clipped
 text/custom control paint remain explicitly unassessed. No fixture score or old
 trial report is rewritten. Evidence is retained in `dist/text-legibility-evidence/`.
+The visibility reproduction has three declared peers: text inside a hidden wrapper
+restores its visibility and collides with its neighbor. The repair reserves enough
+space for all three; a separate hidden responsive peer stays excluded in both.
+Before the detector fix, dropping the wrapper made the rejected case falsely pass.
 The Parcel desk extension in `saved-comparison-scenario.mjs` also saves complete
 source, reports, and a portable annotated before/after for the real visible-caption
 change, with passing geometry on both sides and the application interactions

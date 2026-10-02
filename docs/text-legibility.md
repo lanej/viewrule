@@ -22,6 +22,8 @@ These are layout measurements, not a universal readability score.
 
 Each selected group needs 2–64 visible, non-nested descendant text peers. Hidden
 responsive alternatives are excluded. Text under `display: contents` is included.
+Visible descendant text also counts when its wrapper uses `visibility: hidden`
+and the descendant restores `visibility: visible`.
 Whitespace-trimmed DOM `Range` fragments are compared **between peers**, never
 within one label. A failure means that two fragments intersect by more than
 `tolerance` CSS px on **both** axes. Tolerance is authored, from 0 to 4 CSS px;

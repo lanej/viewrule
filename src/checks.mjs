@@ -486,7 +486,9 @@ export function inspectPage(rules) {
   ];
   const textTypes = ["no-text-overlap", "select-label-space"];
   const visibleTextPeer = (el) => {
-    if (visible(el)) return true;
+    // Descendants can restore visibility inside a hidden wrapper. Keep that
+    // rendered text in its declared peer instead of silently dropping it.
+    if (visible(el) || renderedTextNodes(el).length) return true;
     const style = getComputedStyle(el);
     if (style.display !== "contents" || style.visibility !== "visible")
       return false;
