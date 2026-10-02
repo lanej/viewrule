@@ -17,6 +17,9 @@ const files = new Set([
   "composition.html",
   "composition.js",
   "composition.css",
+  "peer-inference.html",
+  "peer-inference.js",
+  "peer-inference.css",
 ]);
 const server = createServer(async (req, res) => {
   const name = new URL(req.url, "http://localhost").pathname.replace(

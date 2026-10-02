@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import { readFile, writeFile, mkdir, cp } from "node:fs/promises";
 import path from "node:path";
+import { pathToFileURL } from "node:url";
+import { chromium } from "playwright";
 
 // The installed regression and focused source check share these exact assertions.
 export async function runCompositionScenario({
@@ -113,6 +115,203 @@ export async function runCompositionScenario({
       assert.ok(chrome.valid && chrome.ratio < 0.45);
     }
   }
+  // Peer inference is advisory discovery, not an implicit rule. The rejected
+  // form exposes a same-row control offset without any authored selector; the
+  // accepted counterpart aligns the same three controls.
+  await writeFile(rulesPath, "[]");
+  await writeFile(
+    path.join(project, ".ui-review/config.json"),
+    JSON.stringify({
+      ...compositionConfig,
+      pages: [
+        {
+          name: "peer-inference-good",
+          path: "/examples/peer-inference.html?quality=good",
+          ready: "#peer-inference-example[data-ready]",
+        },
+        {
+          name: "peer-inference-bad",
+          path: "/examples/peer-inference.html?quality=bad",
+          ready: "#peer-inference-example[data-ready]",
+        },
+      ],
+      viewports: [compositionConfig.viewports[0]],
+    }),
+  );
+  const peerInferenceCheck = await cli(["check"]);
+  assert.equal(
+    peerInferenceCheck.code,
+    0,
+    peerInferenceCheck.stderr || peerInferenceCheck.stdout,
+  );
+  const peerInferenceReportFile = JSON.parse(peerInferenceCheck.stdout).report;
+  const peerInferenceReport = JSON.parse(
+    await readFile(peerInferenceReportFile, "utf8"),
+  );
+  await cp(
+    path.dirname(peerInferenceReportFile),
+    path.join(compositionEvidence, "peer-inference-report"),
+    { recursive: true },
+  );
+  const peerInferenceHTML = await readFile(
+    path.join(path.dirname(peerInferenceReportFile), "index.html"),
+    "utf8",
+  );
+  assert.match(peerInferenceHTML, /Show\s+inferred structure/);
+  assert.match(peerInferenceHTML, /Inferred 1 · DR-017/);
+  assert.match(peerInferenceHTML, /peer-anchor-guide/);
+  assert.match(peerInferenceHTML, /peer-member-outline/);
+  assert.match(peerInferenceHTML, /Δ [-+]?\d+\.\dpx/);
+  assert.match(peerInferenceHTML, /href="capture-2\.png"/);
+  for (const capture of peerInferenceReport.pages) {
+    assert.deepEqual(capture.findings, []);
+    const candidates = capture.metrics.peerInference;
+    if (capture.name === "peer-inference-bad") {
+      assert.equal(candidates.length, 1, JSON.stringify(candidates));
+      const [candidate] = candidates;
+      assert.equal(candidate.kind, "form-control-alignment");
+      assert.equal(candidate.controls.length, 3);
+      assert.ok(candidate.maxResidual > 10);
+      assert.deepEqual(candidate.designRules, ["DR-017"]);
+      assert.match(candidate.suggestion, /materialize a scoped DR-017 rule/);
+    } else {
+      assert.deepEqual(candidates, []);
+    }
+  }
+
+  // An overflowing page has a wider full-page PNG than its CSS viewport.
+  // Reproduce the escaped overlay-coordinate mismatch without changing the
+  // inferred relationship or concealing the independent overflow finding.
+  await writeFile(
+    path.join(project, "peer-overflow-checkpoint.mjs"),
+    `export default async function ({ page }) {
+      await page.evaluate(() => { document.documentElement.style.minWidth = '1200px'; });
+    }`,
+  );
+  await writeFile(
+    path.join(project, ".ui-review/config.json"),
+    JSON.stringify({
+      ...compositionConfig,
+      pages: [
+        {
+          name: "peer-inference-overflow",
+          path: "/examples/peer-inference.html?quality=bad",
+          ready: "#peer-inference-example[data-ready]",
+          checkpoints: [
+            { name: "overflow", setup: "peer-overflow-checkpoint.mjs" },
+          ],
+        },
+      ],
+      viewports: [compositionConfig.viewports[0]],
+    }),
+  );
+  const overflowCheck = await cli(["check"]);
+  assert.equal(
+    overflowCheck.code,
+    1,
+    overflowCheck.stderr || overflowCheck.stdout,
+  );
+  const overflowReportFile = JSON.parse(overflowCheck.stdout).report;
+  const overflowReport = JSON.parse(await readFile(overflowReportFile, "utf8"));
+  const [overflowCapture] = overflowReport.pages;
+  assert.deepEqual(
+    overflowCapture.findings.map((finding) => finding.rule),
+    ["page-overflow"],
+  );
+  assert.equal(overflowCapture.metrics.peerInference.length, 1);
+  assert.ok(overflowCapture.details.width > overflowCapture.viewport.width);
+  const overflowEvidence = path.join(
+    compositionEvidence,
+    "peer-overflow-report",
+  );
+  await cp(path.dirname(overflowReportFile), overflowEvidence, {
+    recursive: true,
+  });
+
+  const browser = await chromium.launch({
+    executablePath:
+      env.VIEWRULE_BROWSER_PATH || env.UI_REVIEW_BROWSER_PATH || undefined,
+  });
+  try {
+    const page = await browser.newPage({
+      viewport: { width: 848, height: 1000 },
+    });
+    for (const [reportFile, capture, index, prefix] of [
+      [peerInferenceReportFile, peerInferenceReport.pages[1], 1, "peer"],
+      [overflowReportFile, overflowCapture, 0, "peer-overflow"],
+    ]) {
+      await page.goto(
+        pathToFileURL(path.join(path.dirname(reportFile), "index.html")).href,
+      );
+      await page.evaluate(() => globalThis.document.fonts.ready);
+      const figure = page.locator(".capture-figure").nth(index);
+      const image = figure.locator("img");
+      await image.evaluate((element) => {
+        if (!(element instanceof globalThis.HTMLImageElement))
+          throw new Error("Capture image is unavailable");
+        return element.decode();
+      });
+      const imageBox = await image.boundingBox();
+      const png = await readFile(
+        path.join(path.dirname(reportFile), capture.screenshot),
+      );
+      const width = png.readUInt32BE(16),
+        height = png.readUInt32BE(20);
+      const candidate = capture.metrics.peerInference[0];
+      for (let member = 0; member < candidate.controls.length; member++) {
+        const box = await figure
+          .locator(".peer-member-outline")
+          .nth(member)
+          .boundingBox();
+        const expected = candidate.controls[member].box;
+        /** @type {[string, number, number][]} */
+        const coordinates = [
+          ["x", box.x - imageBox.x, (expected.x / width) * imageBox.width],
+          ["y", box.y - imageBox.y, (expected.y / height) * imageBox.height],
+          ["width", box.width, (expected.width / width) * imageBox.width],
+          ["height", box.height, (expected.height / height) * imageBox.height],
+        ];
+        for (const [dimension, actual, target] of coordinates)
+          assert.ok(
+            Math.abs(actual - target) < 1,
+            `${prefix} member ${member} ${dimension}: ${actual} vs ${target}`,
+          );
+      }
+      const guide = await figure.locator(".peer-anchor-guide").boundingBox();
+      assert.ok(
+        Math.abs(
+          guide.y - imageBox.y - (candidate.median / height) * imageBox.height,
+        ) < 1,
+      );
+      const toggle = figure.locator(".peer-overlay-toggle");
+      const layer = figure.locator(".peer-overlay-layer");
+      assert.ok(await layer.isVisible());
+      await figure.screenshot({
+        path: path.join(compositionEvidence, `${prefix}-overlay.png`),
+      });
+      await toggle.uncheck();
+      assert.equal(await layer.isVisible(), false);
+      assert.ok(await image.isVisible());
+      assert.equal(
+        await figure.locator(".capture-picture > a").getAttribute("href"),
+        capture.screenshot,
+      );
+      if (prefix === "peer") {
+        await figure.screenshot({
+          path: path.join(compositionEvidence, "peer-original.png"),
+        });
+        await page
+          .locator(".capture-figure")
+          .first()
+          .screenshot({
+            path: path.join(compositionEvidence, "peer-aligned.png"),
+          });
+      }
+    }
+  } finally {
+    await browser.close();
+  }
+
   const savedGlobalDirectory = env.VIEWRULE_CONFIG_DIR;
   env.VIEWRULE_CONFIG_DIR = path.join(project, "composition-global");
   await mkdir(env.VIEWRULE_CONFIG_DIR);
