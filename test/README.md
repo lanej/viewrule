@@ -182,9 +182,12 @@ or changes the check exit code.
 The same scenario reproduces a page wider than its viewport, retaining its separate
 `page-overflow` error. Browser assertions compare member outlines and the median
 guide with the unchanged PNG's dimensions and saved control coordinates, then
-verify the overlay toggle. The regression caught both viewport-width scaling and
-border widths expanding the supposedly exact member boxes. Separate aligned,
-misaligned, original, and overflow report images are retained beside the reports.
+verify the overlay toggle. The regression caught viewport-width scaling, border
+widths expanding member boxes, and origin clamping for a control 20 CSS px left of
+the capture. That control retains its measured 150 CSS px width and clips at the
+image edge instead of shifting its right edge; the in-bounds row remains the
+passing counterpart. Separate aligned, misaligned, original, overflow, and clipped
+report images are retained beside the reports.
 
 Native-scale Good and Bad images and both reports are retained in
 `dist/composition-evidence/`. These thresholds and inference heuristics do not

@@ -96,8 +96,8 @@ function pageView(page, reference, documents) {
     page.details?.width ?? page.metrics?.viewportWidth ?? page.viewport.width;
   const imageHeight =
     page.details?.height ?? page.metrics?.pageHeight ?? page.viewport.height;
-  const percent = (value, total) =>
-    `${((Math.max(0, Math.min(total, value)) / total) * 100).toFixed(4)}%`;
+  // Preserve measured origins and sizes; the picture clips the overlay.
+  const percent = (value, total) => `${((value / total) * 100).toFixed(4)}%`;
   const boxStyle = (box) =>
     [
       `left:${percent(box.x, imageWidth)}`,
@@ -137,8 +137,8 @@ function pageView(page, reference, documents) {
         group = {
           x: left,
           y: top,
-          width: right - left,
-          height: bottom - top,
+          width: Math.max(0, right - left),
+          height: Math.max(0, bottom - top),
         };
       return {
         ...candidate,

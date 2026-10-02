@@ -241,6 +241,8 @@ anchor, and each member's signed offset. The overlay can be toggled off, and the
 capture link still opens the original PNG bytes. No pixel analysis is used to create
 or move the overlay. The coordinate scale uses the recorded full-page capture
 extents, including horizontal overflow, rather than assuming viewport width.
+Member boxes retain negative origins and their measured sizes; the image frame
+clips offscreen portions instead of shifting their visible edges.
 This makes the inferred structure inspectable without turning the inference into
 a rule.
 
