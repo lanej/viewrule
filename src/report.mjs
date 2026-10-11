@@ -90,6 +90,83 @@ function pageView(page, reference, documents) {
         : measurement.comparison.yield.toFixed(3),
     evidence: JSON.stringify(measurement, null, 2),
   }));
+  // Full-page captures can extend beyond the viewport when a page overflows.
+  // Use the capture extents retained by detail planning for overlay coordinates.
+  const imageWidth =
+    page.details?.width ?? page.metrics?.viewportWidth ?? page.viewport.width;
+  const imageHeight =
+    page.details?.height ?? page.metrics?.pageHeight ?? page.viewport.height;
+  // Preserve measured origins and sizes; the picture clips the overlay.
+  const percent = (value, total) => `${((value / total) * 100).toFixed(4)}%`;
+  const boxStyle = (box) =>
+    [
+      `left:${percent(box.x, imageWidth)}`,
+      `top:${percent(box.y, imageHeight)}`,
+      `width:${percent(box.width, imageWidth)}`,
+      `height:${percent(box.height, imageHeight)}`,
+    ].join(";");
+  const peerInference = (page.metrics?.peerInference ?? []).map(
+    (candidate, index) => {
+      const padding = 8;
+      const left = Math.max(
+          0,
+          Math.min(...candidate.controls.map((control) => control.box.x)) -
+            padding,
+        ),
+        top = Math.max(
+          0,
+          Math.min(...candidate.controls.map((control) => control.box.y)) -
+            padding,
+        ),
+        right = Math.min(
+          imageWidth,
+          Math.max(
+            ...candidate.controls.map(
+              (control) => control.box.x + control.box.width,
+            ),
+          ) + padding,
+        ),
+        bottom = Math.min(
+          imageHeight,
+          Math.max(
+            ...candidate.controls.map(
+              (control) => control.box.y + control.box.height,
+            ),
+          ) + padding,
+        ),
+        group = {
+          x: left,
+          y: top,
+          width: Math.max(0, right - left),
+          height: Math.max(0, bottom - top),
+        };
+      return {
+        ...candidate,
+        number: index + 1,
+        residualLabel: candidate.maxResidual.toFixed(1),
+        thresholdLabel: candidate.discoveryThreshold.toFixed(1),
+        groupStyle: boxStyle(group),
+        guideStyle: [
+          `left:${percent(group.x, imageWidth)}`,
+          `top:${percent(candidate.median, imageHeight)}`,
+          `width:${percent(group.width, imageWidth)}`,
+        ].join(";"),
+        controls: candidate.controls.map((control) => {
+          const delta = control.box.y - candidate.median;
+          return {
+            ...control,
+            style: boxStyle(control.box),
+            deltaLabel: `${delta > 0 ? "+" : ""}${delta.toFixed(1)}px`,
+            deltaClass:
+              Math.abs(delta) > candidate.discoveryThreshold
+                ? "peer-delta peer-delta-outlier"
+                : "peer-delta",
+          };
+        }),
+        evidence: JSON.stringify(candidate, null, 2),
+      };
+    },
+  );
   return {
     ...page,
     captureLabel:
@@ -114,6 +191,9 @@ function pageView(page, reference, documents) {
     composition,
     hasGrowth: growth.length > 0,
     growth,
+    hasPeerInference: peerInference.length > 0,
+    peerInferenceCount: peerInference.length,
+    peerInference,
     hasFindings: page.findings.length > 0,
     findings: page.findings.map((finding) => ({
       ...finding,

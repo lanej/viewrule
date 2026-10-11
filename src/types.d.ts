@@ -220,6 +220,27 @@ export interface Rule {
   minRatio?: number;
   groups?: { selector: string; optional: boolean }[];
 }
+export interface PeerInferenceCandidate {
+  kind: "form-control-alignment";
+  status: "review";
+  container: string | null;
+  layout: string;
+  edge: "top";
+  anchors: number[];
+  median: number;
+  maxResidual: number;
+  discoveryThreshold: number;
+  controls: {
+    element: string;
+    label: string;
+    type: string;
+    box: { x: number; y: number; width: number; height: number };
+  }[];
+  signals: string[];
+  designRules: string[];
+  reason: string;
+  suggestion: string;
+}
 export interface CompositionMeasurement {
   rule: string;
   type: string;
