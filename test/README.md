@@ -220,3 +220,8 @@ The Parcel desk extension in `saved-comparison-scenario.mjs` also saves complete
 source, reports, and a portable annotated before/after for the real visible-caption
 change, with passing geometry on both sides and the application interactions
 exercised at mobile width. This is calibration, not independent efficacy evidence.
+
+The same visibility fixture retains a hidden wrapper whose `::before` restores
+visibility. Its generated label cannot be measured by DOM ranges, so the group
+is unassessed rather than dropping that peer and falsely passing the other two.
+The real-text repair passes, including a fully hidden generated alternative.

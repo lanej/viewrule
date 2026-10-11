@@ -485,10 +485,31 @@ export function inspectPage(rules) {
     "chrome-allocation",
   ];
   const textTypes = ["no-text-overlap", "select-label-space"];
+  const generatedText = (el) => {
+    // A pseudo-element can restore visibility independently of its hidden host.
+    // Check whether its box tree renders without requiring host visibility.
+    let box = el;
+    while (box && getComputedStyle(box).display === "contents")
+      box = box.parentElement;
+    if (!box?.checkVisibility({ checkOpacity: true })) return false;
+    return ["::before", "::after"].some((pseudo) => {
+      const style = getComputedStyle(el, pseudo);
+      return (
+        style.display !== "none" &&
+        style.visibility === "visible" &&
+        !["none", "normal", '""'].includes(style.content)
+      );
+    });
+  };
   const visibleTextPeer = (el) => {
     // Descendants can restore visibility inside a hidden wrapper. Keep that
     // rendered text in its declared peer instead of silently dropping it.
-    if (visible(el) || renderedTextNodes(el).length) return true;
+    if (
+      visible(el) ||
+      renderedTextNodes(el).length ||
+      [el, ...el.querySelectorAll("*")].some(generatedText)
+    )
+      return true;
     const style = getComputedStyle(el);
     if (style.display !== "contents" || style.visibility !== "visible")
       return false;
@@ -526,15 +547,6 @@ export function inspectPage(rules) {
     }
     return null;
   };
-  const generatedText = (el) =>
-    ["::before", "::after"].some((pseudo) => {
-      const style = getComputedStyle(el, pseudo);
-      return (
-        style.display !== "none" &&
-        style.visibility === "visible" &&
-        !["none", "normal", '""'].includes(style.content)
-      );
-    });
   const selectedLabelWidth = (el, style, label) => {
     // Ask this browser's native layout for a one-option select's intrinsic
     // border-box width, including its theme allocation. Never guess an arrow

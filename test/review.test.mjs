@@ -1536,6 +1536,7 @@ test(
         "clipped",
         "generated",
         "visibility-crowded",
+        "generated-visibility",
         "visibility-repaired",
       ].map((id) => ({
         id: `text-${id}`,
@@ -1596,6 +1597,7 @@ test(
       "text-clipped",
       "text-crowded",
       "text-generated",
+      "text-generated-visibility",
       "text-visibility-crowded",
     ]);
     const textMeasurements = textPage.metrics.textLegibility;
@@ -1625,6 +1627,14 @@ test(
         "checked",
       );
     }
+    const generatedVisibility = textMeasurement("text-generated-visibility");
+    assert.equal(generatedVisibility.peers.length, 3);
+    assert.ok(
+      generatedVisibility.problems.some((problem) =>
+        problem.includes("Generated"),
+      ),
+    );
+    assert.equal(generatedVisibility.overlapCount, undefined);
     assert.equal(textMeasurement("select-narrow").label, "Warehouse ID");
     assert.equal(textMeasurement("select-wide").label, "Warehouse ID");
     assert.equal(
@@ -1633,7 +1643,12 @@ test(
     );
     assert.ok(textMeasurement("select-narrow").deficit > 40);
     assert.equal(textMeasurement("select-wide").deficit, 0);
-    for (const id of ["text-clipped", "text-generated", "select-custom"]) {
+    for (const id of [
+      "text-clipped",
+      "text-generated",
+      "text-generated-visibility",
+      "select-custom",
+    ]) {
       assert.equal(textMeasurement(id).status, "unassessed");
       assert.ok(textMeasurement(id).problems.length);
       assert.equal(

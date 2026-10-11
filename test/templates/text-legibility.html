@@ -78,6 +78,11 @@
     #generated .label:first-child {
       display: contents;
     }
+    #generated-visibility .label:first-child::before,
+    .hidden-generated::before {
+      visibility: visible;
+      content: "Queued";
+    }
     #generated .label:first-child::before {
       content: "Queued";
     }
@@ -111,12 +116,18 @@
       ><span class="label">Projected</span
       ><span class="label" hidden>Hidden duplicate</span>
     </div>
+    <div id="generated-visibility" class="row">
+      <span class="label visibility-wrapper"></span
+      ><span class="label">Used / capacity</span
+      ><span class="label">Projected</span
+      ><span class="label hidden-generated" hidden></span>
+    </div>
     <div id="visibility-repaired" class="row">
       <span class="label visibility-wrapper"
         ><span class="visible-text">Queued</span></span
       ><span class="label">Used / capacity</span
       ><span class="label">Projected</span
-      ><span class="label" hidden>Hidden duplicate</span>
+      ><span class="label hidden-generated" hidden>Hidden duplicate</span>
     </div>
   </section>
   <section>
