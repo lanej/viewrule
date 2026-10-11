@@ -166,3 +166,11 @@ Format references: [plugins](https://code.claude.com/docs/en/plugins-reference),
 [skills](https://code.claude.com/docs/en/skills),
 [hooks](https://code.claude.com/docs/en/hooks), and
 [marketplaces](https://code.claude.com/docs/en/plugin-marketplaces). MIT licensed.
+
+
+Plugin 0.10.1 separates task-scoped development verification from exhaustive CI.
+It retains the 0.10.0 engine pin: no engine upgrade is needed for existing scoped
+incremental review or `check --full`. Development checks preserve explicit
+coverage/freshness; required CI evaluates the complete committed contract and app
+suite before merge. This repository's `check:patterns`/`check:composition` commands
+are engine-development tools, not commands to copy into an application.

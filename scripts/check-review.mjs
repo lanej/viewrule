@@ -4,23 +4,32 @@ import { createServer } from "node:http";
 import { mkdtemp, mkdir, readFile, rm, copyFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
+import { runPatternReviewScenario } from "../test/pattern-scenario.mjs";
 import { runCompositionScenario } from "../test/composition-scenario.mjs";
 
-// Development feedback only. npm test still verifies the complete installed archive.
-assert.equal(process.argv.length, 2, "Usage: npm run check:composition");
+// Focused source feedback; exhaustive installed coverage belongs to PR CI.
+const scenario = process.argv[2];
+assert.ok(
+  ["composition", "patterns"].includes(scenario) && process.argv.length === 3,
+  "Usage: node scripts/check-review.mjs <composition|patterns>",
+);
 const repository = path.resolve(import.meta.dirname, "..");
 const exampleDirectory = path.join(repository, "docs/examples");
-const project = await mkdtemp(path.join(tmpdir(), "viewrule-composition-"));
-const evidenceDirectory = path.join(repository, "dist/composition-focus");
+const project = await mkdtemp(path.join(tmpdir(), `viewrule-${scenario}-`));
+const evidenceDirectory = path.join(repository, `dist/${scenario}-focus`);
 const started = performance.now();
-const files = new Set([
-  "composition.html",
-  "composition.js",
-  "composition.css",
-  "peer-inference.html",
-  "peer-inference.js",
-  "peer-inference.css",
-]);
+const files = new Set(
+  scenario === "patterns"
+    ? ["pattern-review.html", "pattern-review.js", "pattern-review.css"]
+    : [
+        "composition.html",
+        "composition.js",
+        "composition.css",
+        "peer-inference.html",
+        "peer-inference.js",
+        "peer-inference.css",
+      ],
+);
 const server = createServer(async (req, res) => {
   const name = new URL(req.url, "http://localhost").pathname.replace(
     /^\/examples\//,
@@ -76,7 +85,9 @@ try {
         },
       );
     });
-  await runCompositionScenario({
+  await (
+    scenario === "patterns" ? runPatternReviewScenario : runCompositionScenario
+  )({
     cli,
     baseURL,
     project,
@@ -87,10 +98,10 @@ try {
     evidenceDirectory,
   });
   console.log(
-    `Composition source check passed in ${((performance.now() - started) / 1000).toFixed(1)}s. Evidence: ${evidenceDirectory}`,
+    `${scenario} source check passed in ${((performance.now() - started) / 1000).toFixed(1)}s. Evidence: ${evidenceDirectory}`,
   );
   console.log(
-    "Partial development validation; run npm test before delivery. No release archive was produced.",
+    "Partial development validation; PR CI verifies the complete installed archive. No release archive was produced.",
   );
 } finally {
   if (server.listening) await new Promise((resolve) => server.close(resolve));

@@ -61,7 +61,8 @@ jobs:
         if: ${{ !cancelled() && steps.dependencies.outcome == 'success'  }}
         run: npm run site:build
       - run: node bin/viewrule.mjs install-browser --with-deps
-      - run: npm test
+      - name: Exhaustive installed-package regression (CI delivery gate)
+        run: npm run test:ci
         env:
           VIEWRULE_VERIFY_PLUGIN_PIN: ${{ contains(github.event.pull_request.title, '[release]') || contains(github.event.head_commit.message, '[release]') }}
       - uses: actions/upload-artifact@v4

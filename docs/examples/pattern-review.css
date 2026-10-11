@@ -571,3 +571,82 @@ summary {
     min-height: 234px;
   }
 }
+
+/* Finite comparisons have no viewport-fill or occupancy target. */
+.comparison-surface {
+  background: #fff;
+  border: 1px solid #c2cfdd;
+  border-radius: 10px;
+  margin-top: 16px;
+  padding: 16px;
+}
+.comparison-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+  padding-bottom: 16px;
+}
+.comparison-toolbar h2 {
+  margin-right: auto;
+}
+.comparison-surface select {
+  font: inherit;
+  min-height: 36px;
+  max-width: 100%;
+}
+.decision-row {
+  display: grid;
+  grid-template-columns: 70px minmax(190px, 1.1fr) minmax(190px, 1fr) minmax(
+      170px,
+      1fr
+    );
+  gap: 6px 16px;
+  align-items: start;
+  border-top: 1px solid #d9e2ec;
+  padding: 14px 0;
+}
+.decision-row[hidden] {
+  display: none;
+}
+.queue-identity {
+  grid-row: span 2;
+}
+.queue-action {
+  grid-column: 4;
+  grid-row: 1;
+}
+.queue-action-status {
+  grid-column: 4;
+  grid-row: 2;
+  font-size: 14px;
+}
+.queue-detail,
+.primary-trend {
+  grid-column: 2 / 4;
+}
+.primary-trend:empty {
+  display: none;
+}
+.queue-detail p {
+  font-size: 14px;
+  margin-top: 6px;
+}
+.local-window {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.stretched .decision-row {
+  min-height: 240px;
+}
+@media (max-width: 900px) {
+  .decision-row {
+    grid-template-columns: 1fr;
+  }
+  .decision-row > * {
+    grid-column: auto;
+    grid-row: auto;
+  }
+}

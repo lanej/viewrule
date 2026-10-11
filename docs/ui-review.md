@@ -409,8 +409,9 @@ one representative CLI regression workflow on Linux.
 npm ci
 npm run format
 npm run check
-npm run browser:install
-npm test
+# Choose the affected scenario for browser behavior:
+npm run check:patterns
+# Or npm run check:composition.
 ```
 
 Keep one regression test for the UI review workflow: a responsive comparison
@@ -418,7 +419,11 @@ loses evidence and changes period at 4K, findings cite design rules, feedback
 becomes a rule, and the repair passes with full-resolution details. A later source
 change invalidates that pass. Improve this detector when a
 regression occurs instead of adding a helper or edge-case test matrix.
-`npm test` exercises the installed tarball, not just the source checkout.
+The focused commands use the same assertions as the installed CI workflow. They
+are development feedback, not distribution proof. PR CI runs `npm run test:ci`
+against the installed tarball plus all static/site and benchmark checks. Require
+success at the final commit before merge; run the full suite locally only to
+diagnose a failure or a concrete packaging risk.
 Use concrete rejected/accepted examples to calibrate new rules. Do not promote a
 rule because it passes only the example used to invent it.
 

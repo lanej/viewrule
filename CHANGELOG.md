@@ -1,5 +1,16 @@
 # Changelog
 
+## Unreleased
+
+- Complete toolbar scope, legitimate finite whitespace, changed-task evidence and
+  independently scoped-control calibration cases in the existing pattern example.
+  Preserve separate task-revision reports and controlled data/action invariants.
+- Share pattern assertions between `check:patterns` development feedback and the
+  exhaustive installed CI workflow; make `test:ci` explicit, retaining `npm test`.
+- Plugin 0.10.1 keeps the engine 0.10.0 pin and separates explicitly configured
+  incremental development review from required full application review/tests in CI.
+  No agent efficacy or cost improvement is implied by passing these checks.
+
 ## 0.10.0 — 2026-09-25
 
 - Add `viewrule compare` for two saved reviews, preserving exact reports and PNGs

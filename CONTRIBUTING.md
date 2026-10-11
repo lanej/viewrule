@@ -22,8 +22,9 @@ Use Node 22.18 or newer for development tooling; CI uses the current Node 22 rel
 npm ci
 npm run format
 npm run check
-npm run browser:install
-npm test
+# Choose the affected scenario for browser behavior:
+npm run check:patterns
+# Or npm run check:composition.
 ```
 
 `npm run format` applies Prettier; `npm run format:check` reports formatting drift.
@@ -43,7 +44,8 @@ Use `VIEWRULE_BROWSER_PATH=/absolute/path/to/chromium` only when the pinned brow
 cannot run in the environment; report that substitution. Supported CI uses the
 browser associated with the pinned Playwright dependency.
 
-`npm test` packs the CLI and installs it through an isolated copy of the Claude plugin.
+PR CI owns exhaustive validation: `npm run test:ci` (also available as `npm test`)
+packs the CLI and installs it through an isolated copy of the Claude plugin.
 The same representative workflow verifies checksum rejection and hook opt-in, then:
 a comparison loses information and changes its period at 4K; findings cite policy;
 human feedback becomes a rule; the fixture is repaired; detail capture is complete;
@@ -51,6 +53,11 @@ and a subsequent source change invalidates the passing review. The temporary app
 and browser run in the same process environment. Test output is standard Node TAP.
 The copied plugin uses the fixture's archive URL/checksum; production pins are unchanged.
 Claude's skill selection and visual judgment require a real agent session to assess.
+
+Use focused checks during iteration; require the existing full regression and
+benchmark CI statuses at the final commit before merge. Avoid duplicating the
+exhaustive suite locally after it has passed in CI. A full local run is useful for
+a specific CI failure or packaging risk, not a mandatory development ritual.
 
 Keep one regression detector for this workflow. Extend it when a real regression
 requires stronger evidence; do not add helper tests, pixel snapshots, viewport
