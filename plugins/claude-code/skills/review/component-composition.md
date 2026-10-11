@@ -85,9 +85,14 @@ a justified project contract; there is no universal density score or pixel budge
 These are two review responsibilities, not two mandatory full browser runs. A single
 configured run can provide both sets of evidence; component stories alone cannot
 cover their parent composition. Configure the affected real states/regions within
-the task's authorization. Full `check` remains the default. The phase split does not
-authorize incremental mode, narrower coverage, or evidence reuse; use those only
-under the existing explicit configuration and freshness/invalidation rules.
+the task's authorization. Separate the development loop from the delivery gate:
+use the app's affected interaction checks and original-size inspection during
+iteration. When explicit `reviewScopes` and dependency/freshness configuration
+exist, use `plan --incremental` and `check --incremental` for affected rendered
+work; otherwise use `check`. Do not silently narrow the contract or claim skipped
+states passed. Application CI runs `check --full` against the proposed commit,
+plus the app's exhaustive tests, and retains failed evidence. Require those
+statuses before merge; local hooks/partial reports do not replace CI.
 
 For each consequential change, retain a task-preserving accepted/rejected comparison
 in the existing app/installed workflow when a supported check expresses the defect.
@@ -110,7 +115,8 @@ contract/rule changes from implementation repairs, and distinguish measurements,
 human judgment, and unresolved requirements. Never weaken a contract to get a pass.
 
 After an authorized repair, rerun affected validation and obtain fresh aggregate
-evidence under the configured workflow. Do not repeat unchanged runs or silently
+evidence under the configured development workflow. Report reused, executed and
+unassessed scope explicitly, with the exhaustive CI status separately. Do not repeat unchanged runs or silently
 stop at a component pass. Report configured-check success and unresolved judgments
 independently. Only a human can supply approval of the exact rendered result.
 

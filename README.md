@@ -428,15 +428,19 @@ From a source checkout, run `npm ci`, then `npm run format` to apply Prettier an
 `npm run check` to verify formatting, ESLint, and TypeScript JavaScript analysis.
 CI runs these before the browser regression. Static checking is incremental, with
 JSDoc contracts and `strict: false`; runtime inputs still require Ajv validation.
-There is no compilation step. Use `npm run browser:install` and `npm test` for the browser workflow. The single representative regression workflow installs
+There is no compilation step. Use `npm run check:patterns` or
+`npm run check:composition` for affected browser behavior during development.
+Install the pinned browser once with `npm run browser:install` if needed.
+PR CI owns exhaustive validation through `npm run test:ci` (`npm test` remains an alias). The single representative regression workflow installs
 the packed CLI through an isolated plugin copy, then exercises 4K evidence, feedback,
 repair, and stale-review enforcement against the shipped presets. The same workflow
 checks broken, compact, sidebar, stretched, finite, and missing-annotation cases with specific
 finding assertions. It does not evaluate Claude's visual judgment.
 For DR-017–DR-020 iteration, `npm run check:composition` runs that workflow's shared
 composition scenario directly against source and saves separate evidence in
-`dist/composition-focus/`. It is partial validation; retain the full installed
-workflow before delivery. The [short-preflight pilot](benchmarks/workflow/prevention-pilot-2026-09-24.md)
+`dist/composition-focus/`. It is partial validation; require the full installed regression, benchmark and
+static/site CI checks at the final commit before merge. Local full-suite runs are
+for diagnosing failures or a concrete packaging risk. The [short-preflight pilot](benchmarks/workflow/prevention-pilot-2026-09-24.md)
 records workflow observations separately from detector correctness, with saved
 before/after implementations and explicit measurement limits.
 For documentation-only changes, use targeted link, example, and diff checks instead

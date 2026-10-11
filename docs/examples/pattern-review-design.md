@@ -117,3 +117,50 @@ artifacts, component/composition finding groups, CSS measurements, browser ident
 and interaction results in `dist/pattern-review-evidence/`. The default all-stage
 check intentionally fails because it includes rejected states. No human approval
 is recorded. Paired agent-quality and cost evaluation remains unperformed.
+
+
+## Remaining review patterns
+
+The same page renders `?case=toolbar|whitespace|changed-task|scopes&quality=good|bad`.
+Each pair starts from a complete three-group queue (Q7, Q8, Q9). Both sides retain
+identities, sources, classified counts and denominators, authorization constraints,
+queue actions, history windows, disclosure text, type and control sizes. Good has
+no configured failures; Bad has only the named controlled failure. No source
+screenshot or real data enters these cases. Task relevance and human approval
+remain judgments, not manufactured machine outcomes.
+
+| Pattern | Baseline and controlled mutation | Verification |
+| --- | --- | --- |
+| Toolbar scope (DR-003/012) | Direct source filter and visible active-scope label. Bad hides only that label. | `pattern-active-scope` rejects the invisible label; app assertions filter Catalog to Q7/Q8, distinguish view changes from queueing, and retain action state after filtering. |
+| Legitimate whitespace (DR-007/008) | Three natural-height rows leave unused viewport space. Bad changes only row minimum height to 240 px. | `pattern-finite-height` caps these short summaries at 180 px. No box-coverage or occupancy minimum is asserted; all facts/actions/type remain equal. This fixture-specific ceiling is not a general whitespace detector. |
+| Changed task (DR-003/006) | Revision 1 treats trend as supporting detail. Revision 2 requires it initially before every queue decision. Good moves only the trend out of disclosure; Bad retains the old placement. | Both variants pass the retained v1 contract. Only Bad fails `pattern-routine-trend` under v2; report hashes and artifacts remain separate. This is an explicit requirement change, not retroactive failure or approval. |
+| Independent controls (DR-012) | Each group owns its different history window. Bad hoists only those controls into the common toolbar. | `pattern-local-scope` rejects lost row ownership. App assertions preserve independent values and change only Q7's window; the common source filter governs all groups. Shared appearance does not imply shared scope. |
+
+`pattern-review-cases.json` freezes these boundaries and mutations. Browser
+assertions retain native-scale separate Good/Bad captures at 1440 × 1000, scope,
+measurements, facts and interaction results. Keyboard expansion preserves focus
+and never queues; Q8 remains blocked, and Q7's action never queues another group.
+These interaction results are scoped to this synthetic application; geometry
+cannot infer arbitrary action semantics.
+
+During development run `npm run check:patterns`; it uses the same assertion source
+as CI without building/installing the distribution. PR CI retains the exhaustive
+installed workflow and artifacts. A focused pass is not full package proof, and
+neither constitutes evidence of better agent outcomes.
+
+
+The initial new baseline's changed-task rows measured 180.1875 px and failed the
+frozen 180 px ceiling. Reducing the shared inter-row grid gap from 8 to 6 px repaired
+that overhead while preserving facts, type and controls; the 240 px stretched
+counterexample remains rejected. No threshold was relaxed.
+
+| Case | Accepted capture | Controlled rejection |
+| --- | --- | --- |
+| Toolbar scope | [Good](images/pattern-toolbar-good.png) | [Bad](images/pattern-toolbar-bad.png) |
+| Finite whitespace | [Good](images/pattern-whitespace-good.png) | [Bad](images/pattern-whitespace-bad.png) |
+| Changed task | [Good](images/pattern-changed-task-good.png) | [Bad](images/pattern-changed-task-bad.png) |
+| Independent controls | [Good](images/pattern-scopes-good.png) | [Bad](images/pattern-scopes-bad.png) |
+
+These inspected source captures used Chromium 153.0.8010.0 as a local substitute
+for the unavailable pinned download. CI regenerates installed-package captures
+with the pinned Playwright browser; raw reports and scope stay explicit.

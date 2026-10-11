@@ -79,8 +79,12 @@ With the intended app state running, validate both levels:
    Do not assume `check --url` or the environment override works on older engines.
    Exit 1 means failed checks;
    exit 2 means setup or usage failed. A missing report is not a passing review.
-   Keep full review as the default; this phase split does not authorize incremental
-   mode, narrower coverage, or stale evidence. A run can cover both review levels.
+   During development, use `plan --incremental` then `check --incremental --url
+   <actual-url>` when the app explicitly configures review scopes and freshness;
+   otherwise use `check`. A run can cover both review levels. Do not silently
+   narrow coverage or reuse stale evidence. Exhaustive app tests and `check --full`
+   belong to application CI at the proposed commit. Require their status before
+   merge and retain evidence even on failure; partial local success is not CI success.
 2. Inspect the overview for composition and affected detail tiles at original size.
    Inspect representative text and comparison regions at each configured viewport,
    including the largest. Follow `details.tiles[].file` relative to the report folder.

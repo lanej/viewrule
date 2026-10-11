@@ -44,8 +44,9 @@ changing behavior. For code review, read [REVIEW.md](REVIEW.md).
 npm ci
 npm run format
 npm run check
-npm run browser:install
-npm test
+# For a behavioral change, run the affected shared scenario once:
+npm run check:patterns
+# Or npm run check:composition for DR-017–DR-020.
 ```
 
 `npm run format` applies Prettier to code, HTML, JSON, and YAML. `npm run check`
@@ -61,10 +62,16 @@ through an isolated plugin copy, then exercises one workflow. Keep concrete reje
 and passing preset fixtures there; assert their specific findings and measurements.
 Do not add helper tests, snapshots, or viewport/edge-case matrices.
 
+For review-pattern iteration, `npm run check:patterns` runs the shared pattern
+scenario against source, saving separate evidence in `dist/patterns-focus/`.
 For DR-017–DR-020 iteration, `npm run check:composition` runs the existing shared
 composition scenario against the current source. It produces separate evidence in
 `dist/composition-focus/`; it is partial validation and never supplies a release
-archive. Run the full installed workflow before delivery. For each escaped defect,
+archive. Do not run the exhaustive package suite as a routine development step.
+PR CI runs `npm run test:ci`, the analytical benchmark, and static/site checks on
+all changes; inspect their status for the final commit before delivery or merge.
+A focused local pass is partial evidence, never a substitute for that CI gate.
+Run the full suite locally only to diagnose a CI failure or a concrete packaging risk. For each escaped defect,
 retain its failing reproduction and a legitimate passing counterpart in the same
 scenario; identify the browser or evidence assumption that caused the omission.
 

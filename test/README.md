@@ -201,8 +201,9 @@ pairs and escaped-defect reproductions above, with identical assertions and
 accessibility checks. Evidence goes to `dist/composition-focus/` and is clearly
 separate from installed-package evidence. The command neither builds the public
 site nor installs/packs the engine, and never creates or replaces the release
-archive. Run `npm test` for complete installed-package validation before delivery;
-a focused pass is not a full test pass. Failed assertions and capture errors remain
+archive. PR CI runs `npm run test:ci` for complete installed-package validation;
+a focused pass is not a full test pass. Require final-commit CI success before
+merge, rather than repeating the exhaustive suite in every development session. Failed assertions and capture errors remain
 nonzero exits. Keep one assertion source rather than maintaining a lighter duplicate.
 
 The same installed workflow now retains the two escaped mobile text defects in
@@ -225,3 +226,16 @@ The same visibility fixture retains a hidden wrapper whose `::before` restores
 visibility. Its generated label cannot be measured by DOM ranges, so the group
 is unassessed rather than dropping that peer and falsely passing the other two.
 The real-text repair passes, including a fully hidden generated alternative.
+
+
+`npm run check:patterns` exercises `pattern-scenario.mjs`, shared unchanged by the
+installed workflow. It retains the original four stages and four controlled pairs
+(toolbar scope, finite whitespace, changed task, independently scoped controls).
+Reports for task revisions 1 and 2 remain separate: the old hidden trend passes
+its original contract, then fails the new routine-evidence obligation. All pairs
+preserve synthetic identities, data, type and actions. Application assertions
+verify keyboard disclosure without mutation, correct filtering/active scope,
+Q7-only queueing, disabled Q8, and independent history windows. Native-scale good
+and bad captures and raw reports go to `dist/patterns-focus/` locally and
+`dist/pattern-review-evidence/` in CI. Human relevance/approval and agent efficacy
+are explicitly unassessed. These are calibration cases, not a held-out trial.
