@@ -237,6 +237,13 @@ const types = {
   },
   "no-overlap": {},
   "no-clip": {},
+  "no-text-overlap": {
+    items: text,
+    tolerance: { type: "number", minimum: 0, maximum: 4 },
+  },
+  "select-label-space": {
+    tolerance: { type: "number", minimum: 0, maximum: 4 },
+  },
   "visible-count": { min: positive },
   "max-height": { max: { type: "number", exclusiveMinimum: 0 } },
   "min-size": {

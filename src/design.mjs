@@ -25,6 +25,8 @@ const defaults = {
   "peer-footprint": ["DR-020"],
   "no-overlap": ["DR-006"],
   "no-clip": ["DR-006", "DR-007"],
+  "no-text-overlap": ["DR-006", "DR-015"],
+  "select-label-space": ["DR-015"],
   "visible-count": ["DR-006"],
   "comparison-set": ["DR-006", "DR-007"],
   context: ["DR-003"],
@@ -63,6 +65,10 @@ const advice = {
   "no-overlap": "Reflow the affected peers so their content remains readable.",
   "no-clip":
     "Allow enough space for the full content or provide intentional local scrolling.",
+  "no-text-overlap":
+    "Reflow the declared neighboring labels so their text fragments stay separate. Preserve readable type; wrapping is allowed. Unassessed geometry needs a supported scope or visual review.",
+  "select-label-space":
+    "Give the selected label its measured intrinsic control width, or reflow the toolbar. Preserve the option's meaning and inspect the native control at capture scale; unsupported controls require visual review.",
   "visible-count":
     "Reduce excess spacing or reflow the comparison to reveal the required items.",
   "comparison-set":

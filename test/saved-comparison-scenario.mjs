@@ -113,9 +113,12 @@ export async function runSavedComparisonScenario({
       undefined,
   });
   const applicationEvidence = [];
-  async function inspectApplication(stage) {
+  async function inspectApplication(
+    stage,
+    viewport = { width: 1440, height: 1000 },
+  ) {
     const page = await browser.newPage({
-      viewport: { width: 1440, height: 1000 },
+      viewport,
       colorScheme: "light",
     });
     try {
@@ -156,6 +159,15 @@ export async function runSavedComparisonScenario({
       await page.locator("#search").fill("EP 1047");
       assert.equal(await page.locator(".shipment-row").count(), 1);
       await page.locator("#clear-filters").click();
+      await page.locator("#sort").selectOption("destination");
+      const destinations = await page
+        .locator('.shipment-row [data-field="destination"]')
+        .allTextContents();
+      assert.deepEqual(
+        destinations,
+        [...destinations].sort((a, b) => a.localeCompare(b)),
+      );
+      await page.locator("#clear-filters").click();
       assert.equal(await page.locator(".shipment-row").count(), 12);
       await page.locator("#status-filter").selectOption("attention");
       assert.ok((await page.locator(".shipment-row").count()) > 0);
@@ -195,7 +207,7 @@ export async function runSavedComparisonScenario({
         stage,
         facts,
         interactions:
-          "Search/clear, attention filter, selection, keyboard disclosure, events tab, and URL restoration passed.",
+          "Search/clear, attention filter, destination sorting, selection, keyboard disclosure, events tab, and URL restoration passed.",
       });
     } finally {
       await page.close();
@@ -435,6 +447,152 @@ export async function runSavedComparisonScenario({
         null,
         2,
       ) + "\n",
+    );
+    // A real, passing application change follows the injected composition
+    // counterexample. Do not describe the former hidden captions as a detected
+    // text defect: both allocations pass the same new legibility contract.
+    const textEvidence = path.join(
+      repository,
+      "dist/text-legibility-evidence/parcel-desk",
+    );
+    await rm(textEvidence, { recursive: true, force: true });
+    await mkdir(textEvidence, { recursive: true });
+    await cp(
+      path.join(repository, "benchmarks/workflow/text-legibility-protocol.md"),
+      path.join(textEvidence, "protocol.md"),
+    );
+    const finalHTML = await readFile(path.join(root, "src/index.html"), "utf8");
+    const firstHTML = finalHTML.replaceAll(
+      'class="filter-caption"',
+      'class="sr-only"',
+    );
+    assert.notEqual(firstHTML, finalHTML);
+    const textContract = {
+      ...contract,
+      viewports: [contract.viewports.find((v) => v.name === "mobile")],
+      pages: [
+        {
+          name: "Parcel desk",
+          path: "/saved-comparison/?sort=destination",
+          ready: "#application[data-ready]",
+          captureRegions: [{ id: "filters", selector: ".filters" }],
+        },
+      ],
+    };
+    await writeFile(
+      path.join(root, ".ui-review/config.json"),
+      JSON.stringify(textContract),
+    );
+    await writeFile(
+      path.join(root, ".ui-review/rules.json"),
+      JSON.stringify(rules.filter((r) => !r.viewports)),
+    );
+    const textReports = [];
+    for (const stage of ["first", "final"]) {
+      await writeFile(
+        path.join(root, "src/index.html"),
+        stage === "first" ? firstHTML : finalHTML,
+      );
+      await writeFile(
+        path.join(root, "src/app.css"),
+        stage === "first"
+          ? originalCSS +
+              "\n.filters { align-items: normal; } .filters label { display: block; }\n"
+          : originalCSS,
+      );
+      const result = await cli(["check", "--project", root]);
+      assert.equal(result.code, 0, result.stderr || result.stdout);
+      const file = JSON.parse(result.stdout).report;
+      const report = JSON.parse(await readFile(file, "utf8"));
+      assert.deepEqual(report.summary, { errors: 0, warnings: 0 });
+      assert.ok(
+        report.pages[0].metrics.textLegibility.every(
+          (m) => m.status === "measured",
+        ),
+      );
+      const labels = report.pages[0].metrics.textLegibility.filter(
+        (m) => m.type === "select-label-space",
+      );
+      assert.equal(labels.length, 2);
+      assert.ok(labels.every((m) => m.deficit === 0));
+      assert.equal(
+        labels.find((m) => m.element === "#sort").label,
+        "Destination A–Z",
+      );
+      await cp(path.dirname(file), path.join(textEvidence, stage), {
+        recursive: true,
+      });
+      await cp(
+        path.join(root, "src"),
+        path.join(textEvidence, `source-${stage}`),
+        { recursive: true },
+      );
+      await inspectApplication(`text-${stage}`, { width: 390, height: 844 });
+      textReports.push(report);
+    }
+    assert.equal(textReports[0].contract.hash, textReports[1].contract.hash);
+    const notes = path.join(textEvidence, "annotations.json");
+    await writeFile(
+      notes,
+      JSON.stringify({
+        version: 1,
+        title: "Parcel desk: keep filter context visible",
+        summary:
+          "The original controls already fit. Persistent captions add visible context while both states satisfy the same text-space contract.",
+        callouts: [
+          {
+            page: "Parcel desk",
+            region: "filters",
+            title: "Name the current filters",
+            interpretation:
+              "Status and sort captions remain visible. Both selected labels have sufficient native intrinsic width; the taller toolbar is an intentional cost of that context. Decision effectiveness still needs human review.",
+          },
+        ],
+      }),
+    );
+    const textOutput = path.join(textEvidence, "comparison");
+    const textCompare = await cli([
+      "compare",
+      "--before",
+      path.join(textEvidence, "first/report.json"),
+      "--after",
+      path.join(textEvidence, "final/report.json"),
+      "--output",
+      textOutput,
+      "--annotations",
+      notes,
+      "--image",
+    ]);
+    assert.equal(textCompare.code, 0, textCompare.stderr || textCompare.stdout);
+    const textComparison = JSON.parse(
+      await readFile(path.join(textOutput, "comparison.json"), "utf8"),
+    );
+    assert.equal(textComparison.states[0].comparable, true);
+    assert.equal(textComparison.states[0].identicalImages, false);
+    const panel = await browser.newPage();
+    await panel.goto(pathToFileURL(path.join(textOutput, "index.html")).href);
+    assert.ok(
+      await panel
+        .locator("img")
+        .evaluateAll(
+          /** @param {HTMLImageElement[]} images */ (images) =>
+            images.length > 0 &&
+            images.every((img) => img.complete && img.naturalWidth > 0),
+        ),
+    );
+    await panel.close();
+    await writeFile(
+      path.join(textEvidence, "application-validation.json"),
+      JSON.stringify(
+        {
+          browser: browser.version(),
+          applicationEvidence: applicationEvidence.filter((e) =>
+            e.stage.startsWith("text-"),
+          ),
+        },
+        null,
+        2,
+      ),
     );
     return output;
   } finally {
