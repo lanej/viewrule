@@ -31,7 +31,7 @@ application repository; plugin installation does not itself install Node or Chro
    `Runtime URL:` still require `init --url <actual-url>` and a configured `baseURL`.
    Explain that limitation and follow their installed docs until an explicit engine
    upgrade supports runtime URLs. Preserve existing configuration and rules.
-   See `${CLAUDE_PLUGIN_ROOT}/README.md` for worktree setup.
+   Read `worktrees.md` beside the rule reference returned by `docs` when needed.
 3. Run the launcher with `docs` and read the returned policy and rule-reference paths.
    Configure routes, readiness selectors, source paths, representative CSS viewports,
    and task-specific expectations. Read the returned defaults documentation path.
@@ -51,8 +51,8 @@ application repository; plugin installation does not itself install Node or Chro
    for requested new constraints. Do not register a Stop hook or enable the obsolete
    `enforceOnStop` setting. Review remains explicit; application CI is the required
    delivery gate. Configure optional Git hooks only when requested, preserving the
-   existing hook manager and other checks. Consult `${CLAUDE_PLUGIN_ROOT}/README.md`
-   for command availability with the pinned engine and migration from old Stop hooks.
+   existing hook manager and other checks. Use the installed help for command
+   availability and `git-gates.md` beside the rule reference for gate configuration.
 5. Continue with `/viewrule:review` for the requested application. Report installation
    or readiness blockers plainly; do not substitute a passing empty configuration.
 

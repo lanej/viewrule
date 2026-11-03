@@ -936,7 +936,7 @@ test(
     // used to interpret a report. Its installed bytes must participate in freshness.
     const resolverFile = path.join(
       engine,
-      "plugins/claude-code/scripts/project.mjs",
+      "skills/viewrule/scripts/project.mjs",
     );
     const resolverSource = await readFile(resolverFile, "utf8");
     await writeFile(

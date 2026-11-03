@@ -11,6 +11,10 @@ import { validateRules } from "../src/config.mjs";
 const dir = await mkdtemp(path.join(tmpdir(), "viewrule-package-"));
 const root = path.resolve(import.meta.dirname, "..");
 try {
+  execFileSync(process.execPath, ["scripts/agents.mjs", "--check"], {
+    cwd: root,
+    stdio: "inherit",
+  });
   validateRules(
     JSON.parse(
       await readFile(
@@ -39,12 +43,16 @@ try {
       encoding: "utf8",
     }),
   );
+  if (packed.files.some(({ path: file }) => file.endsWith("/engine.json")))
+    throw new Error(
+      "Engine installation pins must stay outside the engine archive to avoid a self-referential checksum.",
+    );
   const archive = path.join(dir, packed.filename);
   const digest = createHash("sha256")
     .update(await readFile(archive))
     .digest("hex");
   const pin = JSON.parse(
-    await readFile(path.join(root, "plugins/claude-code/engine.json"), "utf8"),
+    await readFile(path.join(root, "skills/viewrule/engine.json"), "utf8"),
   );
   if (
     process.env.VIEWRULE_VERIFY_PLUGIN_PIN === "true" &&

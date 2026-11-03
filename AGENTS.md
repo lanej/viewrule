@@ -9,8 +9,11 @@ changing behavior. For code review, read [REVIEW.md](REVIEW.md).
 
 - Keep the engine, schema, policy, and reports here. Personal defaults belong in
   dotfiles; application selectors, thresholds, and approvals belong in the app.
-- The Claude plugin is a CLI client. Keep its skills concise, use installed engine
-  docs, and bump its manifest version for updates; never install from evidence verification or a Git gate.
+- Agent integrations are CLI clients. Author shared workflows, runtime, guide, and
+  pin in `skills/viewrule/`; run `npm run agents:build` to refresh the isolated Claude
+  plugin and `npm run agents:check` to verify it. Keep skills concise and use installed
+  engine docs. Bump the Claude manifest for plugin changes; never install from
+  evidence verification or a Git gate. See [agent integration](docs/agents.md).
 - The engine requires Node 22.18+ and npm; development tooling needs Node 22.18+.
   Use ES modules and pinned dependencies; no
   compilation step is required. Run the formatter, linter, and static checks below.
@@ -19,7 +22,7 @@ changing behavior. For code review, read [REVIEW.md](REVIEW.md).
   and independent of Node APIs and module closures.
 - Prefer small changes to the relevant layer. Do not add a hosted service, database,
   model dependency, plugin framework, or automatic source repair without a request.
-- Consult the [guide](plugins/claude-code/guide/v1/index.md) selectively before relevant UI work;
+- Consult the [guide](skills/viewrule/guide/v1/index.md) selectively before relevant UI work;
   follow its authoring contract for guidance changes. Distinguish advice from checks.
 - Use `contract` before UI decisions and `/viewrule:add-rule` for authored boundaries.
   Keep rule/configuration changes visible separately from application repairs.

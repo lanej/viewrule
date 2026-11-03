@@ -3,7 +3,7 @@ import { readFile } from "node:fs/promises";
 import { createRequire } from "node:module";
 import { spawnSync } from "node:child_process";
 import path from "node:path";
-import { isLegacyHook } from "../plugins/claude-code/scripts/project.mjs";
+import { isLegacyHook } from "../skills/viewrule/scripts/project.mjs";
 
 const args = process.argv.slice(2);
 // Retired Stop entrypoint: old registrations must never block or need an engine.
@@ -16,7 +16,7 @@ if (isLegacyHook(args)) {
       await printRuleGuide(args.slice(1));
     } else {
       const { printGuide } =
-        await import("../plugins/claude-code/scripts/guide.mjs");
+        await import("../skills/viewrule/scripts/guide.mjs");
       await printGuide(args.slice(1));
     }
   } catch (err) {
