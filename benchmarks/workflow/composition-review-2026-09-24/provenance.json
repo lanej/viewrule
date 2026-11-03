@@ -1,0 +1,61 @@
+{
+  "kind": "annotated-existing-calibration-case",
+  "sourceCommit": "0856acb723c5ff637b6aecb588e8db3bb0e7dff5",
+  "createdAt": "2026-09-25T02:02:42.541Z",
+  "viewport": {
+    "width": 1440,
+    "height": 1000
+  },
+  "deviceScaleFactor": 1,
+  "browser": "151.0.7922.34",
+  "sourceSHA256": {
+    "docs/examples/pattern-review.html": "67fed249d13c27798923b8ef9a03f5e754ffd86ae02d528d69862c15a88bd628",
+    "docs/examples/pattern-review.css": "ad6cace182a3e1a7761085cf6836dcce6d1dfa17b4abf38f219203086ca4a883",
+    "docs/examples/pattern-review.js": "b6ecd65eaa3ad9f767d7ccd60a8668efdc8e4e070852351fdbeda6a1c8956b44",
+    "docs/examples/pattern-review-config.json": "ff235fe4a6292c6c4cae771190b7e68e9b36517bc6d8d4f07ce331778093fec4",
+    "docs/examples/pattern-review-rules.json": "bbf3ebbd5bf8fdd3bec28821b4214a1aa21624911e9f1ffe014652cfd302cc81",
+    "docs/examples/pattern-review-design.md": "d0feacc9120f647e8418f9b262063e2e5cfa2f56ecc4bbbb875e8970808384d7"
+  },
+  "images": {
+    "before": {
+      "sha256": "2b57a1704615a87a2d855bb1acdeb3a9b6270cca029a107b09f8dac05b18d0f3",
+      "sameAsInstalledRegression": true
+    },
+    "components": {
+      "sha256": "2c8c0d459cddfd15ba5c422f13c95f53120f9b97008feab75c9d8e2c4a95135d",
+      "sameAsInstalledRegression": true
+    },
+    "composition": {
+      "sha256": "9574946e76a95af82c1aec6eea23608b6372890fbfdefa7fc1a8e20f5ea175b4",
+      "sameAsInstalledRegression": true
+    },
+    "hidden": {
+      "sha256": "137b9bbd7f633fdf13bab5bd7381a522f9601311902bbfa4b5854a5efebe0af9",
+      "sameAsInstalledRegression": true
+    }
+  },
+  "report": {
+    "originalSHA256": "67604f70c514e8dd95c2d0c084916577b0fda7a7448ccb9a92c8ef2c4ef47880",
+    "retainedSHA256": "7521b5b9872f991a17dfe6409a6048c95e5b3af18011b5cbe0b5109a9dbe5fb8",
+    "redactions": "Local workspace and temporary capture paths only; retained JSON was formatted."
+  },
+  "notes": [
+    "Fresh browser captures of unchanged canonical fixture stages.",
+    "Geometry matched the previously validated installed-regression captures within one CSS pixel.",
+    "Not a new agent trial or evidence of workflow efficacy.",
+    "Annotation overlays are separate HTML elements; raw captures remain available."
+  ],
+  "presentation": {
+    "file": "annotated-comparison.png",
+    "sha256": "72b48bfba121836a16e00c6e6c95dc0083aec0d6f1343f654bb2d5dbaab148ea",
+    "method": "Browser screenshot of index.html with separate HTML/CSS annotation overlays; original UI PNGs are unchanged.",
+    "geometry": "geometry.json",
+    "verification": {
+      "equalImageDisplayScale": true,
+      "radioFiltersAndKeyboardSelection": true,
+      "detailsControls": true,
+      "noHorizontalOverflowAt390CssPx": true,
+      "browserPageErrors": 0
+    }
+  }
+}

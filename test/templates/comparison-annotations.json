@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "title": "Parcel desk: give the working queue room",
+  "summary": "A complete fictional operations workspace, repaired under one fixed contract. Charts, shipment identities, filters, disclosures, and detail tabs are preserved.",
+  "callouts": [
+    {
+      "page": "Parcel desk",
+      "region": "heading",
+      "title": "Bound the framing",
+      "interpretation": "At desktop widths, the shorter heading returns vertical space to the task. Whether this is enough emphasis for the operator remains a design judgment."
+    },
+    {
+      "page": "Parcel desk",
+      "region": "charts",
+      "title": "Give peers common anchors",
+      "interpretation": "In the desktop row, the three equal-priority carrier panels share a heading line, spacing rhythm, and footprint. Equal geometry does not establish truthful chart encoding or equal semantic importance."
+    },
+    {
+      "page": "Parcel desk",
+      "region": "task",
+      "title": "Keep the investigation together",
+      "interpretation": "At desktop widths, shorter shipment rows put more of the queue near the selected parcel. The mobile presentation is unchanged; overall task effectiveness still needs human review."
+    }
+  ]
+}

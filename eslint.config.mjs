@@ -32,11 +32,12 @@ export default [
     // These modules contain functions serialized into Playwright's browser context.
     files: [
       "test/react/*.jsx",
+      "test/saved-comparison-scenario.mjs",
       "docs/examples/*.js",
       "docs/app/*.js",
       "src/checks.mjs",
-      "src/composition.mjs",
       "src/capture.mjs",
+      "src/comparison.mjs",
       "src/review.mjs",
       "benchmarks/analytical/repair-evaluator.mjs",
     ],

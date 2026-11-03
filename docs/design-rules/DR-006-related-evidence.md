@@ -35,3 +35,17 @@ visually associated. For compact discovery items, a mark can share the title's
 row while the description uses the full item width. Declare the intended relative
 placement and spacing, rather than prescribing one CSS layout technique. An
 individual missing graphic must not be concealed by other complete items.
+
+**Computationally falsifiable:** Declared neighboring labels can use `no-text-overlap` to detect
+intersecting rendered text fragments even when their element boxes are separate.
+Wrapped text is measured per fragment. This falsifies an authored separation
+constraint; selecting the neighbors and judging optical spacing still requires
+human review. See [supported geometry and unassessed cases](https://github.com/lanej/viewrule/blob/main/docs/text-legibility.md).
+
+**Declared groups:** `group-separation` can enforce that the smallest gap between
+group member envelopes exceeds within-group spacing by an authored ratio. Groups
+and their members must form complete, disjoint, nonoverlapping single-axis
+sequences. This supports proximity relationships, but cannot determine which
+items belong together or establish simultaneous visibility. See
+[DR-018](DR-018-rhythm.md) and the
+[measurement contract](../ui-review.md#composition-contracts).

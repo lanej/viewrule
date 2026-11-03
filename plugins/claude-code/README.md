@@ -5,6 +5,12 @@ Claude to apply design rules before UI changes, measure the rendered result, ins
 full-resolution detail, and retain your feedback. The Viewrule CLI supplies the
 measurements; Claude interprets findings and makes application changes within your task.
 
+The shared workflow source is the portable [Agent Skill](../../skills/viewrule/SKILL.md).
+Codex and other hosts use that bundle directly; see [agent integration](../../docs/agents.md).
+Generated skills, guide, engine pin, and shared scripts here are kept in sync by
+`npm run agents:build` and checked by `npm run agents:check`. The Claude adapter
+alone retains legacy Stop migration and the existing runtime cache location.
+
 ## Install and use
 
 Requires Node.js 22.18+, npm, and a current Claude Code with plugin support. Linux is
@@ -22,7 +28,10 @@ Setup removes recognized legacy Viewrule Stop handlers, installs the checksummed
 engine release in `engine.json` and its Playwright Chromium browser, then helps
 configure your running application. Installing the
 plugin alone makes no engine or browser download, and does not enable enforcement.
-Version 0.8.0 pins engine 0.8.0 with explicit evidence verification, optional Git gates,
+Plugin 0.11.1 uses a short task-scoped composition preflight and retrieves guidance
+selectively. It pins engine 0.11.0 with bounded run retention and unchanged-report reuse, exports saved comparisons when the task needs them, and includes opt-in composition checks for alignment, rhythm,
+spatial economy, and balance, including comparative viewport-growth yield.
+It retains explicit evidence verification, optional Git gates,
 runtime application URLs, and automatic Stop-hook migration. It retains worktree-aware project discovery,
 native globs, read-only planning, opt-in incremental evidence reuse, authored design
 contracts, and offline rule lookup.

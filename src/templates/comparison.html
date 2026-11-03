@@ -1,0 +1,469 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'none'; img-src 'self'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'"
+    />
+    <title>{{title}} · Viewrule</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      :root {
+        font:
+          15px/1.5 system-ui,
+          sans-serif;
+        color: #172e28;
+        background: #f2f5f3;
+      }
+      body {
+        margin: 0;
+      }
+      main {
+        max-width: 1800px;
+        margin: auto;
+        padding: 28px;
+      }
+      h1 {
+        font-size: 30px;
+        margin: 4px 0 8px;
+        letter-spacing: -0.025em;
+      }
+      h2 {
+        font-size: 21px;
+        margin: 0;
+      }
+      h3 {
+        font-size: 16px;
+        margin: 0 0 8px;
+      }
+      p {
+        margin: 8px 0;
+      }
+      a {
+        color: #24583d;
+        text-underline-offset: 3px;
+      }
+      button,
+      input,
+      a,
+      summary {
+        accent-color: #24583d;
+      }
+      :focus-visible {
+        outline: 3px solid #2864b1;
+        outline-offset: 3px;
+      }
+      header,
+      footer {
+        max-width: 100ch;
+      }
+      .eyebrow {
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: #50665a;
+      }
+      .muted {
+        color: #50665a;
+      }
+      .toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px 24px;
+        align-items: center;
+        padding: 12px 0;
+      }
+      .board {
+        margin: 24px 0 0;
+        padding: 22px;
+        border: 1px solid #cad6ce;
+        border-radius: 8px;
+        background: #fff;
+      }
+      .state-heading {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 8px;
+        margin-bottom: 12px;
+      }
+      .status {
+        padding: 10px 14px;
+        border-left: 3px solid #527962;
+        background: #f0f5f1;
+        margin: 12px 0;
+      }
+      .gap {
+        border-color: #a06b21;
+        background: #fff5e7;
+      }
+      .pair {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 18px;
+      }
+      figure {
+        min-width: 0;
+        margin: 0;
+      }
+      figcaption {
+        display: flex;
+        justify-content: space-between;
+        gap: 8px;
+        margin: 8px 0;
+      }
+      .canvas {
+        background: #f6f8f6;
+        border: 1px solid #cad6ce;
+        overflow: hidden;
+      }
+      .picture {
+        position: relative;
+      }
+      img {
+        display: block;
+        width: 100%;
+        height: auto;
+      }
+      .overlay {
+        position: absolute;
+        border: 2px solid #ad421e;
+        background: #cf582b08;
+        pointer-events: none;
+      }
+      .marker,
+      .number {
+        display: inline-grid;
+        place-items: center;
+        width: 25px;
+        height: 25px;
+        border-radius: 50%;
+        background: #9d3817;
+        color: white;
+        font-size: 13px;
+        font-weight: 700;
+      }
+      .marker {
+        position: absolute;
+        left: 2px;
+        top: 2px;
+        box-shadow: 0 0 0 2px white;
+      }
+      body:has(#originals:checked) .overlay {
+        display: none;
+      }
+      .callouts {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 20px;
+        margin-top: 22px;
+      }
+      .callout {
+        border-top: 2px solid #cad6ce;
+        padding-top: 12px;
+        overflow-wrap: anywhere;
+      }
+      .number {
+        margin-right: 7px;
+      }
+      .interpretation {
+        color: #43594c;
+        font-size: 14px;
+      }
+      .interpretation strong {
+        display: block;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        margin-top: 10px;
+      }
+      table {
+        border-collapse: collapse;
+        width: 100%;
+        font-size: 13px;
+        font-variant-numeric: tabular-nums;
+      }
+      th,
+      td {
+        padding: 5px 8px;
+        border-bottom: 1px solid #dce4de;
+        text-align: right;
+        vertical-align: top;
+      }
+      th:first-child,
+      td:first-child {
+        text-align: left;
+      }
+      .metrics {
+        margin-top: 22px;
+        overflow-x: auto;
+      }
+      details {
+        margin: 0 0 24px;
+        padding: 16px 22px;
+        background: white;
+        border: 1px solid #cad6ce;
+        border-top: 0;
+      }
+      summary {
+        cursor: pointer;
+      }
+      pre {
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+        font-size: 12px;
+      }
+      .findings {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 24px;
+      }
+      .finding {
+        border-top: 1px solid #cad6ce;
+        margin-top: 12px;
+        padding-top: 12px;
+        overflow-wrap: anywhere;
+      }
+      footer {
+        margin-top: 24px;
+      }
+      @media (max-width: 900px) {
+        main {
+          padding: 14px;
+        }
+        .board {
+          padding: 14px;
+        }
+        .callouts {
+          grid-template-columns: 1fr;
+        }
+      }
+      @media (max-width: 600px) {
+        .pair,
+        .findings {
+          grid-template-columns: 1fr;
+        }
+        h1 {
+          font-size: 25px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <div class="eyebrow">Viewrule · Saved evidence</div>
+        <h1>{{title}}</h1>
+        {{#summary}}
+        <p>{{summary}}</p>
+        {{/summary}}
+        <p class="muted">
+          Two saved reviews. Numbered boxes locate recorded DOM regions.
+          Measurements describe geometry; commentary is authored interpretation.
+          This comparison supplies no approval or overall design score.
+        </p>
+      </header>
+      <div class="toolbar">
+        <label><input type="checkbox" id="originals" /> Hide annotations</label>
+        <a href="comparison.json">Comparison &amp; hashes</a>
+        <a href="before/report.json">Before report</a>
+        <a href="after/report.json">After report</a>
+        <a href="annotations.json">Authored commentary</a>
+      </div>
+      {{#states}}
+      <section
+        class="board"
+        id="state-{{number}}"
+        aria-label="{{page}} {{checkpoint}} {{viewport.name}} comparison"
+      >
+        <div class="state-heading">
+          <h2>{{page}}{{#checkpoint}} / {{checkpoint}}{{/checkpoint}}</h2>
+          <span class="muted"
+            >{{viewport.name}} · {{viewport.width}} × {{viewport.height}} CSS
+            px</span
+          >
+        </div>
+        {{#comparable}}
+        <p class="status">
+          Matched saved conditions and unchanged contract. Both originals are
+          displayed at the same scale; blank space is comparison padding.
+        </p>
+        {{/comparable}} {{^comparable}}
+        <div class="status gap">
+          <strong>Measurements not compared</strong>{{#reasons}}
+          <p>{{.}}</p>
+          {{/reasons}}
+          <p>
+            Originals are provided for inspection; no measured improvement is
+            inferred.
+          </p>
+        </div>
+        {{/comparable}} {{#identicalImages}}
+        <p class="muted">
+          <strong>No image change:</strong> the original PNG files are
+          byte-identical.
+        </p>
+        {{/identicalImages}}
+        <div class="pair">
+          {{#sides}}
+          <figure>
+            <figcaption>
+              <strong>{{name}}</strong>{{#image}}<a href="{{image}}"
+                >Original · {{width}} × {{height}} px</a
+              >{{/image}}
+            </figcaption>
+            <div
+              class="canvas"
+              style="aspect-ratio:{{aspect}};max-width:{{canvasWidth}}px"
+            >
+              {{#image}}
+              <div class="picture" style="width:{{scale}}%">
+                <img
+                  src="{{image}}"
+                  alt="{{name}} original capture of {{page}} at {{viewport.name}}"
+                  width="{{width}}"
+                  height="{{height}}"
+                />
+                {{#overlays}}<span
+                  class="overlay"
+                  style="{{style}}"
+                  title="{{number}} · {{title}}"
+                  ><span class="marker">{{number}}</span></span
+                >{{/overlays}}
+              </div>
+              {{/image}} {{^image}}
+              <p>{{reason}}</p>
+              {{/image}}
+            </div>
+          </figure>
+          {{/sides}}
+        </div>
+        <div class="callouts">
+          {{#callouts}}
+          <article class="callout">
+            <h3><span class="number">{{number}}</span>{{title}}</h3>
+            <table aria-label="{{title}} recorded geometry">
+              <thead>
+                <tr>
+                  <th>CSS px</th>
+                  <th>Before</th>
+                  <th>After</th>
+                  <th>Change</th>
+                </tr>
+              </thead>
+              <tbody>
+                {{#measurements}}
+                <tr>
+                  <th>
+                    {{label}}{{#reason}}
+                    <p>{{reason}}</p>
+                    {{/reason}}
+                  </th>
+                  <td>{{before}}</td>
+                  <td>{{after}}</td>
+                  <td>{{delta}}</td>
+                </tr>
+                {{/measurements}}
+              </tbody>
+            </table>
+            {{#reason}}
+            <p class="muted">{{reason}}</p>
+            {{/reason}}
+            <p class="interpretation">
+              <strong>Authored interpretation</strong>{{interpretation}}
+            </p>
+          </article>
+          {{/callouts}} {{^callouts}}
+          <p class="muted">
+            No annotation regions were recorded. The original screenshots and
+            findings remain available.
+          </p>
+          {{/callouts}}
+        </div>
+        <div class="metrics">
+          <h3>Recorded composition measurements</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Scoped measurement</th>
+                <th>Unit</th>
+                <th>Before</th>
+                <th>After</th>
+                <th>Change</th>
+              </tr>
+            </thead>
+            <tbody>
+              {{#measurements}}
+              <tr>
+                <th>
+                  {{label}}{{#reason}}
+                  <p>{{reason}}</p>
+                  {{/reason}}
+                </th>
+                <td>{{unit}}</td>
+                <td>{{before}}</td>
+                <td>{{after}}</td>
+                <td>{{delta}}</td>
+              </tr>
+              {{/measurements}}
+            </tbody>
+          </table>
+          {{^measurements}}
+          <p class="muted">
+            No supported single-container composition measurements in this
+            state.
+          </p>
+          {{/measurements}}
+        </div>
+      </section>
+      <details>
+        <summary>Inspect saved findings for this state</summary>
+        <div class="findings">
+          {{#sides}}
+          <div>
+            <h3>{{name}}</h3>
+            {{#findings}}
+            <div class="finding">
+              <strong>{{rule}}</strong>
+              <p>{{message}}</p>
+              <pre>
+Actual: {{actual}}
+Expected: {{expected}}</pre>
+            </div>
+            {{/findings}} {{^findings}}
+            <p>
+              No recorded findings in this state. See the original report for
+              assessment coverage.
+            </p>
+            {{/findings}}
+          </div>
+          {{/sides}}
+        </div>
+      </details>
+      {{/states}}
+      <footer>
+        <p>
+          <strong>Contract:</strong> {{contract.reason}} Inspect
+          <a href="comparison.json">the recorded contract differences</a> when
+          conditions changed.
+        </p>
+        <p class="muted">
+          Before: {{before.id}} · {{before.createdAt}}<br />After: {{after.id}}
+          · {{after.createdAt}}
+        </p>
+        <p class="muted">
+          Original report and PNG bytes are preserved with SHA-256 hashes.
+          Hashes identify copied bytes; they do not authenticate an application
+          or prove the report was unmodified before input. DOM bounding boxes do
+          not establish unobstructed visibility, semantics, or task relevance.
+          Live data, fonts, and unrecorded environment changes require review.
+        </p>
+      </footer>
+    </main>
+  </body>
+</html>

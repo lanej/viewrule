@@ -32,6 +32,8 @@ Source-only lint does not require this workflow.
    a scope, mandatory/advisory status, rationale, and verification owner: Viewrule,
    application tests, or human review. No minimum line count or adjective checklist.
    For affected views, sketch the composition and identify meaningful functional units.
+   Use the short `${CLAUDE_PLUGIN_ROOT}/skills/review/preflight.md` to identify
+   affected composition decisions without rereading unchanged general policy.
    Record required initial-view evidence versus disclosed support, common controls
    versus mutation actions, and which context the parent owns. Link representative
    states/stories and verification for both units and their assembled view; a unit's

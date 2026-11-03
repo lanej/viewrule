@@ -56,12 +56,12 @@ jobs:
         run: npm run analyze
       - name: Check guide and example sources
         if: ${{ !cancelled() && steps.dependencies.outcome == 'success'  }}
-        run: npm run guide:check
+        run: npm run guide:check && npm run agents:check
       - name: Build public site
         if: ${{ !cancelled() && steps.dependencies.outcome == 'success'  }}
         run: npm run site:build
       - run: node bin/viewrule.mjs install-browser --with-deps
-      - run: npm test
+      - run: npm run test:ci
         env:
           VIEWRULE_VERIFY_PLUGIN_PIN: ${{ contains(github.event.pull_request.title, '[release]') || contains(github.event.head_commit.message, '[release]') }}
       - uses: actions/upload-artifact@v4
@@ -86,11 +86,35 @@ jobs:
           path: dist/pattern-review-evidence/
           if-no-files-found: warn
           retention-days: 7
+      - name: Preserve composition example evidence
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: composition-example-evidence
+          path: dist/composition-evidence/
+          if-no-files-found: warn
+          retention-days: 7
       - name: Benchmark analytical detectors
         id: benchmark
         run: |
           npm run benchmark
           node scripts/repair-trial.mjs verify
+      - name: Preserve saved comparison evidence
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: saved-comparison-evidence
+          path: dist/saved-comparison-evidence/
+          if-no-files-found: warn
+          retention-days: 7
+      - name: Preserve scoped text evidence
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: text-legibility-evidence
+          path: dist/text-legibility-evidence/
+          if-no-files-found: warn
+          retention-days: 7
       - name: Preserve benchmark evidence
         if: ${{ !cancelled() && steps.benchmark.outcome != 'skipped' }}
         uses: actions/upload-artifact@v4

@@ -1,6 +1,6 @@
 {
   "name": "viewrule",
-  "version": "0.8.0",
+  "version": "0.11.0",
   "description": "Design guidance and executable UI constraints for coding agents, with full-resolution evidence and human feedback.",
   "type": "module",
   "license": "MIT",
@@ -29,22 +29,30 @@
     "CHANGELOG.md",
     "plugins/claude-code/guide/",
     "plugins/claude-code/scripts/guide.mjs",
-    "plugins/claude-code/scripts/project.mjs"
+    "plugins/claude-code/scripts/project.mjs",
+    "skills/viewrule/guide/",
+    "skills/viewrule/scripts/guide.mjs",
+    "skills/viewrule/scripts/project.mjs"
   ],
   "scripts": {
     "benchmark": "node scripts/benchmark.mjs",
-    "test": "node scripts/test-package.mjs",
+    "test": "npm run test:ci",
     "demo": "node demo.mjs",
     "site:build": "node scripts/site.mjs",
     "site:preview": "node scripts/site.mjs --serve",
     "browser:install": "node bin/viewrule.mjs install-browser",
     "lint": "eslint . --max-warnings 0",
     "analyze": "tsc --project tsconfig.json",
-    "check": "npm run format:check && npm run lint && npm run analyze && npm run guide:check",
+    "check": "npm run format:check && npm run lint && npm run analyze && npm run guide:check && npm run agents:check",
+    "check:composition": "node scripts/check-review.mjs composition",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "guide:check": "node scripts/guide.mjs",
-    "examples:import": "node scripts/examples.mjs"
+    "examples:import": "node scripts/examples.mjs",
+    "test:ci": "node scripts/test-package.mjs",
+    "agents:build": "node scripts/agents.mjs",
+    "agents:check": "node scripts/agents.mjs --check",
+    "check:patterns": "node scripts/check-review.mjs patterns"
   },
   "keywords": [
     "ui",
@@ -57,7 +65,7 @@
     "@axe-core/playwright": "4.10.2",
     "ajv": "8.18.0",
     "impeccable": "4.1.0",
-    "minimatch": "10.2.6",
+    "minimatch": "11.0.1",
     "mustache": "4.2.0",
     "playwright": "1.62.1",
     "pngjs": "7.0.0"

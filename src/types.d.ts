@@ -7,6 +7,17 @@ export interface Viewport {
   width: number;
   height: number;
 }
+export interface ComparisonAnnotations {
+  version: 1;
+  title: string;
+  summary?: string;
+  callouts: {
+    page: string;
+    region: string;
+    title: string;
+    interpretation: string;
+  }[];
+}
 export interface DetailOptions {
   width: number;
   height: number;
@@ -105,6 +116,7 @@ export interface ProjectConfig {
   sourcePaths: Selection;
   reviewScopes?: ReviewScope[];
   evidenceReuse?: { environmentKey: string; maxAgeMs: number };
+  runRetention?: { maxRuns?: number; maxAgeDays?: number; maxBytes?: number };
   accessibility: boolean;
   projectDocuments?: Selection;
   requiredDesignRules?: string[];
@@ -118,6 +130,7 @@ export interface ProjectConfig {
     ready: string;
     media?: "screen" | "print";
     textScale?: number;
+    captureRegions?: { id: string; selector: string }[];
     viewports?: Selection;
     checkpoints?: Checkpoint[];
   }[];
@@ -132,8 +145,16 @@ export interface Rule {
     | "reading-column"
     | "vertical-order"
     | "align"
+    | "alignment-residual"
+    | "gap-variance"
+    | "group-separation"
+    | "peer-footprint"
+    | "chrome-allocation"
+    | "viewport-growth-yield"
     | "no-overlap"
     | "no-clip"
+    | "no-text-overlap"
+    | "select-label-space"
     | "visible-count"
     | "max-height"
     | "min-size"
@@ -147,12 +168,7 @@ export interface Rule {
     | "region-density"
     | "repeated-metric"
     | "evidence-proximity"
-    | "mark-contrast"
-    | "spacing-rhythm"
-    | "group-separation"
-    | "peer-size"
-    | "region-budget"
-    | "viewport-yield";
+    | "mark-contrast";
   selector: string;
   severity: "error" | "warning";
   reason: string;
@@ -162,13 +178,21 @@ export interface Rule {
   feedbackId?: string;
   designRules?: string[];
   sources?: string[];
-  edge?: "left" | "right" | "top" | "bottom";
+  edge?: "left" | "right" | "top" | "bottom" | "center-x" | "center-y";
+  axis?: "x" | "y";
+  maxResidual?: number;
+  maxCoefficientOfVariation?: number;
+  maxRatio?: number;
+  referenceViewport?: string;
+  minYield?: number;
+  finiteKeys?: string[];
   tolerance?: number;
   min?: number;
   max?: number;
   minWidth?: number;
   minHeight?: number;
   items?: string;
+  groupSelector?: string;
   property?: string;
   attribute?: string;
   allowed?: string[];
@@ -188,7 +212,7 @@ export interface Rule {
   minFontSize?: number;
   required?: string[];
   region?: string;
-  measure?: "boxes" | "text";
+  measure?: "boxes" | "text" | "area" | "font-size";
   minCoverage?: number;
   maxVerticalGap?: number;
   container?: string;
@@ -200,35 +224,96 @@ export interface Rule {
   substrate?: string;
   minRatio?: number;
   groups?: { selector: string; optional: boolean }[];
-  axis?: "x" | "y";
-  maxSpread?: number;
-  groupSelector?: string;
-  dimension?: "width" | "height" | "area";
-  maxRatio?: number;
-  expectedKeys?: string[];
-  referenceViewport?: string;
-  minYield?: number;
 }
-export interface CompositionMetric {
+export interface TextLegibilityMeasurement {
   rule: string;
   type: string;
-  element: string;
+  element: string | null;
+  status: "measured" | "unassessed";
+  problems: string[];
+  peers?: { element: string; text: string; fragments: number }[];
+  overlaps?: { first: number; second: number; width: number; height: number }[];
+  overlapCount?: number;
+  label?: string;
+  availableWidth?: number;
+  requiredWidth?: number;
+  deficit?: number;
+}
+export interface PeerInferenceCandidate {
+  kind: "form-control-alignment";
+  status: "review";
+  container: string | null;
+  layout: string;
+  edge: "top";
+  anchors: number[];
+  median: number;
+  maxResidual: number;
+  discoveryThreshold: number;
+  controls: {
+    element: string;
+    label: string;
+    type: string;
+    box: { x: number; y: number; width: number; height: number };
+  }[];
+  signals: string[];
+  designRules: string[];
+  reason: string;
+  suggestion: string;
+}
+export interface CompositionMeasurement {
+  rule: string;
+  type: string;
+  element: string | null;
+  status: "measured" | "unassessed";
+  valid: boolean;
+  problems: string[];
+  count?: number;
+  edge?: Rule["edge"];
+  anchors?: number[];
+  median?: number;
+  maxResidual?: number;
+  axis?: Rule["axis"];
+  measure?: Rule["measure"];
+  values?: number[];
   gaps?: number[];
-  spread?: number;
+  withinGaps?: number[][];
+  betweenGaps?: number[];
   maxWithin?: number;
   minBetween?: number;
-  sizes?: number[];
-  ratio?: number | null;
+  mean?: number;
+  coefficientOfVariation?: number;
   regionArea?: number;
-  occupiedArea?: number;
-  keys?: string[];
-  valid?: boolean;
-  viewportArea?: number;
-  comparison?: "reference" | "unassessed" | "compared" | "saturated";
-  areaGrowth?: number;
-  evidenceGrowth?: number;
-  yield?: number;
-  saturated?: boolean;
+  chromeArea?: number;
+  ratio?: number | null;
+}
+export interface GrowthMeasurement {
+  rule: string;
+  element: string | null;
+  status: "measured" | "unassessed";
+  valid: boolean;
+  width: number;
+  height: number;
+  area: number;
+  keys: string[];
+  items: {
+    element: string;
+    key: string | null;
+    eligible: boolean;
+    reasons: string[];
+    minFontSize: number | null;
+  }[];
+  problems: string[];
+  comparison?: {
+    status: "reference" | "measured" | "saturated" | "unassessed";
+    referenceViewport: string;
+    referenceArea?: number;
+    referenceCount?: number;
+    areaGrowth?: number;
+    evidenceGrowth?: number;
+    yield?: number | null;
+    lostKeys?: string[];
+    reason?: string;
+  };
 }
 export interface Finding {
   rule: string;
@@ -257,6 +342,9 @@ export type DesignPolicy = Awaited<
   ReturnType<typeof import("./design.mjs").readDesignPolicy>
 >;
 export interface PageResult {
+  captureRegions?: Awaited<
+    ReturnType<typeof import("./capture.mjs").captureRegions>
+  >;
   evidence?: EvidenceProvenance;
   name: string;
   checkpoint?: string;
@@ -266,9 +354,7 @@ export interface PageResult {
   findings: Finding[];
   screenshot?: string;
   details?: Awaited<ReturnType<typeof import("./capture.mjs").captureDetails>>;
-  metrics?: ReturnType<typeof import("./checks.mjs").inspectPage>["metrics"] & {
-    composition?: CompositionMetric[];
-  };
+  metrics?: ReturnType<typeof import("./checks.mjs").inspectPage>["metrics"];
   coverage?: { layoutRules: string[]; accessibility: boolean };
   accessibilityNeedsReview?: { id: string; help: string; targets: unknown[] }[];
   designCoverage?: {
@@ -334,6 +420,7 @@ export interface EvidenceChange {
   }[];
 }
 export interface ReviewReport {
+  reuse?: { inputs: string; artifacts: Record<string, string> };
   execution?: ExecutionSummary;
   measurements?: {
     version: 1;

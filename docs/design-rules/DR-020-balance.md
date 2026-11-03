@@ -1,36 +1,40 @@
 # DR-020 — Rule of Balance
 
-**Principle:** Visual weight reflects semantic priority; peers do not acquire
-accidental differences in prominence.
+**Principle:** Equal-priority peers receive comparable visual allocation.
 
-**Default:** Declare what is equally important and what is not. Comparable roles
-should receive deliberate, comparable treatment. When task priority differs,
-asymmetry may be correct: a primary workspace can be larger than its supporting
-sidebar. Evaluate the composition against the attention order defined by DR-013,
-not against mirror symmetry or equal-sized boxes.
+**Requirement:** Declare which items have equal priority in the task and which
+measurable footprint should be comparable. Bound unexplained variation within
+that group. Unequal priorities can warrant unequal allocation; use DR-013 to
+state the intended hierarchy rather than forcing equality across the page.
 
-**Application:** Three equivalent options can share a width and type role. A
-primary decision panel and a context panel need not. Compare headings with
-headings and actions with actions. Extra content may require more height even
-when priority is equal; match relevant roles rather than entire containers.
+**Why:** An outsized peer can imply a distinction the task does not intend. A
+declared allocation relationship makes one source of that mismatch testable.
+This is a Viewrule composition convention, not a formula for aesthetic balance.
 
-**Exceptions:** Variable content, uncertainty, warnings, selection, readable
-wrapping, and responsive reflow can justify different footprints. A safety alert
-can legitimately outweigh ordinary peers. Do not hide context, truncate content,
-or reduce type to meet a balance constraint. [Reflow](https://www.w3.org/WAI/WCAG21/Understanding/reflow.html)
-remains an independent accessibility requirement.
+**Computationally falsifiable:** `peer-footprint` measures at least two declared
+items per group using `area` (axis-aligned border-box width times height in CSS
+px²) or `font-size` (each item's computed CSS font size in CSS px). It compares
+the population standard deviation divided by the mean with
+`maxCoefficientOfVariation`. The coefficient is dimensionless. Missing groups,
+insufficient peers, or unusable measurements cannot establish comparable
+allocation. Choose the actual label elements for a font-size contract; a card's
+inherited size cannot establish the size of every descendant.
+Rendered `display: contents` labels participate in font-size comparisons;
+hidden labels do not. Area measurements need box-generating items.
 
-**Enforcement:** `peer-size` measures the largest-to-smallest width, height, or
-rectangle-area ratio within explicitly declared peer groups. Choose the dimension
-that matters. Combine with scoped `style`, alignment, and legibility checks when
-those are part of the contract. Size is only a footprint proxy: the engine does
-not infer priority or estimate perceived weight from color, content, contrast,
-or a screenshot. Do not interpret a passing area ratio as balanced attention.
+**Application:** Compare the footprint of equal-role option cards, or the type
+size of peer values whose importance is intended to be equal. These are separate
+contracts; a similar card area does not prove similar typographic emphasis.
 
-**Review:** Inspect intentional asymmetry alongside rejected accidental emphasis.
-A primary task can deserve most of the space while secondary material stays easy
-to find. Symmetry itself is neither a requirement nor an automatic finding.
-These are Viewrule composition conventions extending DR-013, not a universal
-formula for visual weight.
+**Exception:** Longer content, accessibility needs, selected states, or a
+higher-priority action can justify a different footprint. Declare or scope that
+difference explicitly; do not truncate essential evidence to equalize boxes.
+An asymmetric layout can satisfy this rule. Symmetry itself is never required.
 
-[Composition contracts and calibration example](../composition.md).
+**Human judgment:** Decide priority, useful exceptions, and acceptable variance.
+Area and computed font size are proxies, not measurements of perceived salience
+or visual weight. Contrast, position, imagery, whitespace, optical size, and
+the task can outweigh these measurements. Passing cannot establish overall
+balance, hierarchy, or design quality.
+[Measurement reference](https://github.com/lanej/viewrule/blob/main/docs/ui-review.md#composition-contracts).
+[Good/bad example](../examples/composition.html?rule=DR-020).

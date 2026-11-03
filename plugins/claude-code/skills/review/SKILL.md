@@ -17,13 +17,13 @@ capabilities present in their installed help and documentation. Older engines th
 0.5.1 also predate the Impeccable-specific command adapter. Do not
 install or download a newer engine during a check or verification.
 
-For substantive rendered work, read
-`${CLAUDE_PLUGIN_ROOT}/skills/review/component-composition.md` once for the task.
-Follow task and rough composition -> component pass -> assembled-composition pass,
-revising either level as needed. These are workflow responsibilities, not new CLI
-commands, a requirement for two full runs, or automatic design-quality enforcement.
+For substantive rendered work, start with the short
+`${CLAUDE_PLUGIN_ROOT}/skills/review/preflight.md`. Read it once and reuse unchanged
+decisions during the task. Consult `component-composition.md` beside it only for
+relevant header, toolbar, disclosure, or assembled-view detail. Component and
+composition review are responsibilities that one configured run can cover.
 
-Before relevant UI work, run `guide` for a compact index, then `guide <ID>` for only
+When relevant guidance is not already known for this task, run `guide` for a compact index, then `guide <ID>` for only
 the relevant pages (P-001 decision context, P-002 disclosure, P-003 action lists,
 P-004 Tufte, P-005 encodings). Follow selected evidence IDs, examples, and related
 pages as needed. Do not load the entire corpus. Direct offline reads begin at
@@ -54,8 +54,10 @@ intent needed for the task, invoke `/viewrule:design` before substantive UI work
 For read-only review, report the contract gap without authoring or migrating files.
 A linter cannot establish that the document is complete or its decisions are good;
 keep unresolved material requirements and unassessed verification explicit.
-Run `contract`, `guidance`, and `docs`. Read the policy at the returned path, relevant
-measurement definitions, project rules, and applicable approved references.
+Run `contract` to read the effective boundaries. Retrieve `guidance` and `docs`
+when their preferences or installed references are not already available and
+unchanged in this task. Read only applicable policy, measurement definitions,
+project rules, and approved references; refresh after the relevant inputs change.
 Identify what the user needs to compare or decide. Cite DR IDs when translating
 that task into constraints; use stable selectors and CSS-pixel viewports.
 Summarize the task, critical comparisons, blocking boundaries, warnings, and qualitative
@@ -63,26 +65,27 @@ choices before choosing the layout. Use `/viewrule:add-rule` for requested new b
 The contract shows effective merged rules, document hashes, and changes since the
 previous report. Use stable DESIGN.md section references in authored rule `sources`.
 
-Before implementation, sketch shared context, view controls, evidence, and actions.
-Identify the affected functional units and their component/composition obligations
-in DESIGN.md. Refine units in their intended containers using existing components,
-stories, or in-page regions; do not build a new primitive library or harness. Assemble
-early, then assess repeated context, cumulative header/control overhead, action scope,
-and disclosure. Keep routine decision evidence visible; sparse can be appropriate.
-For read-only review, inspect those responsibilities without changing source or intent.
+Use the preflight to sketch the affected view before implementation. Reuse existing
+components and stories; no new primitive library or rendering harness is required.
+For read-only review, inspect these responsibilities without changing source or intent.
 
 With the intended app state running, validate both levels:
 
 1. Use the actual URL reported by the running application and run
-   `check --url <actual-url>` (or set `VIEWRULE_BASE_URL`). Do not invent a fixed
+   `check --incremental --url <actual-url>` when explicit `reviewScopes` and
+   `evidenceReuse` are configured; otherwise use `check --url <actual-url>`
+   (or set `VIEWRULE_BASE_URL`). `check` plans its own work; use `plan --incremental`
+   only to diagnose scope or invalidation decisions. Do not invent a fixed
    localhost port or probe other listeners. Read its JSON findings and saved report.
    If the installed engine's `--help` lacks `Runtime URL:`, it still uses configured
    `baseURL`; verify that it matches the running app and follow its installed docs.
    Do not assume `check --url` or the environment override works on older engines.
    Exit 1 means failed checks;
    exit 2 means setup or usage failed. A missing report is not a passing review.
-   Keep full review as the default; this phase split does not authorize incremental
-   mode, narrower coverage, or stale evidence. A run can cover both review levels.
+   Incremental mode still covers every configured obligation and checks evidence
+   freshness. An unchanged report may be reused without a new capture; identify it
+   as reused. Run `check --full` and the full app suite in required application CI
+   before merge. A run can cover both review levels.
 2. Inspect the overview for composition and affected detail tiles at original size.
    Inspect representative text and comparison regions at each configured viewport,
    including the largest. Follow `details.tiles[].file` relative to the report folder.
@@ -99,9 +102,24 @@ With the intended app state running, validate both levels:
 4. When repairs are within the user's task, change the application and rerun after
    the change. For a review-only request, report findings without editing source.
    Do not stop at a component pass. Complete both requested review scopes with fresh
-   passing check evidence, or explicitly report remaining failures, missing coverage,
+   or verified reusable passing check evidence, or explicitly report remaining failures, missing coverage,
    blockers, or unresolved judgments. Do not repeat unchanged failing runs or keep
    retrying when the measurement cannot express the intended design.
+
+Export a before/after comparison when requested or needed to evaluate a repair;
+do not generate a permanent comparison archive for every edit. Before a long repair
+session, copy a needed first run outside disposable `.ui-review/runs/` history;
+retaining only its path will not protect it from engines with automatic cleanup.
+With engine 0.10.0+ (`--help` lists `compare`), use
+`compare --before <saved-first-report> --after <final-report> --output <new-directory>`.
+Inspect the paired originals and gap reasons; add `--image` only for a needed
+shareable image. Consult installed `docs/saved-comparisons.md` for annotations.
+Keep the actual selected evidence, including failures or unchanged outcomes; never
+retrofit geometry or substitute a passing attempt. Routine intermediate runs may
+expire under engine retention. Read-only review needs no artificial second run,
+and unchanged source needs no repeat capture just to manufacture an after image.
+Report changed contracts as comparison gaps, not measured repairs; a delta does not
+establish approval or semantic preservation. Use only capabilities in installed help.
 
 Box/text coverage is a proxy: stretched empty containers or smaller unreadable type
 do not establish useful density. Preserve visible comparison identities, readable

@@ -1,20 +1,19 @@
 import { chromium } from "playwright";
 import AxeBuilder from "@axe-core/playwright";
 import { mkdir, writeFile, realpath, copyFile } from "node:fs/promises";
+import { constants } from "node:fs";
 import { randomUUID } from "node:crypto";
 import path from "node:path";
 import { readJSON } from "./config.mjs";
 import { readContract } from "./contract.mjs";
 import { fingerprint, writeJSON, feedbackEntries } from "./state.mjs";
 import { inspectPage } from "./checks.mjs";
-import { inspectComposition } from "./composition.mjs";
-import { compositionTypes } from "./composition-schema.mjs";
 import {
   renderReport,
   renderDesignPolicy,
   renderProjectDocuments,
 } from "./report.mjs";
-import { captureDetails } from "./capture.mjs";
+import { captureDetails, captureRegions } from "./capture.mjs";
 import { readDesignPolicy, evaluateDesign } from "./design.mjs";
 import { defaultPreferences } from "./presets.mjs";
 import { runCheckpoint } from "./checkpoints.mjs";
@@ -33,6 +32,13 @@ import {
 } from "./incremental.mjs";
 import { engineVersion, fileDigest } from "./fingerprints.mjs";
 import { runtimeConfig } from "./runtime-url.mjs";
+import { pruneRuns } from "./retention.mjs";
+import {
+  reportInputFingerprint,
+  reportArtifacts,
+  reusableReport,
+  unchangedCache,
+} from "./report-reuse.mjs";
 
 /** @param {string} project @param {string} globalDir @param {boolean} [incremental] @param {string} [explicitURL] */
 export async function runReview(
@@ -60,6 +66,28 @@ export async function runReview(
         incremental,
       )
     : null;
+  const reportInputs = plan
+    ? await reportInputFingerprint(project, globalDir)
+    : null;
+  if (await reusableReport(plan, config, contract, before, reportInputs)) {
+    const after = await fingerprint(project, config, globalDir);
+    const afterContract = await readContract(project, globalDir);
+    if (before !== after || afterContract.hash !== contract.hash)
+      throw new Error(
+        "Source or contract changed during report verification. Rerun the review.",
+      );
+    if (
+      reportInputs === (await reportInputFingerprint(project, globalDir)) &&
+      !evidenceAgeProblem(plan.cache.report, config) &&
+      (await unchangedCache(project, plan.cache))
+    )
+      return {
+        report: plan.cache.report,
+        reportFile: plan.cache.reportFile,
+        execution: executionSummary(plan),
+        reusedReport: true,
+      };
+  }
   const id =
     new Date().toISOString().replace(/[:.]/g, "-") +
     "-" +
@@ -116,6 +144,9 @@ export async function runReview(
       plan.units.some((unit) => unit.kind === "page" && unit.action === "run")
     )
       browser = await chromium.launch({
+        // Growth clipping uses the padding edge painted with native scrollbars
+        // hidden. Keep this Playwright default explicit for measurement parity.
+        args: ["--hide-scrollbars"],
         executablePath:
           plan?.executable ??
           (process.env.VIEWRULE_BROWSER_PATH ||
@@ -196,8 +227,13 @@ export async function runReview(
             "*,*::before,*::after{animation:none!important;transition:none!important;caret-color:transparent!important}",
         });
         await page.evaluate(() => window.scrollTo(0, 0));
+        if (pageConfig.captureRegions?.length)
+          result.captureRegions = await captureRegions(
+            page,
+            pageConfig.captureRegions,
+          );
         result.screenshot = `capture-${report.pages.length}.png`;
-        await page.screenshot({
+        const overview = await page.screenshot({
           path: path.join(dir, result.screenshot),
           fullPage: true,
           animations: "disabled",
@@ -207,6 +243,7 @@ export async function runReview(
           dir,
           `capture-${report.pages.length}`,
           config.detailCapture,
+          overview,
         );
         if (!result.details.complete)
           result.findings.push({
@@ -219,27 +256,9 @@ export async function runReview(
         const active = rules.filter((r) =>
           ruleApplies(r, pageConfig.name, viewport.name),
         );
-        const inspection = await page.evaluate(
-          inspectPage,
-          active.filter((rule) => !compositionTypes.includes(rule.type)),
-        );
-        const compositionRules = active.filter((rule) =>
-          compositionTypes.includes(rule.type),
-        );
-        const composition = compositionRules.length
-          ? await page.evaluate(inspectComposition, compositionRules)
-          : { findings: [], metrics: [], evaluations: [] };
-        result.findings.push(...inspection.findings, ...composition.findings);
-        result.metrics = {
-          ...inspection.metrics,
-          composition: composition.metrics,
-          evaluatedRules:
-            inspection.metrics.evaluatedRules + compositionRules.length,
-          evaluations: [
-            ...inspection.metrics.evaluations,
-            ...composition.evaluations,
-          ],
-        };
+        const inspection = await page.evaluate(inspectPage, active);
+        result.findings.push(...inspection.findings);
+        result.metrics = inspection.metrics;
         result.coverage = {
           layoutRules: active.map((r) => r.id),
           accessibility: config.accessibility,
@@ -365,6 +384,7 @@ export async function runReview(
           await copyFile(
             path.join(refDir, p.screenshot),
             path.join(dir, "reference", p.screenshot),
+            constants.COPYFILE_FICLONE,
           );
         } catch (error) {
           if (error.code !== "ENOENT") throw error;
@@ -392,7 +412,6 @@ export async function runReview(
     ...feedback,
   ];
   const reportFile = path.join(dir, "report.json");
-  await writeJSON(reportFile, report);
   await writeFile(
     path.join(dir, "design-rules.html"),
     renderDesignPolicy(report.designPolicy),
@@ -405,6 +424,17 @@ export async function runReview(
     path.join(dir, "index.html"),
     renderReport(report, preferences, reference),
   );
+  if (
+    plan &&
+    reportInputs &&
+    reportInputs === (await reportInputFingerprint(project, globalDir))
+  ) {
+    // Whole-report caching is optional. An oversized or concurrently removed
+    // presentation artifact must not prevent publication of the measured result.
+    const artifacts = await reportArtifacts(dir).catch(() => null);
+    if (artifacts) report.reuse = { inputs: reportInputs, artifacts };
+  }
+  await writeJSON(reportFile, report);
   await writeJSON(path.join(project, ".ui-review/latest.json"), {
     status: report.status,
     engineVersion: currentEngineVersion,
@@ -431,5 +461,15 @@ export async function runReview(
       ),
     ].slice(0, 5),
   });
-  return { report, reportFile };
+  // Housekeeping cannot erase the published run or change its check result.
+  const retention = await pruneRuns(project, config.runRetention).catch(
+    (error) => ({ error: error.message }),
+  );
+  return {
+    report,
+    reportFile,
+    retention,
+    execution: report.execution,
+    reusedReport: false,
+  };
 }

@@ -12,8 +12,8 @@
   "Keep each component's identifying graphic, title, and description associated. Measure their relative placement and require visuals per item; a parent grid declaration or one visible icon cannot establish the whole list is correct. (DR-006, DR-008)",
   "Reduce redundant spacing before reducing readable type. Let wrapping and enlarged text determine item height; keep exact icon sizes, gaps, and column choices in the project contract. (DR-007)",
   "Carry an entity's visual identity from discovery to detail. Compare the actual graphic as well as its stable identity; matching symbol labels alone do not establish matching artwork. (DR-005)",
-  "Declare visual peers and their intended anchors. Align comparable headings, labels, controls, and component edges; preserve purposeful indentation and optical exceptions. (DR-017)",
-  "Use consistent gaps for equivalent relationships and clearer separation between unrelated groups. Scope wrapped content separately; preserve text adaptation and usable controls. (DR-018)",
-  "Allocate space to task value, not container availability. Compare distinct visible evidence across viewports, cap only explicitly declared chrome, and preserve whitespace when a finite task is complete. (DR-019)",
-  "Give semantic peers deliberate comparable treatment while allowing asymmetry for unequal priorities. Footprint ratios are geometry proxies, not attention scores; never force equal heights by hiding content. (DR-020)"
+  "Declare related peers and their intended edge or center before measuring alignment residual. Separate intentional hierarchy and independent groups; optical alignment still needs review. (DR-017)",
+  "Use consistent gaps for equivalent relationships and distinct spacing for different groups. Calibrate peer gap variation to the task; a regular gap can still be too large or too small. (DR-018)",
+  "Compare additional visible, legible evidence with additional usable area at a named reference viewport. Preserve evidence identities, bound declared chrome where useful, and allow whitespace when an explicit finite task is already complete. (DR-019)",
+  "Give equal-priority peers comparable allocation when the task warrants it. Area and font-size variation are limited proxies, not salience or aesthetic scores; asymmetry and intentional hierarchy remain valid. (DR-020)"
 ]

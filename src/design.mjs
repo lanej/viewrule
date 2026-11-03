@@ -3,11 +3,6 @@ import { createHash } from "node:crypto";
 import path from "node:path";
 import { designRuleRegistry } from "./policy-ids.mjs";
 import { ruleApplies } from "./scopes.mjs";
-import {
-  compositionDesignIds,
-  compositionAdvice,
-} from "./composition-schema.mjs";
-import { evaluateComposition } from "./composition-design.mjs";
 
 export const policyDirectory = path.resolve(
   import.meta.dirname,
@@ -17,15 +12,22 @@ export const policyPaths = Object.freeze(
   designRuleRegistry.map(({ file }) => path.join(policyDirectory, file)),
 );
 const defaults = {
-  ...compositionDesignIds,
   "within-bounds": ["DR-006", "DR-007"],
   "required-elements": ["DR-006"],
   "relative-position": ["DR-006", "DR-007"],
   "reading-column": ["DR-006", "DR-007"],
   "vertical-order": ["DR-006", "DR-007"],
   align: ["DR-006", "DR-017"],
+  "alignment-residual": ["DR-017"],
+  "gap-variance": ["DR-018"],
+  "group-separation": ["DR-006", "DR-018"],
+  "viewport-growth-yield": ["DR-007", "DR-019"],
+  "chrome-allocation": ["DR-019"],
+  "peer-footprint": ["DR-020"],
   "no-overlap": ["DR-006"],
   "no-clip": ["DR-006", "DR-007"],
+  "no-text-overlap": ["DR-006", "DR-015"],
+  "select-label-space": ["DR-015"],
   "visible-count": ["DR-006"],
   "comparison-set": ["DR-006", "DR-007"],
   context: ["DR-003"],
@@ -40,7 +42,6 @@ const defaults = {
   "max-text-gap": ["DR-006", "DR-007"],
 };
 const advice = {
-  ...compositionAdvice,
   "within-bounds":
     "Reflow or resize the content and its declared container so labels remain inside the visible region. Preserve readable text and exact values.",
   "required-elements":
@@ -52,9 +53,25 @@ const advice = {
   "vertical-order":
     "Restore the declared DOM and top-to-bottom order. Reflow supporting visuals after the prose and remove overlapping or multi-column positioning.",
   align: "Align the declared peers using their shared layout or spacing rules.",
+  "alignment-residual":
+    "Restore the declared peers' shared anchor. Separate intentionally different groups instead of forcing unrelated content onto one axis.",
+  "gap-variance":
+    "Restore consistent spacing between the declared equivalent peers. Scope different relationships separately and preserve readable content.",
+  "group-separation":
+    "Restore stronger separation between declared groups than within them. Preserve readable content and usable controls; scope intentionally different relationships separately.",
+  "viewport-growth-yield":
+    "Use additional usable area to reveal distinct task evidence while preserving visible identities and readable type. For an exhausted finite task, declare its complete evidence set rather than manufacturing content.",
+  "chrome-allocation":
+    "Reduce the declared chrome allocation while preserving necessary navigation and controls. The application decides which space supports the task.",
+  "peer-footprint":
+    "Restore comparable footprint or type size among the declared equal-priority peers. Keep intentional differences scoped to their actual priority; symmetry is not required.",
   "no-overlap": "Reflow the affected peers so their content remains readable.",
   "no-clip":
     "Allow enough space for the full content or provide intentional local scrolling.",
+  "no-text-overlap":
+    "Reflow the declared neighboring labels so their text fragments stay separate. Preserve readable type; wrapping is allowed. Unassessed geometry needs a supported scope or visual review.",
+  "select-label-space":
+    "Give the selected label its measured intrinsic control width, or reflow the toolbar. Preserve the option's meaning and inspect the native control at capture scale; unsupported controls require visual review.",
   "visible-count":
     "Reduce excess spacing or reflow the comparison to reveal the required items.",
   "comparison-set":
@@ -136,7 +153,6 @@ export async function readDesignPolicy() {
  * @param {import("./types.js").Rule[]} rules
  * @param {import("./types.js").ProjectConfig} config */
 export function evaluateDesign(report, rules, config) {
-  evaluateComposition(report, rules);
   const active = (rule, page) =>
     ruleApplies(rule, page.name, page.viewport.name);
   const add = (page, rule, message, actual, expected) =>
@@ -151,6 +167,112 @@ export function evaluateDesign(report, rules, config) {
     });
   for (const rule of rules) {
     const pages = report.pages.filter((page) => active(rule, page));
+    if (rule.type === "viewport-growth-yield") {
+      for (const page of pages) {
+        const snapshot = page.metrics?.growth?.find(
+          (item) => item.rule === rule.id,
+        );
+        // Optional absence is still unassessed and never supplies a reference.
+        if (!snapshot) continue;
+        snapshot.comparison = {
+          status: "unassessed",
+          referenceViewport: rule.referenceViewport,
+        };
+        const unassessed = (message, actual) => {
+          snapshot.comparison.reason = message;
+          const evaluation = page.metrics.evaluations.find(
+            (item) => item.rule === rule.id,
+          );
+          if (evaluation) evaluation.status = "unassessed";
+          add(
+            page,
+            rule,
+            message,
+            actual,
+            "comparable visible evidence and strictly growing usable area",
+          );
+        };
+        if (!snapshot.valid) continue; // Local finding explains invalid evidence.
+        // Aggregate comparisons may have marked reused evidence unassessed in
+        // the prior run. Recompute coverage from the retained local observation.
+        const evaluation = page.metrics.evaluations.find(
+          (item) => item.rule === rule.id,
+        );
+        if (evaluation) evaluation.status = "checked";
+        if (page.viewport.name === rule.referenceViewport) {
+          snapshot.comparison.status = "reference";
+          continue;
+        }
+        const baseline = pages.find(
+          (candidate) =>
+            candidate.name === page.name &&
+            candidate.checkpoint === page.checkpoint &&
+            candidate.viewport.name === rule.referenceViewport,
+        );
+        const previous = baseline?.metrics?.growth?.find(
+          (item) => item.rule === rule.id,
+        );
+        if (!previous?.valid || !previous.area || !previous.keys.length) {
+          unassessed(
+            "Viewport-growth yield is unassessed: reference evidence is missing or invalid for this page and checkpoint.",
+            {
+              referenceViewport: rule.referenceViewport,
+              checkpoint: page.checkpoint ?? null,
+            },
+          );
+          continue;
+        }
+        if (
+          page.viewport.width < baseline.viewport.width ||
+          page.viewport.height < baseline.viewport.height ||
+          snapshot.area <= previous.area
+        ) {
+          unassessed(
+            "Viewport-growth yield is unassessed: target viewport dimensions must not shrink and usable area must strictly increase.",
+            { referenceArea: previous.area, targetArea: snapshot.area },
+          );
+          continue;
+        }
+        const lostKeys = previous.keys.filter(
+          (key) => !snapshot.keys.includes(key),
+        );
+        const areaGrowth = (snapshot.area - previous.area) / previous.area;
+        const evidenceGrowth =
+          (snapshot.keys.length - previous.keys.length) / previous.keys.length;
+        const growthYield = evidenceGrowth / areaGrowth;
+        const saturated = Boolean(
+          rule.finiteKeys?.every(
+            (key) => previous.keys.includes(key) && snapshot.keys.includes(key),
+          ),
+        );
+        snapshot.comparison = {
+          status: saturated ? "saturated" : "measured",
+          referenceViewport: rule.referenceViewport,
+          referenceArea: previous.area,
+          referenceCount: previous.keys.length,
+          areaGrowth,
+          evidenceGrowth,
+          yield: growthYield,
+          lostKeys,
+        };
+        if (lostKeys.length)
+          add(
+            page,
+            rule,
+            "Larger viewport lost previously visible task evidence.",
+            lostKeys,
+            previous.keys,
+          );
+        if (!saturated && growthYield < rule.minYield)
+          add(
+            page,
+            rule,
+            "Viewport-growth yield is below the task's configured minimum.",
+            snapshot.comparison,
+            { minYield: rule.minYield },
+          );
+      }
+    }
     if (rule.type === "comparison-set") {
       for (const page of pages) {
         const snapshot = page.metrics?.comparisons.find(
@@ -168,7 +290,10 @@ export function evaluateDesign(report, rules, config) {
           );
         if (page.viewport.name === rule.preserveFrom) continue;
         const baseline = pages.find(
-          (p) => p.name === page.name && p.viewport.name === rule.preserveFrom,
+          (p) =>
+            p.name === page.name &&
+            (p.checkpoint ?? null) === (page.checkpoint ?? null) &&
+            p.viewport.name === rule.preserveFrom,
         );
         const previous = baseline?.metrics?.comparisons.find(
           (item) => item.rule === rule.id,
@@ -248,6 +373,7 @@ export function evaluateDesign(report, rules, config) {
       finding.evidenceKind =
         rule?.type === "attribute" ||
         rule?.type === "repeated-metric" ||
+        rule?.type === "viewport-growth-yield" ||
         (rule?.type === "consistent" && rule.attributes.length)
           ? "DOM and declared metadata"
           : "DOM/capture";

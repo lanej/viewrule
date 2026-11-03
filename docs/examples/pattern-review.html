@@ -20,7 +20,57 @@
         </nav>
         <p class="stage-description"></p>
       </header>
+      <nav aria-label="Review patterns">
+        <a href="?case=toolbar&quality=good">Toolbar scope</a>
+        <a href="?case=whitespace&quality=good">Finite whitespace</a>
+        <a href="?case=changed-task&quality=good">Changed task</a>
+        <a href="?case=scopes&quality=good">Independent controls</a>
+      </nav>
       <div id="surface"></div>
+      <template id="comparison-template">
+        <section class="comparison-surface" aria-labelledby="comparison-title">
+          <header class="comparison-toolbar">
+            <h2 id="comparison-title">Review queue</h2>
+            <label
+              >Source
+              <select class="source-filter">
+                <option value="all">All sources</option>
+                <option value="catalog">Catalog</option>
+                <option value="inventory">Inventory</option>
+              </select></label
+            >
+            <p class="active-scope" aria-live="polite">
+              Showing all sources · 3 groups
+            </p>
+          </header>
+          <div class="decision-rows"></div>
+        </section>
+      </template>
+      <template id="decision-row-template">
+        <article class="decision-row">
+          <h3 class="queue-identity"></h3>
+          <p class="queue-source"></p>
+          <p class="queue-denominator"></p>
+          <p class="queue-eligibility"></p>
+          <label class="local-window"
+            >History window
+            <select>
+              <option value="4">4 cycles</option>
+              <option value="8">8 cycles</option>
+            </select></label
+          >
+          <button class="queue-action" type="button"></button>
+          <p class="queue-action-status" aria-live="polite">Not queued</p>
+          <p class="primary-trend"></p>
+          <details class="queue-detail">
+            <summary></summary>
+            <p class="queue-trend"></p>
+            <p>
+              Synthetic collection notes; opening these notes makes no changes.
+            </p>
+          </details>
+        </article>
+      </template>
       <section class="example-notes">
         <h2>What this case demonstrates</h2>
         <p>

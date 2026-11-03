@@ -1,0 +1,61 @@
+{
+  "version": 1,
+  "baseURL": "http://127.0.0.1:4173",
+  "enforceOnStop": false,
+  "sourcePaths": ["docs/examples"],
+  "accessibility": true,
+  "pages": [
+    {
+      "name": "alignment-good",
+      "path": "/examples/composition.html?rule=DR-017&quality=good",
+      "ready": "#composition-examples[data-ready]"
+    },
+    {
+      "name": "alignment-bad",
+      "path": "/examples/composition.html?rule=DR-017&quality=bad",
+      "ready": "#composition-examples[data-ready]"
+    },
+    {
+      "name": "rhythm-good",
+      "path": "/examples/composition.html?rule=DR-018&quality=good",
+      "ready": "#composition-examples[data-ready]"
+    },
+    {
+      "name": "rhythm-bad",
+      "path": "/examples/composition.html?rule=DR-018&quality=bad",
+      "ready": "#composition-examples[data-ready]"
+    },
+    {
+      "name": "economy-good",
+      "path": "/examples/composition.html?rule=DR-019&quality=good",
+      "ready": "#composition-examples[data-ready]"
+    },
+    {
+      "name": "economy-bad",
+      "path": "/examples/composition.html?rule=DR-019&quality=bad",
+      "ready": "#composition-examples[data-ready]"
+    },
+    {
+      "name": "balance-good",
+      "path": "/examples/composition.html?rule=DR-020&quality=good",
+      "ready": "#composition-examples[data-ready]"
+    },
+    {
+      "name": "balance-bad",
+      "path": "/examples/composition.html?rule=DR-020&quality=bad",
+      "ready": "#composition-examples[data-ready]"
+    }
+  ],
+  "viewports": [
+    {
+      "name": "compact",
+      "width": 800,
+      "height": 900
+    },
+    {
+      "name": "wide",
+      "width": 1280,
+      "height": 900
+    }
+  ]
+}

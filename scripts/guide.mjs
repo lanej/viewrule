@@ -8,7 +8,7 @@ import {
   guideRoot,
   readGuide,
   guideIndex,
-} from "../plugins/claude-code/scripts/guide.mjs";
+} from "../skills/viewrule/scripts/guide.mjs";
 
 import { validateExamples } from "./examples.mjs";
 

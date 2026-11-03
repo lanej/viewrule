@@ -11,6 +11,7 @@ import {
   symlink,
   lstat,
   chmod,
+  rename,
 } from "node:fs/promises";
 import { createHash } from "node:crypto";
 import { tmpdir } from "node:os";
@@ -19,7 +20,11 @@ import { createServer } from "node:http";
 import { createRequire } from "node:module";
 import { execFile } from "node:child_process";
 import { chromium } from "playwright";
+import { PNG } from "pngjs";
 import { inspectPage } from "../src/checks.mjs";
+import { runPatternReviewScenario } from "./pattern-scenario.mjs";
+import { runCompositionScenario } from "./composition-scenario.mjs";
+import { runSavedComparisonScenario } from "./saved-comparison-scenario.mjs";
 import { config } from "./fixtures.mjs";
 import {
   analyticalHtml,
@@ -51,6 +56,27 @@ test(
     const server = createServer(async (req, res) => {
       const pathname = new URL(req.url, "http://localhost").pathname;
       // Exercise deployment below a project prefix, including relative assets.
+      if (pathname.startsWith("/saved-comparison/")) {
+        const file =
+          pathname === "/saved-comparison/"
+            ? "index.html"
+            : pathname.slice("/saved-comparison/".length);
+        if (!["index.html", "app.css", "app.js", "data.js"].includes(file)) {
+          res.writeHead(404);
+          return res.end();
+        }
+        res.setHeader(
+          "Content-Type",
+          file.endsWith(".js")
+            ? "text/javascript"
+            : file.endsWith(".css")
+              ? "text/css"
+              : "text/html",
+        );
+        return res.end(
+          await readFile(path.join(project, "saved-comparison-app/src", file)),
+        );
+      }
       if (pathname.startsWith("/incremental/")) {
         const relative = pathname.slice("/incremental/".length);
         if (
@@ -101,6 +127,12 @@ test(
             "decision.html",
             "decision.js",
             "decision.css",
+            "composition.html",
+            "composition.js",
+            "composition.css",
+            "peer-inference.html",
+            "peer-inference.js",
+            "peer-inference.css",
             "pattern-review.html",
             "pattern-review.js",
             "pattern-review.css",
@@ -226,12 +258,19 @@ test(
     pin.url = `${baseURL}/engine.tgz`;
     pin.sha256 = createHash("sha256").update(archive).digest("hex");
     await writeFile(path.join(plugin, "engine.json"), JSON.stringify(pin));
+    // Codex receives this directory alone, without a marketplace cache or repository.
+    const portable = path.join(project, "agent skills/viewrule");
+    await cp(path.join(repository, "skills/viewrule"), portable, {
+      recursive: true,
+    });
+    await writeFile(path.join(portable, "engine.json"), JSON.stringify(pin));
     const runtime = path.join(project, "runtime data");
     /** @type {NodeJS.ProcessEnv} */
     const env = {
       ...process.env,
       VIEWRULE_CONFIG_DIR: globalDir,
       VIEWRULE_PLUGIN_DATA_DIR: runtime,
+      VIEWRULE_DATA_DIR: path.join(project, "agent runtime"),
       CLAUDE_PLUGIN_ROOT: plugin,
       CLAUDE_CONFIG_DIR: path.join(project, "claude user"),
       CLAUDE_PROJECT_DIR: project,
@@ -249,9 +288,11 @@ test(
         );
         child.stdin.end(input);
       });
-    const cli = (args) =>
+    let launcher = path.join(plugin, "scripts/viewrule.mjs");
+    const cli = (args) => run(process.execPath, [launcher, ...args]);
+    const portableCLI = (args) =>
       run(process.execPath, [
-        path.join(plugin, "scripts/viewrule.mjs"),
+        path.join(portable, "scripts/viewrule.mjs"),
         ...args,
       ]);
     await assert.rejects(readFile(path.join(plugin, "hooks/hooks.json")), {
@@ -319,6 +360,20 @@ test(
       "Legacy global options cannot delegate to an old blocking engine",
     );
     await rm(path.join(project, ".ui-review/config.json"));
+    const portableGuide = await portableCLI(["guide", "P-003"]);
+    assert.equal(portableGuide.code, 0, portableGuide.stderr);
+    assert.equal(portableGuide.stdout, selectedGuide.stdout);
+    const missingEngine = await portableCLI(["--version"]);
+    assert.equal(missingEngine.code, 2);
+    assert.match(missingEngine.stderr, /Run this launcher with setup/);
+    await assert.rejects(
+      readFile(path.join(env.VIEWRULE_DATA_DIR, "install.lock")),
+      { code: "ENOENT" },
+    );
+    const rejectedPortable = await portableCLI(["setup", "--skip-browser"]);
+    assert.equal(rejectedPortable.code, 2);
+    assert.match(rejectedPortable.stderr, /checksum mismatch/);
+    assert.deepEqual(await readdir(env.VIEWRULE_DATA_DIR), []);
     const rejected = await cli(["setup", "--skip-browser"]);
     assert.equal(rejected.code, 2);
     assert.match(rejected.stderr, /checksum mismatch/);
@@ -406,6 +461,28 @@ test(
       }),
     );
     await writeFile(malformedSettings, "{invalid JSON\n");
+    const settingsBeforePortable = await readFile(userSettings, "utf8");
+    const projectBeforePortable = await readFile(projectSettings, "utf8");
+    const portableSetup = await portableCLI([
+      "setup",
+      "--skip-browser",
+      "--project",
+      migrationApp,
+    ]);
+    assert.equal(portableSetup.code, 0, portableSetup.stderr);
+    assert.equal(JSON.parse(portableSetup.stdout).stopHookMigration, undefined);
+    assert.equal(
+      await readFile(userSettings, "utf8"),
+      settingsBeforePortable,
+      "Agent-neutral setup does not edit Claude settings",
+    );
+    assert.equal(
+      await readFile(projectSettings, "utf8"),
+      projectBeforePortable,
+    );
+    assert.ok(
+      JSON.parse(portableSetup.stdout).engine.startsWith(env.VIEWRULE_DATA_DIR),
+    );
     const setup = await cli([
       "setup",
       "--skip-browser",
@@ -462,6 +539,14 @@ test(
       selectedGuide.stdout,
       "Plugin and packed engine read identical canonical guidance",
     );
+    // Exercise the full installed review/feedback/verification workflow through the
+    // standalone skill with no Claude environment. The contract test retains the
+    // Claude adapter path, including worktree and Git gate compatibility.
+    launcher = path.join(portable, "scripts/viewrule.mjs");
+    for (const key of Object.keys(env))
+      if (key.startsWith("CLAUDE_")) delete env[key];
+    delete env.VIEWRULE_PLUGIN_DATA_DIR;
+    assert.equal((await cli(["--version"])).stdout.trim(), pin.version);
     const docs = await cli(["docs"]);
     assert.equal(docs.code, 0, docs.stderr);
     assert.match(
@@ -979,6 +1064,26 @@ test(
       path.join(path.dirname(output.report), last.file),
     );
     assert.deepEqual([png.readUInt32BE(16), png.readUInt32BE(20)], [1024, 800]);
+    const overviewPage = report.pages.find(
+      (page) => page.viewport.name === "4k",
+    );
+    const overviewPixels = PNG.sync.read(
+      await readFile(
+        path.join(path.dirname(output.report), overviewPage.screenshot),
+      ),
+    );
+    const tilePixels = PNG.sync.read(png);
+    for (let row = 0; row < last.height; row++) {
+      const start = ((last.y + row) * overviewPixels.width + last.x) * 4;
+      assert.deepEqual(
+        tilePixels.data.subarray(
+          row * last.width * 4,
+          (row + 1) * last.width * 4,
+        ),
+        overviewPixels.data.subarray(start, start + last.width * 4),
+        "Detail tiles preserve exact native overview pixels",
+      );
+    }
     const reportHtml = await readFile(output.html, "utf8");
     assert.match(reportHtml, /capture-1-detail-/);
     assert.match(reportHtml, /&quot;max&quot;:160/);
@@ -1017,11 +1122,83 @@ test(
       await readFile(output.report, "utf8"),
     );
 
+    // Old disposable evidence must not grow without bound or take user data with it.
+    const runsRoot = path.join(project, ".ui-review/runs");
+    const oldRun = "2000-01-01T00-00-00-000Z-1234abcd";
+    const linkedOldRun = "2000-01-02T00-00-00-000Z-1234abcd";
+    await cp(path.dirname(output.report), path.join(runsRoot, oldRun), {
+      recursive: true,
+    });
+    const outsideEvidence = path.join(project, "outside-evidence");
+    await mkdir(outsideEvidence);
+    await writeFile(
+      path.join(outsideEvidence, "keep.txt"),
+      "Not disposable evidence",
+    );
+    await symlink(outsideEvidence, path.join(runsRoot, linkedOldRun));
+    await mkdir(path.join(runsRoot, "hand-saved"));
+    const beforePrune = await readdir(runsRoot);
+    const previewPrune = await cli(["prune", "--dry-run"]);
+    assert.equal(previewPrune.code, 0, previewPrune.stderr);
+    assert.ok(JSON.parse(previewPrune.stdout).removed.includes(oldRun));
+    assert.deepEqual(
+      await readdir(runsRoot),
+      beforePrune,
+      "Cleanup preview does not change evidence",
+    );
+    await writeFile(
+      latestPath,
+      JSON.stringify({ ...latestAfterGood, status: "running" }),
+    );
+    const busyPrune = await cli(["prune"]);
+    assert.equal(busyPrune.code, 2);
+    assert.match(busyPrune.stderr, /running or was interrupted/);
+    assert.deepEqual(await readdir(runsRoot), beforePrune);
+    await writeFile(latestPath, latestAfterGoodText);
+    const parkedRuns = path.join(project, ".ui-review/parked-runs");
+    await rename(runsRoot, parkedRuns);
+    await symlink(outsideEvidence, runsRoot);
+    const linkedStorePrune = await cli(["prune"]);
+    assert.equal(linkedStorePrune.code, 2);
+    assert.match(linkedStorePrune.stderr, /not a symlink/);
+    assert.equal(
+      await readFile(path.join(outsideEvidence, "keep.txt"), "utf8"),
+      "Not disposable evidence",
+    );
+    await rm(runsRoot);
+    await rename(parkedRuns, runsRoot);
+
     await writeFile(source, analyticalHtml("sidebar"));
     const alternate = await cli(["check"]);
     assert.equal(alternate.code, 0, alternate.stderr || alternate.stdout);
     const alternateReport = JSON.parse(
       await readFile(JSON.parse(alternate.stdout).report, "utf8"),
+    );
+    const cleanup = JSON.parse(alternate.stdout).retention;
+    assert.ok(
+      cleanup.removed.includes(oldRun),
+      "Completed checks prune aged backlog automatically",
+    );
+    assert.ok(cleanup.retained.length <= 3);
+    assert.ok(cleanup.retained.includes(alternateReport.id));
+    await assert.rejects(lstat(path.join(runsRoot, oldRun)), {
+      code: "ENOENT",
+    });
+    assert.ok(
+      (await lstat(path.join(runsRoot, linkedOldRun))).isSymbolicLink(),
+    );
+    assert.ok((await lstat(path.join(runsRoot, "hand-saved"))).isDirectory());
+    assert.equal(
+      await readFile(path.join(outsideEvidence, "keep.txt"), "utf8"),
+      "Not disposable evidence",
+    );
+    assert.equal(
+      await readFile(
+        path.join(project, ".ui-review", approved.reference, "report.json"),
+        "utf8",
+      ),
+      JSON.stringify(report, null, 2) + "\n",
+      "Approval remains exact after cleanup",
     );
     assert.deepEqual(alternateReport.summary, { errors: 0, warnings: 0 });
     assert.equal(alternateReport.changes.baselineId, report.id);
@@ -1114,7 +1291,7 @@ test(
     );
 
     const installedTemplate = path.join(
-      JSON.parse(setup.stdout).engine,
+      JSON.parse(portableSetup.stdout).engine,
       "src/templates/report.html",
     );
     const originalTemplate = await readFile(installedTemplate, "utf8");
@@ -1163,7 +1340,7 @@ test(
     env.VIEWRULE_CONFIG_DIR = path.join(project, "mock-global");
     await mkdir(env.VIEWRULE_CONFIG_DIR);
     const mockDirectory = path.join(
-      JSON.parse(setup.stdout).engine,
+      JSON.parse(portableSetup.stdout).engine,
       "docs/app",
     );
     const appConfig = JSON.parse(
@@ -1221,112 +1398,28 @@ test(
         appFindings.some((f) => f.rule === id),
         `Mock app should expose ${id}`,
       );
+    await runSavedComparisonScenario({
+      cli,
+      baseURL,
+      project,
+      mockDirectory,
+      repository: path.resolve(import.meta.dirname, ".."),
+    });
     // New policy IDs are first-class without pretending all their semantics are
     // automatically assessed. Both sides use one scoped contract and real DOM.
     const exampleDirectory = path.join(
-      JSON.parse(setup.stdout).engine,
+      JSON.parse(portableSetup.stdout).engine,
       "docs/examples",
     );
-    // Screenshot-informed calibration: local units can pass while their parent
-    // still fails. The same contract also rejects compact-but-hidden evidence.
-    const patternCatalog = JSON.parse(
-      await readFile(
-        path.join(exampleDirectory, "pattern-review-catalog.json"),
-        "utf8",
-      ),
-    );
-    const patternRules = JSON.parse(
-      await readFile(
-        path.join(exampleDirectory, "pattern-review-rules.json"),
-        "utf8",
-      ),
-    );
-    const patternConfig = JSON.parse(
-      await readFile(
-        path.join(exampleDirectory, "pattern-review-config.json"),
-        "utf8",
-      ),
-    );
-    await mkdir(path.join(project, "docs/examples"), { recursive: true });
-    await cp(
-      path.join(exampleDirectory, "pattern-review-design.md"),
-      path.join(project, "docs/examples/pattern-review-design.md"),
-    );
-    await writeFile(rulesPath, JSON.stringify(patternRules));
-    await writeFile(
-      path.join(project, ".ui-review/config.json"),
-      JSON.stringify({ ...patternConfig, baseURL, sourcePaths: ["src"] }),
-    );
-    const patternCheck = await cli(["check"]);
-    assert.equal(
-      patternCheck.code,
-      1,
-      patternCheck.stderr || patternCheck.stdout,
-    );
-    const patternReportPath = JSON.parse(patternCheck.stdout).report;
-    const patternReport = JSON.parse(await readFile(patternReportPath, "utf8"));
-    assert.equal(patternReport.pages.length, 4);
-    const patternEvidence = path.join(
+    await runPatternReviewScenario({
+      cli,
+      baseURL,
+      project,
+      rulesPath,
+      exampleDirectory,
       repository,
-      "dist/pattern-review-evidence",
-    );
-    await rm(patternEvidence, { recursive: true, force: true });
-    await cp(
-      path.dirname(patternReportPath),
-      path.join(patternEvidence, "cli"),
-      { recursive: true },
-    );
-    const patternFindings = {};
-    for (const capture of patternReport.pages) {
-      const ids = [
-        ...new Set(capture.findings.map((finding) => finding.rule)),
-      ].sort();
-      assert.deepEqual(
-        ids,
-        [...patternCatalog.expected[capture.name]].sort(),
-        JSON.stringify(capture.findings),
-      );
-      assert.equal(capture.viewport.name, "desktop");
-      assert.equal(capture.details.complete, true);
-      assert.ok(
-        capture.metrics.evaluations.every(
-          (entry) => entry.status === "checked",
-        ),
-      );
-      patternFindings[capture.name] = {
-        component: ids.filter((id) =>
-          patternCatalog.componentRules.includes(id),
-        ),
-        composition: ids.filter((id) =>
-          patternCatalog.compositionRules.includes(id),
-        ),
-      };
-      for (const finding of capture.findings) {
-        const rule = patternRules.find((rule) => rule.id === finding.rule);
-        assert.deepEqual(finding.designRules, rule.designRules);
-        assert.ok(
-          rule.sources.every((source) => finding.sources.includes(source)),
-        );
-        assert.equal(finding.selector, rule.selector);
-        if (rule.type === "max-height") {
-          assert.ok(finding.actual > rule.max);
-          assert.equal(finding.expected, rule.max);
-        }
-        if (rule.type === "visible-count") {
-          assert.equal(finding.actual, 0);
-          assert.equal(finding.expected, 3);
-        }
-      }
-      if (capture.name === "hidden")
-        assert.deepEqual(
-          capture.findings.map((finding) => finding.actual).sort(),
-          [".denominator", ".trend-value", ".trend-comparison"].sort(),
-        );
-    }
-    assert.deepEqual(patternFindings.components.component, []);
-    assert.deepEqual(patternFindings.composition, {
-      component: [],
-      composition: [],
+      env,
+      examplePrefix: "/viewrule/examples/",
     });
     // One synthetic operations pair exercises declared decision surfaces through
     // the packed CLI. No proprietary reference asset enters the package.
@@ -1486,6 +1579,267 @@ test(
       ),
     );
 
+    // Same installed workflow: retain both escaped assumptions, their repairs,
+    // legitimate wrapping, and explicit unsupported evidence in one capture.
+    await cp(
+      new URL("./templates/text-legibility.html", import.meta.url),
+      source,
+    );
+    const textRules = [
+      ...[
+        "crowded",
+        "repaired",
+        "wrapped",
+        "clipped",
+        "generated",
+        "visibility-crowded",
+        "generated-visibility",
+        "visibility-repaired",
+      ].map((id) => ({
+        id: `text-${id}`,
+        type: "no-text-overlap",
+        selector: `#${id}`,
+        items: ".label",
+      })),
+      ...["narrow", "wide", "custom"].map((id) => ({
+        id: `select-${id}`,
+        type: "select-label-space",
+        selector: `#${id}`,
+      })),
+    ].map((rule) => ({
+      ...rule,
+      tolerance: 1,
+      severity: "error",
+      reason: "Keep declared task labels readable.",
+    }));
+    const legacyTextRules = [
+      {
+        id: "legacy-label-boxes",
+        type: "no-overlap",
+        selector: "#crowded .label",
+        severity: "error",
+        reason: "Element boxes alone miss this text collision.",
+      },
+      {
+        id: "legacy-select-scroll",
+        type: "no-clip",
+        selector: "#narrow",
+        severity: "error",
+        reason: "Native scroll dimensions alone miss selected text loss.",
+      },
+    ];
+    await writeFile(
+      rulesPath,
+      JSON.stringify([...textRules, ...legacyTextRules]),
+    );
+    await writeFile(
+      path.join(project, ".ui-review/config.json"),
+      JSON.stringify({
+        version: 1,
+        baseURL,
+        sourcePaths: ["src"],
+        accessibility: false,
+        pages: [{ name: "Text legibility", path: "/", ready: "#wide" }],
+        viewports: [{ name: "mobile", width: 390, height: 844 }],
+      }),
+    );
+    const textCheck = await cli(["check"]);
+    assert.equal(textCheck.code, 1, textCheck.stderr || textCheck.stdout);
+    const textFile = JSON.parse(textCheck.stdout).report;
+    const textReport = JSON.parse(await readFile(textFile, "utf8"));
+    const textPage = textReport.pages[0];
+    assert.deepEqual(textPage.findings.map((f) => f.rule).sort(), [
+      "select-custom",
+      "select-narrow",
+      "text-clipped",
+      "text-crowded",
+      "text-generated",
+      "text-generated-visibility",
+      "text-visibility-crowded",
+    ]);
+    const textMeasurements = textPage.metrics.textLegibility;
+    const textMeasurement = (id) => textMeasurements.find((m) => m.rule === id);
+    assert.equal(textMeasurement("text-crowded").overlapCount, 1);
+    assert.ok(textMeasurement("text-crowded").overlaps[0].width > 15);
+    for (const id of [
+      "text-repaired",
+      "text-wrapped",
+      "text-visibility-repaired",
+    ]) {
+      assert.equal(textMeasurement(id).status, "measured");
+      assert.equal(textMeasurement(id).overlapCount, 0);
+    }
+    assert.ok(textMeasurement("text-wrapped").peers[0].fragments >= 2);
+    assert.equal(textMeasurement("text-visibility-crowded").overlapCount, 1);
+    assert.ok(
+      textMeasurement("text-visibility-crowded").overlaps[0].width > 15,
+    );
+    for (const id of ["text-visibility-crowded", "text-visibility-repaired"]) {
+      const measurement = textMeasurement(id);
+      assert.equal(measurement.status, "measured");
+      assert.equal(measurement.peers.length, 3);
+      assert.equal(measurement.peers[0].text, "Queued");
+      assert.equal(
+        textPage.metrics.evaluations.find((r) => r.rule === id).status,
+        "checked",
+      );
+    }
+    const generatedVisibility = textMeasurement("text-generated-visibility");
+    assert.equal(generatedVisibility.peers.length, 3);
+    assert.ok(
+      generatedVisibility.problems.some((problem) =>
+        problem.includes("Generated"),
+      ),
+    );
+    assert.equal(generatedVisibility.overlapCount, undefined);
+    assert.equal(textMeasurement("select-narrow").label, "Warehouse ID");
+    assert.equal(textMeasurement("select-wide").label, "Warehouse ID");
+    assert.equal(
+      textMeasurement("select-narrow").requiredWidth,
+      textMeasurement("select-wide").requiredWidth,
+    );
+    assert.ok(textMeasurement("select-narrow").deficit > 40);
+    assert.equal(textMeasurement("select-wide").deficit, 0);
+    for (const id of [
+      "text-clipped",
+      "text-generated",
+      "text-generated-visibility",
+      "select-custom",
+    ]) {
+      assert.equal(textMeasurement(id).status, "unassessed");
+      assert.ok(textMeasurement(id).problems.length);
+      assert.equal(
+        textPage.metrics.evaluations.find((r) => r.rule === id).status,
+        "unassessed",
+      );
+    }
+    assert.deepEqual(
+      textPage.findings.find((f) => f.rule === "text-crowded").designRules,
+      ["DR-006", "DR-015"],
+    );
+    assert.deepEqual(
+      textPage.findings.find((f) => f.rule === "select-narrow").designRules,
+      ["DR-015"],
+    );
+    await cp(
+      path.dirname(textFile),
+      path.join(repository, "dist/text-legibility-evidence/regression"),
+      { recursive: true },
+    );
+    assert.match(
+      await readFile(path.join(path.dirname(textFile), "index.html"), "utf8"),
+      /Scoped text geometry/,
+    );
+
+    const compositionEvidence = await runCompositionScenario({
+      cli,
+      baseURL,
+      project,
+      rulesPath,
+      exampleDirectory,
+      repository,
+      env,
+    });
+    // Existing captures without annotation regions retain growth states, rather
+    // than inventing boxes or converting saturated/reference yield to zero.
+    const growthReport = path.join(
+      compositionEvidence,
+      "regression-report/report.json",
+    );
+    const growthOutput = path.join(
+      repository,
+      "dist/saved-comparison-evidence/growth-reference",
+    );
+    const growthCompare = await cli([
+      "compare",
+      "--before",
+      growthReport,
+      "--after",
+      growthReport,
+      "--output",
+      growthOutput,
+    ]);
+    assert.equal(growthCompare.code, 0, growthCompare.stderr);
+    const growthComparison = JSON.parse(
+      await readFile(path.join(growthOutput, "comparison.json"), "utf8"),
+    );
+    assert.ok(growthComparison.states.every((s) => s.callouts.length === 0));
+    const growthRows = growthComparison.states
+      .flatMap((s) => s.measurements)
+      .filter((m) => m.label.endsWith("Viewport-growth yield"));
+    assert.ok(
+      growthRows.some(
+        (m) => m.before === "saturated" && m.values.delta === null,
+      ),
+    );
+    assert.ok(
+      growthRows.some(
+        (m) => m.before === "reference" && m.values.delta === null,
+      ),
+    );
+    assert.ok(
+      growthRows.some((m) => m.values.before > 0 && m.values.delta === 0),
+    );
+
+    assert.ok(
+      growthRows.some(
+        (m) => m.before === "unassessed" && m.values.delta === null,
+      ),
+    );
+    // A fresh target cannot establish a derived delta from stale reference evidence.
+    // Target-local geometry remains comparable; the valid pair above still yields 0.
+    const staleRun = path.join(project, "stale-growth-reference");
+    await cp(path.dirname(growthReport), staleRun, { recursive: true });
+    const staleReport = JSON.parse(await readFile(growthReport, "utf8"));
+    const reference = staleReport.pages.find(
+      (p) =>
+        p.name === "economy-good" &&
+        p.checkpoint === "intact" &&
+        p.viewport.name === "compact",
+    );
+    reference.evidence = {
+      kind: "reused",
+      createdAt: "2000-01-01T00:00:00.000Z",
+    };
+    await writeFile(
+      path.join(staleRun, "report.json"),
+      JSON.stringify(staleReport),
+    );
+    const staleOutput = path.join(
+      repository,
+      "dist/saved-comparison-evidence/stale-growth-reference",
+    );
+    const staleCompare = await cli([
+      "compare",
+      "--before",
+      growthReport,
+      "--after",
+      path.join(staleRun, "report.json"),
+      "--output",
+      staleOutput,
+    ]);
+    assert.equal(staleCompare.code, 0, staleCompare.stderr);
+    const staleComparison = JSON.parse(
+      await readFile(path.join(staleOutput, "comparison.json"), "utf8"),
+    );
+    const freshTarget = staleComparison.states.find(
+      (s) =>
+        s.page === "economy-good" &&
+        s.checkpoint === "intact" &&
+        s.viewport.name === "wide",
+    );
+    assert.equal(freshTarget.comparable, true);
+    const dependentYield = freshTarget.measurements.find((m) =>
+      m.label.endsWith("Viewport-growth yield"),
+    );
+    assert.ok(dependentYield.values.before > 0);
+    assert.equal(dependentYield.values.delta, null);
+    assert.match(dependentYield.reason, /Growth reference compact:.*predates/);
+    assert.match(
+      await readFile(path.join(staleOutput, "index.html"), "utf8"),
+      /Growth reference compact:.*predates/,
+    );
+
     const catalog = JSON.parse(
       await readFile(
         path.join(exampleDirectory, "behavior-catalog.json"),
@@ -1530,22 +1884,9 @@ test(
       ),
     );
     const registeredRules = contextSchema.properties.designRules.items.enum;
-    // Historical example assessments must not silently claim coverage
-    // of newly registered policies. Keep the full partition explicit.
-    assert.deepEqual(conformance.policyScope, registeredRules.slice(0, 16));
-    assert.deepEqual(conformance.unassessedPolicy, [
-      "DR-017",
-      "DR-018",
-      "DR-019",
-      "DR-020",
-    ]);
-    assert.deepEqual(
-      [...conformance.policyScope, ...conformance.unassessedPolicy],
-      registeredRules,
-    );
     for (const example of conformance.examples) {
       assert.equal(example.target, example.id);
-      assert.deepEqual(Object.keys(example.rules), conformance.policyScope);
+      assert.deepEqual(Object.keys(example.rules), registeredRules);
       const failures = [];
       for (const [id, assessment] of Object.entries(example.rules)) {
         assert.ok(["pass", "fail", "not-applicable"].includes(assessment.good));
@@ -1661,7 +2002,7 @@ test(
     }
     await writeFile(
       proposal,
-      JSON.stringify({ ...behaviorRules[0], designRules: ["DR-017"] }),
+      JSON.stringify({ ...behaviorRules[0], designRules: ["DR-021"] }),
     );
     assert.equal(
       (await cli(["add-rule", "--rule", proposal, "--dry-run"])).code,
@@ -1678,513 +2019,6 @@ test(
       const page = await browser.newPage({
         viewport: { width: 1440, height: 1000 },
       });
-      const patternErrors = [];
-      const recordPatternError = (error) => patternErrors.push(error.message);
-      page.on("pageerror", recordPatternError);
-      const patternLayouts = {};
-      const patternFacts = {
-        ".group-identity": "Emerging pattern — Sample group Q7",
-        ".observation-window": "Ranking window: cycles I–L",
-        ".confidence": "High confidence",
-        ".direction": "Decreasing",
-        ".rate-value": "26.4%",
-        ".denominator": "231 of 875 classified records",
-        ".trend-value": "−8.6%",
-        ".trend-comparison": "Relative change vs cycles E–H",
-        ".volume-value": "875 records",
-        ".rate-weight": "Ranking weight: 45%",
-        ".trend-weight": "Ranking weight: 35%",
-        ".volume-weight": "Ranking weight: 20%",
-        ".processing-context .context-value":
-          "Average duration: unavailable · Retries observed: 2 of 7 runs",
-        ".corroboration-context .context-value":
-          "Confirmed reviews: 3 recent · 7 total",
-        ".mix-context .context-value":
-          "Subtype share: unavailable · Subgroup review rate: 47.2%",
-      };
-      for (const stage of ["before", "components", "composition", "hidden"]) {
-        // Use built Pages paths too: no root-relative asset assumptions.
-        await page.goto(
-          `${baseURL}/viewrule/examples/pattern-review.html?stage=${stage}`,
-        );
-        await page.waitForSelector(`#pattern-review[data-ready="${stage}"]`);
-        patternLayouts[stage] = await page.evaluate((selectors) => {
-          const doc = globalThis.document;
-          const bounds = (selector) =>
-            doc.querySelector(selector).getBoundingClientRect();
-          return {
-            surfaceHeight: bounds(".pattern-surface").height,
-            evidenceHeight: bounds(".evidence-panel").height,
-            headerHeight: bounds(".identity-header").height,
-            toolbarHeight: bounds(".chart-toolbar").height,
-            chartHeight: bounds(".history-chart").height,
-            chartWidth: bounds(".history-chart").width,
-            cardHeights: [...doc.querySelectorAll(".evidence-card")].map(
-              (card) => card.getBoundingClientRect().height,
-            ),
-            facts: Object.fromEntries(
-              selectors.map((selector) => [
-                selector,
-                (
-                  doc.querySelector(selector).getAttribute("aria-label") ||
-                  [...doc.querySelector(selector).childNodes]
-                    .map((node) =>
-                      node.nodeName === "BR" ? " · " : node.textContent,
-                    )
-                    .join("")
-                )
-                  .trim()
-                  .replace(/\s+/g, " "),
-              ]),
-            ),
-            fontSizes: selectors.map(
-              (selector) =>
-                globalThis.getComputedStyle(doc.querySelector(selector))
-                  .fontSize,
-            ),
-            secondary: [...doc.querySelectorAll(".supporting-copy")].map(
-              (node) => node.textContent.trim(),
-            ),
-            chartPoints: doc
-              .querySelector(".chart-line")
-              .getAttribute("points"),
-          };
-        }, Object.keys(patternFacts));
-        assert.deepEqual(patternLayouts[stage].facts, patternFacts);
-        const revised = ["composition", "hidden"].includes(stage);
-        assert.equal(
-          await page.locator(".evidence-grid > article").count(),
-          revised ? 3 : 6,
-        );
-        assert.equal(await page.locator(".ranking-summary").count(), 3);
-        assert.deepEqual(
-          await page.locator(".context-role").allTextContents(),
-          Array(revised ? 1 : 3).fill("Not used in ranking"),
-        );
-        assert.equal(
-          await page.getByText("Why flagged", { exact: true }).count(),
-          ["before", "components"].includes(stage) ? 2 : 1,
-        );
-        assert.equal(
-          await page.locator("details[open]").count(),
-          stage === "before" ? 6 : 0,
-        );
-        for (const selector of Object.keys(patternFacts)) {
-          const hidden =
-            stage === "hidden" &&
-            [".denominator", ".trend-value", ".trend-comparison"].includes(
-              selector,
-            );
-          assert.equal(
-            await page.locator(selector).isVisible(),
-            !hidden,
-            `${stage}: ${selector}`,
-          );
-        }
-        if (revised) {
-          const compositionGeometry = await page.evaluate(() => {
-            const doc = globalThis.document;
-            const box = (selector) =>
-              doc.querySelector(selector).getBoundingClientRect();
-            const center = (selector) => {
-              const b = box(selector);
-              return b.y + b.height / 2;
-            };
-            const track = box(".comparison-track");
-            return {
-              titleCenters: [
-                ".group-identity",
-                ".confidence",
-                ".direction",
-              ].map(center),
-              controlCenters: [".chart-controls", ".latest-value"].map(center),
-              latestGap:
-                box(".latest-value").left - box(".chart-controls").right,
-              contextRows: [
-                ...doc.querySelectorAll(".context-rows > article"),
-              ].map((row) => ({
-                height: row.getBoundingClientRect().height,
-                labelLeft: row.querySelector("h4").getBoundingClientRect().left,
-                labelHeight: row.querySelector("h4").getBoundingClientRect()
-                  .height,
-                valueHeight: row
-                  .querySelector(".context-value")
-                  .getBoundingClientRect().height,
-                role: row.getAttribute("aria-describedby"),
-              })),
-              currentRatio: box(".current-bar").width / track.width,
-              priorRatio:
-                (box(".prior-marker").left - track.left) / track.width,
-              rateBarCenters: [
-                ".current-bar",
-                '[data-factor="rate"] .weight-track',
-              ].map(center),
-              weights: [...doc.querySelectorAll(".ranking-summary")].map(
-                (row) => {
-                  const weight = row.querySelector(".weight");
-                  const track = row
-                    .querySelector(".weight-track")
-                    .getBoundingClientRect();
-                  const bar = row
-                    .querySelector(".weight-bar")
-                    .getBoundingClientRect();
-                  const detail = row
-                    .querySelector("summary")
-                    .getBoundingClientRect();
-                  const subject = row
-                    .querySelector("h4")
-                    .getBoundingClientRect();
-                  return {
-                    percent: parseFloat(weight.textContent),
-                    ratio: bar.width / track.width,
-                    left: track.left,
-                    width: track.width,
-                    height: bar.height,
-                    valueGap:
-                      track.top -
-                      row.querySelector(".weight-value").getBoundingClientRect()
-                        .bottom,
-                    subjectLeft: subject.left,
-                    rowLeft: row.getBoundingClientRect().left,
-                    detailLeft: detail.left,
-                    detailGap: detail.top - subject.bottom,
-                    scale: weight.getAttribute("aria-describedby"),
-                  };
-                },
-              ),
-            };
-          });
-          for (const centers of [
-            compositionGeometry.titleCenters,
-            compositionGeometry.controlCenters,
-          ])
-            assert.ok(
-              Math.max(...centers) - Math.min(...centers) <= 1,
-              "Related header/toolbar items share a centerline",
-            );
-          assert.ok(
-            compositionGeometry.latestGap >= 0 &&
-              compositionGeometry.latestGap <= 12,
-          );
-          assert.equal(compositionGeometry.contextRows.length, 3);
-          assert.equal(
-            new Set(compositionGeometry.contextRows.map((row) => row.labelLeft))
-              .size,
-            1,
-          );
-          for (const row of compositionGeometry.contextRows) {
-            assert.ok(
-              row.height <= 36 &&
-                row.labelHeight <= 21 &&
-                row.valueHeight <= 21,
-              "Context labels, values and Details fit on one aligned line",
-            );
-            assert.equal(row.role, "context-role");
-          }
-          assert.equal(
-            await page.locator("#context-role").textContent(),
-            "Not used in ranking",
-          );
-          assert.equal(
-            await page.locator(".weight-heading").textContent(),
-            "Weight · 0–100%",
-          );
-          assert.deepEqual(
-            compositionGeometry.weights.map((weight) => weight.percent),
-            [45, 35, 20],
-          );
-          for (const property of ["left", "width"])
-            assert.equal(
-              new Set(
-                compositionGeometry.weights.map((weight) => weight[property]),
-              ).size,
-              1,
-              "Ranking weights share aligned, equal-width 0–100% tracks",
-            );
-          for (const weight of compositionGeometry.weights) {
-            assert.ok(Math.abs(weight.ratio - weight.percent / 100) < 0.001);
-            assert.ok(weight.width >= 100 && weight.height >= 6);
-            assert.ok(weight.valueGap >= 4 && weight.valueGap <= 8);
-            assert.ok(
-              Math.abs(weight.detailLeft - weight.subjectLeft) <= 1 &&
-                Math.abs(weight.detailLeft - weight.rowLeft) <= 1 &&
-                weight.detailGap >= 4 &&
-                weight.detailGap <= 12,
-              "Each Details control is aligned below its subject at the far left",
-            );
-            assert.equal(weight.scale, "weight-heading");
-          }
-          assert.ok(
-            Math.max(...compositionGeometry.rateBarCenters) -
-              Math.min(...compositionGeometry.rateBarCenters) <=
-              1,
-            "Review-rate and weight bars share a horizontal centerline",
-          );
-          assert.ok(
-            Math.abs(compositionGeometry.currentRatio - 26.4 / 50) < 0.001,
-          );
-          assert.ok(
-            Math.abs(compositionGeometry.priorRatio - 28.875 / 50) < 0.001,
-          );
-          patternLayouts[stage].compositionGeometry = compositionGeometry;
-        }
-        await page
-          .locator(".pattern-surface")
-          .screenshot({ path: path.join(patternEvidence, `${stage}.png`) });
-      }
-      for (const stage of ["before", "components", "hidden"]) {
-        for (const key of ["fontSizes", "secondary", "chartPoints"])
-          assert.deepEqual(
-            patternLayouts[stage][key],
-            patternLayouts.composition[key],
-          );
-      }
-      assert.ok(
-        patternLayouts.before.cardHeights
-          .slice(0, 5)
-          .every((height) => height >= 360),
-      );
-      assert.ok(
-        patternLayouts.components.cardHeights
-          .slice(0, 5)
-          .every((height) => height >= 310),
-      );
-      assert.ok(patternLayouts.components.evidenceHeight > 360);
-      assert.ok(patternLayouts.composition.evidenceHeight <= 360);
-      assert.ok(patternLayouts.composition.headerHeight <= 56);
-      assert.ok(
-        patternLayouts.composition.chartHeight >= 120 &&
-          patternLayouts.composition.chartHeight <= 160,
-      );
-      assert.ok(patternLayouts.composition.chartWidth >= 600);
-      assert.ok(patternLayouts.composition.surfaceHeight <= 560);
-      assert.ok(
-        patternLayouts.composition.surfaceHeight <
-          patternLayouts.components.surfaceHeight * 0.5,
-      );
-
-      assert.ok(
-        patternLayouts.composition.surfaceHeight <
-          patternLayouts.components.surfaceHeight * 0.75,
-      );
-      assert.ok(
-        patternLayouts.composition.fontSizes.every(
-          (size) => parseFloat(size) >= 14,
-        ),
-      );
-
-      await page.goto(`${baseURL}/viewrule/examples/pattern-review.html`);
-      await page.waitForSelector('#pattern-review[data-ready="composition"]');
-      const disclosureNames = [
-        "Details: Rate calculation",
-        "Details: Trend calculation",
-        "Details: Volume calculation",
-        "Details: Processing diagnostics",
-        "Details: Corroboration notes",
-        "Details: Collection notes",
-      ];
-      assert.equal(
-        await page.locator("summary").count(),
-        disclosureNames.length,
-      );
-      for (const name of disclosureNames) {
-        const summary = page.getByLabel(name, { exact: true });
-        assert.equal(await summary.textContent(), "Details");
-      }
-      // Chromium exposes native summaries as DisclosureTriangle nodes; the
-      // generic ARIA text snapshot omits their computed names.
-      const accessibilitySession = await page.context().newCDPSession(page);
-      const { nodes: accessibilityNodes } = await accessibilitySession.send(
-        "Accessibility.getFullAXTree",
-      );
-      await accessibilitySession.detach();
-      assert.deepEqual(
-        accessibilityNodes
-          .filter(
-            (node) =>
-              !node.ignored && node.role?.value === "DisclosureTriangle",
-          )
-          .map((node) => node.name?.value),
-        disclosureNames,
-      );
-      const rankingBefore = await page
-        .locator(".ranking-summary")
-        .allTextContents();
-      for (const { label, count, start } of [
-        { label: "4 cycles", count: 4, start: "I" },
-        { label: "8 cycles", count: 8, start: "E" },
-        { label: "All cycles", count: 12, start: "A" },
-      ]) {
-        await page.getByRole("button", { name: label, exact: true }).click();
-        assert.equal(
-          await page
-            .getByRole("button", { name: label, exact: true })
-            .getAttribute("aria-pressed"),
-          "true",
-        );
-        assert.equal(
-          await page.locator("button[aria-pressed=true]").count(),
-          1,
-        );
-        assert.equal(
-          await page.locator(".chart-window").textContent(),
-          `History: cycles ${start}–L`,
-        );
-        const points = (
-          await page.locator(".chart-line").getAttribute("points")
-        ).split(" ");
-        assert.equal(points.length, count);
-        assert.equal(points.at(-1), "1000,100.8");
-        assert.deepEqual(
-          await page.locator(".ranking-summary").allTextContents(),
-          rankingBefore,
-        );
-        assert.equal(
-          await page.locator(".action-status").textContent(),
-          "Not queued",
-        );
-      }
-      const disclosure = page.locator(".trend-detail summary");
-      await disclosure.focus();
-      await page.keyboard.press("Enter");
-      assert.equal(
-        await page.locator(".trend-detail").getAttribute("open"),
-        "",
-      );
-      assert.equal(
-        await page.locator(".trend-detail .supporting-copy").isVisible(),
-        true,
-      );
-      assert.ok(
-        await page.locator(".trend-detail").evaluate((detail) => {
-          const summary = detail
-            .querySelector("summary")
-            .getBoundingClientRect();
-          const copy = detail
-            .querySelector(".supporting-copy")
-            .getBoundingClientRect();
-          return copy.top >= summary.bottom;
-        }),
-        "Expanded supporting text stays below the row and its left-hand Details control",
-      );
-      assert.equal(
-        await disclosure.evaluate(
-          (el) => el === globalThis.document.activeElement,
-        ),
-        true,
-      );
-      for (const selector of Object.keys(patternFacts))
-        assert.equal(await page.locator(selector).isVisible(), true);
-      assert.equal(
-        await page.locator(".action-status").textContent(),
-        "Not queued",
-      );
-      await page.locator(".pattern-surface").screenshot({
-        path: path.join(patternEvidence, "composition-expanded.png"),
-      });
-      await page.keyboard.press("Enter");
-      assert.equal(
-        await page.locator(".trend-detail .supporting-copy").isVisible(),
-        false,
-      );
-      const contextDisclosures = [];
-      for (const context of ["processing", "corroboration", "mix"]) {
-        const row = page.locator(`.context-rows [data-context="${context}"]`);
-        const detail = row.locator("details");
-        const summary = detail.locator("summary");
-        const before = await summary.boundingBox();
-        await summary.focus();
-        await page.keyboard.press("Enter");
-        assert.equal(await detail.getAttribute("open"), "");
-        assert.equal(
-          await detail.locator(".supporting-copy").isVisible(),
-          true,
-        );
-        const expanded = await summary.boundingBox();
-        const content = await detail.locator(".supporting-copy").boundingBox();
-        assert.ok(content.y >= expanded.y + expanded.height);
-        assert.equal(await row.locator(".context-value").isVisible(), true);
-        assert.equal(
-          await summary.evaluate(
-            (el) => el === globalThis.document.activeElement,
-          ),
-          true,
-        );
-        if (context === "processing")
-          await page.locator(".pattern-surface").screenshot({
-            path: path.join(
-              patternEvidence,
-              "composition-context-expanded.png",
-            ),
-          });
-        await page.keyboard.press("Enter");
-        assert.equal(await detail.getAttribute("open"), null);
-        assert.equal(
-          await detail.locator(".supporting-copy").isVisible(),
-          false,
-        );
-        assert.equal(
-          await summary.evaluate(
-            (el) => el === globalThis.document.activeElement,
-          ),
-          true,
-        );
-        const closed = await summary.boundingBox();
-        for (const bounds of [expanded, closed])
-          for (const key of ["x", "y", "width", "height"])
-            assert.ok(
-              Math.abs(bounds[key] - before[key]) <= 1,
-              `${context}: Details retains its position and target size through disclosure`,
-            );
-        contextDisclosures.push({ context, before, expanded, closed });
-      }
-      for (const selector of Object.keys(patternFacts))
-        assert.equal(await page.locator(selector).isVisible(), true);
-      assert.equal(
-        await page.locator(".chart-window").textContent(),
-        "History: cycles A–L",
-      );
-      assert.equal(
-        await page.locator(".action-status").textContent(),
-        "Not queued",
-      );
-      await page.getByRole("button", { name: "Queue Q7 for review" }).click();
-      assert.equal(
-        await page.locator(".action-status").textContent(),
-        "Q7 queued locally · no external changes",
-      );
-      await page.getByRole("button", { name: "4 cycles", exact: true }).click();
-      await disclosure.click();
-      assert.equal(
-        await page.locator(".action-status").textContent(),
-        "Q7 queued locally · no external changes",
-      );
-      assert.deepEqual(
-        await page.locator(".ranking-summary").allTextContents(),
-        rankingBefore,
-      );
-      assert.deepEqual(patternErrors, []);
-      page.off("pageerror", recordPatternError);
-      await writeFile(
-        path.join(patternEvidence, "captures.json"),
-        JSON.stringify(
-          {
-            viewport: patternConfig.viewports[0],
-            deviceScaleFactor: 1,
-            browser: browser.version(),
-            contractHash: patternReport.contract.hash,
-            findings: patternFindings,
-            layouts: patternLayouts,
-            disclosureNames,
-            contextDisclosures,
-            interactions:
-              "Passed: revised default route, inline header and chart controls, aligned one-line context rows with a shared pill, correct current/prior chart geometry, proportional weights on shared tracks, aligned review-rate and weight bars, Details below left-hand row subjects, visible disclosure labels retained in accessible names, stationary context controls through expansion/collapse, history range and fixed ranking scope, keyboard disclosure/focus, required facts retained, Q7-only local action, retained action state, Pages prefix assets.",
-            unassessed: patternCatalog.humanReview,
-          },
-          null,
-          2,
-        ),
-      );
       const decisionEvidence = path.join(repository, "dist/decision-evidence");
       await mkdir(decisionEvidence, { recursive: true });
       await page.setViewportSize(decisionConfig.viewports[0]);
@@ -2321,8 +2155,45 @@ test(
         "12",
       );
 
+      await page.setViewportSize({ width: 1280, height: 900 });
+      for (const id of ["DR-017", "DR-018", "DR-019", "DR-020"]) {
+        const variants = {};
+        for (const quality of ["good", "bad"]) {
+          await page.goto(
+            `${baseURL}/examples/composition.html?rule=${id}&quality=${quality}`,
+          );
+          await page.waitForSelector(
+            `#composition-examples[data-ready][data-rule="${id}"]`,
+          );
+          variants[quality] = await page
+            .locator(`#${quality} .composition-surface`)
+            .evaluate((surface) => ({
+              text: surface.textContent.replace(/\s+/g, " ").trim(),
+              headings: [...surface.querySelectorAll("h3, h4")].map((el) => ({
+                text: el.textContent,
+                size: globalThis.getComputedStyle(el).fontSize,
+              })),
+              identities: [...surface.querySelectorAll("[data-shipment]")].map(
+                (el) => el.getAttribute("data-shipment"),
+              ),
+              colors: [...surface.querySelectorAll("h3, h4, strong")].map(
+                (el) => globalThis.getComputedStyle(el).color,
+              ),
+              width: surface.getBoundingClientRect().width,
+            }));
+          await page.locator(`#${quality} .composition-surface`).screenshot({
+            path: path.join(compositionEvidence, `${id}-${quality}.png`),
+          });
+        }
+        assert.deepEqual(
+          variants.good,
+          variants.bad,
+          `${id} must preserve task text, identities, heading type, semantic color, and total surface width`,
+        );
+      }
+
       // Every canonical rule owns its examples and resolves links under /viewrule/.
-      for (let number = 1; number <= 16; number++) {
+      for (let number = 1; number <= 20; number++) {
         const id = `DR-${String(number).padStart(3, "0")}`;
         const url = `${baseURL}/viewrule/rules/${id.toLowerCase()}/`;
         await page.goto(url);
@@ -3370,7 +3241,7 @@ test(
     const impeccablePackage = JSON.parse(
       await readFile(
         createRequire(
-          path.join(JSON.parse(setup.stdout).engine, "package.json"),
+          path.join(JSON.parse(portableSetup.stdout).engine, "package.json"),
         ).resolve("impeccable/package.json"),
         "utf8",
       ),
@@ -3776,7 +3647,7 @@ test(
       );
     }
     const incrementalSetup =
-      'export default async ({page}) => { await page.locator("main").waitFor(); };\n';
+      'export default async ({page}) => { await page.locator("main").waitFor(); const capture = page.screenshot.bind(page); let calls = 0; page.screenshot = async (...args) => { if (++calls > 1) throw new Error("Redundant browser tile capture"); return capture(...args); }; };\n';
     const incrementalSetupFile = path.join(
       incrementalProject,
       "src/b/setup.mjs",
@@ -3871,15 +3742,17 @@ test(
       const result = await scopeCLI("check", mode);
       const elapsedMs = Math.round(performance.now() - started);
       assert.equal(result.code, expected, result.stderr || result.stdout);
-      const reportFile = JSON.parse(result.stdout).report;
+      const invocation = JSON.parse(result.stdout);
+      const reportFile = invocation.report;
       const report = JSON.parse(await readFile(reportFile, "utf8"));
       workloads.push({
         label,
         elapsedMs,
         status: report.status,
-        execution: report.execution,
+        execution: invocation.execution,
+        reusedReport: invocation.reusedReport,
       });
-      return { report, reportFile };
+      return { report, reportFile, invocation };
     };
     const fullScopeRun = await scopeCheck("full", "--full");
     assert.deepEqual(fullScopeRun.report.execution.browser, {
@@ -3908,13 +3781,41 @@ test(
       await readdir(path.join(incrementalProject, ".ui-review/runs")),
       runsBeforePlan,
     );
+    const evidenceSnapshot = async () => {
+      const root = path.join(incrementalProject, ".ui-review");
+      const snapshot = [];
+      for (const file of [
+        "",
+        ...(await readdir(root, { recursive: true })).sort(),
+      ]) {
+        const metadata = await lstat(path.join(root, file));
+        snapshot.push({
+          file,
+          size: metadata.size,
+          mtime: metadata.mtimeMs,
+          ctime: metadata.ctimeMs,
+          inode: metadata.ino,
+        });
+      }
+      return snapshot;
+    };
+    const beforeReuse = await evidenceSnapshot();
     const reusedScopeRun = await scopeCheck("unchanged");
-    assert.deepEqual(reusedScopeRun.report.execution.browser, {
+    assert.equal(reusedScopeRun.invocation.reusedReport, true);
+    assert.equal(reusedScopeRun.reportFile, fullScopeRun.reportFile);
+    assert.deepEqual(reusedScopeRun.report, fullScopeRun.report);
+    assert.equal(await readFile(scopeLatest, "utf8"), beforePlan);
+    assert.deepEqual(
+      await evidenceSnapshot(),
+      beforeReuse,
+      "Unchanged checks write no evidence or latest state",
+    );
+    assert.deepEqual(reusedScopeRun.invocation.execution.browser, {
       required: 2,
       executed: 0,
       reused: 2,
     });
-    assert.deepEqual(reusedScopeRun.report.execution.sourceChecks, {
+    assert.deepEqual(reusedScopeRun.invocation.execution.sourceChecks, {
       required: 2,
       executed: 0,
       reused: 2,
@@ -3932,13 +3833,13 @@ test(
     );
     assert.equal(
       unchangedScopePlan.browser.captureCount,
-      reusedScopeRun.report.execution.browser.executed,
+      reusedScopeRun.invocation.execution.browser.executed,
     );
     assert.equal(
       unchangedScopePlan.sourceChecks.filter(
         (provider) => provider.action === "run",
       ).length,
-      reusedScopeRun.report.execution.sourceChecks.executed,
+      reusedScopeRun.invocation.execution.sourceChecks.executed,
     );
     for (const page of reusedScopeRun.report.pages) {
       assert.equal(page.evidence.runId, fullScopeRun.report.id);
@@ -3949,12 +3850,6 @@ test(
       );
       assert.deepEqual(page.findings, []);
     }
-    const reusedHTML = await readFile(
-      path.join(path.dirname(reusedScopeRun.reportFile), "index.html"),
-      "utf8",
-    );
-    assert.match(reusedHTML, /Reused capture/);
-    assert.ok(reusedHTML.includes(fullScopeRun.report.id));
     // Runtime bindings outrank incidental source ownership: authentication is
     // global, and a checkpoint belongs to the states that actually execute it.
     await writeFile(incrementalStorageFile, `${incrementalStorage}\n`);
@@ -4118,6 +4013,105 @@ test(
     assert.deepEqual(await verify({ cwd: incrementalProject }), {
       status: "pass",
     });
+    const reusedHTML = await readFile(
+      path.join(path.dirname(localScopeRun.reportFile), "index.html"),
+      "utf8",
+    );
+    assert.match(reusedHTML, /Reused capture/);
+    assert.ok(reusedHTML.includes(fullScopeRun.report.id));
+    // Byte limits can remove every old run without breaking reused evidence or
+    // changing its original capture time. The current report may exceed a budget.
+    await writeIncrementalConfig({
+      ...incrementalConfig,
+      runRetention: { maxBytes: 1 },
+    });
+    const bounded = await scopeCLI("prune");
+    assert.equal(bounded.code, 0, bounded.stderr);
+    const boundedResult = JSON.parse(bounded.stdout);
+    assert.deepEqual(boundedResult.retained, [localScopeRun.report.id]);
+    assert.equal(boundedResult.overBudget, true);
+    await assert.rejects(readFile(fullScopeRun.reportFile), { code: "ENOENT" });
+    await writeIncrementalConfig();
+    assert.deepEqual(await verify({ cwd: incrementalProject }), {
+      status: "pass",
+    });
+    assert.equal(
+      (await scopePlan()).browser.captureCount,
+      0,
+      "Pruning the origin does not invalidate self-contained reused evidence",
+    );
+    // Presentation-only changes rebuild a complete report without recapturing.
+    await rm(path.join(path.dirname(localScopeRun.reportFile), "index.html"));
+    let presented = await scopeCheck("recover-missing-html");
+    assert.equal(presented.invocation.reusedReport, false);
+    assert.equal(presented.invocation.execution.browser.executed, 0);
+    assert.match(
+      await readFile(
+        path.join(path.dirname(presented.reportFile), "index.html"),
+        "utf8",
+      ),
+      /Reused capture/,
+    );
+    for (const scope of ["project", "global"]) {
+      const note = `Keep the ${scope} review context visible.`;
+      const feedback = await scopeCLI(
+        "feedback",
+        "--report",
+        presented.reportFile,
+        "--decision",
+        "adjust",
+        "--scope",
+        scope,
+        "--note",
+        note,
+      );
+      assert.equal(feedback.code, 0, feedback.stderr);
+      presented = await scopeCheck(`${scope}-feedback`);
+      assert.equal(presented.invocation.reusedReport, false);
+      assert.equal(presented.invocation.execution.browser.executed, 0);
+      assert.equal(presented.invocation.execution.sourceChecks.executed, 0);
+      assert.ok(
+        (
+          await readFile(
+            path.join(path.dirname(presented.reportFile), "index.html"),
+            "utf8",
+          )
+        ).includes(note),
+      );
+    }
+    const scopeApproval = await scopeCLI(
+      "feedback",
+      "--report",
+      presented.reportFile,
+      "--decision",
+      "approve",
+      "--note",
+      "Synthetic reference for reuse regression.",
+    );
+    assert.equal(scopeApproval.code, 0, scopeApproval.stderr);
+    const approvedRun = await scopeCheck("approved-reference");
+    assert.equal(approvedRun.invocation.reusedReport, false);
+    assert.equal(approvedRun.invocation.execution.browser.executed, 0);
+    const approvedReuse = await scopeCheck("unchanged-approved-reference");
+    assert.equal(approvedReuse.invocation.reusedReport, true);
+    assert.equal(approvedReuse.reportFile, approvedRun.reportFile);
+    const scopeReferenceFile = path.join(
+      incrementalProject,
+      ".ui-review",
+      JSON.parse(scopeApproval.stdout).reference,
+      presented.report.pages[0].screenshot,
+    );
+    const scopeReferenceBytes = await readFile(scopeReferenceFile);
+    await rm(scopeReferenceFile);
+    const missingReference = await scopeCheck("missing-reference-image");
+    assert.equal(missingReference.invocation.reusedReport, false);
+    assert.equal(missingReference.invocation.execution.browser.executed, 0);
+    assert.ok(
+      missingReference.report.changes.evidence.every(
+        (entry) => entry.status === "not-compared",
+      ),
+    );
+    await writeFile(scopeReferenceFile, scopeReferenceBytes);
     await writeFile(
       path.join(incrementalProject, "src/a/index.html"),
       incrementalHTML("a changed", "different"),

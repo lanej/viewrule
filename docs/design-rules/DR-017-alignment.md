@@ -1,34 +1,37 @@
 # DR-017 — Rule of Alignment
 
-**Principle:** Related elements share intentional visual anchors.
+**Principle:** Related peers share intentional visual anchors.
 
-**Default:** Declare which elements are peers and which edge or reading anchor
-expresses their relationship. Align those peers consistently within that scope.
-Do not create an extra alignment axis for one item without a functional reason.
-This applies to headings, labels, controls, and component boundaries, not only
-numeric tables. It complements DR-006's requirement to keep evidence together.
+**Requirement:** Declare the peers and the edge or center they should share for
+the current task and layout. Keep their rendered anchors within the project's
+tolerance. Scope separate columns, rows, nested groups, and responsive states
+separately; unrelated content does not need a common anchor.
 
-**Application:** Align form labels with their inputs and section headings with the
-content they introduce. Compare like roles within each repeated component; do not
-align every element on the page to one global edge. In a mixed content/action row,
-a shared optical or text baseline may matter more than matching outer rectangles.
+**Why:** A stable anchor makes a declared relationship visible and gives scanning
+a predictable path. This extends DR-006's comparison guidance into an explicit
+composition contract. The measurement is a Viewrule convention, not an empirical
+threshold for attractive or usable layouts.
 
-**Exceptions:** Hierarchical indentation, different semantic roles, responsive
-reflow, and optical correction can justify different anchors. Preserve content,
-text adaptation, and usable targets rather than forcing geometrical uniformity.
-An icon's border box is not necessarily its visible center.
+**Computationally falsifiable:** `alignment-residual` measures the configured
+left, right, top, bottom, horizontal-center, or vertical-center coordinate of at
+least two declared items per group. Its residual is the greatest absolute
+distance from the group's median anchor, in CSS px. A residual greater than
+`maxResidual` fails. The reported anchors and residual expose how the contract
+was violated; missing groups or insufficient peers cannot establish alignment.
+Existing `align` instead limits the full edge spread; its tolerance is not
+interchangeable with this median residual.
 
-**Enforcement:** Existing `align` measures the spread of a declared peer set's
-left, right, top, or bottom edges in CSS pixels. Declare each set separately and
-calibrate its tolerance. `relative-position` can check relationships within
-repeated components. Neither infers peers, measures a font baseline, nor proves
-optical alignment. Baselines and unnecessary anchor proliferation remain review.
-Start composition constraints as warnings; use errors only for established
-application contracts.
+**Application:** Align the value edges in one comparison column, or the centers
+of equal-role controls in one toolbar. Author independent groups for distinct
+columns rather than counting every page anchor as accidental complexity.
 
-**Basis:** Carbon's [2x Grid](https://carbondesignsystem.com/elements/2x-grid/overview/)
-provides a design-system example of consistent spatial structure. This rule and
-its scope conventions are Viewrule guidance, not a requirement to adopt Carbon,
-a particular grid, or experimentally established pixel tolerances.
+**Exception:** Indentation may encode a hierarchy, and offset placement may
+distinguish roles. Declare those relationships rather than flattening them to
+obtain a pass. Symmetry is not required.
 
-[Composition contracts and calibration example](../composition.md).
+**Human judgment:** Choose which peers belong together, which anchor supports
+reading, and what tolerance is appropriate. Border-box coordinates do not measure
+text baselines, optical alignment, semantic relatedness, or overall composition
+quality. Inspect clipping, overlap, transformed shapes, and actual text separately.
+[Measurement reference](https://github.com/lanej/viewrule/blob/main/docs/ui-review.md#composition-contracts).
+[Good/bad example](../examples/composition.html?rule=DR-017).

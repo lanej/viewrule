@@ -5,6 +5,12 @@ supplied screenshot's layout relationships using invented neutral data. It runs
 through the existing packed/installed CLI regression, using one explicit contract per revision
 shared by all four states. The source screenshot is not a repository asset.
 
+The [annotated comparison](composition-review-2026-09-24/annotated-comparison.png)
+and [interactive viewer](composition-review-2026-09-24/index.html) make the current
+before/component/composition states inspectable alongside their measurements.
+Numbered overlays identify changes; raw screenshots remain available. This
+presentation reuses the calibration evidence below and is not a new agent trial.
+
 ## Initial calibration at ea502da (superseded after feedback)
 
 Captured on 2026-09-18 with Node 24.9.0, macOS arm64, Playwright 1.62.1 and its

@@ -1,0 +1,18 @@
+/* Deliberate presentation defects; fixed task/data/rules are identical. */
+@media (min-width: 1200px) {
+  .workspace-heading {
+    min-height: 196px;
+  }
+  .shipment-row {
+    min-height: 100px;
+  }
+  .carrier-charts {
+    grid-template-columns: 1fr 1.35fr 0.9fr;
+    gap: 0;
+  }
+  .carrier-chart:nth-child(2) {
+    margin-left: 12px;
+    margin-right: 36px;
+    padding-top: 18px;
+  }
+}

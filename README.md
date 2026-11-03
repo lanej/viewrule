@@ -7,12 +7,13 @@ then checks the rendered result with browser measurements and visual evidence. I
 viewports and turns human feedback into reusable constraints. The agent operates
 the tool and repairs the application; the human supplies intent and judgment.
 
-The Claude Code plugin brings this workflow into UI tasks. Its local CLI engine
+A portable Agent Skill brings this workflow to Codex and other coding agents; the
+Claude Code plugin retains its existing commands. Their shared local CLI engine
 opens the running app in Chromium, checks configured constraints, and reports
 violations with evidence and design-rule citations. Other agents and CI can use
 the same CLI directly.
 
-**Status:** experimental 0.8.0, distributed through
+**Status:** experimental 0.11.0, distributed through
 [GitHub Releases](https://github.com/lanej/viewrule/releases). No npm registry release
 is available yet. Node.js 22.18+ and npm are required. Linux is exercised in CI;
 macOS and Windows have not been validated.
@@ -23,14 +24,37 @@ positioning.
 
 ## Incremental review
 
-Declare explicit input/dependency scopes, then use `viewrule plan --incremental`
-and `viewrule check --incremental` to reuse verified unchanged evidence. A complete
+Declare explicit input/dependency scopes, then use `viewrule check --incremental`
+to reuse verified unchanged evidence. Use `plan --incremental` when diagnosing
+configuration or invalidation; `check` already plans its own work. A complete
 report still covers every required page, viewport, checkpoint, and source provider;
-shared changes invalidate dependents. `check --full` always captures again.
+shared changes invalidate dependents. An unchanged verified pass returns the same
+report without writing another run. `check --full` always captures again.
 Reuse requires a nonsecret environment identity and an explicit maximum age.
 See [configuration, evidence provenance, and conservative fallbacks](docs/incremental-review.md).
 
+## Saved before/after comparisons
+
+`viewrule compare --before BEFORE/report.json --after AFTER/report.json --output comparison`
+builds a portable comparison from saved reviews, preserving original screenshots
+and reports with hashes. Optional recorded DOM regions supply numbered callouts;
+scoped measurements and authored interpretation stay separate. `--image` exports
+the annotated result. See [configuration, usage, and comparison limits](docs/saved-comparisons.md).
+
+## Bounded local evidence
+
+Completed checks automatically retain at most three disposable runs, seven days
+of history, and 256 MiB, always preserving the current report. Approved references
+remain independent. `viewrule prune --dry-run` previews cleanup of an existing
+backlog; `viewrule prune` applies it. Normal detail tiles now come from one
+full-resolution capture instead of repeated browser screenshots. See
+[limits, configuration, and preserving a comparison baseline](docs/evidence-storage.md).
+
 ## Why it exists
+
+Optional [text-legibility contracts](docs/text-legibility.md) check declared
+neighboring text fragments and selected native-label space. Unsupported evidence
+is explicit; these measurements do not certify readability or replace visual review.
 
 A UI can look polished while making a decision harder: too few alternatives fit on
 screen, related values sit far apart, chart context disappears, or a larger window
@@ -48,7 +72,8 @@ interface. The [design policy](docs/design-rules.md) includes DR-001 through DR-
 The first eight draw on Tufte's work on comparison and graphical integrity; the
 next eight address state, continuity, action clarity, recovery, hierarchy, input
 access, content resilience, and semantic color. Four composition rules add
-alignment, rhythm, spatial economy, and balance. Each states its scope and limits.
+declared-peer alignment, spacing rhythm, spatial economy, and balance. Each states
+what can be falsified computationally and what requires human judgment.
 These are our interpretations, not quotations, universal thresholds, or endorsements.
 
 See [good and bad design examples](docs/design-examples.md) for illustrated rule
@@ -74,7 +99,7 @@ in the application contract.
 
 ## Consult guidance before building
 
-The [versioned design guide](plugins/claude-code/guide/v1/index.md) covers decision
+The [versioned design guide](skills/viewrule/guide/v1/index.md) covers decision
 context, progressive disclosure, action lists, Tufte, and graphical perception.
 It separates conditional patterns, original evidence, and enforceable measurements.
 The existing Pages build renders the same Markdown under `guide/v1/`, with raw
@@ -90,10 +115,10 @@ The plugin supplies `guide [ID]` independently of its pinned engine,
 so its review skill can consult bundled guidance before setup. Read only relevant
 pages, state decision assumptions, inspect examples, implement, then run checks.
 The runnable pricing and encoding examples compose Easy UI components from a pinned
-commit. The [source manifest](plugins/claude-code/guide/v1/examples.json) records
+commit. The [source manifest](skills/viewrule/guide/v1/examples.json) records
 provenance and checksums; generated assets ship offline without adding Easy UI to
 the engine’s dependencies.
-See [guide contribution instructions](plugins/claude-code/guide/v1/authoring.md).
+See [guide contribution instructions](skills/viewrule/guide/v1/authoring.md).
 
 ## Define boundaries before building
 
@@ -123,15 +148,25 @@ See the [new rule examples](docs/examples/behavior.html) for paired good/bad
 interaction and resilience demonstrations, shared synthetic data, cited rationales,
 and explicit native-check versus application-review coverage.
 
+The [composition examples](docs/examples/composition.html) pair accepted and
+rejected layouts under explicit peer and region contracts. Their
+[measurement reference](docs/ui-review.md#composition-contracts) defines alignment
+residual, gap variation, chrome allocation, peer footprint, and viewport-growth
+yield: the fractional growth in visible, legible evidence divided by the fractional
+growth in usable area. Stable identities and a named reference viewport make empty
+container growth distinguishable from additional evidence; declared finite tasks
+can retain useful whitespace. None of these metrics is a universal aesthetic score.
+
 ## What it detects
 
 | Concern | Evidence Viewrule checks |
 | --- | --- |
 | Layout | Alignment of declared peers, overlap, clipping, component height, control bounds, and page overflow |
 | Comparison | Required visible item counts and stable identities preserved across viewports |
-| Composition (opt-in) | Peer spacing, group separation, footprint ratios, declared chrome budgets, and finite-task viewport yield |
 | Context and consistency | Visible context, allowed styles or attributes, and consistent declared encodings |
 | Density and legibility | Adjacent text distance, minimum text size, and optional text/box coverage or empty-band constraints |
+| Composition | Median-anchor residual, adjacent peer-gap variation, declared chrome allocation, comparative viewport-growth yield, and equal-priority footprint variation |
+| Advisory discovery | Likely same-row text-entry peers whose rendered top anchors diverge; these candidates never fail a run or establish peer membership |
 | Capture and accessibility | Complete detail-tile coverage and automatically detectable axe accessibility findings |
 
 Rule findings report their selector, observed value, expected value, reason, and
@@ -141,6 +176,17 @@ configured error checks passed. See the [detection manual](docs/ui-review-enforc
 for the exact scope and limits of each measurement.
 
 ## How to use it
+
+### Codex and other Agent Skills hosts
+
+Install the complete [`skills/viewrule`](skills/viewrule/SKILL.md) directory into
+`~/.agents/skills/viewrule` or the application's `.agents/skills/viewrule`.
+In Codex, invoke `$viewrule` for setup, design, review, rule authoring, or supplied
+human feedback. The skill can also be selected when relevant to UI work.
+It includes on-demand workflows and offline guidance, and explicitly installs the
+same checksummed engine as the Claude plugin. It requires no Claude environment or
+settings and does not change host permissions or install hooks.
+See [installation, updates, compatibility, and verification](docs/agents.md).
 
 ### Claude Code
 
@@ -166,14 +212,14 @@ and the [plugin guide](https://github.com/lanej/viewrule/blob/main/plugins/claud
 
 ### CLI, other agents, or the demo
 
-Download `viewrule-0.8.0.tgz` and `SHA256SUMS` from the
-[v0.8.0 release](https://github.com/lanej/viewrule/releases/tag/v0.8.0).
+Download `viewrule-0.11.0.tgz` and `SHA256SUMS` from the
+[v0.11.0 release](https://github.com/lanej/viewrule/releases/tag/v0.11.0).
 From that download directory, verify the checksum and install:
 
 ```sh
 # Linux; on macOS use: shasum -a 256 -c SHA256SUMS
 sha256sum -c SHA256SUMS
-npm install --global ./viewrule-0.8.0.tgz
+npm install --global ./viewrule-0.11.0.tgz
 viewrule install-browser
 viewrule --version
 ```
@@ -244,12 +290,13 @@ into new Git worktrees. Each checkout keeps its own run state. See
 
 ### The default opinion
 
-`guidance` includes built-in preferences adapted from the original dotfiles:
+`guidance` includes seven built-in preferences adapted from the original dotfiles:
 lead with the decision, keep comparisons visible, preserve quantitative context,
 align evidence, minimize distracting decoration, retain readable density, and
-review graphical integrity. Composition guidance adds intentional anchors, spacing
-rhythm, task-scoped area budgets, and balance without enforcing symmetry.
-[Composition contracts](docs/composition.md) document the opt-in checks and examples. Personal preferences and actual human feedback refine them.
+review graphical integrity. Personal preferences and actual human feedback refine them.
+Additional guidance covers controls, reading, component relationships, and scoped
+composition contracts. Declare related peers, equivalent gaps, task evidence, and
+equal priorities before selecting metrics; symmetry is not a requirement.
 
 New projects get editable **baseline** rules: 14px main-content text, clipping
 warnings, and a warning for headers over 160px. **Analytical** adds declared
@@ -257,6 +304,7 @@ comparison identities, eight desktop/twelve large-screen alternatives, nearby
 text values, complete labels, shared context, and aligned metric peers. These are
 calibratable starting constraints; a finite task can require fewer alternatives.
 Neither preset imposes a viewport occupancy score.
+Composition checks are opt-in and introduce no default numeric thresholds.
 
 Use `viewrule init --preset analytical` for a new comparison workspace,
 or `viewrule preset --name analytical` to inspect rules for an existing application.
@@ -339,7 +387,7 @@ configuration and rules; Impeccable supplies general source diagnostics, and axe
 supplies automated accessibility checks. It uses local
 JSON, JSONL, HTML, and PNG files, with no hosted service, database, model API, or
 telemetry. The configured application can make its own browser network requests.
-The Claude plugin packages skills and a release installer. It invokes the CLI and reads that engine version's docs; it does not copy
+The portable skill and Claude plugin package shared workflows and a release installer. It invokes the CLI and reads that engine version's docs; it does not copy
 measurement logic. Using the plugin involves Claude's normal model service.
 
 ```mermaid
@@ -355,7 +403,7 @@ flowchart TD
 
 | Layer | Implementation and responsibility |
 | --- | --- |
-| Claude integration | `plugins/claude-code/`: task guidance and pinned setup; `.claude-plugin/marketplace.json` provides discovery |
+| Agent integration | `skills/viewrule/`: portable skill, workflows, guide, and pinned setup; `plugins/claude-code/` retains marketplace discovery and Claude compatibility |
 | Entry and configuration | `bin/viewrule.mjs`, `src/cli.mjs`, `src/config.mjs`, `src/paths.mjs`: commands, schema validation, and configuration lookup |
 | Browser evidence | `src/review.mjs`, `src/capture.mjs`, `src/checks.mjs`: fresh contexts, geometry, styles, accessibility, and full-resolution tiles |
 | Design evaluation | `src/design.mjs`: policy loading, cross-viewport comparisons, coverage, citations, and remediation suggestions |
@@ -381,7 +429,10 @@ tables. The analytical preset therefore checks visible identities, readable type
 and distance between actual text values. Its regression fixtures reject stretching
 alone and accept bounded finite comparisons with surrounding whitespace. These
 checks cannot establish relevance or every source of comparison effort. The
-[fixture corpus](https://github.com/lanej/viewrule/blob/main/test/README.md) states exactly
+[viewport-growth-yield contract](docs/ui-review.md#composition-contracts) adds a
+comparative return on usable area, with identity preservation and explicit finite
+saturation. It still depends on the project's declaration of relevant evidence.
+The [fixture corpus](https://github.com/lanej/viewrule/blob/main/test/README.md) states exactly
 what is verified; further work is tracked in the [roadmap](https://github.com/lanej/viewrule/blob/main/ROADMAP.md).
 
 DOM evidence cannot certify chart truth, semantic context, every form of clipping
@@ -400,11 +451,19 @@ From a source checkout, run `npm ci`, then `npm run format` to apply Prettier an
 `npm run check` to verify formatting, ESLint, and TypeScript JavaScript analysis.
 CI runs these before the browser regression. Static checking is incremental, with
 JSDoc contracts and `strict: false`; runtime inputs still require Ajv validation.
-There is no compilation step. Use `npm run browser:install` and `npm test` for the browser workflow. The single representative regression workflow installs
+There is no compilation step. Required CI runs `npm run test:ci` (also available as
+`npm test`), benchmark, and the site build. Reserve exhaustive local runs for CI
+diagnosis or packaging risks; use `npm run browser:install` when needed. The single representative regression workflow installs
 the packed CLI through an isolated plugin copy, then exercises 4K evidence, feedback,
 repair, and stale-review enforcement against the shipped presets. The same workflow
 checks broken, compact, sidebar, stretched, finite, and missing-annotation cases with specific
 finding assertions. It does not evaluate Claude's visual judgment.
+For DR-017–DR-020 iteration, `npm run check:composition` runs that workflow's shared
+composition scenario directly against source and saves separate evidence in
+`dist/composition-focus/`. It is partial validation; require the full installed
+CI workflow before delivery. The [short-preflight pilot](benchmarks/workflow/prevention-pilot-2026-09-24.md)
+records workflow observations separately from detector correctness, with saved
+before/after implementations and explicit measurement limits.
 For documentation-only changes, use targeted link, example, and diff checks instead
 of adding tests or rerunning the browser locally.
 
