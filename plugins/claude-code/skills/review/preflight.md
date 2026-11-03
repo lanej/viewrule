@@ -25,8 +25,10 @@ or minimum document length is required.
 
 Then implement, inspect affected components and their assembled view, and run the
 configured validation. A passing component does not certify the composition. Use
-supported incremental review only with explicit dependency/freshness configuration;
-otherwise run the full review. Inspect original-size evidence for judgments the
+`check --incremental --url <actual-url>` with explicit dependency/freshness
+configuration; otherwise run the full review. Reserve `plan` for diagnosing scope or
+invalidation decisions. Require `check --full` and the full app suite in application
+CI before merge. Inspect original-size evidence for judgments the
 checks cannot establish. Do not repeat unchanged runs or reread unchanged guidance.
 
 A review-only request does not authorize writing intent or changing boundaries.

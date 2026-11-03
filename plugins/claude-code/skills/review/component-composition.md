@@ -85,9 +85,11 @@ a justified project contract; there is no universal density score or pixel budge
 These are two review responsibilities, not two mandatory full browser runs. A single
 configured run can provide both sets of evidence; component stories alone cannot
 cover their parent composition. Configure the affected real states/regions within
-the task's authorization. Full `check` remains the default. The phase split does not
-authorize incremental mode, narrower coverage, or evidence reuse; use those only
-under the existing explicit configuration and freshness/invalidation rules.
+the task's authorization. With explicit dependency/freshness configuration, run
+`check --incremental` directly; use `plan` only to diagnose scope or invalidation.
+Otherwise use full `check`. Required application CI runs `check --full` and the full
+app suite before merge. Reuse never narrows configured coverage or refreshes capture
+timestamps.
 
 For each consequential change, retain a task-preserving accepted/rejected comparison
 in the existing app/installed workflow when a supported check expresses the defect.

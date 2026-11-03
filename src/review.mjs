@@ -33,6 +33,12 @@ import {
 import { engineVersion, fileDigest } from "./fingerprints.mjs";
 import { runtimeConfig } from "./runtime-url.mjs";
 import { pruneRuns } from "./retention.mjs";
+import {
+  reportInputFingerprint,
+  reportArtifacts,
+  reusableReport,
+  unchangedCache,
+} from "./report-reuse.mjs";
 
 /** @param {string} project @param {string} globalDir @param {boolean} [incremental] @param {string} [explicitURL] */
 export async function runReview(
@@ -60,6 +66,28 @@ export async function runReview(
         incremental,
       )
     : null;
+  const reportInputs = plan
+    ? await reportInputFingerprint(project, globalDir)
+    : null;
+  if (await reusableReport(plan, config, contract, before, reportInputs)) {
+    const after = await fingerprint(project, config, globalDir);
+    const afterContract = await readContract(project, globalDir);
+    if (before !== after || afterContract.hash !== contract.hash)
+      throw new Error(
+        "Source or contract changed during report verification. Rerun the review.",
+      );
+    if (
+      reportInputs === (await reportInputFingerprint(project, globalDir)) &&
+      !evidenceAgeProblem(plan.cache.report, config) &&
+      (await unchangedCache(project, plan.cache))
+    )
+      return {
+        report: plan.cache.report,
+        reportFile: plan.cache.reportFile,
+        execution: executionSummary(plan),
+        reusedReport: true,
+      };
+  }
   const id =
     new Date().toISOString().replace(/[:.]/g, "-") +
     "-" +
@@ -384,7 +412,6 @@ export async function runReview(
     ...feedback,
   ];
   const reportFile = path.join(dir, "report.json");
-  await writeJSON(reportFile, report);
   await writeFile(
     path.join(dir, "design-rules.html"),
     renderDesignPolicy(report.designPolicy),
@@ -397,6 +424,16 @@ export async function runReview(
     path.join(dir, "index.html"),
     renderReport(report, preferences, reference),
   );
+  if (
+    plan &&
+    reportInputs &&
+    reportInputs === (await reportInputFingerprint(project, globalDir))
+  )
+    report.reuse = {
+      inputs: reportInputs,
+      artifacts: await reportArtifacts(dir),
+    };
+  await writeJSON(reportFile, report);
   await writeJSON(path.join(project, ".ui-review/latest.json"), {
     status: report.status,
     engineVersion: currentEngineVersion,
@@ -427,5 +464,11 @@ export async function runReview(
   const retention = await pruneRuns(project, config.runRetention).catch(
     (error) => ({ error: error.message }),
   );
-  return { report, reportFile, retention };
+  return {
+    report,
+    reportFile,
+    retention,
+    execution: report.execution,
+    reusedReport: false,
+  };
 }

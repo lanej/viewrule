@@ -76,7 +76,7 @@ wording is included in the policy hash and old reports retain their policy text.
 
 1. Update `package.json`, run `npm install --package-lock-only` to refresh the
    existing shrinkwrap, and write `CHANGELOG.md`. Include migration notes when needed.
-2. Review the change through a pull request. `npm test` packs the distribution,
+2. Review the change through a pull request. required CI (`npm run test:ci`, also available as `npm test`) packs the distribution,
    installs it through an isolated copy of the Claude plugin, and runs the one
    representative workflow through that adapter and installed executable. The copied
    pin uses the packed archive served by the fixture; production pins stay unchanged.
