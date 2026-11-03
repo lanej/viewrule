@@ -17,7 +17,8 @@ The runtime URL commands below require engine 0.8.0, whose `--help` contains
 3. **Interpret:** inspect full-resolution details and evaluate task usefulness.
    Required design-rule coverage means an applicable check ran with visible
    evidence; it does not certify the entire design principle.
-After authorized repairs, retain the first and final saved runs and use
+   When a before/after comparison is requested or needed to evaluate a repair, save
+   its baseline outside disposable run history before continuing, then use
    `viewrule compare --before <first-report> --after <final-report> --output <new-directory>`
    to inspect their paired evidence. See [saved comparisons](saved-comparisons.md).
    Do not add an unchanged check solely to create an after image.
@@ -122,8 +123,9 @@ with `VIEWRULE_DEV_DIR`; unset it to resume the installed version. See
 `npm uninstall --global viewrule` removes a standalone CLI. Removing the dotfiles
 integration removes its wrappers and installation directory only. Project rules,
 feedback, and approved references are retained unless the user deletes them.
-Run folders are disposable; remove obsolete runs when space is needed. After
-deleting a run referenced by `latest.json`, rerun before relying on verification.
+Run folders are disposable. Engines with `prune` automatically bound their history;
+use `prune --dry-run` to preview backlog cleanup. See [evidence storage](evidence-storage.md).
+The latest report and independently approved references are protected.
 Viewrule does not delete shared Playwright browser caches on uninstall.
 
 ## Failure handling

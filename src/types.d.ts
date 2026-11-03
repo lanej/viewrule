@@ -116,6 +116,7 @@ export interface ProjectConfig {
   sourcePaths: Selection;
   reviewScopes?: ReviewScope[];
   evidenceReuse?: { environmentKey: string; maxAgeMs: number };
+  runRetention?: { maxRuns?: number; maxAgeDays?: number; maxBytes?: number };
   accessibility: boolean;
   projectDocuments?: Selection;
   requiredDesignRules?: string[];

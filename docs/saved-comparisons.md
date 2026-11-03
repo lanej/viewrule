@@ -7,6 +7,11 @@ review reports and their adjacent PNG files. The command requires no running
 application or configured project. It never records approval or modifies either
 input run, rules, feedback, or `.ui-review/latest.json`.
 
+In engines with [automatic run retention](evidence-storage.md), copy an initial
+baseline outside `.ui-review/runs/` before a long repair session. Pass the saved
+report path to `--before`; exported comparisons preserve both inputs independently
+of later cleanup. Ordinary intermediate runs are disposable.
+
 ```sh
 viewrule compare \
   --before .ui-review/runs/BEFORE/report.json \

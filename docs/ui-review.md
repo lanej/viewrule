@@ -14,6 +14,9 @@ implemented checks, configuration examples, and the limits of their evidence.
 
 ## Setup and first review
 
+For bounded run history, backlog cleanup, and capture costs, see
+[local evidence storage](evidence-storage.md) (unreleased).
+
 Requires Node 22.18+ and npm. Install the standalone package as described in [README](../README.md).
 The following commands require `Runtime URL:` in the installed `viewrule --help`;
 for older engine 0.7.1, use the [compatibility workflow](#runtime-url-compatibility).

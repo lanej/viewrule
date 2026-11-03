@@ -1,5 +1,16 @@
 # Changelog
 
+## Unreleased
+
+- Bound disposable run history by count, age, and bytes after completed checks;
+  preserve the current report and independent approved references. Add
+  `viewrule prune [--dry-run]` for backlog cleanup and `runRetention` configuration.
+- Crop native detail tiles from the overview instead of recapturing every tile;
+  retain bounded per-tile fallback for oversized or dimension-changing pages.
+  Request independent copy-on-write clones for reused and approved evidence.
+- Make comparison exports conditional on the task instead of accumulating them
+  after every repair. Preserve a needed baseline explicitly before further runs.
+
 ## 0.10.0 — 2026-09-25
 
 - Add `viewrule compare` for two saved reviews, preserving exact reports and PNGs

@@ -1,5 +1,5 @@
 import { createServer } from "node:http";
-import { mkdtemp, mkdir, writeFile, readFile } from "node:fs/promises";
+import { mkdtemp, mkdir, writeFile, readFile, cp } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import Mustache from "mustache";
@@ -113,7 +113,16 @@ try {
       throw new Error(
         `${name}: expected clean ${expected}, got ${result.report.status}. Inspect ${result.reportFile}`,
       );
-    results.push({ name, description, ...result });
+    // The gallery intentionally publishes every case, independently of disposable
+    // review history. Save each case before the next check can prune its origin.
+    const saved = path.join(project, "cases", name);
+    await cp(path.dirname(result.reportFile), saved, { recursive: true });
+    results.push({
+      name,
+      description,
+      ...result,
+      reportFile: path.join(saved, "report.json"),
+    });
   }
   const template = await readFile(
     new URL("./test/templates/gallery.html", import.meta.url),

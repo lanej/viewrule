@@ -1,6 +1,7 @@
 import { chromium } from "playwright";
 import AxeBuilder from "@axe-core/playwright";
 import { mkdir, writeFile, realpath, copyFile } from "node:fs/promises";
+import { constants } from "node:fs";
 import { randomUUID } from "node:crypto";
 import path from "node:path";
 import { readJSON } from "./config.mjs";
@@ -31,6 +32,7 @@ import {
 } from "./incremental.mjs";
 import { engineVersion, fileDigest } from "./fingerprints.mjs";
 import { runtimeConfig } from "./runtime-url.mjs";
+import { pruneRuns } from "./retention.mjs";
 
 /** @param {string} project @param {string} globalDir @param {boolean} [incremental] @param {string} [explicitURL] */
 export async function runReview(
@@ -203,7 +205,7 @@ export async function runReview(
             pageConfig.captureRegions,
           );
         result.screenshot = `capture-${report.pages.length}.png`;
-        await page.screenshot({
+        const overview = await page.screenshot({
           path: path.join(dir, result.screenshot),
           fullPage: true,
           animations: "disabled",
@@ -213,6 +215,7 @@ export async function runReview(
           dir,
           `capture-${report.pages.length}`,
           config.detailCapture,
+          overview,
         );
         if (!result.details.complete)
           result.findings.push({
@@ -353,6 +356,7 @@ export async function runReview(
           await copyFile(
             path.join(refDir, p.screenshot),
             path.join(dir, "reference", p.screenshot),
+            constants.COPYFILE_FICLONE,
           );
         } catch (error) {
           if (error.code !== "ENOENT") throw error;
@@ -419,5 +423,9 @@ export async function runReview(
       ),
     ].slice(0, 5),
   });
-  return { report, reportFile };
+  // Housekeeping cannot erase the published run or change its check result.
+  const retention = await pruneRuns(project, config.runRetention).catch(
+    (error) => ({ error: error.message }),
+  );
+  return { report, reportFile, retention };
 }
