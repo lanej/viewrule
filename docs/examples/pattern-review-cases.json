@@ -1,0 +1,91 @@
+{
+  "version": 1,
+  "contractRevision": 2,
+  "historicalRevision": 1,
+  "baseRules": [
+    {
+      "id": "pattern-queue-facts",
+      "type": "context",
+      "selector": ".decision-row",
+      "required": [
+        ".queue-identity",
+        ".queue-source",
+        ".queue-denominator",
+        ".queue-eligibility",
+        ".queue-action"
+      ],
+      "designRules": ["DR-003", "DR-006"],
+      "severity": "error",
+      "reason": "Retain the facts needed to queue the correct eligible group.",
+      "sources": [
+        "docs/examples/pattern-review-design.md#remaining-review-patterns"
+      ]
+    },
+    {
+      "id": "pattern-active-scope",
+      "type": "context",
+      "selector": ".comparison-surface",
+      "required": [".active-scope"],
+      "designRules": ["DR-003", "DR-012"],
+      "severity": "error",
+      "reason": "The current source filter must be apparent outside a menu.",
+      "sources": [
+        "docs/examples/pattern-review-design.md#remaining-review-patterns"
+      ]
+    },
+    {
+      "id": "pattern-finite-height",
+      "type": "max-height",
+      "selector": ".decision-row",
+      "max": 180,
+      "designRules": ["DR-007", "DR-008"],
+      "severity": "error",
+      "reason": "Three short summaries need no extra row stretching; natural whitespace outside the rows is legitimate.",
+      "sources": [
+        "docs/examples/pattern-review-design.md#remaining-review-patterns"
+      ]
+    },
+    {
+      "id": "pattern-local-scope",
+      "type": "context",
+      "selector": ".decision-row",
+      "required": [".local-window"],
+      "designRules": ["DR-012"],
+      "severity": "error",
+      "reason": "Different history windows belong to their identified group, not the shared filter toolbar.",
+      "sources": [
+        "docs/examples/pattern-review-design.md#remaining-review-patterns"
+      ]
+    }
+  ],
+  "changedTaskRule": {
+    "id": "pattern-routine-trend",
+    "type": "context",
+    "selector": ".decision-row",
+    "required": [".queue-trend"],
+    "designRules": ["DR-003", "DR-006"],
+    "severity": "error",
+    "reason": "Task revision 2 makes trend routine initial-view evidence.",
+    "sources": [
+      "docs/examples/pattern-review-design.md#remaining-review-patterns"
+    ]
+  },
+  "cases": {
+    "toolbar": {
+      "bad": ["pattern-active-scope"],
+      "mutation": "Hide only the active scope label."
+    },
+    "whitespace": {
+      "bad": ["pattern-finite-height"],
+      "mutation": "Stretch only the three unchanged rows to 240px."
+    },
+    "changed-task": {
+      "bad": ["pattern-routine-trend"],
+      "mutation": "Keep routine trend inside its former supporting disclosure."
+    },
+    "scopes": {
+      "bad": ["pattern-local-scope"],
+      "mutation": "Hoist only the three independently scoped history controls."
+    }
+  }
+}

@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+- Complete toolbar scope, finite whitespace, changed-task evidence and independently
+  scoped-control calibration cases in the existing pattern example. Preserve separate
+  task-revision reports and controlled data/action invariants.
+- Share pattern assertions between focused `check:patterns` development feedback and
+  the required installed CI workflow. No agent efficacy or cost claim is made.
+
 ## 0.11.0 — 2026-11-03
 
 - Return the existing verified passing report for unchanged incremental checks,

@@ -27,7 +27,8 @@ with invented neutral data. The existing installed regression runs its before,
 component-only, composition, and hidden-evidence states under one explicitly authored contract per revision.
 No original screenshot or identifying/domain-specific data is retained in the repo.
 This is not evidence that the agent workflow improves generation quality or cost.
-Do not introduce a second renderer, helper test suite, or screenshot matrix.
+Focused development and installed CI call the same `test/pattern-scenario.mjs`
+assertions. Do not introduce a second renderer, helper test suite, or screenshot matrix.
 
 The [case contract](../../docs/examples/pattern-review-design.md) distinguishes
 component evidence, composition evidence, and remaining judgments. Local header and
@@ -52,8 +53,11 @@ For each case, keep task, required data, typography, and available actions const
 Use the application's existing stories/fixtures or the canonical Easy UI examples;
 do not edit Viewrule's generated example bundles. A variant is a concrete fixture
 only after its source commit, route/story, state, and viewport are retained.
-The rows below specify expected judgments. Only the linked pattern-review subset
-is implemented here; the other case specifications remain outstanding.
+The rows below specify expected judgments. All six cases now have concrete calibration routes and assertions in the same
+[pattern-review example](../../docs/examples/pattern-review-design.md#remaining-review-patterns).
+Toolbar scope, finite whitespace, changed-task revisions, and independently scoped
+controls use `?case=…&quality=good|bad`; the original stages retain header,
+disclosure and cumulative composition evidence.
 
 | Case | Accepted variant | Rejected variant | Verification boundary |
 | --- | --- | --- | --- |
