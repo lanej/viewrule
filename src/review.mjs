@@ -428,11 +428,12 @@ export async function runReview(
     plan &&
     reportInputs &&
     reportInputs === (await reportInputFingerprint(project, globalDir))
-  )
-    report.reuse = {
-      inputs: reportInputs,
-      artifacts: await reportArtifacts(dir),
-    };
+  ) {
+    // Whole-report caching is optional. An oversized or concurrently removed
+    // presentation artifact must not prevent publication of the measured result.
+    const artifacts = await reportArtifacts(dir).catch(() => null);
+    if (artifacts) report.reuse = { inputs: reportInputs, artifacts };
+  }
   await writeJSON(reportFile, report);
   await writeJSON(path.join(project, ".ui-review/latest.json"), {
     status: report.status,
