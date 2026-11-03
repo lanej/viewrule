@@ -38,6 +38,15 @@ and reports with hashes. Optional recorded DOM regions supply numbered callouts;
 scoped measurements and authored interpretation stay separate. `--image` exports
 the annotated result. See [configuration, usage, and comparison limits](docs/saved-comparisons.md).
 
+## Bounded local evidence (unreleased)
+
+Completed checks automatically retain at most three disposable runs, seven days
+of history, and 256 MiB, always preserving the current report. Approved references
+remain independent. `viewrule prune --dry-run` previews cleanup of an existing
+backlog; `viewrule prune` applies it. Normal detail tiles now come from one
+full-resolution capture instead of repeated browser screenshots. See
+[limits, configuration, and preserving a comparison baseline](docs/evidence-storage.md).
+
 ## Why it exists
 
 Optional [text-legibility contracts](docs/text-legibility.md) check declared

@@ -11,6 +11,7 @@ import {
   symlink,
   lstat,
   chmod,
+  rename,
 } from "node:fs/promises";
 import { createHash } from "node:crypto";
 import { tmpdir } from "node:os";
@@ -19,6 +20,7 @@ import { createServer } from "node:http";
 import { createRequire } from "node:module";
 import { execFile } from "node:child_process";
 import { chromium } from "playwright";
+import { PNG } from "pngjs";
 import { inspectPage } from "../src/checks.mjs";
 import { runCompositionScenario } from "./composition-scenario.mjs";
 import { runSavedComparisonScenario } from "./saved-comparison-scenario.mjs";
@@ -1008,6 +1010,26 @@ test(
       path.join(path.dirname(output.report), last.file),
     );
     assert.deepEqual([png.readUInt32BE(16), png.readUInt32BE(20)], [1024, 800]);
+    const overviewPage = report.pages.find(
+      (page) => page.viewport.name === "4k",
+    );
+    const overviewPixels = PNG.sync.read(
+      await readFile(
+        path.join(path.dirname(output.report), overviewPage.screenshot),
+      ),
+    );
+    const tilePixels = PNG.sync.read(png);
+    for (let row = 0; row < last.height; row++) {
+      const start = ((last.y + row) * overviewPixels.width + last.x) * 4;
+      assert.deepEqual(
+        tilePixels.data.subarray(
+          row * last.width * 4,
+          (row + 1) * last.width * 4,
+        ),
+        overviewPixels.data.subarray(start, start + last.width * 4),
+        "Detail tiles preserve exact native overview pixels",
+      );
+    }
     const reportHtml = await readFile(output.html, "utf8");
     assert.match(reportHtml, /capture-1-detail-/);
     assert.match(reportHtml, /&quot;max&quot;:160/);
@@ -1046,11 +1068,83 @@ test(
       await readFile(output.report, "utf8"),
     );
 
+    // Old disposable evidence must not grow without bound or take user data with it.
+    const runsRoot = path.join(project, ".ui-review/runs");
+    const oldRun = "2000-01-01T00-00-00-000Z-1234abcd";
+    const linkedOldRun = "2000-01-02T00-00-00-000Z-1234abcd";
+    await cp(path.dirname(output.report), path.join(runsRoot, oldRun), {
+      recursive: true,
+    });
+    const outsideEvidence = path.join(project, "outside-evidence");
+    await mkdir(outsideEvidence);
+    await writeFile(
+      path.join(outsideEvidence, "keep.txt"),
+      "Not disposable evidence",
+    );
+    await symlink(outsideEvidence, path.join(runsRoot, linkedOldRun));
+    await mkdir(path.join(runsRoot, "hand-saved"));
+    const beforePrune = await readdir(runsRoot);
+    const previewPrune = await cli(["prune", "--dry-run"]);
+    assert.equal(previewPrune.code, 0, previewPrune.stderr);
+    assert.ok(JSON.parse(previewPrune.stdout).removed.includes(oldRun));
+    assert.deepEqual(
+      await readdir(runsRoot),
+      beforePrune,
+      "Cleanup preview does not change evidence",
+    );
+    await writeFile(
+      latestPath,
+      JSON.stringify({ ...latestAfterGood, status: "running" }),
+    );
+    const busyPrune = await cli(["prune"]);
+    assert.equal(busyPrune.code, 2);
+    assert.match(busyPrune.stderr, /running or was interrupted/);
+    assert.deepEqual(await readdir(runsRoot), beforePrune);
+    await writeFile(latestPath, latestAfterGoodText);
+    const parkedRuns = path.join(project, ".ui-review/parked-runs");
+    await rename(runsRoot, parkedRuns);
+    await symlink(outsideEvidence, runsRoot);
+    const linkedStorePrune = await cli(["prune"]);
+    assert.equal(linkedStorePrune.code, 2);
+    assert.match(linkedStorePrune.stderr, /not a symlink/);
+    assert.equal(
+      await readFile(path.join(outsideEvidence, "keep.txt"), "utf8"),
+      "Not disposable evidence",
+    );
+    await rm(runsRoot);
+    await rename(parkedRuns, runsRoot);
+
     await writeFile(source, analyticalHtml("sidebar"));
     const alternate = await cli(["check"]);
     assert.equal(alternate.code, 0, alternate.stderr || alternate.stdout);
     const alternateReport = JSON.parse(
       await readFile(JSON.parse(alternate.stdout).report, "utf8"),
+    );
+    const cleanup = JSON.parse(alternate.stdout).retention;
+    assert.ok(
+      cleanup.removed.includes(oldRun),
+      "Completed checks prune aged backlog automatically",
+    );
+    assert.ok(cleanup.retained.length <= 3);
+    assert.ok(cleanup.retained.includes(alternateReport.id));
+    await assert.rejects(lstat(path.join(runsRoot, oldRun)), {
+      code: "ENOENT",
+    });
+    assert.ok(
+      (await lstat(path.join(runsRoot, linkedOldRun))).isSymbolicLink(),
+    );
+    assert.ok((await lstat(path.join(runsRoot, "hand-saved"))).isDirectory());
+    assert.equal(
+      await readFile(path.join(outsideEvidence, "keep.txt"), "utf8"),
+      "Not disposable evidence",
+    );
+    assert.equal(
+      await readFile(
+        path.join(project, ".ui-review", approved.reference, "report.json"),
+        "utf8",
+      ),
+      JSON.stringify(report, null, 2) + "\n",
+      "Approval remains exact after cleanup",
     );
     assert.deepEqual(alternateReport.summary, { errors: 0, warnings: 0 });
     assert.equal(alternateReport.changes.baselineId, report.id);
@@ -4097,7 +4191,7 @@ test(
       );
     }
     const incrementalSetup =
-      'export default async ({page}) => { await page.locator("main").waitFor(); };\n';
+      'export default async ({page}) => { await page.locator("main").waitFor(); const capture = page.screenshot.bind(page); let calls = 0; page.screenshot = async (...args) => { if (++calls > 1) throw new Error("Redundant browser tile capture"); return capture(...args); }; };\n';
     const incrementalSetupFile = path.join(
       incrementalProject,
       "src/b/setup.mjs",
@@ -4276,6 +4370,27 @@ test(
     );
     assert.match(reusedHTML, /Reused capture/);
     assert.ok(reusedHTML.includes(fullScopeRun.report.id));
+    // Byte limits can remove every old run without breaking reused evidence or
+    // changing its original capture time. The current report may exceed a budget.
+    await writeIncrementalConfig({
+      ...incrementalConfig,
+      runRetention: { maxBytes: 1 },
+    });
+    const bounded = await scopeCLI("prune");
+    assert.equal(bounded.code, 0, bounded.stderr);
+    const boundedResult = JSON.parse(bounded.stdout);
+    assert.deepEqual(boundedResult.retained, [reusedScopeRun.report.id]);
+    assert.equal(boundedResult.overBudget, true);
+    await assert.rejects(readFile(fullScopeRun.reportFile), { code: "ENOENT" });
+    await writeIncrementalConfig();
+    assert.deepEqual(await verify({ cwd: incrementalProject }), {
+      status: "pass",
+    });
+    assert.equal(
+      (await scopePlan()).browser.captureCount,
+      0,
+      "Pruning the origin does not invalidate self-contained reused evidence",
+    );
     // Runtime bindings outrank incidental source ownership: authentication is
     // global, and a checkpoint belongs to the states that actually execute it.
     await writeFile(incrementalStorageFile, `${incrementalStorage}\n`);

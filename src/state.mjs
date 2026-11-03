@@ -1,4 +1,5 @@
 import { createHash, randomUUID } from "node:crypto";
+import { constants } from "node:fs";
 import {
   readFile,
   writeFile,
@@ -169,7 +170,12 @@ export async function recordFeedback(
     await cp(
       path.dirname(resolved),
       path.join(project, ".ui-review", entry.reference),
-      { recursive: true, errorOnExist: true, force: false },
+      {
+        recursive: true,
+        errorOnExist: true,
+        force: false,
+        mode: constants.COPYFILE_FICLONE,
+      },
     );
   }
   await appendFile(

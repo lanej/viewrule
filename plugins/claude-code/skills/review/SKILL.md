@@ -101,18 +101,20 @@ With the intended app state running, validate both levels:
    blockers, or unresolved judgments. Do not repeat unchanged failing runs or keep
    retrying when the measurement cannot express the intended design.
 
-For implementation or repair work, retain the first checked report path before
-making corrections and the final fresh report path after them. With engine 0.10.0+
-(`--help` lists `compare`), run `compare --before <first-report> --after <final-report>
---output <new-directory>` and inspect the paired originals and gap reasons. Add
-`--image` when a shareable image helps; author interpretations separately from
-measurements. Use the installed `docs/saved-comparisons.md` for optional region
-annotations, declared before capture. Preserve both runs, including failures and
-unchanged results; never retrofit geometry or remove an unsuccessful attempt.
-A read-only review needs no artificial second run, and unchanged source needs no
-repeat check just to manufacture an after image. Older engines retain their raw
-reports without comparison export. Report changed contracts as comparison gaps,
-not measured repairs, and do not infer approval or semantic preservation from a delta.
+Export a before/after comparison when requested or needed to evaluate a repair;
+do not generate a permanent comparison archive for every edit. Before a long repair
+session, copy a needed first run outside disposable `.ui-review/runs/` history;
+retaining only its path will not protect it from engines with automatic cleanup.
+With engine 0.10.0+ (`--help` lists `compare`), use
+`compare --before <saved-first-report> --after <final-report> --output <new-directory>`.
+Inspect the paired originals and gap reasons; add `--image` only for a needed
+shareable image. Consult installed `docs/saved-comparisons.md` for annotations.
+Keep the actual selected evidence, including failures or unchanged outcomes; never
+retrofit geometry or substitute a passing attempt. Routine intermediate runs may
+expire under engine retention. Read-only review needs no artificial second run,
+and unchanged source needs no repeat capture just to manufacture an after image.
+Report changed contracts as comparison gaps, not measured repairs; a delta does not
+establish approval or semantic preservation. Use only capabilities in installed help.
 
 Box/text coverage is a proxy: stretched empty containers or smaller unreadable type
 do not establish useful density. Preserve visible comparison identities, readable

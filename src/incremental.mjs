@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
 import { readFile, lstat, copyFile } from "node:fs/promises";
+import { constants } from "node:fs";
 import path from "node:path";
 import { chromium } from "playwright";
 import { readJSON } from "./config.mjs";
@@ -524,6 +525,7 @@ export async function reusePage(plan, key, directory, index) {
     await copyFile(
       path.join(plan.cache.directory, before),
       path.join(directory, after),
+      constants.COPYFILE_FICLONE,
     );
     if ((await artifactDigest(directory, after)) !== record.artifacts[before])
       throw new Error(`Evidence changed during reuse: ${before}`);
