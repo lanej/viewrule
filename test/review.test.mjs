@@ -11,6 +11,7 @@ import {
   symlink,
   lstat,
   chmod,
+  rename,
 } from "node:fs/promises";
 import { createHash } from "node:crypto";
 import { tmpdir } from "node:os";
@@ -19,6 +20,7 @@ import { createServer } from "node:http";
 import { createRequire } from "node:module";
 import { execFile } from "node:child_process";
 import { chromium } from "playwright";
+import { PNG } from "pngjs";
 import { inspectPage } from "../src/checks.mjs";
 import { runPatternReviewScenario } from "./pattern-scenario.mjs";
 import { runCompositionScenario } from "./composition-scenario.mjs";
@@ -256,12 +258,19 @@ test(
     pin.url = `${baseURL}/engine.tgz`;
     pin.sha256 = createHash("sha256").update(archive).digest("hex");
     await writeFile(path.join(plugin, "engine.json"), JSON.stringify(pin));
+    // Codex receives this directory alone, without a marketplace cache or repository.
+    const portable = path.join(project, "agent skills/viewrule");
+    await cp(path.join(repository, "skills/viewrule"), portable, {
+      recursive: true,
+    });
+    await writeFile(path.join(portable, "engine.json"), JSON.stringify(pin));
     const runtime = path.join(project, "runtime data");
     /** @type {NodeJS.ProcessEnv} */
     const env = {
       ...process.env,
       VIEWRULE_CONFIG_DIR: globalDir,
       VIEWRULE_PLUGIN_DATA_DIR: runtime,
+      VIEWRULE_DATA_DIR: path.join(project, "agent runtime"),
       CLAUDE_PLUGIN_ROOT: plugin,
       CLAUDE_CONFIG_DIR: path.join(project, "claude user"),
       CLAUDE_PROJECT_DIR: project,
@@ -279,9 +288,11 @@ test(
         );
         child.stdin.end(input);
       });
-    const cli = (args) =>
+    let launcher = path.join(plugin, "scripts/viewrule.mjs");
+    const cli = (args) => run(process.execPath, [launcher, ...args]);
+    const portableCLI = (args) =>
       run(process.execPath, [
-        path.join(plugin, "scripts/viewrule.mjs"),
+        path.join(portable, "scripts/viewrule.mjs"),
         ...args,
       ]);
     await assert.rejects(readFile(path.join(plugin, "hooks/hooks.json")), {
@@ -349,6 +360,20 @@ test(
       "Legacy global options cannot delegate to an old blocking engine",
     );
     await rm(path.join(project, ".ui-review/config.json"));
+    const portableGuide = await portableCLI(["guide", "P-003"]);
+    assert.equal(portableGuide.code, 0, portableGuide.stderr);
+    assert.equal(portableGuide.stdout, selectedGuide.stdout);
+    const missingEngine = await portableCLI(["--version"]);
+    assert.equal(missingEngine.code, 2);
+    assert.match(missingEngine.stderr, /Run this launcher with setup/);
+    await assert.rejects(
+      readFile(path.join(env.VIEWRULE_DATA_DIR, "install.lock")),
+      { code: "ENOENT" },
+    );
+    const rejectedPortable = await portableCLI(["setup", "--skip-browser"]);
+    assert.equal(rejectedPortable.code, 2);
+    assert.match(rejectedPortable.stderr, /checksum mismatch/);
+    assert.deepEqual(await readdir(env.VIEWRULE_DATA_DIR), []);
     const rejected = await cli(["setup", "--skip-browser"]);
     assert.equal(rejected.code, 2);
     assert.match(rejected.stderr, /checksum mismatch/);
@@ -436,6 +461,28 @@ test(
       }),
     );
     await writeFile(malformedSettings, "{invalid JSON\n");
+    const settingsBeforePortable = await readFile(userSettings, "utf8");
+    const projectBeforePortable = await readFile(projectSettings, "utf8");
+    const portableSetup = await portableCLI([
+      "setup",
+      "--skip-browser",
+      "--project",
+      migrationApp,
+    ]);
+    assert.equal(portableSetup.code, 0, portableSetup.stderr);
+    assert.equal(JSON.parse(portableSetup.stdout).stopHookMigration, undefined);
+    assert.equal(
+      await readFile(userSettings, "utf8"),
+      settingsBeforePortable,
+      "Agent-neutral setup does not edit Claude settings",
+    );
+    assert.equal(
+      await readFile(projectSettings, "utf8"),
+      projectBeforePortable,
+    );
+    assert.ok(
+      JSON.parse(portableSetup.stdout).engine.startsWith(env.VIEWRULE_DATA_DIR),
+    );
     const setup = await cli([
       "setup",
       "--skip-browser",
@@ -492,6 +539,14 @@ test(
       selectedGuide.stdout,
       "Plugin and packed engine read identical canonical guidance",
     );
+    // Exercise the full installed review/feedback/verification workflow through the
+    // standalone skill with no Claude environment. The contract test retains the
+    // Claude adapter path, including worktree and Git gate compatibility.
+    launcher = path.join(portable, "scripts/viewrule.mjs");
+    for (const key of Object.keys(env))
+      if (key.startsWith("CLAUDE_")) delete env[key];
+    delete env.VIEWRULE_PLUGIN_DATA_DIR;
+    assert.equal((await cli(["--version"])).stdout.trim(), pin.version);
     const docs = await cli(["docs"]);
     assert.equal(docs.code, 0, docs.stderr);
     assert.match(
@@ -1009,6 +1064,26 @@ test(
       path.join(path.dirname(output.report), last.file),
     );
     assert.deepEqual([png.readUInt32BE(16), png.readUInt32BE(20)], [1024, 800]);
+    const overviewPage = report.pages.find(
+      (page) => page.viewport.name === "4k",
+    );
+    const overviewPixels = PNG.sync.read(
+      await readFile(
+        path.join(path.dirname(output.report), overviewPage.screenshot),
+      ),
+    );
+    const tilePixels = PNG.sync.read(png);
+    for (let row = 0; row < last.height; row++) {
+      const start = ((last.y + row) * overviewPixels.width + last.x) * 4;
+      assert.deepEqual(
+        tilePixels.data.subarray(
+          row * last.width * 4,
+          (row + 1) * last.width * 4,
+        ),
+        overviewPixels.data.subarray(start, start + last.width * 4),
+        "Detail tiles preserve exact native overview pixels",
+      );
+    }
     const reportHtml = await readFile(output.html, "utf8");
     assert.match(reportHtml, /capture-1-detail-/);
     assert.match(reportHtml, /&quot;max&quot;:160/);
@@ -1047,11 +1122,83 @@ test(
       await readFile(output.report, "utf8"),
     );
 
+    // Old disposable evidence must not grow without bound or take user data with it.
+    const runsRoot = path.join(project, ".ui-review/runs");
+    const oldRun = "2000-01-01T00-00-00-000Z-1234abcd";
+    const linkedOldRun = "2000-01-02T00-00-00-000Z-1234abcd";
+    await cp(path.dirname(output.report), path.join(runsRoot, oldRun), {
+      recursive: true,
+    });
+    const outsideEvidence = path.join(project, "outside-evidence");
+    await mkdir(outsideEvidence);
+    await writeFile(
+      path.join(outsideEvidence, "keep.txt"),
+      "Not disposable evidence",
+    );
+    await symlink(outsideEvidence, path.join(runsRoot, linkedOldRun));
+    await mkdir(path.join(runsRoot, "hand-saved"));
+    const beforePrune = await readdir(runsRoot);
+    const previewPrune = await cli(["prune", "--dry-run"]);
+    assert.equal(previewPrune.code, 0, previewPrune.stderr);
+    assert.ok(JSON.parse(previewPrune.stdout).removed.includes(oldRun));
+    assert.deepEqual(
+      await readdir(runsRoot),
+      beforePrune,
+      "Cleanup preview does not change evidence",
+    );
+    await writeFile(
+      latestPath,
+      JSON.stringify({ ...latestAfterGood, status: "running" }),
+    );
+    const busyPrune = await cli(["prune"]);
+    assert.equal(busyPrune.code, 2);
+    assert.match(busyPrune.stderr, /running or was interrupted/);
+    assert.deepEqual(await readdir(runsRoot), beforePrune);
+    await writeFile(latestPath, latestAfterGoodText);
+    const parkedRuns = path.join(project, ".ui-review/parked-runs");
+    await rename(runsRoot, parkedRuns);
+    await symlink(outsideEvidence, runsRoot);
+    const linkedStorePrune = await cli(["prune"]);
+    assert.equal(linkedStorePrune.code, 2);
+    assert.match(linkedStorePrune.stderr, /not a symlink/);
+    assert.equal(
+      await readFile(path.join(outsideEvidence, "keep.txt"), "utf8"),
+      "Not disposable evidence",
+    );
+    await rm(runsRoot);
+    await rename(parkedRuns, runsRoot);
+
     await writeFile(source, analyticalHtml("sidebar"));
     const alternate = await cli(["check"]);
     assert.equal(alternate.code, 0, alternate.stderr || alternate.stdout);
     const alternateReport = JSON.parse(
       await readFile(JSON.parse(alternate.stdout).report, "utf8"),
+    );
+    const cleanup = JSON.parse(alternate.stdout).retention;
+    assert.ok(
+      cleanup.removed.includes(oldRun),
+      "Completed checks prune aged backlog automatically",
+    );
+    assert.ok(cleanup.retained.length <= 3);
+    assert.ok(cleanup.retained.includes(alternateReport.id));
+    await assert.rejects(lstat(path.join(runsRoot, oldRun)), {
+      code: "ENOENT",
+    });
+    assert.ok(
+      (await lstat(path.join(runsRoot, linkedOldRun))).isSymbolicLink(),
+    );
+    assert.ok((await lstat(path.join(runsRoot, "hand-saved"))).isDirectory());
+    assert.equal(
+      await readFile(path.join(outsideEvidence, "keep.txt"), "utf8"),
+      "Not disposable evidence",
+    );
+    assert.equal(
+      await readFile(
+        path.join(project, ".ui-review", approved.reference, "report.json"),
+        "utf8",
+      ),
+      JSON.stringify(report, null, 2) + "\n",
+      "Approval remains exact after cleanup",
     );
     assert.deepEqual(alternateReport.summary, { errors: 0, warnings: 0 });
     assert.equal(alternateReport.changes.baselineId, report.id);
@@ -1144,7 +1291,7 @@ test(
     );
 
     const installedTemplate = path.join(
-      JSON.parse(setup.stdout).engine,
+      JSON.parse(portableSetup.stdout).engine,
       "src/templates/report.html",
     );
     const originalTemplate = await readFile(installedTemplate, "utf8");
@@ -1193,7 +1340,7 @@ test(
     env.VIEWRULE_CONFIG_DIR = path.join(project, "mock-global");
     await mkdir(env.VIEWRULE_CONFIG_DIR);
     const mockDirectory = path.join(
-      JSON.parse(setup.stdout).engine,
+      JSON.parse(portableSetup.stdout).engine,
       "docs/app",
     );
     const appConfig = JSON.parse(
@@ -1261,7 +1408,7 @@ test(
     // New policy IDs are first-class without pretending all their semantics are
     // automatically assessed. Both sides use one scoped contract and real DOM.
     const exampleDirectory = path.join(
-      JSON.parse(setup.stdout).engine,
+      JSON.parse(portableSetup.stdout).engine,
       "docs/examples",
     );
     await runPatternReviewScenario({
@@ -3094,7 +3241,7 @@ test(
     const impeccablePackage = JSON.parse(
       await readFile(
         createRequire(
-          path.join(JSON.parse(setup.stdout).engine, "package.json"),
+          path.join(JSON.parse(portableSetup.stdout).engine, "package.json"),
         ).resolve("impeccable/package.json"),
         "utf8",
       ),
@@ -3500,7 +3647,7 @@ test(
       );
     }
     const incrementalSetup =
-      'export default async ({page}) => { await page.locator("main").waitFor(); };\n';
+      'export default async ({page}) => { await page.locator("main").waitFor(); const capture = page.screenshot.bind(page); let calls = 0; page.screenshot = async (...args) => { if (++calls > 1) throw new Error("Redundant browser tile capture"); return capture(...args); }; };\n';
     const incrementalSetupFile = path.join(
       incrementalProject,
       "src/b/setup.mjs",
@@ -3595,15 +3742,17 @@ test(
       const result = await scopeCLI("check", mode);
       const elapsedMs = Math.round(performance.now() - started);
       assert.equal(result.code, expected, result.stderr || result.stdout);
-      const reportFile = JSON.parse(result.stdout).report;
+      const invocation = JSON.parse(result.stdout);
+      const reportFile = invocation.report;
       const report = JSON.parse(await readFile(reportFile, "utf8"));
       workloads.push({
         label,
         elapsedMs,
         status: report.status,
-        execution: report.execution,
+        execution: invocation.execution,
+        reusedReport: invocation.reusedReport,
       });
-      return { report, reportFile };
+      return { report, reportFile, invocation };
     };
     const fullScopeRun = await scopeCheck("full", "--full");
     assert.deepEqual(fullScopeRun.report.execution.browser, {
@@ -3632,13 +3781,41 @@ test(
       await readdir(path.join(incrementalProject, ".ui-review/runs")),
       runsBeforePlan,
     );
+    const evidenceSnapshot = async () => {
+      const root = path.join(incrementalProject, ".ui-review");
+      const snapshot = [];
+      for (const file of [
+        "",
+        ...(await readdir(root, { recursive: true })).sort(),
+      ]) {
+        const metadata = await lstat(path.join(root, file));
+        snapshot.push({
+          file,
+          size: metadata.size,
+          mtime: metadata.mtimeMs,
+          ctime: metadata.ctimeMs,
+          inode: metadata.ino,
+        });
+      }
+      return snapshot;
+    };
+    const beforeReuse = await evidenceSnapshot();
     const reusedScopeRun = await scopeCheck("unchanged");
-    assert.deepEqual(reusedScopeRun.report.execution.browser, {
+    assert.equal(reusedScopeRun.invocation.reusedReport, true);
+    assert.equal(reusedScopeRun.reportFile, fullScopeRun.reportFile);
+    assert.deepEqual(reusedScopeRun.report, fullScopeRun.report);
+    assert.equal(await readFile(scopeLatest, "utf8"), beforePlan);
+    assert.deepEqual(
+      await evidenceSnapshot(),
+      beforeReuse,
+      "Unchanged checks write no evidence or latest state",
+    );
+    assert.deepEqual(reusedScopeRun.invocation.execution.browser, {
       required: 2,
       executed: 0,
       reused: 2,
     });
-    assert.deepEqual(reusedScopeRun.report.execution.sourceChecks, {
+    assert.deepEqual(reusedScopeRun.invocation.execution.sourceChecks, {
       required: 2,
       executed: 0,
       reused: 2,
@@ -3656,13 +3833,13 @@ test(
     );
     assert.equal(
       unchangedScopePlan.browser.captureCount,
-      reusedScopeRun.report.execution.browser.executed,
+      reusedScopeRun.invocation.execution.browser.executed,
     );
     assert.equal(
       unchangedScopePlan.sourceChecks.filter(
         (provider) => provider.action === "run",
       ).length,
-      reusedScopeRun.report.execution.sourceChecks.executed,
+      reusedScopeRun.invocation.execution.sourceChecks.executed,
     );
     for (const page of reusedScopeRun.report.pages) {
       assert.equal(page.evidence.runId, fullScopeRun.report.id);
@@ -3673,12 +3850,6 @@ test(
       );
       assert.deepEqual(page.findings, []);
     }
-    const reusedHTML = await readFile(
-      path.join(path.dirname(reusedScopeRun.reportFile), "index.html"),
-      "utf8",
-    );
-    assert.match(reusedHTML, /Reused capture/);
-    assert.ok(reusedHTML.includes(fullScopeRun.report.id));
     // Runtime bindings outrank incidental source ownership: authentication is
     // global, and a checkpoint belongs to the states that actually execute it.
     await writeFile(incrementalStorageFile, `${incrementalStorage}\n`);
@@ -3842,6 +4013,105 @@ test(
     assert.deepEqual(await verify({ cwd: incrementalProject }), {
       status: "pass",
     });
+    const reusedHTML = await readFile(
+      path.join(path.dirname(localScopeRun.reportFile), "index.html"),
+      "utf8",
+    );
+    assert.match(reusedHTML, /Reused capture/);
+    assert.ok(reusedHTML.includes(fullScopeRun.report.id));
+    // Byte limits can remove every old run without breaking reused evidence or
+    // changing its original capture time. The current report may exceed a budget.
+    await writeIncrementalConfig({
+      ...incrementalConfig,
+      runRetention: { maxBytes: 1 },
+    });
+    const bounded = await scopeCLI("prune");
+    assert.equal(bounded.code, 0, bounded.stderr);
+    const boundedResult = JSON.parse(bounded.stdout);
+    assert.deepEqual(boundedResult.retained, [localScopeRun.report.id]);
+    assert.equal(boundedResult.overBudget, true);
+    await assert.rejects(readFile(fullScopeRun.reportFile), { code: "ENOENT" });
+    await writeIncrementalConfig();
+    assert.deepEqual(await verify({ cwd: incrementalProject }), {
+      status: "pass",
+    });
+    assert.equal(
+      (await scopePlan()).browser.captureCount,
+      0,
+      "Pruning the origin does not invalidate self-contained reused evidence",
+    );
+    // Presentation-only changes rebuild a complete report without recapturing.
+    await rm(path.join(path.dirname(localScopeRun.reportFile), "index.html"));
+    let presented = await scopeCheck("recover-missing-html");
+    assert.equal(presented.invocation.reusedReport, false);
+    assert.equal(presented.invocation.execution.browser.executed, 0);
+    assert.match(
+      await readFile(
+        path.join(path.dirname(presented.reportFile), "index.html"),
+        "utf8",
+      ),
+      /Reused capture/,
+    );
+    for (const scope of ["project", "global"]) {
+      const note = `Keep the ${scope} review context visible.`;
+      const feedback = await scopeCLI(
+        "feedback",
+        "--report",
+        presented.reportFile,
+        "--decision",
+        "adjust",
+        "--scope",
+        scope,
+        "--note",
+        note,
+      );
+      assert.equal(feedback.code, 0, feedback.stderr);
+      presented = await scopeCheck(`${scope}-feedback`);
+      assert.equal(presented.invocation.reusedReport, false);
+      assert.equal(presented.invocation.execution.browser.executed, 0);
+      assert.equal(presented.invocation.execution.sourceChecks.executed, 0);
+      assert.ok(
+        (
+          await readFile(
+            path.join(path.dirname(presented.reportFile), "index.html"),
+            "utf8",
+          )
+        ).includes(note),
+      );
+    }
+    const scopeApproval = await scopeCLI(
+      "feedback",
+      "--report",
+      presented.reportFile,
+      "--decision",
+      "approve",
+      "--note",
+      "Synthetic reference for reuse regression.",
+    );
+    assert.equal(scopeApproval.code, 0, scopeApproval.stderr);
+    const approvedRun = await scopeCheck("approved-reference");
+    assert.equal(approvedRun.invocation.reusedReport, false);
+    assert.equal(approvedRun.invocation.execution.browser.executed, 0);
+    const approvedReuse = await scopeCheck("unchanged-approved-reference");
+    assert.equal(approvedReuse.invocation.reusedReport, true);
+    assert.equal(approvedReuse.reportFile, approvedRun.reportFile);
+    const scopeReferenceFile = path.join(
+      incrementalProject,
+      ".ui-review",
+      JSON.parse(scopeApproval.stdout).reference,
+      presented.report.pages[0].screenshot,
+    );
+    const scopeReferenceBytes = await readFile(scopeReferenceFile);
+    await rm(scopeReferenceFile);
+    const missingReference = await scopeCheck("missing-reference-image");
+    assert.equal(missingReference.invocation.reusedReport, false);
+    assert.equal(missingReference.invocation.execution.browser.executed, 0);
+    assert.ok(
+      missingReference.report.changes.evidence.every(
+        (entry) => entry.status === "not-compared",
+      ),
+    );
+    await writeFile(scopeReferenceFile, scopeReferenceBytes);
     await writeFile(
       path.join(incrementalProject, "src/a/index.html"),
       incrementalHTML("a changed", "different"),

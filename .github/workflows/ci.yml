@@ -56,13 +56,12 @@ jobs:
         run: npm run analyze
       - name: Check guide and example sources
         if: ${{ !cancelled() && steps.dependencies.outcome == 'success'  }}
-        run: npm run guide:check
+        run: npm run guide:check && npm run agents:check
       - name: Build public site
         if: ${{ !cancelled() && steps.dependencies.outcome == 'success'  }}
         run: npm run site:build
       - run: node bin/viewrule.mjs install-browser --with-deps
-      - name: Exhaustive installed-package regression (CI delivery gate)
-        run: npm run test:ci
+      - run: npm run test:ci
         env:
           VIEWRULE_VERIFY_PLUGIN_PIN: ${{ contains(github.event.pull_request.title, '[release]') || contains(github.event.head_commit.message, '[release]') }}
       - uses: actions/upload-artifact@v4

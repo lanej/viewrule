@@ -24,11 +24,11 @@ or minimum document length is required.
   selectors or thresholds. Unknown task intent remains explicit and unassessed.
 
 Then implement, inspect affected components and their assembled view, and run the
-affected application checks and configured rendered validation. A passing component
-does not certify the composition. Use supported incremental review with explicit
-dependency/freshness configuration; otherwise use `check`. Exhaustive application
-tests and `check --full` belong to CI at the proposed commit, with required status
-before merge. Keep executed, reused and unassessed scope explicit. Inspect original-size evidence for judgments the
+configured validation. A passing component does not certify the composition. Use
+`check --incremental --url <actual-url>` with explicit dependency/freshness
+configuration; otherwise run the full review. Reserve `plan` for diagnosing scope or
+invalidation decisions. Require `check --full` and the full app suite in application
+CI before merge. Inspect original-size evidence for judgments the
 checks cannot establish. Do not repeat unchanged runs or reread unchanged guidance.
 
 A review-only request does not authorize writing intent or changing boundaries.

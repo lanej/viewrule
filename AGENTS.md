@@ -9,8 +9,11 @@ changing behavior. For code review, read [REVIEW.md](REVIEW.md).
 
 - Keep the engine, schema, policy, and reports here. Personal defaults belong in
   dotfiles; application selectors, thresholds, and approvals belong in the app.
-- The Claude plugin is a CLI client. Keep its skills concise, use installed engine
-  docs, and bump its manifest version for updates; never install from evidence verification or a Git gate.
+- Agent integrations are CLI clients. Author shared workflows, runtime, guide, and
+  pin in `skills/viewrule/`; run `npm run agents:build` to refresh the isolated Claude
+  plugin and `npm run agents:check` to verify it. Keep skills concise and use installed
+  engine docs. Bump the Claude manifest for plugin changes; never install from
+  evidence verification or a Git gate. See [agent integration](docs/agents.md).
 - The engine requires Node 22.18+ and npm; development tooling needs Node 22.18+.
   Use ES modules and pinned dependencies; no
   compilation step is required. Run the formatter, linter, and static checks below.
@@ -19,7 +22,7 @@ changing behavior. For code review, read [REVIEW.md](REVIEW.md).
   and independent of Node APIs and module closures.
 - Prefer small changes to the relevant layer. Do not add a hosted service, database,
   model dependency, plugin framework, or automatic source repair without a request.
-- Consult the [guide](plugins/claude-code/guide/v1/index.md) selectively before relevant UI work;
+- Consult the [guide](skills/viewrule/guide/v1/index.md) selectively before relevant UI work;
   follow its authoring contract for guidance changes. Distinguish advice from checks.
 - Use `contract` before UI decisions and `/viewrule:add-rule` for authored boundaries.
   Keep rule/configuration changes visible separately from application repairs.
@@ -44,9 +47,6 @@ changing behavior. For code review, read [REVIEW.md](REVIEW.md).
 npm ci
 npm run format
 npm run check
-# For a behavioral change, run the affected shared scenario once:
-npm run check:patterns
-# Or npm run check:composition for DR-017–DR-020.
 ```
 
 `npm run format` applies Prettier to code, HTML, JSON, and YAML. `npm run check`
@@ -56,9 +56,12 @@ blanket exclusions or `@ts-nocheck`. JavaScript checking is incremental, not str
 Keep substantial HTML in templates; use escaped Mustache values for report content.
 The policy renderer's fixed markup is the sole escaped-before-formatting exception.
 
-Run the affected detector once after behavioral changes; repeat only after a
-failure or further implementation changes. `npm test` packs and installs the CLI
-through an isolated plugin copy, then exercises one workflow. Keep concrete rejected
+Run the affected shared scenario after behavioral changes; repeat only after a
+failure or further implementation changes. Required CI runs `npm run test:ci`, the
+full installed workflow, plus the benchmark, static checks, and site build before
+merge. Do not repeat that exhaustive gate locally for routine edits; use it to
+diagnose CI failures or packaging risks. `npm test` remains an alias for `test:ci`,
+which packs and installs the CLI through an isolated plugin copy. Keep concrete rejected
 and passing preset fixtures there; assert their specific findings and measurements.
 Do not add helper tests, snapshots, or viewport/edge-case matrices.
 
@@ -67,11 +70,7 @@ scenario against source, saving separate evidence in `dist/patterns-focus/`.
 For DR-017–DR-020 iteration, `npm run check:composition` runs the existing shared
 composition scenario against the current source. It produces separate evidence in
 `dist/composition-focus/`; it is partial validation and never supplies a release
-archive. Do not run the exhaustive package suite as a routine development step.
-PR CI runs `npm run test:ci`, the analytical benchmark, and static/site checks on
-all changes; inspect their status for the final commit before delivery or merge.
-A focused local pass is partial evidence, never a substitute for that CI gate.
-Run the full suite locally only to diagnose a CI failure or a concrete packaging risk. For each escaped defect,
+archive. Require a passing full installed CI workflow before delivery. For each escaped defect,
 retain its failing reproduction and a legitimate passing counterpart in the same
 scenario; identify the browser or evidence assumption that caused the omission.
 

@@ -111,6 +111,18 @@ export const configSchema = object(
       },
       ["environmentKey", "maxAgeMs"],
     ),
+    runRetention: object(
+      {
+        maxRuns: { type: "integer", minimum: 1, maximum: 1000 },
+        maxAgeDays: { type: "integer", minimum: 1, maximum: 3650 },
+        maxBytes: {
+          type: "integer",
+          minimum: 1,
+          maximum: Number.MAX_SAFE_INTEGER,
+        },
+      },
+      [],
+    ),
     accessibility: { type: "boolean" },
     projectDocuments: documentScopeSchema,
     requiredDesignRules: designIds,

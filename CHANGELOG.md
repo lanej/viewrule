@@ -2,14 +2,33 @@
 
 ## Unreleased
 
-- Complete toolbar scope, legitimate finite whitespace, changed-task evidence and
-  independently scoped-control calibration cases in the existing pattern example.
-  Preserve separate task-revision reports and controlled data/action invariants.
-- Share pattern assertions between `check:patterns` development feedback and the
-  exhaustive installed CI workflow; make `test:ci` explicit, retaining `npm test`.
-- Plugin 0.10.1 keeps the engine 0.10.0 pin and separates explicitly configured
-  incremental development review from required full application review/tests in CI.
-  No agent efficacy or cost improvement is implied by passing these checks.
+- Complete toolbar scope, finite whitespace, changed-task evidence and independently
+  scoped-control calibration cases in the existing pattern example. Preserve separate
+  task-revision reports and controlled data/action invariants.
+- Share pattern assertions between focused `check:patterns` development feedback and
+  the required installed CI workflow. No agent efficacy or cost claim is made.
+
+## 0.11.0 — 2026-11-03
+
+- Return the existing verified passing report for unchanged incremental checks,
+  with no new run, screenshot copies, report writes, or renewed capture timestamps.
+  CLI `execution` describes this invocation; `reusedReport` identifies whole-report
+  reuse. Source, environment, feedback, approved references, artifact integrity, and
+  original freshness remain checked. Full reviews always execute.
+- Run incremental checks directly with explicit scope/freshness configuration;
+  reserve planning for diagnosis. Keep focused development checks local and the
+  full installed/package workflow (`test:ci`) in required CI.
+- Plugin 0.11.0 pins this engine. Update the plugin and rerun setup to adopt it;
+  existing 0.10.0 installs retain their previous behavior until upgraded.
+
+- Bound disposable run history by count, age, and bytes after completed checks;
+  preserve the current report and independent approved references. Add
+  `viewrule prune [--dry-run]` for backlog cleanup and `runRetention` configuration.
+- Crop native detail tiles from the overview instead of recapturing every tile;
+  retain bounded per-tile fallback for oversized or dimension-changing pages.
+  Request independent copy-on-write clones for reused and approved evidence.
+- Make comparison exports conditional on the task instead of accumulating them
+  after every repair. Preserve a needed baseline explicitly before further runs.
 
 ## 0.10.0 — 2026-09-25
 

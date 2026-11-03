@@ -4,7 +4,7 @@ import { homedir } from "node:os";
 export {
   findProject,
   assertLocalReviewDirectory,
-} from "../plugins/claude-code/scripts/project.mjs";
+} from "../skills/viewrule/scripts/project.mjs";
 
 export function globalConfigDir() {
   return path.resolve(

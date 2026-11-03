@@ -7,12 +7,13 @@ then checks the rendered result with browser measurements and visual evidence. I
 viewports and turns human feedback into reusable constraints. The agent operates
 the tool and repairs the application; the human supplies intent and judgment.
 
-The Claude Code plugin brings this workflow into UI tasks. Its local CLI engine
+A portable Agent Skill brings this workflow to Codex and other coding agents; the
+Claude Code plugin retains its existing commands. Their shared local CLI engine
 opens the running app in Chromium, checks configured constraints, and reports
 violations with evidence and design-rule citations. Other agents and CI can use
 the same CLI directly.
 
-**Status:** experimental 0.10.0, distributed through
+**Status:** experimental 0.11.0, distributed through
 [GitHub Releases](https://github.com/lanej/viewrule/releases). No npm registry release
 is available yet. Node.js 22.18+ and npm are required. Linux is exercised in CI;
 macOS and Windows have not been validated.
@@ -23,10 +24,12 @@ positioning.
 
 ## Incremental review
 
-Declare explicit input/dependency scopes, then use `viewrule plan --incremental`
-and `viewrule check --incremental` to reuse verified unchanged evidence. A complete
+Declare explicit input/dependency scopes, then use `viewrule check --incremental`
+to reuse verified unchanged evidence. Use `plan --incremental` when diagnosing
+configuration or invalidation; `check` already plans its own work. A complete
 report still covers every required page, viewport, checkpoint, and source provider;
-shared changes invalidate dependents. `check --full` always captures again.
+shared changes invalidate dependents. An unchanged verified pass returns the same
+report without writing another run. `check --full` always captures again.
 Reuse requires a nonsecret environment identity and an explicit maximum age.
 See [configuration, evidence provenance, and conservative fallbacks](docs/incremental-review.md).
 
@@ -37,6 +40,15 @@ builds a portable comparison from saved reviews, preserving original screenshots
 and reports with hashes. Optional recorded DOM regions supply numbered callouts;
 scoped measurements and authored interpretation stay separate. `--image` exports
 the annotated result. See [configuration, usage, and comparison limits](docs/saved-comparisons.md).
+
+## Bounded local evidence
+
+Completed checks automatically retain at most three disposable runs, seven days
+of history, and 256 MiB, always preserving the current report. Approved references
+remain independent. `viewrule prune --dry-run` previews cleanup of an existing
+backlog; `viewrule prune` applies it. Normal detail tiles now come from one
+full-resolution capture instead of repeated browser screenshots. See
+[limits, configuration, and preserving a comparison baseline](docs/evidence-storage.md).
 
 ## Why it exists
 
@@ -87,7 +99,7 @@ in the application contract.
 
 ## Consult guidance before building
 
-The [versioned design guide](plugins/claude-code/guide/v1/index.md) covers decision
+The [versioned design guide](skills/viewrule/guide/v1/index.md) covers decision
 context, progressive disclosure, action lists, Tufte, and graphical perception.
 It separates conditional patterns, original evidence, and enforceable measurements.
 The existing Pages build renders the same Markdown under `guide/v1/`, with raw
@@ -103,10 +115,10 @@ The plugin supplies `guide [ID]` independently of its pinned engine,
 so its review skill can consult bundled guidance before setup. Read only relevant
 pages, state decision assumptions, inspect examples, implement, then run checks.
 The runnable pricing and encoding examples compose Easy UI components from a pinned
-commit. The [source manifest](plugins/claude-code/guide/v1/examples.json) records
+commit. The [source manifest](skills/viewrule/guide/v1/examples.json) records
 provenance and checksums; generated assets ship offline without adding Easy UI to
 the engine’s dependencies.
-See [guide contribution instructions](plugins/claude-code/guide/v1/authoring.md).
+See [guide contribution instructions](skills/viewrule/guide/v1/authoring.md).
 
 ## Define boundaries before building
 
@@ -165,6 +177,17 @@ for the exact scope and limits of each measurement.
 
 ## How to use it
 
+### Codex and other Agent Skills hosts
+
+Install the complete [`skills/viewrule`](skills/viewrule/SKILL.md) directory into
+`~/.agents/skills/viewrule` or the application's `.agents/skills/viewrule`.
+In Codex, invoke `$viewrule` for setup, design, review, rule authoring, or supplied
+human feedback. The skill can also be selected when relevant to UI work.
+It includes on-demand workflows and offline guidance, and explicitly installs the
+same checksummed engine as the Claude plugin. It requires no Claude environment or
+settings and does not change host permissions or install hooks.
+See [installation, updates, compatibility, and verification](docs/agents.md).
+
 ### Claude Code
 
 In Claude Code, install the plugin and initialize it in your application's repository:
@@ -189,14 +212,14 @@ and the [plugin guide](https://github.com/lanej/viewrule/blob/main/plugins/claud
 
 ### CLI, other agents, or the demo
 
-Download `viewrule-0.10.0.tgz` and `SHA256SUMS` from the
-[v0.10.0 release](https://github.com/lanej/viewrule/releases/tag/v0.10.0).
+Download `viewrule-0.11.0.tgz` and `SHA256SUMS` from the
+[v0.11.0 release](https://github.com/lanej/viewrule/releases/tag/v0.11.0).
 From that download directory, verify the checksum and install:
 
 ```sh
 # Linux; on macOS use: shasum -a 256 -c SHA256SUMS
 sha256sum -c SHA256SUMS
-npm install --global ./viewrule-0.10.0.tgz
+npm install --global ./viewrule-0.11.0.tgz
 viewrule install-browser
 viewrule --version
 ```
@@ -364,7 +387,7 @@ configuration and rules; Impeccable supplies general source diagnostics, and axe
 supplies automated accessibility checks. It uses local
 JSON, JSONL, HTML, and PNG files, with no hosted service, database, model API, or
 telemetry. The configured application can make its own browser network requests.
-The Claude plugin packages skills and a release installer. It invokes the CLI and reads that engine version's docs; it does not copy
+The portable skill and Claude plugin package shared workflows and a release installer. It invokes the CLI and reads that engine version's docs; it does not copy
 measurement logic. Using the plugin involves Claude's normal model service.
 
 ```mermaid
@@ -380,7 +403,7 @@ flowchart TD
 
 | Layer | Implementation and responsibility |
 | --- | --- |
-| Claude integration | `plugins/claude-code/`: task guidance and pinned setup; `.claude-plugin/marketplace.json` provides discovery |
+| Agent integration | `skills/viewrule/`: portable skill, workflows, guide, and pinned setup; `plugins/claude-code/` retains marketplace discovery and Claude compatibility |
 | Entry and configuration | `bin/viewrule.mjs`, `src/cli.mjs`, `src/config.mjs`, `src/paths.mjs`: commands, schema validation, and configuration lookup |
 | Browser evidence | `src/review.mjs`, `src/capture.mjs`, `src/checks.mjs`: fresh contexts, geometry, styles, accessibility, and full-resolution tiles |
 | Design evaluation | `src/design.mjs`: policy loading, cross-viewport comparisons, coverage, citations, and remediation suggestions |
@@ -428,19 +451,17 @@ From a source checkout, run `npm ci`, then `npm run format` to apply Prettier an
 `npm run check` to verify formatting, ESLint, and TypeScript JavaScript analysis.
 CI runs these before the browser regression. Static checking is incremental, with
 JSDoc contracts and `strict: false`; runtime inputs still require Ajv validation.
-There is no compilation step. Use `npm run check:patterns` or
-`npm run check:composition` for affected browser behavior during development.
-Install the pinned browser once with `npm run browser:install` if needed.
-PR CI owns exhaustive validation through `npm run test:ci` (`npm test` remains an alias). The single representative regression workflow installs
+There is no compilation step. Required CI runs `npm run test:ci` (also available as
+`npm test`), benchmark, and the site build. Reserve exhaustive local runs for CI
+diagnosis or packaging risks; use `npm run browser:install` when needed. The single representative regression workflow installs
 the packed CLI through an isolated plugin copy, then exercises 4K evidence, feedback,
 repair, and stale-review enforcement against the shipped presets. The same workflow
 checks broken, compact, sidebar, stretched, finite, and missing-annotation cases with specific
 finding assertions. It does not evaluate Claude's visual judgment.
 For DR-017–DR-020 iteration, `npm run check:composition` runs that workflow's shared
 composition scenario directly against source and saves separate evidence in
-`dist/composition-focus/`. It is partial validation; require the full installed regression, benchmark and
-static/site CI checks at the final commit before merge. Local full-suite runs are
-for diagnosing failures or a concrete packaging risk. The [short-preflight pilot](benchmarks/workflow/prevention-pilot-2026-09-24.md)
+`dist/composition-focus/`. It is partial validation; require the full installed
+CI workflow before delivery. The [short-preflight pilot](benchmarks/workflow/prevention-pilot-2026-09-24.md)
 records workflow observations separately from detector correctness, with saved
 before/after implementations and explicit measurement limits.
 For documentation-only changes, use targeted link, example, and diff checks instead

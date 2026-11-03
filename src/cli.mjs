@@ -42,6 +42,7 @@ const help = `viewrule — rendered UI checks and a versioned design feedback lo
                                        --target selects bundled Impeccable; otherwise use configured providers
   check [--url URL] [--incremental | --full]
                                        Validate the contract, capture pages, check rules, write HTML + JSON
+  prune [--dry-run]                    Remove old disposable runs under configured count, age, and byte limits
   compare --before REPORT --after REPORT --output DIR [--annotations FILE] [--image]
                                        Compare saved reviews; preserve originals and export annotated evidence
   feedback --report PATH --decision approve|adjust --note TEXT [--scope project|global]
@@ -127,6 +128,7 @@ try {
       "add-rule",
       "lint",
       "check",
+      "prune",
       "feedback",
       "learn",
       "guidance",
@@ -300,6 +302,16 @@ try {
       }),
     );
     process.exitCode = summary.errors ? 1 : 0;
+  } else if (command === "prune") {
+    const { pruneRuns } = await import("./retention.mjs");
+    const config = validateConfig(
+      await readJSON(path.join(project, ".ui-review/config.json")),
+    );
+    console.log(
+      JSON.stringify(
+        await pruneRuns(project, config.runRetention, args["dry-run"]),
+      ),
+    );
   } else if (command === "check") {
     const { runReview } = await import("./review.mjs");
     const result = await runReview(
@@ -324,6 +336,9 @@ try {
           policyChanged: result.report.contract.policyChanged,
         },
         report: result.reportFile,
+        reusedReport: result.reusedReport,
+        execution: result.execution,
+        retention: result.retention,
         html: path.join(path.dirname(result.reportFile), "index.html"),
         designRules: path.join(
           path.dirname(result.reportFile),

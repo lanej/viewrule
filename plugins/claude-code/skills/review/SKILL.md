@@ -72,19 +72,20 @@ For read-only review, inspect these responsibilities without changing source or 
 With the intended app state running, validate both levels:
 
 1. Use the actual URL reported by the running application and run
-   `check --url <actual-url>` (or set `VIEWRULE_BASE_URL`). Do not invent a fixed
+   `check --incremental --url <actual-url>` when explicit `reviewScopes` and
+   `evidenceReuse` are configured; otherwise use `check --url <actual-url>`
+   (or set `VIEWRULE_BASE_URL`). `check` plans its own work; use `plan --incremental`
+   only to diagnose scope or invalidation decisions. Do not invent a fixed
    localhost port or probe other listeners. Read its JSON findings and saved report.
    If the installed engine's `--help` lacks `Runtime URL:`, it still uses configured
    `baseURL`; verify that it matches the running app and follow its installed docs.
    Do not assume `check --url` or the environment override works on older engines.
    Exit 1 means failed checks;
    exit 2 means setup or usage failed. A missing report is not a passing review.
-   During development, use `plan --incremental` then `check --incremental --url
-   <actual-url>` when the app explicitly configures review scopes and freshness;
-   otherwise use `check`. A run can cover both review levels. Do not silently
-   narrow coverage or reuse stale evidence. Exhaustive app tests and `check --full`
-   belong to application CI at the proposed commit. Require their status before
-   merge and retain evidence even on failure; partial local success is not CI success.
+   Incremental mode still covers every configured obligation and checks evidence
+   freshness. An unchanged report may be reused without a new capture; identify it
+   as reused. Run `check --full` and the full app suite in required application CI
+   before merge. A run can cover both review levels.
 2. Inspect the overview for composition and affected detail tiles at original size.
    Inspect representative text and comparison regions at each configured viewport,
    including the largest. Follow `details.tiles[].file` relative to the report folder.
@@ -101,22 +102,24 @@ With the intended app state running, validate both levels:
 4. When repairs are within the user's task, change the application and rerun after
    the change. For a review-only request, report findings without editing source.
    Do not stop at a component pass. Complete both requested review scopes with fresh
-   passing check evidence, or explicitly report remaining failures, missing coverage,
+   or verified reusable passing check evidence, or explicitly report remaining failures, missing coverage,
    blockers, or unresolved judgments. Do not repeat unchanged failing runs or keep
    retrying when the measurement cannot express the intended design.
 
-For implementation or repair work, retain the first checked report path before
-making corrections and the final fresh report path after them. With engine 0.10.0+
-(`--help` lists `compare`), run `compare --before <first-report> --after <final-report>
---output <new-directory>` and inspect the paired originals and gap reasons. Add
-`--image` when a shareable image helps; author interpretations separately from
-measurements. Use the installed `docs/saved-comparisons.md` for optional region
-annotations, declared before capture. Preserve both runs, including failures and
-unchanged results; never retrofit geometry or remove an unsuccessful attempt.
-A read-only review needs no artificial second run, and unchanged source needs no
-repeat check just to manufacture an after image. Older engines retain their raw
-reports without comparison export. Report changed contracts as comparison gaps,
-not measured repairs, and do not infer approval or semantic preservation from a delta.
+Export a before/after comparison when requested or needed to evaluate a repair;
+do not generate a permanent comparison archive for every edit. Before a long repair
+session, copy a needed first run outside disposable `.ui-review/runs/` history;
+retaining only its path will not protect it from engines with automatic cleanup.
+With engine 0.10.0+ (`--help` lists `compare`), use
+`compare --before <saved-first-report> --after <final-report> --output <new-directory>`.
+Inspect the paired originals and gap reasons; add `--image` only for a needed
+shareable image. Consult installed `docs/saved-comparisons.md` for annotations.
+Keep the actual selected evidence, including failures or unchanged outcomes; never
+retrofit geometry or substitute a passing attempt. Routine intermediate runs may
+expire under engine retention. Read-only review needs no artificial second run,
+and unchanged source needs no repeat capture just to manufacture an after image.
+Report changed contracts as comparison gaps, not measured repairs; a delta does not
+establish approval or semantic preservation. Use only capabilities in installed help.
 
 Box/text coverage is a proxy: stretched empty containers or smaller unreadable type
 do not establish useful density. Preserve visible comparison identities, readable

@@ -116,6 +116,7 @@ export interface ProjectConfig {
   sourcePaths: Selection;
   reviewScopes?: ReviewScope[];
   evidenceReuse?: { environmentKey: string; maxAgeMs: number };
+  runRetention?: { maxRuns?: number; maxAgeDays?: number; maxBytes?: number };
   accessibility: boolean;
   projectDocuments?: Selection;
   requiredDesignRules?: string[];
@@ -413,6 +414,7 @@ export interface EvidenceChange {
   }[];
 }
 export interface ReviewReport {
+  reuse?: { inputs: string; artifacts: Record<string, string> };
   execution?: ExecutionSummary;
   measurements?: {
     version: 1;
