@@ -65,8 +65,10 @@ checks the updated integrated rule page. The checkpoint asserts, in both layouts
 
 The [conformance matrix](conformance-matrix.json) covers every registered rule.
 Mechanical cells name checks that must execute. Human review covers selection
-meaning, useful space, restraint, action clarity, priority and resilience; declared
-`pass` values are expectations, not substitute evidence.
+meaning, useful space, restraint, action clarity, priority, resilience, alignment,
+rhythm, spatial economy and balance; declared
+`pass` values are expectations, not substitute evidence. The DR-017–DR-020
+assessments added during reconciliation require explicit human review before merge.
 
 ## Captures and limits
 

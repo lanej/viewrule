@@ -907,6 +907,34 @@
           "evidenceType": "rationale",
           "evidence": "Selection treatment is not a categorical, magnitude or deviation color scale. Consistency and readable contrast still apply.",
           "rule": "../design-rules/DR-016-semantic-color.md"
+        },
+        "DR-017": {
+          "good": "pass",
+          "bad": "pass",
+          "evidenceType": "human-review",
+          "evidence": "Review required: heading, filter, destination scope and shipment rows retain shared intentional anchors in both layouts and variants.",
+          "rule": "../design-rules/DR-017-alignment.md"
+        },
+        "DR-018": {
+          "good": "pass",
+          "bad": "pass",
+          "evidenceType": "human-review",
+          "evidence": "Review required: repeated shipment rows retain consistent internal spacing and inter-row gaps. The additional Bad row follows only from the lost filter.",
+          "rule": "../design-rules/DR-018-rhythm.md"
+        },
+        "DR-019": {
+          "good": "pass",
+          "bad": "pass",
+          "evidenceType": "human-review",
+          "evidence": "Review required: the finite shipment queue and contextual controls remain content-sized, preserving useful detail without stretching rows to fill the viewport.",
+          "rule": "../design-rules/DR-019-spatial-economy.md"
+        },
+        "DR-020": {
+          "good": "pass",
+          "bad": "pass",
+          "evidenceType": "human-review",
+          "evidence": "Review required: equal-priority shipments retain peer treatment; selected-shipment emphasis communicates the same task state in both variants.",
+          "rule": "../design-rules/DR-020-balance.md"
         }
       }
     }
