@@ -1290,7 +1290,7 @@ test(
     );
 
     const installedTemplate = path.join(
-      JSON.parse(setup.stdout).engine,
+      JSON.parse(portableSetup.stdout).engine,
       "src/templates/report.html",
     );
     const originalTemplate = await readFile(installedTemplate, "utf8");
@@ -1339,7 +1339,7 @@ test(
     env.VIEWRULE_CONFIG_DIR = path.join(project, "mock-global");
     await mkdir(env.VIEWRULE_CONFIG_DIR);
     const mockDirectory = path.join(
-      JSON.parse(setup.stdout).engine,
+      JSON.parse(portableSetup.stdout).engine,
       "docs/app",
     );
     const appConfig = JSON.parse(
@@ -1407,7 +1407,7 @@ test(
     // New policy IDs are first-class without pretending all their semantics are
     // automatically assessed. Both sides use one scoped contract and real DOM.
     const exampleDirectory = path.join(
-      JSON.parse(setup.stdout).engine,
+      JSON.parse(portableSetup.stdout).engine,
       "docs/examples",
     );
     // Screenshot-informed calibration: local units can pass while their parent
@@ -3838,7 +3838,7 @@ test(
     const impeccablePackage = JSON.parse(
       await readFile(
         createRequire(
-          path.join(JSON.parse(setup.stdout).engine, "package.json"),
+          path.join(JSON.parse(portableSetup.stdout).engine, "package.json"),
         ).resolve("impeccable/package.json"),
         "utf8",
       ),
