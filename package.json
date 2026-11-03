@@ -44,14 +44,15 @@
     "lint": "eslint . --max-warnings 0",
     "analyze": "tsc --project tsconfig.json",
     "check": "npm run format:check && npm run lint && npm run analyze && npm run guide:check && npm run agents:check",
-    "check:composition": "node scripts/check-composition.mjs",
+    "check:composition": "node scripts/check-review.mjs composition",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "guide:check": "node scripts/guide.mjs",
     "examples:import": "node scripts/examples.mjs",
     "test:ci": "node scripts/test-package.mjs",
     "agents:build": "node scripts/agents.mjs",
-    "agents:check": "node scripts/agents.mjs --check"
+    "agents:check": "node scripts/agents.mjs --check",
+    "check:patterns": "node scripts/check-review.mjs patterns"
   },
   "keywords": [
     "ui",

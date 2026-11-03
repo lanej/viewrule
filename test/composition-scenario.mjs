@@ -402,6 +402,12 @@ export async function runCompositionScenario({
   await writeFile(
     path.join(project, "composition-checkpoint.mjs"),
     `export default async function ({ page, checkpoint }) {
+    // A checkpoint is a separate data state, not just another viewport.
+    if (['comparison-preserved', 'comparison-lost'].includes(checkpoint.name))
+      await page.locator('#good .queue li').first().evaluate((el, replacement) => {
+        el.setAttribute('data-shipment', replacement);
+        el.querySelector('strong').textContent = replacement;
+      }, checkpoint.name === 'comparison-lost' && page.viewportSize().width > 1000 ? 'AL-104' : 'AL-999');
     if (checkpoint.name === 'missing-identity' && page.viewportSize().width < 1000)
       await page.locator('.queue li').first().evaluate((el) => el.removeAttribute('data-shipment'));
     if (checkpoint.name === 'lost-identity' && page.viewportSize().width > 1000)
@@ -483,6 +489,20 @@ export async function runCompositionScenario({
       }),
       finiteRule,
       {
+        id: "checkpoint-comparisons",
+        type: "comparison-set",
+        selector: "#good .queue li",
+        keyAttribute: "data-shipment",
+        requiredKeys: [],
+        minVisibleByViewport: { compact: 3, wide: 6 },
+        preserveFrom: "compact",
+        minFontSize: 14,
+        pages: ["comparison-checkpoints"],
+        severity: "error",
+        reason:
+          "Preserve comparison identities within the same checkpoint data state.",
+      },
+      {
         ...compositionRules.find((rule) => rule.id === "composition-growth"),
         id: "composition-rendered-evidence",
         pages: ["rendered-evidence"],
@@ -495,6 +515,19 @@ export async function runCompositionScenario({
     JSON.stringify({
       ...compositionConfig,
       pages: [
+        {
+          name: "comparison-checkpoints",
+          path: "/examples/composition.html?rule=DR-019&quality=good",
+          ready: "#composition-examples[data-ready]",
+          checkpoints: [
+            { name: "intact", setup: "composition-checkpoint.mjs" },
+            {
+              name: "comparison-preserved",
+              setup: "composition-checkpoint.mjs",
+            },
+            { name: "comparison-lost", setup: "composition-checkpoint.mjs" },
+          ],
+        },
         {
           ...compositionConfig.pages.find(
             (page) => page.name === "economy-good",
@@ -562,7 +595,33 @@ export async function runCompositionScenario({
     { recursive: true },
   );
   for (const capture of compositionRegression.pages) {
-    if (capture.name === "rendered-evidence") {
+    if (capture.name === "comparison-checkpoints") {
+      const comparisons = capture.metrics.comparisons.find(
+        (entry) => entry.rule === "checkpoint-comparisons",
+      );
+      assert.equal(
+        comparisons.keys.length,
+        capture.viewport.name === "compact" ? 3 : 6,
+      );
+      if (
+        capture.checkpoint === "comparison-lost" &&
+        capture.viewport.name === "wide"
+      ) {
+        assert.equal(capture.findings.length, 1);
+        assert.equal(capture.findings[0].rule, "checkpoint-comparisons");
+        assert.match(
+          capture.findings[0].message,
+          /lost previously visible comparisons/,
+        );
+        assert.deepEqual(capture.findings[0].actual, ["AL-999"]);
+      } else {
+        assert.deepEqual(
+          capture.findings,
+          [],
+          "Another checkpoint's identities must not cause a false loss",
+        );
+      }
+    } else if (capture.name === "rendered-evidence") {
       const growth = capture.metrics.growth[0];
       assert.equal(growth.valid, true);
       assert.deepEqual(

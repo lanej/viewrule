@@ -65,6 +65,8 @@ which packs and installs the CLI through an isolated plugin copy. Keep concrete 
 and passing preset fixtures there; assert their specific findings and measurements.
 Do not add helper tests, snapshots, or viewport/edge-case matrices.
 
+For review-pattern iteration, `npm run check:patterns` runs the shared pattern
+scenario against source, saving separate evidence in `dist/patterns-focus/`.
 For DR-017–DR-020 iteration, `npm run check:composition` runs the existing shared
 composition scenario against the current source. It produces separate evidence in
 `dist/composition-focus/`; it is partial validation and never supplies a release

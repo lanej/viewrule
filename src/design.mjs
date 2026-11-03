@@ -287,7 +287,10 @@ export function evaluateDesign(report, rules, config) {
           );
         if (page.viewport.name === rule.preserveFrom) continue;
         const baseline = pages.find(
-          (p) => p.name === page.name && p.viewport.name === rule.preserveFrom,
+          (p) =>
+            p.name === page.name &&
+            (p.checkpoint ?? null) === (page.checkpoint ?? null) &&
+            p.viewport.name === rule.preserveFrom,
         );
         const previous = baseline?.metrics?.comparisons.find(
           (item) => item.rule === rule.id,
