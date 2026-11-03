@@ -47,5 +47,5 @@ group member envelopes exceeds within-group spacing by an authored ratio. Groups
 and their members must form complete, disjoint, nonoverlapping single-axis
 sequences. This supports proximity relationships, but cannot determine which
 items belong together or establish simultaneous visibility. See
-[DR-018](DR-018-rhythm.md) and the
-[measurement contract](../ui-review.md#composition-contracts).
+[DR-018](https://github.com/lanej/viewrule/blob/main/docs/design-rules/DR-018-rhythm.md) and the
+[measurement contract](https://github.com/lanej/viewrule/blob/main/docs/ui-review.md#composition-contracts).
