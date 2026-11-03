@@ -4286,15 +4286,17 @@ test(
       const result = await scopeCLI("check", mode);
       const elapsedMs = Math.round(performance.now() - started);
       assert.equal(result.code, expected, result.stderr || result.stdout);
-      const reportFile = JSON.parse(result.stdout).report;
+      const invocation = JSON.parse(result.stdout);
+      const reportFile = invocation.report;
       const report = JSON.parse(await readFile(reportFile, "utf8"));
       workloads.push({
         label,
         elapsedMs,
         status: report.status,
-        execution: report.execution,
+        execution: invocation.execution,
+        reusedReport: invocation.reusedReport,
       });
-      return { report, reportFile };
+      return { report, reportFile, invocation };
     };
     const fullScopeRun = await scopeCheck("full", "--full");
     assert.deepEqual(fullScopeRun.report.execution.browser, {
@@ -4323,13 +4325,41 @@ test(
       await readdir(path.join(incrementalProject, ".ui-review/runs")),
       runsBeforePlan,
     );
+    const evidenceSnapshot = async () => {
+      const root = path.join(incrementalProject, ".ui-review");
+      const snapshot = [];
+      for (const file of [
+        "",
+        ...(await readdir(root, { recursive: true })).sort(),
+      ]) {
+        const metadata = await lstat(path.join(root, file));
+        snapshot.push({
+          file,
+          size: metadata.size,
+          mtime: metadata.mtimeMs,
+          ctime: metadata.ctimeMs,
+          inode: metadata.ino,
+        });
+      }
+      return snapshot;
+    };
+    const beforeReuse = await evidenceSnapshot();
     const reusedScopeRun = await scopeCheck("unchanged");
-    assert.deepEqual(reusedScopeRun.report.execution.browser, {
+    assert.equal(reusedScopeRun.invocation.reusedReport, true);
+    assert.equal(reusedScopeRun.reportFile, fullScopeRun.reportFile);
+    assert.deepEqual(reusedScopeRun.report, fullScopeRun.report);
+    assert.equal(await readFile(scopeLatest, "utf8"), beforePlan);
+    assert.deepEqual(
+      await evidenceSnapshot(),
+      beforeReuse,
+      "Unchanged checks write no evidence or latest state",
+    );
+    assert.deepEqual(reusedScopeRun.invocation.execution.browser, {
       required: 2,
       executed: 0,
       reused: 2,
     });
-    assert.deepEqual(reusedScopeRun.report.execution.sourceChecks, {
+    assert.deepEqual(reusedScopeRun.invocation.execution.sourceChecks, {
       required: 2,
       executed: 0,
       reused: 2,
@@ -4347,13 +4377,13 @@ test(
     );
     assert.equal(
       unchangedScopePlan.browser.captureCount,
-      reusedScopeRun.report.execution.browser.executed,
+      reusedScopeRun.invocation.execution.browser.executed,
     );
     assert.equal(
       unchangedScopePlan.sourceChecks.filter(
         (provider) => provider.action === "run",
       ).length,
-      reusedScopeRun.report.execution.sourceChecks.executed,
+      reusedScopeRun.invocation.execution.sourceChecks.executed,
     );
     for (const page of reusedScopeRun.report.pages) {
       assert.equal(page.evidence.runId, fullScopeRun.report.id);
@@ -4364,33 +4394,6 @@ test(
       );
       assert.deepEqual(page.findings, []);
     }
-    const reusedHTML = await readFile(
-      path.join(path.dirname(reusedScopeRun.reportFile), "index.html"),
-      "utf8",
-    );
-    assert.match(reusedHTML, /Reused capture/);
-    assert.ok(reusedHTML.includes(fullScopeRun.report.id));
-    // Byte limits can remove every old run without breaking reused evidence or
-    // changing its original capture time. The current report may exceed a budget.
-    await writeIncrementalConfig({
-      ...incrementalConfig,
-      runRetention: { maxBytes: 1 },
-    });
-    const bounded = await scopeCLI("prune");
-    assert.equal(bounded.code, 0, bounded.stderr);
-    const boundedResult = JSON.parse(bounded.stdout);
-    assert.deepEqual(boundedResult.retained, [reusedScopeRun.report.id]);
-    assert.equal(boundedResult.overBudget, true);
-    await assert.rejects(readFile(fullScopeRun.reportFile), { code: "ENOENT" });
-    await writeIncrementalConfig();
-    assert.deepEqual(await verify({ cwd: incrementalProject }), {
-      status: "pass",
-    });
-    assert.equal(
-      (await scopePlan()).browser.captureCount,
-      0,
-      "Pruning the origin does not invalidate self-contained reused evidence",
-    );
     // Runtime bindings outrank incidental source ownership: authentication is
     // global, and a checkpoint belongs to the states that actually execute it.
     await writeFile(incrementalStorageFile, `${incrementalStorage}\n`);
@@ -4554,6 +4557,105 @@ test(
     assert.deepEqual(await verify({ cwd: incrementalProject }), {
       status: "pass",
     });
+    const reusedHTML = await readFile(
+      path.join(path.dirname(localScopeRun.reportFile), "index.html"),
+      "utf8",
+    );
+    assert.match(reusedHTML, /Reused capture/);
+    assert.ok(reusedHTML.includes(fullScopeRun.report.id));
+    // Byte limits can remove every old run without breaking reused evidence or
+    // changing its original capture time. The current report may exceed a budget.
+    await writeIncrementalConfig({
+      ...incrementalConfig,
+      runRetention: { maxBytes: 1 },
+    });
+    const bounded = await scopeCLI("prune");
+    assert.equal(bounded.code, 0, bounded.stderr);
+    const boundedResult = JSON.parse(bounded.stdout);
+    assert.deepEqual(boundedResult.retained, [localScopeRun.report.id]);
+    assert.equal(boundedResult.overBudget, true);
+    await assert.rejects(readFile(fullScopeRun.reportFile), { code: "ENOENT" });
+    await writeIncrementalConfig();
+    assert.deepEqual(await verify({ cwd: incrementalProject }), {
+      status: "pass",
+    });
+    assert.equal(
+      (await scopePlan()).browser.captureCount,
+      0,
+      "Pruning the origin does not invalidate self-contained reused evidence",
+    );
+    // Presentation-only changes rebuild a complete report without recapturing.
+    await rm(path.join(path.dirname(localScopeRun.reportFile), "index.html"));
+    let presented = await scopeCheck("recover-missing-html");
+    assert.equal(presented.invocation.reusedReport, false);
+    assert.equal(presented.invocation.execution.browser.executed, 0);
+    assert.match(
+      await readFile(
+        path.join(path.dirname(presented.reportFile), "index.html"),
+        "utf8",
+      ),
+      /Reused capture/,
+    );
+    for (const scope of ["project", "global"]) {
+      const note = `Keep the ${scope} review context visible.`;
+      const feedback = await scopeCLI(
+        "feedback",
+        "--report",
+        presented.reportFile,
+        "--decision",
+        "adjust",
+        "--scope",
+        scope,
+        "--note",
+        note,
+      );
+      assert.equal(feedback.code, 0, feedback.stderr);
+      presented = await scopeCheck(`${scope}-feedback`);
+      assert.equal(presented.invocation.reusedReport, false);
+      assert.equal(presented.invocation.execution.browser.executed, 0);
+      assert.equal(presented.invocation.execution.sourceChecks.executed, 0);
+      assert.ok(
+        (
+          await readFile(
+            path.join(path.dirname(presented.reportFile), "index.html"),
+            "utf8",
+          )
+        ).includes(note),
+      );
+    }
+    const scopeApproval = await scopeCLI(
+      "feedback",
+      "--report",
+      presented.reportFile,
+      "--decision",
+      "approve",
+      "--note",
+      "Synthetic reference for reuse regression.",
+    );
+    assert.equal(scopeApproval.code, 0, scopeApproval.stderr);
+    const approvedRun = await scopeCheck("approved-reference");
+    assert.equal(approvedRun.invocation.reusedReport, false);
+    assert.equal(approvedRun.invocation.execution.browser.executed, 0);
+    const approvedReuse = await scopeCheck("unchanged-approved-reference");
+    assert.equal(approvedReuse.invocation.reusedReport, true);
+    assert.equal(approvedReuse.reportFile, approvedRun.reportFile);
+    const scopeReferenceFile = path.join(
+      incrementalProject,
+      ".ui-review",
+      JSON.parse(scopeApproval.stdout).reference,
+      presented.report.pages[0].screenshot,
+    );
+    const scopeReferenceBytes = await readFile(scopeReferenceFile);
+    await rm(scopeReferenceFile);
+    const missingReference = await scopeCheck("missing-reference-image");
+    assert.equal(missingReference.invocation.reusedReport, false);
+    assert.equal(missingReference.invocation.execution.browser.executed, 0);
+    assert.ok(
+      missingReference.report.changes.evidence.every(
+        (entry) => entry.status === "not-compared",
+      ),
+    );
+    await writeFile(scopeReferenceFile, scopeReferenceBytes);
     await writeFile(
       path.join(incrementalProject, "src/a/index.html"),
       incrementalHTML("a changed", "different"),

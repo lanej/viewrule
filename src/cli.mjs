@@ -336,6 +336,8 @@ try {
           policyChanged: result.report.contract.policyChanged,
         },
         report: result.reportFile,
+        reusedReport: result.reusedReport,
+        execution: result.execution,
         retention: result.retention,
         html: path.join(path.dirname(result.reportFile), "index.html"),
         designRules: path.join(

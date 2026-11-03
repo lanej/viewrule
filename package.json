@@ -1,6 +1,6 @@
 {
   "name": "viewrule",
-  "version": "0.10.0",
+  "version": "0.11.0",
   "description": "Design guidance and executable UI constraints for coding agents, with full-resolution evidence and human feedback.",
   "type": "module",
   "license": "MIT",
@@ -33,7 +33,7 @@
   ],
   "scripts": {
     "benchmark": "node scripts/benchmark.mjs",
-    "test": "node scripts/test-package.mjs",
+    "test": "npm run test:ci",
     "demo": "node demo.mjs",
     "site:build": "node scripts/site.mjs",
     "site:preview": "node scripts/site.mjs --serve",
@@ -45,7 +45,8 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "guide:check": "node scripts/guide.mjs",
-    "examples:import": "node scripts/examples.mjs"
+    "examples:import": "node scripts/examples.mjs",
+    "test:ci": "node scripts/test-package.mjs"
   },
   "keywords": [
     "ui",

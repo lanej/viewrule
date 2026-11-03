@@ -22,8 +22,8 @@ Setup removes recognized legacy Viewrule Stop handlers, installs the checksummed
 engine release in `engine.json` and its Playwright Chromium browser, then helps
 configure your running application. Installing the
 plugin alone makes no engine or browser download, and does not enable enforcement.
-Plugin 0.10.2 uses a short task-scoped composition preflight and retrieves guidance
-selectively. It pins engine 0.10.0, exports saved comparisons when the task needs them, and includes opt-in composition checks for alignment, rhythm,
+Plugin 0.11.0 uses a short task-scoped composition preflight and retrieves guidance
+selectively. It pins engine 0.11.0 with bounded run retention and unchanged-report reuse, exports saved comparisons when the task needs them, and includes opt-in composition checks for alignment, rhythm,
 spatial economy, and balance, including comparative viewport-growth yield.
 It retains explicit evidence verification, optional Git gates,
 runtime application URLs, and automatic Stop-hook migration. It retains worktree-aware project discovery,

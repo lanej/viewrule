@@ -84,6 +84,7 @@ Plugin cache files are immutable during setup; no parent-repository paths are ne
 | `src/scopes.mjs`, `src/source-scope.mjs`, `src/plan.mjs` | Shared selection, conservative input resolution, and read-only workload plans |
 | `src/config.mjs` | Ajv validation, project loading, defaults, rule merging |
 | `src/review.mjs` | Browser lifecycle and review orchestration |
+| `src/report-reuse.mjs` | Verified unchanged-report reuse and presentation-input/output integrity |
 | `src/capture.mjs` | Native-scale tile planning, capture, and coverage accounting |
 | `src/comparison.mjs` | Explicit saved-run comparison, original artifact preservation, recorded-region callouts, and optional report image export |
 | `src/checks.mjs` | Browser-side DOM geometry and style observations |

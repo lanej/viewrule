@@ -1,15 +1,17 @@
 # Bounded local evidence
 
-Available in the unreleased engine. Check `viewrule --help` for `prune` before
+Available in engine 0.11.0+. Check `viewrule --help` for `prune` before
 using these commands; engine 0.10.0 does not clean up old runs.
 
-Completed checks now prune disposable `.ui-review/runs/` history automatically.
+Completed new runs prune disposable `.ui-review/runs/` history automatically.
 Defaults retain at most **three runs**, for at most **seven days**, within **256 MiB**
 of logical file bytes. The current report named by `latest.json` is always retained,
 even if it fails checks or exceeds the age or byte budget. Its evidence is never
 partially deleted. `check` prints the cleanup result in `retention`; `overBudget`
 means that the current report alone exceeds the budget. Cleanup errors are reported
-there without hiding or changing the check result.
+there without hiding or changing the check result. Unchanged incremental checks
+that reuse an existing report perform no cleanup or other evidence writes; use
+`prune` to clear a backlog explicitly.
 
 Clean up an existing backlog without starting a browser:
 

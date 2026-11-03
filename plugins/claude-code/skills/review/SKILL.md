@@ -72,15 +72,20 @@ For read-only review, inspect these responsibilities without changing source or 
 With the intended app state running, validate both levels:
 
 1. Use the actual URL reported by the running application and run
-   `check --url <actual-url>` (or set `VIEWRULE_BASE_URL`). Do not invent a fixed
+   `check --incremental --url <actual-url>` when explicit `reviewScopes` and
+   `evidenceReuse` are configured; otherwise use `check --url <actual-url>`
+   (or set `VIEWRULE_BASE_URL`). `check` plans its own work; use `plan --incremental`
+   only to diagnose scope or invalidation decisions. Do not invent a fixed
    localhost port or probe other listeners. Read its JSON findings and saved report.
    If the installed engine's `--help` lacks `Runtime URL:`, it still uses configured
    `baseURL`; verify that it matches the running app and follow its installed docs.
    Do not assume `check --url` or the environment override works on older engines.
    Exit 1 means failed checks;
    exit 2 means setup or usage failed. A missing report is not a passing review.
-   Keep full review as the default; this phase split does not authorize incremental
-   mode, narrower coverage, or stale evidence. A run can cover both review levels.
+   Incremental mode still covers every configured obligation and checks evidence
+   freshness. An unchanged report may be reused without a new capture; identify it
+   as reused. Run `check --full` and the full app suite in required application CI
+   before merge. A run can cover both review levels.
 2. Inspect the overview for composition and affected detail tiles at original size.
    Inspect representative text and comparison regions at each configured viewport,
    including the largest. Follow `details.tiles[].file` relative to the report folder.
@@ -97,7 +102,7 @@ With the intended app state running, validate both levels:
 4. When repairs are within the user's task, change the application and rerun after
    the change. For a review-only request, report findings without editing source.
    Do not stop at a component pass. Complete both requested review scopes with fresh
-   passing check evidence, or explicitly report remaining failures, missing coverage,
+   or verified reusable passing check evidence, or explicitly report remaining failures, missing coverage,
    blockers, or unresolved judgments. Do not repeat unchanged failing runs or keep
    retrying when the measurement cannot express the intended design.
 

@@ -201,7 +201,7 @@ pairs and escaped-defect reproductions above, with identical assertions and
 accessibility checks. Evidence goes to `dist/composition-focus/` and is clearly
 separate from installed-package evidence. The command neither builds the public
 site nor installs/packs the engine, and never creates or replaces the release
-archive. Run `npm test` for complete installed-package validation before delivery;
+archive. Require `npm run test:ci` in CI for complete installed-package validation before delivery;
 a focused pass is not a full test pass. Failed assertions and capture errors remain
 nonzero exits. Keep one assertion source rather than maintaining a lighter duplicate.
 

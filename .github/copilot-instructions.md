@@ -18,8 +18,9 @@ proxy limitation as a new defect in unrelated changes. Do not demand style chang
 without an established convention or concrete consequence.
 
 Keep one representative installed-CLI regression workflow. For behavior changes,
-use npm ci, npm run browser:install, then npm test once; repeat only after failure
-or further changes. Documentation-only changes need example/link/diff review, not
+run the affected shared scenario locally; required CI runs npm run test:ci,
+benchmark, static checks, and the site build before merge. Reserve exhaustive local
+runs for CI diagnosis or packaging risks. Documentation-only changes need example/link/diff review, not
 new tests or a local browser run. Do not claim tests ran without evidence.
 
 Keep the engine independent of dotfiles; app selectors and thresholds stay in the

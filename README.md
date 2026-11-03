@@ -12,7 +12,7 @@ opens the running app in Chromium, checks configured constraints, and reports
 violations with evidence and design-rule citations. Other agents and CI can use
 the same CLI directly.
 
-**Status:** experimental 0.10.0, distributed through
+**Status:** experimental 0.11.0, distributed through
 [GitHub Releases](https://github.com/lanej/viewrule/releases). No npm registry release
 is available yet. Node.js 22.18+ and npm are required. Linux is exercised in CI;
 macOS and Windows have not been validated.
@@ -23,10 +23,12 @@ positioning.
 
 ## Incremental review
 
-Declare explicit input/dependency scopes, then use `viewrule plan --incremental`
-and `viewrule check --incremental` to reuse verified unchanged evidence. A complete
+Declare explicit input/dependency scopes, then use `viewrule check --incremental`
+to reuse verified unchanged evidence. Use `plan --incremental` when diagnosing
+configuration or invalidation; `check` already plans its own work. A complete
 report still covers every required page, viewport, checkpoint, and source provider;
-shared changes invalidate dependents. `check --full` always captures again.
+shared changes invalidate dependents. An unchanged verified pass returns the same
+report without writing another run. `check --full` always captures again.
 Reuse requires a nonsecret environment identity and an explicit maximum age.
 See [configuration, evidence provenance, and conservative fallbacks](docs/incremental-review.md).
 
@@ -38,7 +40,7 @@ and reports with hashes. Optional recorded DOM regions supply numbered callouts;
 scoped measurements and authored interpretation stay separate. `--image` exports
 the annotated result. See [configuration, usage, and comparison limits](docs/saved-comparisons.md).
 
-## Bounded local evidence (unreleased)
+## Bounded local evidence
 
 Completed checks automatically retain at most three disposable runs, seven days
 of history, and 256 MiB, always preserving the current report. Approved references
@@ -198,14 +200,14 @@ and the [plugin guide](https://github.com/lanej/viewrule/blob/main/plugins/claud
 
 ### CLI, other agents, or the demo
 
-Download `viewrule-0.10.0.tgz` and `SHA256SUMS` from the
-[v0.10.0 release](https://github.com/lanej/viewrule/releases/tag/v0.10.0).
+Download `viewrule-0.11.0.tgz` and `SHA256SUMS` from the
+[v0.11.0 release](https://github.com/lanej/viewrule/releases/tag/v0.11.0).
 From that download directory, verify the checksum and install:
 
 ```sh
 # Linux; on macOS use: shasum -a 256 -c SHA256SUMS
 sha256sum -c SHA256SUMS
-npm install --global ./viewrule-0.10.0.tgz
+npm install --global ./viewrule-0.11.0.tgz
 viewrule install-browser
 viewrule --version
 ```
@@ -437,15 +439,17 @@ From a source checkout, run `npm ci`, then `npm run format` to apply Prettier an
 `npm run check` to verify formatting, ESLint, and TypeScript JavaScript analysis.
 CI runs these before the browser regression. Static checking is incremental, with
 JSDoc contracts and `strict: false`; runtime inputs still require Ajv validation.
-There is no compilation step. Use `npm run browser:install` and `npm test` for the browser workflow. The single representative regression workflow installs
+There is no compilation step. Required CI runs `npm run test:ci` (also available as
+`npm test`), benchmark, and the site build. Reserve exhaustive local runs for CI
+diagnosis or packaging risks; use `npm run browser:install` when needed. The single representative regression workflow installs
 the packed CLI through an isolated plugin copy, then exercises 4K evidence, feedback,
 repair, and stale-review enforcement against the shipped presets. The same workflow
 checks broken, compact, sidebar, stretched, finite, and missing-annotation cases with specific
 finding assertions. It does not evaluate Claude's visual judgment.
 For DR-017–DR-020 iteration, `npm run check:composition` runs that workflow's shared
 composition scenario directly against source and saves separate evidence in
-`dist/composition-focus/`. It is partial validation; retain the full installed
-workflow before delivery. The [short-preflight pilot](benchmarks/workflow/prevention-pilot-2026-09-24.md)
+`dist/composition-focus/`. It is partial validation; require the full installed
+CI workflow before delivery. The [short-preflight pilot](benchmarks/workflow/prevention-pilot-2026-09-24.md)
 records workflow observations separately from detector correctness, with saved
 before/after implementations and explicit measurement limits.
 For documentation-only changes, use targeted link, example, and diff checks instead

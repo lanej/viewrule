@@ -414,6 +414,7 @@ export interface EvidenceChange {
   }[];
 }
 export interface ReviewReport {
+  reuse?: { inputs: string; artifacts: Record<string, string> };
   execution?: ExecutionSummary;
   measurements?: {
     version: 1;

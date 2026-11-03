@@ -1,6 +1,17 @@
 # Changelog
 
-## Unreleased
+## 0.11.0 — 2026-11-03
+
+- Return the existing verified passing report for unchanged incremental checks,
+  with no new run, screenshot copies, report writes, or renewed capture timestamps.
+  CLI `execution` describes this invocation; `reusedReport` identifies whole-report
+  reuse. Source, environment, feedback, approved references, artifact integrity, and
+  original freshness remain checked. Full reviews always execute.
+- Run incremental checks directly with explicit scope/freshness configuration;
+  reserve planning for diagnosis. Keep focused development checks local and the
+  full installed/package workflow (`test:ci`) in required CI.
+- Plugin 0.11.0 pins this engine. Update the plugin and rerun setup to adopt it;
+  existing 0.10.0 installs retain their previous behavior until upgraded.
 
 - Bound disposable run history by count, age, and bytes after completed checks;
   preserve the current report and independent approved references. Add

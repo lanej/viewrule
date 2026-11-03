@@ -44,8 +44,6 @@ changing behavior. For code review, read [REVIEW.md](REVIEW.md).
 npm ci
 npm run format
 npm run check
-npm run browser:install
-npm test
 ```
 
 `npm run format` applies Prettier to code, HTML, JSON, and YAML. `npm run check`
@@ -55,16 +53,19 @@ blanket exclusions or `@ts-nocheck`. JavaScript checking is incremental, not str
 Keep substantial HTML in templates; use escaped Mustache values for report content.
 The policy renderer's fixed markup is the sole escaped-before-formatting exception.
 
-Run the affected detector once after behavioral changes; repeat only after a
-failure or further implementation changes. `npm test` packs and installs the CLI
-through an isolated plugin copy, then exercises one workflow. Keep concrete rejected
+Run the affected shared scenario after behavioral changes; repeat only after a
+failure or further implementation changes. Required CI runs `npm run test:ci`, the
+full installed workflow, plus the benchmark, static checks, and site build before
+merge. Do not repeat that exhaustive gate locally for routine edits; use it to
+diagnose CI failures or packaging risks. `npm test` remains an alias for `test:ci`,
+which packs and installs the CLI through an isolated plugin copy. Keep concrete rejected
 and passing preset fixtures there; assert their specific findings and measurements.
 Do not add helper tests, snapshots, or viewport/edge-case matrices.
 
 For DR-017–DR-020 iteration, `npm run check:composition` runs the existing shared
 composition scenario against the current source. It produces separate evidence in
 `dist/composition-focus/`; it is partial validation and never supplies a release
-archive. Run the full installed workflow before delivery. For each escaped defect,
+archive. Require a passing full installed CI workflow before delivery. For each escaped defect,
 retain its failing reproduction and a legitimate passing counterpart in the same
 scenario; identify the browser or evidence assumption that caused the omission.
 
