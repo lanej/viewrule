@@ -230,6 +230,7 @@ optional components, not required evidence.
 | `region-density` | `region`, `measure`, `minCoverage`, `maxVerticalGap` | Union coverage of selected content within the visible part of one region, plus its largest empty vertical band |
 | `alignment-residual` | `items`, `edge`, `maxResidual` | Maximum absolute peer-edge/center deviation from the group's median anchor, in CSS px; at least two items per selected group |
 | `gap-variance` | `items`, `axis`, `maxCoefficientOfVariation` | Population standard deviation divided by mean adjacent border-box gap; at least three items per selected group |
+| `group-separation` | `items`, `groupSelector`, `axis`, `minRatio` | Smallest between-group gap must be positive and at least `minRatio` times the largest within-group gap; two or more disjoint groups of at least two peers |
 | `peer-footprint` | `items`, `measure`, `maxCoefficientOfVariation` | Population coefficient of variation of peer `area` or `font-size`; at least two items per selected equal-priority group |
 | `chrome-allocation` | `items`, `maxRatio` | Union area of declared chrome divided by the visible area of exactly one selected usable region |
 | `viewport-growth-yield` | `items`, `keyAttribute`, `referenceViewport`, `minYield`, `minFontSize`; optional `finiteKeys` | Fractional qualifying evidence growth divided by fractional usable region area growth, with reference identity preservation |
@@ -527,6 +528,49 @@ remains unassessed.
   example, equal measurements have zero variation. Declare equal-priority peers;
   size equality across unrelated roles is not required. Neither proxy measures
   perceived prominence, contrast, optical size, or every descendant's type.
+
+`group-separation` tests a relationship between authored groups, rather than
+uniformity within one group. `selector` identifies each region, `groupSelector`
+identifies its independent descendant group containers, and `items` identifies
+its descendant peers. Each region needs at least two visible groups with at least
+two visible, independent members apiece. The groups must partition all selected
+peers: every peer belongs to exactly one group. Missing members, nested groups,
+nested peers, or ungrouped peers make the measurement unassessed. Hidden responsive
+alternatives are excluded; this geometric check does not establish simultaneous
+viewport visibility.
+
+Choose `axis: "x"` or `"y"`. Members of each group must form one nonoverlapping
+row or column on that axis, with a shared band on the other axis. The envelopes
+of the groups' member boxes must likewise form a single nonoverlapping sequence.
+Wrapping, overlapping, or insufficient geometry is unassessed. Measure the largest
+adjacent within-group gap, `maxWithin`, and the smallest adjacent gap between
+member envelopes, `minBetween`, in CSS px. Container padding does not substitute
+for these member-to-member distances. The authored `minRatio` is dimensionless
+and must be greater than 1. A measured relationship passes only when
+`minBetween > 0` and `minBetween >= minRatio * maxWithin`.
+
+For example, within-group gaps of 8px and between-group gaps of 32px satisfy a
+minimum ratio of 2. If within-group spacing grows to 24px while group separation
+stays 32px, the relationship fails even though each group's gaps remain uniform.
+When `maxWithin` is zero, any positive `minBetween` satisfies the relationship;
+the report keeps both finite raw gaps and a null ratio rather than Infinity.
+Touching groups fail the positive-separation requirement. The application chooses
+membership and the useful ratio: this check does not infer semantic grouping,
+optical proximity, or an appropriate absolute spacing scale.
+
+```json
+{
+  "id": "toolbar-group-separation",
+  "type": "group-separation",
+  "selector": ".toolbar",
+  "groupSelector": ".action-group",
+  "items": "button",
+  "axis": "x",
+  "minRatio": 2,
+  "severity": "warning",
+  "reason": "Separate independent action groups more strongly than actions within each group."
+}
+```
 
 `chrome-allocation` uses `selector` for exactly one visible usable region and
 `items` for its declared chrome descendants. At least one visible chrome item is

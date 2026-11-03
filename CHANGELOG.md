@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Add opt-in `group-separation` checks for authored between-group versus within-group
+  spacing. Report invalid group geometry as unassessed and preserve existing
+  composition measurements and viewport-growth behavior.
+
 - Complete toolbar scope, finite whitespace, changed-task evidence and independently
   scoped-control calibration cases in the existing pattern example. Preserve separate
   task-revision reports and controlled data/action invariants.

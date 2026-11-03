@@ -402,6 +402,27 @@ export async function runCompositionScenario({
   await writeFile(
     path.join(project, "composition-checkpoint.mjs"),
     `export default async function ({ page, checkpoint }) {
+    if (checkpoint.name.startsWith('group-'))
+      await page.locator('#good .steps').evaluate((list, state) => {
+        const container = document.createElement('div');
+        container.className = 'step-groups';
+        container.style.cssText = 'display:flex;flex-direction:column;gap:32px;margin:0 24px 24px';
+        list.replaceWith(container);
+        list.style.cssText = 'padding:0;margin:0;gap:' + (state === 'group-expanded' ? 24 : state === 'group-touching' ? 0 : 8) + 'px';
+        list.lastElementChild.remove();
+        const second = list.cloneNode(true);
+        container.append(list, second);
+        // Two internally regular groups can lose their separation hierarchy
+        // without either gap-variance or a fixed 32px inter-group bound failing.
+        if (state === 'group-unassigned') {
+          const extra = document.createElement('ol');
+          extra.style.cssText = 'padding:0;margin:0';
+          extra.append(list.firstElementChild.cloneNode(true));
+          container.append(extra);
+        }
+        if (state === 'group-wrapped')
+          second.lastElementChild.style.cssText = 'transform:translateX(700px)';
+      }, checkpoint.name);
     // A checkpoint is a separate data state, not just another viewport.
     if (['comparison-preserved', 'comparison-lost'].includes(checkpoint.name))
       await page.locator('#good .queue li').first().evaluate((el, replacement) => {
@@ -489,6 +510,19 @@ export async function runCompositionScenario({
       }),
       finiteRule,
       {
+        id: "composition-group-separation",
+        type: "group-separation",
+        selector: ".step-groups",
+        items: ":scope > ol > li",
+        groupSelector: ":scope > .steps",
+        axis: "y",
+        minRatio: 2,
+        pages: ["group-separation"],
+        severity: "error",
+        reason:
+          "Keep distinct handoff groups separated by twice their largest internal gap.",
+      },
+      {
         id: "checkpoint-comparisons",
         type: "comparison-set",
         selector: "#good .queue li",
@@ -515,6 +549,19 @@ export async function runCompositionScenario({
     JSON.stringify({
       ...compositionConfig,
       pages: [
+        {
+          name: "group-separation",
+          path: "/examples/composition.html?rule=DR-018&quality=good",
+          ready: "#composition-examples[data-ready]",
+          viewports: ["compact"],
+          checkpoints: [
+            "group-intact",
+            "group-expanded",
+            "group-touching",
+            "group-unassigned",
+            "group-wrapped",
+          ].map((name) => ({ name, setup: "composition-checkpoint.mjs" })),
+        },
         {
           name: "comparison-checkpoints",
           path: "/examples/composition.html?rule=DR-019&quality=good",
@@ -595,7 +642,48 @@ export async function runCompositionScenario({
     { recursive: true },
   );
   for (const capture of compositionRegression.pages) {
-    if (capture.name === "comparison-checkpoints") {
+    if (capture.name === "group-separation") {
+      const groups = capture.metrics.composition.find(
+        (entry) => entry.rule === "composition-group-separation",
+      );
+      const rejected = ["group-unassigned", "group-wrapped"].includes(
+        capture.checkpoint,
+      );
+      assert.equal(groups.valid, !rejected);
+      assert.equal(groups.status, rejected ? "unassessed" : "measured");
+      const findings = capture.findings.filter(
+        (finding) => finding.rule === groups.rule,
+      );
+      if (rejected) {
+        assert.equal(findings.length, 1);
+        assert.match(findings[0].message, /unassessed/);
+        assert.ok(groups.problems.length);
+      } else {
+        const within =
+          capture.checkpoint === "group-expanded"
+            ? 24
+            : capture.checkpoint === "group-touching"
+              ? 0
+              : 8;
+        assert.deepEqual(groups.withinGaps, [[within], [within]]);
+        assert.deepEqual(groups.betweenGaps, [32]);
+        assert.equal(groups.maxWithin, within);
+        assert.equal(groups.minBetween, 32);
+        assert.equal(groups.ratio, within ? 32 / within : null);
+        assert.equal(
+          findings.length,
+          capture.checkpoint === "group-expanded" ? 1 : 0,
+        );
+        if (findings.length) {
+          assert.deepEqual(findings[0].expected, {
+            minRatio: 2,
+            positiveSeparation: true,
+          });
+          assert.ok(findings[0].designRules.includes("DR-006"));
+          assert.ok(findings[0].designRules.includes("DR-018"));
+        }
+      }
+    } else if (capture.name === "comparison-checkpoints") {
       const comparisons = capture.metrics.comparisons.find(
         (entry) => entry.rule === "checkpoint-comparisons",
       );
@@ -760,5 +848,47 @@ export async function runCompositionScenario({
       );
     }
   }
+  // The saved comparison retains raw gaps even when the ratio is undefined
+  // (touching members) or geometry is explicitly unassessed.
+  const comparisonDirectory = path.join(
+    compositionEvidence,
+    "group-comparison",
+  );
+  const comparison = await cli([
+    "compare",
+    "--before",
+    compositionRegressionFile,
+    "--after",
+    compositionRegressionFile,
+    "--output",
+    comparisonDirectory,
+  ]);
+  assert.equal(comparison.code, 0, comparison.stderr || comparison.stdout);
+  const savedComparison = JSON.parse(
+    await readFile(path.join(comparisonDirectory, "comparison.json"), "utf8"),
+  );
+  const touching = savedComparison.states.find(
+    (state) =>
+      state.page === "group-separation" &&
+      state.checkpoint === "group-touching",
+  );
+  assert.equal(touching.measurements.length, 3);
+  assert.equal(
+    touching.measurements.find((row) =>
+      row.label.includes("Maximum within-group gap"),
+    ).values.after,
+    0,
+  );
+  assert.equal(
+    touching.measurements.find((row) =>
+      row.label.includes("Minimum between-group gap"),
+    ).values.after,
+    32,
+  );
+  assert.equal(
+    touching.measurements.find((row) => row.label.endsWith("Group separation"))
+      .values.after,
+    null,
+  );
   return compositionEvidence;
 }

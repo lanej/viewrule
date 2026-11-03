@@ -147,6 +147,7 @@ export interface Rule {
     | "align"
     | "alignment-residual"
     | "gap-variance"
+    | "group-separation"
     | "peer-footprint"
     | "chrome-allocation"
     | "viewport-growth-yield"
@@ -191,6 +192,7 @@ export interface Rule {
   minWidth?: number;
   minHeight?: number;
   items?: string;
+  groupSelector?: string;
   property?: string;
   attribute?: string;
   allowed?: string[];
@@ -274,11 +276,15 @@ export interface CompositionMeasurement {
   measure?: Rule["measure"];
   values?: number[];
   gaps?: number[];
+  withinGaps?: number[][];
+  betweenGaps?: number[];
+  maxWithin?: number;
+  minBetween?: number;
   mean?: number;
   coefficientOfVariation?: number;
   regionArea?: number;
   chromeArea?: number;
-  ratio?: number;
+  ratio?: number | null;
 }
 export interface GrowthMeasurement {
   rule: string;

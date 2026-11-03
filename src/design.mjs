@@ -20,6 +20,7 @@ const defaults = {
   align: ["DR-006", "DR-017"],
   "alignment-residual": ["DR-017"],
   "gap-variance": ["DR-018"],
+  "group-separation": ["DR-006", "DR-018"],
   "viewport-growth-yield": ["DR-007", "DR-019"],
   "chrome-allocation": ["DR-019"],
   "peer-footprint": ["DR-020"],
@@ -56,6 +57,8 @@ const advice = {
     "Restore the declared peers' shared anchor. Separate intentionally different groups instead of forcing unrelated content onto one axis.",
   "gap-variance":
     "Restore consistent spacing between the declared equivalent peers. Scope different relationships separately and preserve readable content.",
+  "group-separation":
+    "Restore stronger separation between declared groups than within them. Preserve readable content and usable controls; scope intentionally different relationships separately.",
   "viewport-growth-yield":
     "Use additional usable area to reveal distinct task evidence while preserving visible identities and readable type. For an exhausted finite task, declare its complete evidence set rather than manufacturing content.",
   "chrome-allocation":

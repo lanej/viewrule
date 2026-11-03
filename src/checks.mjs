@@ -481,6 +481,7 @@ export function inspectPage(rules) {
   const compositionTypes = [
     "alignment-residual",
     "gap-variance",
+    "group-separation",
     "peer-footprint",
     "chrome-allocation",
   ];
@@ -955,6 +956,92 @@ export function inspectPage(rules) {
                 observation,
                 { maxCoefficientOfVariation: rule.maxCoefficientOfVariation },
               );
+          }
+        } else if (!problems.length && rule.type === "group-separation") {
+          const groups = [...el.querySelectorAll(rule.groupSelector)].filter(
+            (group) => group.closest(rule.selector) === el && visible(group),
+          );
+          // Partition the already-scoped peers, not a second selector evaluation
+          // relative to each group: :scope must keep its authored root meaning.
+          const members = groups.map((group) =>
+            items.filter((item) => item !== group && group.contains(item)),
+          );
+          if (
+            groups.length < 2 ||
+            groups.some((group, i) =>
+              groups.some((other, j) => i !== j && group.contains(other)),
+            ) ||
+            members.some((set) => set.length < 2) ||
+            items.some(
+              (item) =>
+                members.filter((set) => set.includes(item)).length !== 1,
+            )
+          )
+            problems.push(
+              "Declare at least two independent groups with at least two visible peers each; every selected peer must belong to exactly one group.",
+            );
+          if (!problems.length) {
+            const horizontal = rule.axis === "x";
+            const lineGaps = (boxes) => {
+              const sorted = [...boxes].sort((a, b) =>
+                horizontal ? a.left - b.left : a.top - b.top,
+              );
+              const gaps = sorted
+                .slice(1)
+                .map((box, i) =>
+                  horizontal
+                    ? box.left - sorted[i].right
+                    : box.top - sorted[i].bottom,
+                );
+              const crossStart = Math.max(
+                ...boxes.map((box) => (horizontal ? box.top : box.left)),
+              );
+              const crossEnd = Math.min(
+                ...boxes.map((box) => (horizontal ? box.bottom : box.right)),
+              );
+              return crossEnd <= crossStart || gaps.some((gap) => gap < 0)
+                ? null
+                : gaps;
+            };
+            const boxes = members.map((set) => set.map(rect));
+            const withinGaps = boxes.map(lineGaps);
+            // Group boundaries are envelopes of member boxes, not container
+            // padding or stretched empty space.
+            const betweenGaps = lineGaps(
+              boxes.map((set) => ({
+                left: Math.min(...set.map((box) => box.left)),
+                right: Math.max(...set.map((box) => box.right)),
+                top: Math.min(...set.map((box) => box.top)),
+                bottom: Math.max(...set.map((box) => box.bottom)),
+              })),
+            );
+            if (
+              withinGaps.some((gaps) => gaps === null) ||
+              betweenGaps === null
+            )
+              problems.push(
+                "Groups and their members must form nonoverlapping lines on the declared axis.",
+              );
+            else {
+              const maxWithin = Math.max(...withinGaps.flat());
+              const minBetween = Math.min(...betweenGaps);
+              Object.assign(observation, {
+                axis: rule.axis,
+                withinGaps,
+                betweenGaps,
+                maxWithin,
+                minBetween,
+                ratio: maxWithin ? minBetween / maxWithin : null,
+              });
+              if (minBetween <= 0 || minBetween < rule.minRatio * maxWithin)
+                add(
+                  rule,
+                  "Between-group separation is not stronger than the declared within-group spacing.",
+                  el,
+                  observation,
+                  { minRatio: rule.minRatio, positiveSeparation: true },
+                );
+            }
           }
         } else if (!problems.length && rule.type === "peer-footprint") {
           const values = items.map((item) =>

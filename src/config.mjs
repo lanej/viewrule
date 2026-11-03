@@ -231,6 +231,12 @@ const types = {
     axis: { enum: ["x", "y"] },
     maxCoefficientOfVariation: { type: "number", minimum: 0 },
   },
+  "group-separation": {
+    items: text,
+    groupSelector: text,
+    axis: { enum: ["x", "y"] },
+    minRatio: { type: "number", exclusiveMinimum: 1 },
+  },
   "peer-footprint": {
     items: text,
     measure: { enum: ["area", "font-size"] },

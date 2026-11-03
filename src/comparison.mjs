@@ -321,6 +321,7 @@ function compositionMeasurements(a, b, comparable, referenceGap) {
   const kinds = {
     "alignment-residual": ["maxResidual", "Maximum anchor residual", "CSS px"],
     "gap-variance": ["coefficientOfVariation", "Gap variation", "CV"],
+    "group-separation": ["ratio", "Group separation", "ratio"],
     "peer-footprint": [
       "coefficientOfVariation",
       "Peer footprint variation",
@@ -352,9 +353,33 @@ function compositionMeasurements(a, b, comparable, referenceGap) {
         comparable &&
           left?.element === right?.element &&
           left?.type === right?.type &&
-          left?.measure === right?.measure,
+          left?.measure === right?.measure &&
+          left?.axis === right?.axis,
       ),
     );
+    if ((right || left).type === "group-separation") {
+      for (const [field, label] of [
+        ["maxWithin", "Maximum within-group gap"],
+        ["minBetween", "Minimum between-group gap"],
+      ]) {
+        const gap = (entries) =>
+          entries.length === 1 && entries[0].valid === true
+            ? entries[0][field]
+            : null;
+        rows.push(
+          measurement(
+            `${id} · ${label}`,
+            "CSS px",
+            gap(aa),
+            gap(bb),
+            comparable &&
+              left?.element === right?.element &&
+              left?.type === right?.type &&
+              left?.axis === right?.axis,
+          ),
+        );
+      }
+    }
   }
   const oldGrowth = a?.metrics?.growth ?? [],
     newGrowth = b?.metrics?.growth ?? [];
