@@ -4,10 +4,10 @@
   "browser": "151.0.7922.34",
   "previousRevision": "a07b82afeb1900ef8e8bd7dc7c2a2dce4b9c90c7",
   "sources": {
-    "behavior.html": "5a9b7b6d525de8f7749d698f3e995338f345c179521f26afe2cc19d26ef257e1",
-    "behavior.css": "fb53544e821f8d0bca6be612a4df6d4394787828b739610523a0558aa40e439e",
-    "continuity-scene.js": "90ad6bcbfaf14cf027a8fc67c36bd69e539bff6e9418c053d553ed1b524a43ec",
-    "continuity-rules.json": "04934356be5be582334d684bafe3a6946d609439aba2fedb4b33f621676a136e",
+    "behavior.html": "1efeeebcbd17e3a25e5ecb78354065f7fb7e9d30bea89584df22b5b9931c5767",
+    "behavior.css": "b254a8c7824df7e9b113846af97f0bfe99285d68260b51281428f839a46f8eac",
+    "continuity-scene.js": "a0c652632fd215027a650d2d286a686cf7c2642b602c6282ece2fda125f168a3",
+    "continuity-rules.json": "07c2923987e4268c285b7236d60c9c9c34ddef8e4246cdb7f825188c8c31d520",
     "continuity-before.json": "6fac7735962888314b5c2b8a454e67262ebb388e3f798e7b9b2534d23c797636",
     "continuity-clarity-before.json": "acffa0b839fa450a4ce79a26f64fefe13947c6066048e9be3d200f11181c1c9d"
   },
@@ -47,9 +47,13 @@
             "pageHeight": 1000,
             "evaluatedRules": 5,
             "density": [],
+            "composition": [],
+            "growth": [],
+            "textLegibility": [],
             "repeatedMetrics": [],
             "evidenceDistances": [],
             "markContrasts": [],
+            "peerInference": [],
             "comparisons": [],
             "consistency": [],
             "evaluations": [
@@ -89,9 +93,13 @@
             "pageHeight": 1000,
             "evaluatedRules": 5,
             "density": [],
+            "composition": [],
+            "growth": [],
+            "textLegibility": [],
             "repeatedMetrics": [],
             "evidenceDistances": [],
             "markContrasts": [],
+            "peerInference": [],
             "comparisons": [],
             "consistency": [],
             "evaluations": [
@@ -132,7 +140,7 @@
         "native-baseline",
         "query-isolation",
         "truthful-results",
-        "explicit-working-set",
+        "explicit-destination-scope",
         "shared-styles"
       ]
     },
@@ -168,12 +176,16 @@
           "metrics": {
             "viewportWidth": 390,
             "viewportHeight": 844,
-            "pageHeight": 1620,
+            "pageHeight": 1566,
             "evaluatedRules": 5,
             "density": [],
+            "composition": [],
+            "growth": [],
+            "textLegibility": [],
             "repeatedMetrics": [],
             "evidenceDistances": [],
             "markContrasts": [],
+            "peerInference": [],
             "comparisons": [],
             "consistency": [],
             "evaluations": [
@@ -210,12 +222,16 @@
           "metrics": {
             "viewportWidth": 390,
             "viewportHeight": 844,
-            "pageHeight": 1731,
+            "pageHeight": 1704,
             "evaluatedRules": 5,
             "density": [],
+            "composition": [],
+            "growth": [],
+            "textLegibility": [],
             "repeatedMetrics": [],
             "evidenceDistances": [],
             "markContrasts": [],
+            "peerInference": [],
             "comparisons": [],
             "consistency": [],
             "evaluations": [
@@ -256,7 +272,7 @@
         "native-baseline",
         "query-isolation",
         "truthful-results",
-        "explicit-working-set",
+        "explicit-destination-scope",
         "shared-styles"
       ]
     }
