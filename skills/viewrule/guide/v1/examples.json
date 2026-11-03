@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "repository": "https://github.com/lanej/easy-ui",
+  "revision": "c443cdf02784340e030765934282809d4b1809f5",
+  "source": "easy-ui-react/src/examples/DesignGuide.examples.tsx",
+  "stories": "easy-ui-react/src/examples/DesignGuide.stories.tsx",
+  "build": "EASY_UI_GUIDE_ONLY=1 EASY_UI_PREVIEW_BASE=./ EASY_UI_PREVIEW_OUT_DIR=dist-guide npm run --prefix scripts/preview-metrics build",
+  "pages": {
+    "pricing.html": {
+      "anchors": ["pricing"]
+    },
+    "encodings.html": {
+      "anchors": [
+        "encodings",
+        "position",
+        "area",
+        "shared",
+        "rescaled",
+        "ornament",
+        "context"
+      ]
+    }
+  },
+  "files": {
+    "docs/examples/easy-ui/NOTICE.txt": "db2384e74bd10c90241d3b67a4b52e7c5a1fda45fdd9e3fd25b0da93457b391f",
+    "docs/examples/easy-ui/assets/guide-1lTrp3hx.css": "40bb40b8d86cb7e1a9f15268050e0871bc180646604aa1284cff62e31fe35e6c",
+    "docs/examples/easy-ui/assets/guide-MxYeRmf1.js": "eba9100de25925c9331d10d6432473af56365e3ffca2a6cda5f7bbd87e24932b",
+    "docs/examples/easy-ui/assets/poppins-v20-latin-300-DT6-CsId.woff": "647f014d36822ef7e0413ffbb65598ae0cb57fb798e635c63912c93d94eb356a",
+    "docs/examples/easy-ui/assets/poppins-v20-latin-400-DFPSF5un.woff": "49f0742d602fcc0092b7dbcb7c710849988b0a7094df8979af9c5f151f301d6d",
+    "docs/examples/easy-ui/assets/poppins-v20-latin-400-cpxAROuN.woff2": "7d93459d86585bfcdbb7e0376056226adb25821ee54b96236fe2123e9560929f",
+    "docs/examples/easy-ui/assets/poppins-v20-latin-400-italic-B4GYq972.woff2": "50d0c1742d80ac71f4cde20e8c04d41a24806af342831f479938b527fbff0972",
+    "docs/examples/easy-ui/assets/poppins-v20-latin-400-italic-BhIAB-mp.woff": "182723b819284d4741967a205449c1d1cda98d9304ce3c88578ec775b6e679a2",
+    "docs/examples/easy-ui/assets/poppins-v20-latin-500-BxoKRKBW.woff": "316565c31e07631fe1a6a3f605ea1f40d529f7471d8fde952f863287d74bb7f6",
+    "docs/examples/easy-ui/assets/poppins-v20-latin-500-C8OXljZJ.woff2": "cd36de204aca2d5fa263a731f7c20009b5e3d754ba1f1e03c33e93a48f3e7446",
+    "docs/examples/easy-ui/assets/poppins-v20-latin-600-Y7qvbR95.woff": "426316de2a499a38688cfcc92c143d25fa0c45c3afcf2074a84e3563dfa33c23",
+    "docs/examples/easy-ui/assets/poppins-v20-latin-600-zEkxB9Mr.woff2": "f4e80d9dfd374d02989b87a27b5ed4cb78fbb177c27f1478e9a8b0afb7513149",
+    "docs/examples/easy-ui/assets/poppins-v20-latin-700-OF5qx8Ai.woff": "da36c91659b4490934d163c4013483e688996ee3cf8249499f945911df94c730",
+    "docs/examples/easy-ui/assets/poppins-v20-latin-700-Qrb0O0WB.woff2": "9338e65fc077355c7a87ae0d64cc101e23b9bf8ad78ae65f0f319c857311b526",
+    "docs/examples/encodings.html": "e8647a33923e49349a5f4d5d3d643039c8e4e426d83f21e3813ae77e15024e09",
+    "docs/examples/pricing.html": "332d578906f0a50ff59ec641cf83c7b78edd9ee2198464d8af89e3f35d3b6fc4"
+  }
+}

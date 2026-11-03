@@ -7,7 +7,8 @@ then checks the rendered result with browser measurements and visual evidence. I
 viewports and turns human feedback into reusable constraints. The agent operates
 the tool and repairs the application; the human supplies intent and judgment.
 
-The Claude Code plugin brings this workflow into UI tasks. Its local CLI engine
+A portable Agent Skill brings this workflow to Codex and other coding agents; the
+Claude Code plugin retains its existing commands. Their shared local CLI engine
 opens the running app in Chromium, checks configured constraints, and reports
 violations with evidence and design-rule citations. Other agents and CI can use
 the same CLI directly.
@@ -98,7 +99,7 @@ in the application contract.
 
 ## Consult guidance before building
 
-The [versioned design guide](plugins/claude-code/guide/v1/index.md) covers decision
+The [versioned design guide](skills/viewrule/guide/v1/index.md) covers decision
 context, progressive disclosure, action lists, Tufte, and graphical perception.
 It separates conditional patterns, original evidence, and enforceable measurements.
 The existing Pages build renders the same Markdown under `guide/v1/`, with raw
@@ -114,10 +115,10 @@ The plugin supplies `guide [ID]` independently of its pinned engine,
 so its review skill can consult bundled guidance before setup. Read only relevant
 pages, state decision assumptions, inspect examples, implement, then run checks.
 The runnable pricing and encoding examples compose Easy UI components from a pinned
-commit. The [source manifest](plugins/claude-code/guide/v1/examples.json) records
+commit. The [source manifest](skills/viewrule/guide/v1/examples.json) records
 provenance and checksums; generated assets ship offline without adding Easy UI to
 the engine’s dependencies.
-See [guide contribution instructions](plugins/claude-code/guide/v1/authoring.md).
+See [guide contribution instructions](skills/viewrule/guide/v1/authoring.md).
 
 ## Define boundaries before building
 
@@ -175,6 +176,17 @@ configured error checks passed. See the [detection manual](docs/ui-review-enforc
 for the exact scope and limits of each measurement.
 
 ## How to use it
+
+### Codex and other Agent Skills hosts
+
+Install the complete [`skills/viewrule`](skills/viewrule/SKILL.md) directory into
+`~/.agents/skills/viewrule` or the application's `.agents/skills/viewrule`.
+In Codex, invoke `$viewrule` for setup, design, review, rule authoring, or supplied
+human feedback. The skill can also be selected when relevant to UI work.
+It includes on-demand workflows and offline guidance, and explicitly installs the
+same checksummed engine as the Claude plugin. It requires no Claude environment or
+settings and does not change host permissions or install hooks.
+See [installation, updates, compatibility, and verification](docs/agents.md).
 
 ### Claude Code
 
@@ -375,7 +387,7 @@ configuration and rules; Impeccable supplies general source diagnostics, and axe
 supplies automated accessibility checks. It uses local
 JSON, JSONL, HTML, and PNG files, with no hosted service, database, model API, or
 telemetry. The configured application can make its own browser network requests.
-The Claude plugin packages skills and a release installer. It invokes the CLI and reads that engine version's docs; it does not copy
+The portable skill and Claude plugin package shared workflows and a release installer. It invokes the CLI and reads that engine version's docs; it does not copy
 measurement logic. Using the plugin involves Claude's normal model service.
 
 ```mermaid
@@ -391,7 +403,7 @@ flowchart TD
 
 | Layer | Implementation and responsibility |
 | --- | --- |
-| Claude integration | `plugins/claude-code/`: task guidance and pinned setup; `.claude-plugin/marketplace.json` provides discovery |
+| Agent integration | `skills/viewrule/`: portable skill, workflows, guide, and pinned setup; `plugins/claude-code/` retains marketplace discovery and Claude compatibility |
 | Entry and configuration | `bin/viewrule.mjs`, `src/cli.mjs`, `src/config.mjs`, `src/paths.mjs`: commands, schema validation, and configuration lookup |
 | Browser evidence | `src/review.mjs`, `src/capture.mjs`, `src/checks.mjs`: fresh contexts, geometry, styles, accessibility, and full-resolution tiles |
 | Design evaluation | `src/design.mjs`: policy loading, cross-viewport comparisons, coverage, citations, and remediation suggestions |
