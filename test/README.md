@@ -13,7 +13,7 @@ These are specified test expectations using illustrative data, not user approval
 
 | State | Intentional condition | Required result |
 | --- | --- | --- |
-| `broken` | 18×18px export control; justified prose; left-aligned numeric amounts; 450px header; metric peers offset and overlapping; 12px table text; clipped carrier labels; hidden caption; wide viewport drops carrier 2 and changes the period | Specific control/prose/numeric findings plus header, alignment, overlap, type, label, context, identity-preservation, and period findings with the expected DR citations; Stop blocks |
+| `broken` | 18×18px export control; justified prose; left-aligned numeric amounts; 450px header; metric peers offset and overlapping; 12px table text; clipped carrier labels; hidden caption; wide viewport drops carrier 2 and changes the period | Specific control/prose/numeric findings plus header, alignment, overlap, type, label, context, identity-preservation, and period findings with the expected DR citations; verification fails |
 | `compact` | 440px comparison width, 14px data text, complete caption and labels; eight desktop rows and twelve at 4K | Fresh pass, zero warnings, preserved comparison identities, complete original-size 4K detail tiles |
 | `sidebar` | 440px table beside a trend and explanation panel, with the same comparisons and exact rules as compact | Zero errors/warnings and an identical contract hash; a different composition is permitted |
 | `stretched` | Same text and rows as compact; table alone expands to the full 4K width | Fails the text-distance rule at 4K while identity counts remain unchanged; desktop still passes |
@@ -36,7 +36,7 @@ The feedback portion learns a stricter text-distance limit from fixture feedback
 then checks the corrected layout; the same rule is retained for the stretched case.
 
 Installation checksum rejection, default guidance and personal overrides, configuration
-preservation, hook opt-in, report/reference preservation, and stale-result enforcement
+preservation, retired Stop compatibility, staged/pushed Git gates, report/reference preservation, and stale-result enforcement
 are exercised within this workflow. It does not assess chart truth, image-only content,
 model skill selection, or visual taste. `npm run demo` presents the same five layouts
 and their reports for human inspection using `templates/gallery.html`.
@@ -49,6 +49,19 @@ reported separately. These are executable-contract tests, not claims of agent be
 
 Keep cases tied to concrete claims. Extend this workflow for a demonstrated omission;
 do not create a browser, viewport, or per-helper test matrix.
+
+The saved-comparison scenario applies a fixed presentation override to the complete
+Parcel desk application, then removes it under the same contract. Desktop and wide
+captures reject the declared framing, anchor, gap, and footprint defects; the mobile
+reflow is retained. Application assertions preserve shipment/chart data and exercise
+filters, selection, keyboard disclosure, tabs, and URL restoration on both revisions.
+The installed `compare` command preserves exact report/image bytes, exports annotated
+views, and leaves latest state unchanged. A damaged pair exposes changed contracts,
+unavailable geometry, old reused evidence, absent states, unsafe paths, and escaping.
+The viewer is checked for equal image scale, keyboard controls, working originals,
+and mobile overflow. Full output is retained in `dist/saved-comparison-evidence/`;
+the [predeclared protocol](../benchmarks/workflow/saved-comparison-protocol.md)
+distinguishes synthetic workflow validation from agent prevention efficacy.
 
 The [screenshot-informed pattern review](../docs/examples/pattern-review.html) uses
 one synthetic DOM/data template in four states. At 1440×1000 CSS px, the packed CLI
@@ -80,7 +93,7 @@ adds DR-009–DR-016 to this same installed workflow. Its native checks reject t
 missing freshness labels and two clipped service names with exact DR citations;
 the good panels have no corresponding findings. Requiring DR-016 without an
 executed check produces an explicit coverage failure rather than a semantic pass.
-The schema accepts the sixteen registered IDs and rejects unknown DR-017.
+The schema accepts the twenty registered IDs and rejects unknown DR-021.
 
 The fixture walkthrough exercises refresh/completion states, detail-return identity
 and focus, publication scope, rejection without losing input, review/cancel/undo,
@@ -107,7 +120,10 @@ semantic density, complex map contrast, and recommendation quality remain human 
 ## Guide and original examples
 
 The same installed workflow retrieves one pattern and its evidence from an isolated
-plugin **before engine setup**, then checks identical Markdown through the packed
+plugin **before engine setup**, verifies setup removes legacy Stop handlers from
+mixed user/project settings while preserving dotfile symlinks, permissions, other
+hooks, and malformed files, and checks that repeated migration is a no-op. It then
+checks identical Markdown through the packed
 engine. Unknown IDs return usage failure. `npm run guide:check` handles the authoring
 contract and links; the Pages build is also a PR CI gate.
 
@@ -126,15 +142,86 @@ The installed review workflow ends with a two-scope application, shared inputs,
 a checkpoint, two real bundled providers, and required design documents. It
 verifies unchanged reuse, local invalidation, shared/global fan-out, cross-page
 failures involving reused evidence, provenance, damaged artifacts, full fallback,
-expiry, and Stop enforcement. Captures are observations, not snapshots. Actual
+expiry, and evidence verification. Captures are observations, not snapshots. Actual
 workload counts/timings and inputs are retained in
 `dist/review-evidence/incremental-workload.json`; they are not agent-cost estimates.
 The same workflow verifies plan/check agreement with deliberately unsorted rule IDs
 and checkpoint-symlink retargeting between byte-identical modules with distinct
 relative imports. Every possible target and helper is a declared input. Retargeting
-must invalidate Stop enforcement, rerun the affected page, and detect the changed
+must invalidate evidence verification, rerun the affected page, and detect the changed
 rendered encoding while preserving the other page's verified reused capture.
 
-The expanded installed workflow has a 240-second test-harness budget. This bounds
+The expanded installed workflow has a 360-second test-harness budget. This bounds
 the combined regression workload, not individual application captures or provider
 execution. Production timeout settings and all evidence assertions are unchanged.
+
+The [composition examples](../docs/examples/composition.html) extend this same
+installed workflow with four controlled pairs: median-anchor residual, peer-gap
+variation, viewport-growth yield, and equal-priority footprint variation. Bad
+fails only its declared target; the workflow asserts actual values and preserves
+shared content, type, identities, semantic color, and total surface width. A
+checkpoint workflow checks complete finite-universe whitespace, nested chrome
+rectangle union and excessive allocation, unequal peer heading type, and missing
+growth identity evidence isolated from an intact checkpoint, and loss of a baseline
+identity despite a growing total. One concrete queue capture also distinguishes
+readable and undersized `display: contents` text, preserves hidden text exclusion,
+accepts a fully fitting percentage-width child in a fractional content-box overflow
+wrapper despite CSSOM rounding, and distinguishes an
+absolute item's escape from a static wrapper from actual containing-block clipping.
+It also retains evidence painted into a reserved scrollbar gutter under the capture
+browser's hidden-scrollbar setting. Equal and unequal font-size comparisons include
+rendered `display: contents` labels while excluding a hidden label.
+The same scenario also serves a synthetic form pair with no authored alignment
+selector. The accepted form aligns three same-row text-entry controls; the rejected
+form offsets the first control through an uneven label stack. The rejected capture
+must produce one advisory `metrics.peerInference` candidate citing DR-017 while
+the accepted counterpart produces none. Its report overlays the inferred group,
+member boxes, median anchor, and signed offsets on the unchanged saved capture and
+provides a toggle back to the original. Neither candidate nor overlay is a finding
+or changes the check exit code.
+The same scenario reproduces a page wider than its viewport, retaining its separate
+`page-overflow` error. Browser assertions compare member outlines and the median
+guide with the unchanged PNG's dimensions and saved control coordinates, then
+verify the overlay toggle. The regression caught viewport-width scaling, border
+widths expanding member boxes, and origin clamping for a control 20 CSS px left of
+the capture. That control retains its measured 150 CSS px width and clips at the
+image edge instead of shifting its right edge; the in-bounds row remains the
+passing counterpart. Separate aligned, misaligned, original, overflow, and clipped
+report images are retained beside the reports.
+
+Native-scale Good and Bad images and both reports are retained in
+`dist/composition-evidence/`. These thresholds and inference heuristics do not
+establish general beauty, symmetry, semantic utility, peer membership, or human
+approval.
+
+For local composition-detector iteration, run `npm run check:composition`. The
+command uses `test/composition-scenario.mjs`, the exact scenario called by the
+installed workflow, against the current source CLI. It includes the controlled
+pairs and escaped-defect reproductions above, with identical assertions and
+accessibility checks. Evidence goes to `dist/composition-focus/` and is clearly
+separate from installed-package evidence. The command neither builds the public
+site nor installs/packs the engine, and never creates or replaces the release
+archive. Require `npm run test:ci` in CI for complete installed-package validation before delivery;
+a focused pass is not a full test pass. Failed assertions and capture errors remain
+nonzero exits. Keep one assertion source rather than maintaining a lighter duplicate.
+
+The same installed workflow now retains the two escaped mobile text defects in
+`templates/text-legibility.html`: separate element boxes with intersecting label
+fragments, and a native select whose valid value does not imply enough selected
+label space. Legacy box/scroll checks pass those cases; the new opt-in rules fail
+their specific boundaries. Repairs and legitimate wrapping pass, while clipped
+text/custom control paint remain explicitly unassessed. No fixture score or old
+trial report is rewritten. Evidence is retained in `dist/text-legibility-evidence/`.
+The visibility reproduction has three declared peers: text inside a hidden wrapper
+restores its visibility and collides with its neighbor. The repair reserves enough
+space for all three; a separate hidden responsive peer stays excluded in both.
+Before the detector fix, dropping the wrapper made the rejected case falsely pass.
+The Parcel desk extension in `saved-comparison-scenario.mjs` also saves complete
+source, reports, and a portable annotated before/after for the real visible-caption
+change, with passing geometry on both sides and the application interactions
+exercised at mobile width. This is calibration, not independent efficacy evidence.
+
+The same visibility fixture retains a hidden wrapper whose `::before` restores
+visibility. Its generated label cannot be measured by DOM ranges, so the group
+is unassessed rather than dropping that peer and falsely passing the other two.
+The real-text repair passes, including a fully hidden generated alternative.

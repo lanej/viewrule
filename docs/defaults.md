@@ -6,17 +6,28 @@ related evidence, keep decoration subordinate, preserve readable density, and
 review graphical integrity. The shipped text lives in `presets/preferences.json`.
 Three additions cover usable controls, prose presentation, and numeric scanning;
 [research and source limits](design-principles.md) explain the choices.
+Further guidance covers component relationships and the composition contracts
+DR-017–DR-020. Their selectors, priorities, evidence units, and numeric thresholds
+must be supplied by the application; no composition metric is enabled globally.
 `viewrule guidance` always includes the shipped guidance under `defaults`; personal `preferences`
 and recorded feedback remain separate. Reports display both. Explicit user intent
 and project design systems take precedence over this starting guidance.
 
 ## Executable presets
 
+The setup below requires runtime URL support in engine 0.8.0. See the
+[compatibility workflow](ui-review.md#runtime-url-compatibility) for older
+engine 0.7.1, which requires an explicit configured URL.
+
 ```sh
-viewrule init --url http://localhost:3000
+viewrule init
 # Or, for a comparison table / analytical workspace:
-viewrule init --url http://localhost:3000 --preset analytical
+viewrule init --preset analytical
 ```
+
+The application URL is runtime state. Pass the actual development URL to rendered
+commands with `--url`, set `VIEWRULE_BASE_URL`, or keep an existing configured
+`baseURL` for a static/legacy setup.
 
 New projects receive editable rules, not an empty array. `baseline` is the default;
 `analytical` includes baseline plus a declared comparison contract. Initialization
@@ -44,6 +55,23 @@ accessibility thresholds. A four-alternative task should explicitly require four
 not invent eight more. A focused screen can retain ample whitespace. The presets
 deliberately impose no viewport occupancy minimum or universal density score.
 Page overflow, enabled axe checks, and capture-integrity checks still run as before.
+
+## Declare composition relationships
+
+For alignment, declare related peers and the intended edge or center. For rhythm,
+group equivalent adjacent gaps separately from section breaks. For balance, select
+peers whose priority is actually equal and choose a footprint proxy appropriate to
+them; symmetry and equal card sizes are not universal requirements.
+
+For spatial economy, name the usable region, task-relevant evidence identities,
+reference viewport, readable text size, and expected viewport-growth yield. This
+compares fractional evidence growth with fractional usable-area growth while
+preserving the reference evidence. Identify chrome separately if its allocation
+needs a ceiling. An exhaustive `finiteKeys` declaration permits retained whitespace
+when the full task was already visible at the reference; it does not manufacture
+a positive yield or waive legibility and preservation. Use the
+[composition reference](ui-review.md#composition-contracts) to author these opt-in
+checks and inspect the [paired examples](examples/composition.html).
 
 ## Declare the comparison
 
@@ -91,6 +119,11 @@ roles, selects, and inputs except hidden inputs, checkboxes, and radios. Links a
 checkbox/radio label-target geometry need a deliberate project rule and inspection.
 
 ## Measurement limits and evidence
+
+Neighboring text and native selected labels need explicit application scopes.
+Use the opt-in [`no-text-overlap` and `select-label-space`](text-legibility.md)
+contracts where those relationships matter. They add no global thresholds or
+automatic rules to existing projects; unsupported observations stay unassessed.
 
 `min-size` compares each visible element's axis-aligned `getBoundingClientRect()`
 width and height with `minWidth`/`minHeight` in CSS px. It is not hit testing: rounded,

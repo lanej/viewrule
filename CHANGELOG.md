@@ -1,5 +1,107 @@
 # Changelog
 
+## 0.11.0 — 2026-11-03
+
+- Return the existing verified passing report for unchanged incremental checks,
+  with no new run, screenshot copies, report writes, or renewed capture timestamps.
+  CLI `execution` describes this invocation; `reusedReport` identifies whole-report
+  reuse. Source, environment, feedback, approved references, artifact integrity, and
+  original freshness remain checked. Full reviews always execute.
+- Run incremental checks directly with explicit scope/freshness configuration;
+  reserve planning for diagnosis. Keep focused development checks local and the
+  full installed/package workflow (`test:ci`) in required CI.
+- Plugin 0.11.0 pins this engine. Update the plugin and rerun setup to adopt it;
+  existing 0.10.0 installs retain their previous behavior until upgraded.
+
+- Bound disposable run history by count, age, and bytes after completed checks;
+  preserve the current report and independent approved references. Add
+  `viewrule prune [--dry-run]` for backlog cleanup and `runRetention` configuration.
+- Crop native detail tiles from the overview instead of recapturing every tile;
+  retain bounded per-tile fallback for oversized or dimension-changing pages.
+  Request independent copy-on-write clones for reused and approved evidence.
+- Make comparison exports conditional on the task instead of accumulating them
+  after every repair. Preserve a needed baseline explicitly before further runs.
+
+## 0.10.0 — 2026-09-25
+
+- Add `viewrule compare` for two saved reviews, preserving exact reports and PNGs
+  with hashes, matched before/after views, optional numbered DOM-region callouts,
+  scoped measurement deltas, separate authored interpretation, and image export.
+  Changed contracts and missing/incompatible evidence remain explicitly unpaired.
+  The complete Parcel desk regression retains a fixed-contract repair and its
+  application interaction checks; it is not an agent efficacy claim.
+
+- Require compatible target and reference captures before displaying a growth-yield
+  delta; preserve explicit unassessed growth states.
+- Plugin 0.10.0 pins this engine and retains first/final comparisons in normal
+  implementation and repair work, including unchanged and unsuccessful outcomes.
+
+- Add `npm run check:composition` for focused source iteration using the exact
+  composition scenario retained in the installed regression. Its separate reports
+  are partial validation and do not replace the full release gate.
+- Plugin 0.9.1 starts rendered work with a short composition preflight and retrieves
+  relevant guidance without repeatedly loading unchanged policy. Engine pin remains 0.9.0.
+- Retain a [paired workflow pilot](benchmarks/workflow/prevention-pilot-2026-09-24.md)
+  with before/after sources and captures. Both workflows met the measured task
+  requirements; mixed effort and harness limits do not establish improvement.
+
+Upgrade: rerun plugin setup, then capture fresh review evidence. The new comparison
+command is additive; rules, thresholds, approvals, schema v1 and legacy aliases are
+unchanged. Comparisons preserve evidence and expose gaps; they do not establish
+semantic preservation or overall design quality.
+
+## 0.9.0 — 2026-09-24
+
+- Add DR-017 Alignment, DR-018 Rhythm, DR-019 Spatial Economy, and DR-020 Balance
+  with opt-in relational checks, canonical requirements, and accepted/rejected
+  composition examples. Measure median-anchor residual, adjacent-gap variation,
+  declared chrome allocation, and peer area or font-size variation without a
+  universal aesthetic or symmetry score.
+- Compare viewport-growth yield against a named reference using visible, legible
+  evidence identities and usable region area. Preserve reference evidence, expose
+  missing/invalid measurement evidence, and support an explicit exhaustive finite
+  set already visible at both sizes. No default numeric thresholds are added.
+- Include rendered `display: contents` text in growth legibility and peer type
+  comparisons. Preserve fractional overflow bounds and actual positioned clipping;
+  reserved hidden-scrollbar gutters do not exclude painted evidence.
+- Update Claude plugin to 0.9.0 and the checksummed 0.9.0 engine.
+
+Upgrade: rerun plugin setup to install the new engine, then run a fresh review.
+Composition checks are opt-in; existing application rules, thresholds, human
+approvals, configuration/report schema v1, and legacy aliases remain supported.
+These relational measurements do not establish task relevance, perceived visual
+weight, or overall design quality. See the [measurement semantics and limits](docs/ui-review.md#composition-contracts).
+
+## 0.8.0 — 2026-09-22
+
+- Retire Claude Stop enforcement. Legacy `hook` commands return an empty decision;
+  `enforceOnStop` is accepted but ignored. Add explicit `verify` and optional
+  pre-commit/pre-push gates for affected UI inputs, including nested applications
+  and staged/outgoing content checks without running a browser or changing Git state.
+- Update Claude plugin to 0.8.0 and the checksummed 0.8.0 engine. Setup migrates recognized Viewrule Stop handlers
+  from user/project settings while preserving other hooks, permissions, and dotfile
+  symlinks; custom handlers and unreadable settings are reported for manual attention.
+- Accept capitalization-only filename renames in Git gates on case-insensitive
+  filesystems without treating the deleted spelling as an extra unstaged input.
+- Treat the application server URL as runtime state instead of requiring a committed
+  development port. New `init` configurations omit `baseURL`; `check` and `plan`
+  resolve `--url`, then `VIEWRULE_BASE_URL`, then an existing configured `baseURL`.
+  Record the resolved target in review output and include it in incremental reuse
+  identity so evidence is not reused across different endpoints. Existing configs
+  remain compatible.
+- Let the local site preview bind an operating-system-assigned port and print its
+  actual URL, allowing concurrent previews without a fixed-port conflict.
+- Preserve URL credential and page-origin validation for runtime overrides, and
+  reject invalid explicit targets instead of falling back to another server.
+
+Upgrade: rerun plugin setup to install the new engine and remove recognized legacy
+Stop handlers, then restart existing Claude sessions. Review any reported custom
+handlers separately. Run a fresh review after upgrading; old engine evidence is
+stale. Git gates remain opt-in and do not install themselves. Existing `baseURL`
+values, configuration/report schema v1, legacy aliases, application rules, and human
+approvals remain supported. See [Git gates and migration](docs/git-gates.md) and
+[runtime URL compatibility](docs/ui-review.md#runtime-url-compatibility).
+
 ## 0.7.1 — 2026-09-22
 
 - Discover the nearest configured application for review commands and Stop hooks

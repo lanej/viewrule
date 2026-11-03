@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
 import { readFile, lstat, copyFile } from "node:fs/promises";
+import { constants } from "node:fs";
 import path from "node:path";
 import { chromium } from "playwright";
 import { readJSON } from "./config.mjs";
@@ -75,11 +76,21 @@ async function readCache(project) {
       throw new Error(
         "Previous report has no compatible complete evidence manifest.",
       );
-    return { report, directory: path.dirname(file), reason: null };
+    return {
+      report,
+      reportFile: file,
+      directory: path.dirname(file),
+      latestFingerprint: digest(latest),
+      reportSHA256: latest.reportSHA256,
+      reason: null,
+    };
   } catch (error) {
     return {
       report: null,
+      reportFile: null,
       directory: null,
+      latestFingerprint: null,
+      reportSHA256: null,
       reason: `Evidence unavailable: ${error.message}`,
     };
   }
@@ -158,12 +169,36 @@ export function evidenceAgeProblem(report, config) {
 }
 
 /** Inspect every required obligation before treating a stored pass as current.
- * The hook does not need a browser, a provider, or a new approval to verify this.
+ * Verification does not need a browser, a provider, or a new approval.
  * @param {string} project @param {import("./types.js").ProjectConfig} config */
 export async function storedEvidenceProblem(project, config) {
   const cache = await readCache(project);
   if (!cache.report) return cache.reason;
   const report = cache.report;
+  const coverage = coverageProblem(report, config);
+  if (coverage) return coverage;
+  for (const page of report.pages) {
+    const record = report.measurements.pages.find(
+      (entry) => entry.key === stateKey(page),
+    );
+    const problem = await pageProblem(
+      page,
+      record,
+      cache.directory,
+      config.evidenceReuse?.maxAgeMs,
+    );
+    if (problem) return problem;
+  }
+  for (const record of report.measurements.sourceChecks) {
+    const problem = ageProblem(record.evidence, config.evidenceReuse?.maxAgeMs);
+    if (problem) return problem;
+  }
+  return null;
+}
+
+/** @param {import("./types.js").ReviewReport} report
+ * @param {import("./types.js").ProjectConfig} config */
+export function coverageProblem(report, config) {
   const states = [...reviewStates(config)].map(configuredStateKey).sort();
   const providers = (config.sourceChecks ?? [])
     .filter((provider) => provider.enabled !== false)
@@ -183,22 +218,6 @@ export async function storedEvidenceProblem(project, config) {
       )
   )
     return "The stored run does not cover all current browser and source-provider obligations.";
-  for (const page of report.pages) {
-    const record = report.measurements.pages.find(
-      (entry) => entry.key === stateKey(page),
-    );
-    const problem = await pageProblem(
-      page,
-      record,
-      cache.directory,
-      config.evidenceReuse?.maxAgeMs,
-    );
-    if (problem) return problem;
-  }
-  for (const record of report.measurements.sourceChecks) {
-    const problem = ageProblem(record.evidence, config.evidenceReuse?.maxAgeMs);
-    if (problem) return problem;
-  }
   return null;
 }
 
@@ -524,6 +543,7 @@ export async function reusePage(plan, key, directory, index) {
     await copyFile(
       path.join(plan.cache.directory, before),
       path.join(directory, after),
+      constants.COPYFILE_FICLONE,
     );
     if ((await artifactDigest(directory, after)) !== record.artifacts[before])
       throw new Error(`Evidence changed during reuse: ${before}`);

@@ -33,26 +33,34 @@ ignore file can still exclude the whole directory. Diagnose that with
 Feedback and approved references may contain private screenshots or prose; decide
 deliberately whether to version them.
 
-Run the application server for the current worktree, check its configured `baseURL`
-and authentication state, then run `viewrule check`. A URL pointing at another
-checkout's server can measure that checkout even when the local paths are correct.
+Run the application server for the current worktree and use the URL that server
+actually reports for `viewrule check --url <actual-url>` (or set
+`VIEWRULE_BASE_URL`). Do not commit a worktree-specific development port just to
+make review work. Existing configured `baseURL` values remain supported, but a URL
+pointing at another checkout's server can measure that checkout even when local
+paths are correct. Viewrule does not probe localhost ports for this reason.
+These overrides require engine 0.8.0 with `Runtime URL:` in `viewrule --help`.
+Older engine 0.7.1 uses configured `baseURL`; follow the
+[compatibility workflow](ui-review.md#runtime-url-compatibility) for that engine.
 
 ## Project paths and evidence
 
-Without `--project`, review commands and the Stop hook find the nearest ancestor
+Without `--project`, review and verification commands find the nearest ancestor
 containing `.ui-review/config.json`. Discovery stops at a `.git` **file or directory**,
 so it stays inside a linked worktree, submodule, or normal checkout. It never follows
 the Git common directory back to the main checkout. A nearer configured application
 in a monorepo takes precedence. With no configuration, the original working directory
-remains the target and the Stop hook remains unconfigured.
+remains the target. Git hooks should explicitly name nested applications with
+`--project apps/web`; see [optional Git gates](git-gates.md).
 
 `--project DIR` selects exactly that application root. `init` and source-only `lint`
 also retain the current directory by default, so creating a nested application or
-scanning relative targets does not unexpectedly affect its parent. For example:
+scanning relative targets does not unexpectedly affect its parent. With runtime URL
+support and `APP_URL` set to the URL printed by this worktree's server:
 
 ```sh
-viewrule init --project ../my-app-feature/apps/web --url http://localhost:3001
-viewrule check --project ../my-app-feature/apps/web
+viewrule init --project ../my-app-feature/apps/web
+viewrule check --project ../my-app-feature/apps/web --url "$APP_URL"
 ```
 
 Configuration paths, source scopes, documents, checkpoint scripts, and run output

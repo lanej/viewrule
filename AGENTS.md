@@ -10,7 +10,7 @@ changing behavior. For code review, read [REVIEW.md](REVIEW.md).
 - Keep the engine, schema, policy, and reports here. Personal defaults belong in
   dotfiles; application selectors, thresholds, and approvals belong in the app.
 - The Claude plugin is a CLI client. Keep its skills concise, use installed engine
-  docs, and bump its manifest version for updates; never install from a Stop hook.
+  docs, and bump its manifest version for updates; never install from evidence verification or a Git gate.
 - The engine requires Node 22.18+ and npm; development tooling needs Node 22.18+.
   Use ES modules and pinned dependencies; no
   compilation step is required. Run the formatter, linter, and static checks below.
@@ -44,8 +44,6 @@ changing behavior. For code review, read [REVIEW.md](REVIEW.md).
 npm ci
 npm run format
 npm run check
-npm run browser:install
-npm test
 ```
 
 `npm run format` applies Prettier to code, HTML, JSON, and YAML. `npm run check`
@@ -55,11 +53,21 @@ blanket exclusions or `@ts-nocheck`. JavaScript checking is incremental, not str
 Keep substantial HTML in templates; use escaped Mustache values for report content.
 The policy renderer's fixed markup is the sole escaped-before-formatting exception.
 
-Run the affected detector once after behavioral changes; repeat only after a
-failure or further implementation changes. `npm test` packs and installs the CLI
-through an isolated plugin copy, then exercises one workflow. Keep concrete rejected
+Run the affected shared scenario after behavioral changes; repeat only after a
+failure or further implementation changes. Required CI runs `npm run test:ci`, the
+full installed workflow, plus the benchmark, static checks, and site build before
+merge. Do not repeat that exhaustive gate locally for routine edits; use it to
+diagnose CI failures or packaging risks. `npm test` remains an alias for `test:ci`,
+which packs and installs the CLI through an isolated plugin copy. Keep concrete rejected
 and passing preset fixtures there; assert their specific findings and measurements.
 Do not add helper tests, snapshots, or viewport/edge-case matrices.
+
+For DR-017–DR-020 iteration, `npm run check:composition` runs the existing shared
+composition scenario against the current source. It produces separate evidence in
+`dist/composition-focus/`; it is partial validation and never supplies a release
+archive. Require a passing full installed CI workflow before delivery. For each escaped defect,
+retain its failing reproduction and a legitimate passing counterpart in the same
+scenario; identify the browser or evidence assumption that caused the omission.
 
 For documentation and instruction changes, check links, examples, frontmatter/imports,
 and the diff. Do not add a test suite or run a local browser regression just for prose.
@@ -71,7 +79,7 @@ run; disclose the substitution.
 ## Compatibility and delivery
 
 Preserve the CLI, schema versions, `.ui-review` directory, legacy aliases, exit codes,
-and opt-in hook behavior unless the task explicitly changes them. Keep user data out
+and opt-in Git integration unless the task explicitly changes them. Keep user data out
 of the installed package. Dependency changes must update `npm-shrinkwrap.json`.
 
 Keep instructions concise and point to conditional detail instead of repeating it.

@@ -19,7 +19,7 @@ Source-only lint does not require this workflow.
    the consulted ID and source SHA-256 rather than copying general policy into DESIGN.md.
    Older pinned engines may lack that guide, rule lookup, or the new preflight; use
    only supported commands and state the enforcement limit. Do not install during
-   a review or hook. Public policy may be newer; checks use the installed policy.
+   a review or verification. Public policy may be newer; checks use the installed policy.
 3. Author or amend DESIGN.md when UI changes are authorized. Cover: users/tasks;
    principles/tradeoffs; visual-system ownership; behavior/resilience/accessibility;
    scoped requirements and verification; evidence, exceptions, and unresolved decisions.
@@ -32,6 +32,8 @@ Source-only lint does not require this workflow.
    a scope, mandatory/advisory status, rationale, and verification owner: Viewrule,
    application tests, or human review. No minimum line count or adjective checklist.
    For affected views, sketch the composition and identify meaningful functional units.
+   Use the short `${CLAUDE_PLUGIN_ROOT}/skills/review/preflight.md` to identify
+   affected composition decisions without rereading unchanged general policy.
    Record required initial-view evidence versus disclosed support, common controls
    versus mutation actions, and which context the parent owns. Link representative
    states/stories and verification for both units and their assembled view; a unit's

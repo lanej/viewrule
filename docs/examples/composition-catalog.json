@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 1,
+  "data": "Shared original synthetic dispatch fixtures; no external data or requests.",
+  "example": "composition.html",
+  "config": "composition-config.json",
+  "rulesFile": "composition-rules.json",
+  "rules": [
+    {
+      "id": "DR-017",
+      "task": "Compare three carrier pickup windows using one stable anchor.",
+      "good": "Carrier names share a left anchor.",
+      "bad": "Translate the middle name 24 CSS pixels; retain the same text, row geometry, and type.",
+      "verification": "Alignment residual is the maximum absolute deviation from the peer median; the measured residual is 24 CSS pixels in Bad.",
+      "exception": "Labels need not align when they do not share this declared comparison relationship.",
+      "example": "composition.html?rule=DR-017",
+      "expected": {
+        "good": [],
+        "bad": ["composition-alignment"]
+      },
+      "humanReview": "Task relevance, correct grouping, equal priority, intentional anchors, and sufficient whitespace remain human judgments; measurements certify only the declared relationship."
+    },
+    {
+      "id": "DR-018",
+      "task": "Review three equally related steps in one handoff checklist.",
+      "good": "Adjacent gaps are 12 and 12 CSS pixels.",
+      "bad": "Add 24 CSS pixels after the second step; gaps become 12 and 36.",
+      "verification": "Population standard deviation divided by mean gap is 0 in Good and 0.5 in Bad.",
+      "exception": "A real subgroup boundary may justify a larger gap; this fixture explicitly declares no subgroup.",
+      "example": "composition.html?rule=DR-018",
+      "expected": {
+        "good": [],
+        "bad": ["composition-rhythm"]
+      },
+      "humanReview": "Task relevance, correct grouping, equal priority, intentional anchors, and sufficient whitespace remain human judgments; measurements certify only the declared relationship."
+    },
+    {
+      "id": "DR-019",
+      "task": "Expose more of the same release queue as usable comparison area grows.",
+      "good": "At 800 pixels show three shipments; at 1280 expose six, retaining the first three and readable type.",
+      "bad": "Retain the three-card layout so cards merely stretch at 1280 pixels.",
+      "verification": "Compare each page and checkpoint to its compact capture: fractional identity-count growth divided by fractional usable-region area growth. Bad has zero yield; Good exceeds 0.8.",
+      "exception": "A finite task with every declared identity visible can retain whitespace; the finite checkpoint supplies its complete three-key universe.",
+      "example": "composition.html?rule=DR-019",
+      "expected": {
+        "good": [],
+        "bad": ["composition-growth"]
+      },
+      "humanReview": "Task relevance, correct grouping, equal priority, intentional anchors, and sufficient whitespace remain human judgments; measurements certify only the declared relationship."
+    },
+    {
+      "id": "DR-020",
+      "task": "Inspect three unselected carrier plans with equal task priority.",
+      "good": "Peer cards have equal border-box areas and heading type.",
+      "bad": "Allocate column widths in a 1:1.8:1 ratio; retain type, text, order, and total row width.",
+      "verification": "The area coefficient of variation is approximately 0.298 in Bad and zero in Good; heading font sizes remain equal.",
+      "exception": "Different priority or content needs may justify different areas; symmetry is never required.",
+      "example": "composition.html?rule=DR-020",
+      "expected": {
+        "good": [],
+        "bad": ["composition-balance"]
+      },
+      "humanReview": "Task relevance, correct grouping, equal priority, intentional anchors, and sufficient whitespace remain human judgments; measurements certify only the declared relationship."
+    }
+  ]
+}

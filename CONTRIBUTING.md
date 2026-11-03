@@ -22,8 +22,6 @@ Use Node 22.18 or newer for development tooling; CI uses the current Node 22 rel
 npm ci
 npm run format
 npm run check
-npm run browser:install
-npm test
 ```
 
 `npm run format` applies Prettier; `npm run format:check` reports formatting drift.
@@ -43,7 +41,13 @@ Use `VIEWRULE_BROWSER_PATH=/absolute/path/to/chromium` only when the pinned brow
 cannot run in the environment; report that substitution. Supported CI uses the
 browser associated with the pinned Playwright dependency.
 
-`npm test` packs the CLI and installs it through an isolated copy of the Claude plugin.
+For local iteration, run the affected shared scenario once (for example,
+`npm run check:composition`). Required CI runs `npm run test:ci`, benchmark, static
+checks, and the site build before merge. Run the exhaustive installed workflow
+locally only to diagnose CI failures or packaging risks; install Chromium with
+`npm run browser:install` when needed. `npm test` remains an alias for `test:ci`.
+
+`npm run test:ci` packs the CLI and installs it through an isolated copy of the Claude plugin.
 The same representative workflow verifies checksum rejection and hook opt-in, then:
 a comparison loses information and changes its period at 4K; findings cite policy;
 human feedback becomes a rule; the fixture is repaired; detail capture is complete;

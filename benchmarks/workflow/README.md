@@ -1,6 +1,26 @@
 # Component/composition workflow evaluation
 
-Status: **executable calibration case added; paired generation trial not run**.
+Status: **executable calibration case added; full paired generation protocol below
+not run**. A separate [short-preflight pilot](prevention-pilot-2026-09-24.md) compares
+released and candidate guidance on two adapted generation tasks, with one session
+per arm/task and documented harness limitations. It does not complete this protocol
+or establish prevention or efficiency gains. Its
+[before/after gallery](prevention-before-after-2026-09-24.md) retains both versions.
+The gallery now leads with an annotated, richer composition calibration case and
+labels unchanged pilot pairs explicitly; that illustration is separate from the trial.
+
+A fresh [capacity-desk trial](capacity-trial-2026-09-25/README.md) adds one more
+complex task with a validated browser/tool adapter and frozen acceptance. Both
+workflows repaired different mobile presentation defects missed by their automated
+checks; both stopped at the token limit. Its annotated original before/after
+captures and full evidence archive preserve that result without an efficacy claim.
+
+The reusable [saved-review comparison](saved-comparison-2026-09-24/README.md) now
+exercises the complete Parcel desk application under fixed acceptance criteria.
+It retains both source revisions, original evidence, generated annotations, and
+unchanged mobile captures. This is a repair/report calibration, not an additional
+agent efficacy experiment.
+
 The [pattern-review example](../../docs/examples/pattern-review.html) materializes
 the header, disclosure, and composition cases below from a user-supplied screenshot,
 with invented neutral data. The existing installed regression runs its before,

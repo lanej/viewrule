@@ -41,6 +41,7 @@ or axe. Use [the detection manual](ui-review.md) for real application assessment
 | [Sidebar workspace](#sidebar-workspace) | DR-008: framing earns its space | Project `max-height` check on the workspace banner at desktop widths |
 | [Numeric alignment](#numeric-alignment) | DR-006: align related values | Analytical `style` rule for declared numeric amounts |
 | [Comparison spacing](#comparison-spacing) | DR-007: extra width preserves useful detail | Analytical `max-text-gap` rule for declared comparison rows |
+| [Composition](examples/composition.html) | DR-017/018/019/020: alignment, rhythm, spatial economy, balance | Scoped alignment residual, adjacent-gap variation, viewport-growth yield, chrome allocation, and peer-footprint variation; see the [measurement semantics](ui-review.md#composition-contracts) |
 
 ## Expandable list
 
@@ -244,8 +245,9 @@ real rates. Good and bad labels describe the stated task, not actual engine outp
 Some bad examples intentionally pass unrelated geometry checks.
 
 
-Run `npm run site:preview` from a checkout and open
-`http://127.0.0.1:4173/examples/behavior.html`. All assets and the catalog are local;
+Run `npm run site:preview` from a checkout and replace `/rules/` in the printed
+preview URL with `/examples/behavior.html`. The server chooses an available port.
+All assets and the catalog are local;
 no carrier API or external UI runtime is required. `npm test` exercises the same
 examples from the packed and installed engine, not a separate test-only copy.
 The scoped [configuration](examples/behavior-config.json) and

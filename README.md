@@ -12,7 +12,7 @@ opens the running app in Chromium, checks configured constraints, and reports
 violations with evidence and design-rule citations. Other agents and CI can use
 the same CLI directly.
 
-**Status:** experimental 0.7.1, distributed through
+**Status:** experimental 0.11.0, distributed through
 [GitHub Releases](https://github.com/lanej/viewrule/releases). No npm registry release
 is available yet. Node.js 22.18+ and npm are required. Linux is exercised in CI;
 macOS and Windows have not been validated.
@@ -23,14 +23,37 @@ positioning.
 
 ## Incremental review
 
-Declare explicit input/dependency scopes, then use `viewrule plan --incremental`
-and `viewrule check --incremental` to reuse verified unchanged evidence. A complete
+Declare explicit input/dependency scopes, then use `viewrule check --incremental`
+to reuse verified unchanged evidence. Use `plan --incremental` when diagnosing
+configuration or invalidation; `check` already plans its own work. A complete
 report still covers every required page, viewport, checkpoint, and source provider;
-shared changes invalidate dependents. `check --full` always captures again.
+shared changes invalidate dependents. An unchanged verified pass returns the same
+report without writing another run. `check --full` always captures again.
 Reuse requires a nonsecret environment identity and an explicit maximum age.
 See [configuration, evidence provenance, and conservative fallbacks](docs/incremental-review.md).
 
+## Saved before/after comparisons
+
+`viewrule compare --before BEFORE/report.json --after AFTER/report.json --output comparison`
+builds a portable comparison from saved reviews, preserving original screenshots
+and reports with hashes. Optional recorded DOM regions supply numbered callouts;
+scoped measurements and authored interpretation stay separate. `--image` exports
+the annotated result. See [configuration, usage, and comparison limits](docs/saved-comparisons.md).
+
+## Bounded local evidence
+
+Completed checks automatically retain at most three disposable runs, seven days
+of history, and 256 MiB, always preserving the current report. Approved references
+remain independent. `viewrule prune --dry-run` previews cleanup of an existing
+backlog; `viewrule prune` applies it. Normal detail tiles now come from one
+full-resolution capture instead of repeated browser screenshots. See
+[limits, configuration, and preserving a comparison baseline](docs/evidence-storage.md).
+
 ## Why it exists
+
+Optional [text-legibility contracts](docs/text-legibility.md) check declared
+neighboring text fragments and selected native-label space. Unsupported evidence
+is explicit; these measurements do not certify readability or replace visual review.
 
 A UI can look polished while making a decision harder: too few alternatives fit on
 screen, related values sit far apart, chart context disappears, or a larger window
@@ -44,10 +67,12 @@ detail tiles alongside the overview so those details can be inspected.
 
 The goal is to turn an expectation such as **“show eight complete carrier rows on
 desktop”** into a repeatable check, while keeping judgment with the person using the
-interface. The [design policy](docs/design-rules.md) includes DR-001 through DR-016.
+interface. The [design policy](docs/design-rules.md) includes DR-001 through DR-020.
 The first eight draw on Tufte's work on comparison and graphical integrity; the
 next eight address state, continuity, action clarity, recovery, hierarchy, input
-access, content resilience, and semantic color. Each states its scope and limits.
+access, content resilience, and semantic color. Four composition rules add
+declared-peer alignment, spacing rhythm, spatial economy, and balance. Each states
+what can be falsified computationally and what requires human judgment.
 These are our interpretations, not quotations, universal thresholds, or endorsements.
 
 See [good and bad design examples](docs/design-examples.md) for illustrated rule
@@ -85,8 +110,7 @@ viewrule guide P-003    # one Markdown page on action lists
 viewrule guide E-CARBON # just the selected evidence record
 ```
 
-These commands ship with this source change; older engine releases do not include
-them. The updated plugin supplies `guide [ID]` independently of its pinned engine,
+The plugin supplies `guide [ID]` independently of its pinned engine,
 so its review skill can consult bundled guidance before setup. Read only relevant
 pages, state decision assumptions, inspect examples, implement, then run checks.
 The runnable pricing and encoding examples compose Easy UI components from a pinned
@@ -123,6 +147,15 @@ See the [new rule examples](docs/examples/behavior.html) for paired good/bad
 interaction and resilience demonstrations, shared synthetic data, cited rationales,
 and explicit native-check versus application-review coverage.
 
+The [composition examples](docs/examples/composition.html) pair accepted and
+rejected layouts under explicit peer and region contracts. Their
+[measurement reference](docs/ui-review.md#composition-contracts) defines alignment
+residual, gap variation, chrome allocation, peer footprint, and viewport-growth
+yield: the fractional growth in visible, legible evidence divided by the fractional
+growth in usable area. Stable identities and a named reference viewport make empty
+container growth distinguishable from additional evidence; declared finite tasks
+can retain useful whitespace. None of these metrics is a universal aesthetic score.
+
 ## What it detects
 
 | Concern | Evidence Viewrule checks |
@@ -131,6 +164,8 @@ and explicit native-check versus application-review coverage.
 | Comparison | Required visible item counts and stable identities preserved across viewports |
 | Context and consistency | Visible context, allowed styles or attributes, and consistent declared encodings |
 | Density and legibility | Adjacent text distance, minimum text size, and optional text/box coverage or empty-band constraints |
+| Composition | Median-anchor residual, adjacent peer-gap variation, declared chrome allocation, comparative viewport-growth yield, and equal-priority footprint variation |
+| Advisory discovery | Likely same-row text-entry peers whose rendered top anchors diverge; these candidates never fail a run or establish peer membership |
 | Capture and accessibility | Complete detail-tile coverage and automatically detectable axe accessibility findings |
 
 Rule findings report their selector, observed value, expected value, reason, and
@@ -159,20 +194,20 @@ actual feedback against a specific report.
 Claude can also select these skills when relevant. Repairs follow the scope of your
 request, and only human feedback can establish an approved visual reference.
 
-The plugin includes an opt-in Stop hook; installation leaves enforcement off.
-See the [plugin guide](https://github.com/lanej/viewrule/blob/main/plugins/claude-code/README.md)
-for configuration, existing dotfiles-hook migration, updates, and removal.
+The plugin leaves conversational stops unblocked. Use explicit review during UI work
+and opt-in Git gates or application CI for delivery. See [Git gates and Stop migration](docs/git-gates.md)
+and the [plugin guide](https://github.com/lanej/viewrule/blob/main/plugins/claude-code/README.md).
 
 ### CLI, other agents, or the demo
 
-Download `viewrule-0.7.1.tgz` and `SHA256SUMS` from the
-[v0.7.1 release](https://github.com/lanej/viewrule/releases/tag/v0.7.1).
+Download `viewrule-0.11.0.tgz` and `SHA256SUMS` from the
+[v0.11.0 release](https://github.com/lanej/viewrule/releases/tag/v0.11.0).
 From that download directory, verify the checksum and install:
 
 ```sh
 # Linux; on macOS use: shasum -a 256 -c SHA256SUMS
 sha256sum -c SHA256SUMS
-npm install --global ./viewrule-0.7.1.tgz
+npm install --global ./viewrule-0.11.0.tgz
 viewrule install-browser
 viewrule --version
 ```
@@ -206,20 +241,30 @@ viewrule lint --target src
 This returns general diagnostics without a running app, browser, or agent review.
 New projects include Impeccable as an advisory provider; existing configurations
 are preserved. Source-only passes do not assess rendered requirements or satisfy
-the Stop hook. Run `check` when the application's layout, data presentation, or
+rendered-evidence verification. Run `check` when the application's layout, data presentation, or
 interaction requirements need verification. See [Impeccable integration](docs/impeccable.md)
 for configuration, findings, and deliberate enforcement.
 
 ### Configure a real application
 
-Start your application's development server, then run these commands in its repository:
+The runtime URL workflow below is available in engine 0.8.0. Check the
+installed `viewrule --help` for `Runtime URL:` before using it. Older engine
+0.7.1 requires configured `baseURL` and ignores `check --url` and `VIEWRULE_BASE_URL`;
+follow the [older-engine workflow](docs/ui-review.md#runtime-url-compatibility)
+until upgrading to an engine that supports runtime URLs.
+
+Initialize the application contract without binding it to a machine-local port. Start
+your development server and set `APP_URL` to the actual URL it prints, then run:
 
 ```sh
-viewrule init --url http://localhost:3000
+viewrule init
 # For an analytical workspace, add --preset analytical to init.
 # Calibrate .ui-review/config.json and its starter rules for your application.
-viewrule check
+viewrule check --url "$APP_URL"
 ```
+
+You can set `VIEWRULE_BASE_URL` instead of repeating `--url`. Existing configs with
+`baseURL` remain supported, but new setup does not need to commit a development port.
 
 `init` does not overwrite existing configuration. Choose routes, a readiness selector
 that proves the intended data has loaded, and representative browser sizes. Initial
@@ -237,6 +282,9 @@ into new Git worktrees. Each checkout keeps its own run state. See
 lead with the decision, keep comparisons visible, preserve quantitative context,
 align evidence, minimize distracting decoration, retain readable density, and
 review graphical integrity. Personal preferences and actual human feedback refine them.
+Additional guidance covers controls, reading, component relationships, and scoped
+composition contracts. Declare related peers, equivalent gaps, task evidence, and
+equal priorities before selecting metrics; symmetry is not a requirement.
 
 New projects get editable **baseline** rules: 14px main-content text, clipping
 warnings, and a warning for headers over 160px. **Analytical** adds declared
@@ -244,8 +292,9 @@ comparison identities, eight desktop/twelve large-screen alternatives, nearby
 text values, complete labels, shared context, and aligned metric peers. These are
 calibratable starting constraints; a finite task can require fewer alternatives.
 Neither preset imposes a viewport occupancy score.
+Composition checks are opt-in and introduce no default numeric thresholds.
 
-Use `viewrule init --preset analytical --url ...` for a new comparison workspace,
+Use `viewrule init --preset analytical` for a new comparison workspace,
 or `viewrule preset --name analytical` to inspect rules for an existing application.
 The [defaults guide](docs/defaults.md) documents exact thresholds, annotations,
 scope, and limitations. Upgrading never replaces an application's rules.
@@ -313,11 +362,11 @@ preferences explicitly intended to apply across projects.
 | A check or capture fails | `1` |
 | Usage or configuration is invalid | `2` |
 
-Run the CLI in application CI for a required gate. The optional Claude Stop hook
-requires a current passing result when the application sets `enforceOnStop: true`;
-initial configs leave it off. It checks source/rule freshness without launching a
-browser. Its continuation guard prevents loops, so it is an iteration aid rather
-than a substitute for a required CI check. See [integrations](docs/integrations.md).
+Run the CLI in application CI for a required merge gate. Optional `pre-commit` and
+`pre-push` commands verify existing evidence only when declared UI inputs change.
+They check the staged or pushed contents against the reviewed files without starting
+a browser. `verify` checks evidence explicitly during development. Conversational
+stops are never blocked. See [Git gates, engine availability, and migration](docs/git-gates.md).
 
 ## How it is architected
 
@@ -326,8 +375,7 @@ configuration and rules; Impeccable supplies general source diagnostics, and axe
 supplies automated accessibility checks. It uses local
 JSON, JSONL, HTML, and PNG files, with no hosted service, database, model API, or
 telemetry. The configured application can make its own browser network requests.
-The Claude plugin packages skills, a release installer, and the existing Stop-hook
-protocol. It invokes the CLI and reads that engine version's docs; it does not copy
+The Claude plugin packages skills and a release installer. It invokes the CLI and reads that engine version's docs; it does not copy
 measurement logic. Using the plugin involves Claude's normal model service.
 
 ```mermaid
@@ -343,11 +391,11 @@ flowchart TD
 
 | Layer | Implementation and responsibility |
 | --- | --- |
-| Claude integration | `plugins/claude-code/`: task guidance, pinned setup, and Stop-hook adapter; `.claude-plugin/marketplace.json` provides discovery |
+| Claude integration | `plugins/claude-code/`: task guidance and pinned setup; `.claude-plugin/marketplace.json` provides discovery |
 | Entry and configuration | `bin/viewrule.mjs`, `src/cli.mjs`, `src/config.mjs`, `src/paths.mjs`: commands, schema validation, and configuration lookup |
 | Browser evidence | `src/review.mjs`, `src/capture.mjs`, `src/checks.mjs`: fresh contexts, geometry, styles, accessibility, and full-resolution tiles |
 | Design evaluation | `src/design.mjs`: policy loading, cross-viewport comparisons, coverage, citations, and remediation suggestions |
-| Reports and state | `src/report.mjs`, `src/templates/`, `src/state.mjs`: rendered reports, fingerprints, feedback provenance, approved references, and Stop decisions |
+| Reports and state | `src/report.mjs`, `src/templates/`, `src/state.mjs`: rendered reports, fingerprints, feedback provenance, approved references, and evidence verification |
 
 A check fingerprints scoped source and rules before and after capture; changes during
 the run fail it. Each page/viewport gets a fresh browser context. Observations are
@@ -369,7 +417,10 @@ tables. The analytical preset therefore checks visible identities, readable type
 and distance between actual text values. Its regression fixtures reject stretching
 alone and accept bounded finite comparisons with surrounding whitespace. These
 checks cannot establish relevance or every source of comparison effort. The
-[fixture corpus](https://github.com/lanej/viewrule/blob/main/test/README.md) states exactly
+[viewport-growth-yield contract](docs/ui-review.md#composition-contracts) adds a
+comparative return on usable area, with identity preservation and explicit finite
+saturation. It still depends on the project's declaration of relevant evidence.
+The [fixture corpus](https://github.com/lanej/viewrule/blob/main/test/README.md) states exactly
 what is verified; further work is tracked in the [roadmap](https://github.com/lanej/viewrule/blob/main/ROADMAP.md).
 
 DOM evidence cannot certify chart truth, semantic context, every form of clipping
@@ -388,11 +439,19 @@ From a source checkout, run `npm ci`, then `npm run format` to apply Prettier an
 `npm run check` to verify formatting, ESLint, and TypeScript JavaScript analysis.
 CI runs these before the browser regression. Static checking is incremental, with
 JSDoc contracts and `strict: false`; runtime inputs still require Ajv validation.
-There is no compilation step. Use `npm run browser:install` and `npm test` for the browser workflow. The single representative regression workflow installs
+There is no compilation step. Required CI runs `npm run test:ci` (also available as
+`npm test`), benchmark, and the site build. Reserve exhaustive local runs for CI
+diagnosis or packaging risks; use `npm run browser:install` when needed. The single representative regression workflow installs
 the packed CLI through an isolated plugin copy, then exercises 4K evidence, feedback,
 repair, and stale-review enforcement against the shipped presets. The same workflow
 checks broken, compact, sidebar, stretched, finite, and missing-annotation cases with specific
 finding assertions. It does not evaluate Claude's visual judgment.
+For DR-017–DR-020 iteration, `npm run check:composition` runs that workflow's shared
+composition scenario directly against source and saves separate evidence in
+`dist/composition-focus/`. It is partial validation; require the full installed
+CI workflow before delivery. The [short-preflight pilot](benchmarks/workflow/prevention-pilot-2026-09-24.md)
+records workflow observations separately from detector correctness, with saved
+before/after implementations and explicit measurement limits.
 For documentation-only changes, use targeted link, example, and diff checks instead
 of adding tests or rerunning the browser locally.
 

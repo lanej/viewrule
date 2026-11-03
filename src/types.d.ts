@@ -7,6 +7,17 @@ export interface Viewport {
   width: number;
   height: number;
 }
+export interface ComparisonAnnotations {
+  version: 1;
+  title: string;
+  summary?: string;
+  callouts: {
+    page: string;
+    region: string;
+    title: string;
+    interpretation: string;
+  }[];
+}
 export interface DetailOptions {
   width: number;
   height: number;
@@ -99,11 +110,13 @@ export interface SourceCheckResult {
 }
 export interface ProjectConfig {
   version: 1;
-  baseURL: string;
-  enforceOnStop: boolean;
+  baseURL?: string;
+  /** Deprecated; accepted for existing configurations, never enables Stop blocking. */
+  enforceOnStop?: boolean;
   sourcePaths: Selection;
   reviewScopes?: ReviewScope[];
   evidenceReuse?: { environmentKey: string; maxAgeMs: number };
+  runRetention?: { maxRuns?: number; maxAgeDays?: number; maxBytes?: number };
   accessibility: boolean;
   projectDocuments?: Selection;
   requiredDesignRules?: string[];
@@ -117,6 +130,7 @@ export interface ProjectConfig {
     ready: string;
     media?: "screen" | "print";
     textScale?: number;
+    captureRegions?: { id: string; selector: string }[];
     viewports?: Selection;
     checkpoints?: Checkpoint[];
   }[];
@@ -131,8 +145,15 @@ export interface Rule {
     | "reading-column"
     | "vertical-order"
     | "align"
+    | "alignment-residual"
+    | "gap-variance"
+    | "peer-footprint"
+    | "chrome-allocation"
+    | "viewport-growth-yield"
     | "no-overlap"
     | "no-clip"
+    | "no-text-overlap"
+    | "select-label-space"
     | "visible-count"
     | "max-height"
     | "min-size"
@@ -156,7 +177,14 @@ export interface Rule {
   feedbackId?: string;
   designRules?: string[];
   sources?: string[];
-  edge?: "left" | "right" | "top" | "bottom";
+  edge?: "left" | "right" | "top" | "bottom" | "center-x" | "center-y";
+  axis?: "x" | "y";
+  maxResidual?: number;
+  maxCoefficientOfVariation?: number;
+  maxRatio?: number;
+  referenceViewport?: string;
+  minYield?: number;
+  finiteKeys?: string[];
   tolerance?: number;
   min?: number;
   max?: number;
@@ -182,7 +210,7 @@ export interface Rule {
   minFontSize?: number;
   required?: string[];
   region?: string;
-  measure?: "boxes" | "text";
+  measure?: "boxes" | "text" | "area" | "font-size";
   minCoverage?: number;
   maxVerticalGap?: number;
   container?: string;
@@ -194,6 +222,92 @@ export interface Rule {
   substrate?: string;
   minRatio?: number;
   groups?: { selector: string; optional: boolean }[];
+}
+export interface TextLegibilityMeasurement {
+  rule: string;
+  type: string;
+  element: string | null;
+  status: "measured" | "unassessed";
+  problems: string[];
+  peers?: { element: string; text: string; fragments: number }[];
+  overlaps?: { first: number; second: number; width: number; height: number }[];
+  overlapCount?: number;
+  label?: string;
+  availableWidth?: number;
+  requiredWidth?: number;
+  deficit?: number;
+}
+export interface PeerInferenceCandidate {
+  kind: "form-control-alignment";
+  status: "review";
+  container: string | null;
+  layout: string;
+  edge: "top";
+  anchors: number[];
+  median: number;
+  maxResidual: number;
+  discoveryThreshold: number;
+  controls: {
+    element: string;
+    label: string;
+    type: string;
+    box: { x: number; y: number; width: number; height: number };
+  }[];
+  signals: string[];
+  designRules: string[];
+  reason: string;
+  suggestion: string;
+}
+export interface CompositionMeasurement {
+  rule: string;
+  type: string;
+  element: string | null;
+  status: "measured" | "unassessed";
+  valid: boolean;
+  problems: string[];
+  count?: number;
+  edge?: Rule["edge"];
+  anchors?: number[];
+  median?: number;
+  maxResidual?: number;
+  axis?: Rule["axis"];
+  measure?: Rule["measure"];
+  values?: number[];
+  gaps?: number[];
+  mean?: number;
+  coefficientOfVariation?: number;
+  regionArea?: number;
+  chromeArea?: number;
+  ratio?: number;
+}
+export interface GrowthMeasurement {
+  rule: string;
+  element: string | null;
+  status: "measured" | "unassessed";
+  valid: boolean;
+  width: number;
+  height: number;
+  area: number;
+  keys: string[];
+  items: {
+    element: string;
+    key: string | null;
+    eligible: boolean;
+    reasons: string[];
+    minFontSize: number | null;
+  }[];
+  problems: string[];
+  comparison?: {
+    status: "reference" | "measured" | "saturated" | "unassessed";
+    referenceViewport: string;
+    referenceArea?: number;
+    referenceCount?: number;
+    areaGrowth?: number;
+    evidenceGrowth?: number;
+    yield?: number | null;
+    lostKeys?: string[];
+    reason?: string;
+  };
 }
 export interface Finding {
   rule: string;
@@ -222,6 +336,9 @@ export type DesignPolicy = Awaited<
   ReturnType<typeof import("./design.mjs").readDesignPolicy>
 >;
 export interface PageResult {
+  captureRegions?: Awaited<
+    ReturnType<typeof import("./capture.mjs").captureRegions>
+  >;
   evidence?: EvidenceProvenance;
   name: string;
   checkpoint?: string;
@@ -297,6 +414,7 @@ export interface EvidenceChange {
   }[];
 }
 export interface ReviewReport {
+  reuse?: { inputs: string; artifacts: Record<string, string> };
   execution?: ExecutionSummary;
   measurements?: {
     version: 1;
@@ -307,6 +425,8 @@ export interface ReviewReport {
   id: string;
   project: string;
   createdAt: string;
+  targetBaseURL: string;
+  engineVersion: string;
   fingerprint: string;
   browserVersion?: string;
   status: "pass" | "fail";

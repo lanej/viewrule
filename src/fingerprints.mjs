@@ -1,9 +1,21 @@
 import { createHash } from "node:crypto";
 import { createReadStream } from "node:fs";
-import { lstat, readlink, realpath } from "node:fs/promises";
+import { lstat, readFile, readlink, realpath } from "node:fs/promises";
 import path from "node:path";
 import { walkFiles } from "./scopes.mjs";
 import { policyPaths } from "./design.mjs";
+
+export async function engineVersion() {
+  const metadata = JSON.parse(
+    await readFile(
+      path.resolve(import.meta.dirname, "../package.json"),
+      "utf8",
+    ),
+  );
+  if (typeof metadata.version !== "string" || !metadata.version)
+    throw new Error("viewrule package.json has no version");
+  return metadata.version;
+}
 
 function canonical(value) {
   if (Array.isArray(value)) return value.map(canonical);

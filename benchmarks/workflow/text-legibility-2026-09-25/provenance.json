@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "scope": "Post-hoc text calibration and passing Parcel desk caption change; no agent efficacy claim.",
+  "engineSourceCommit": "6de01a87ecd944e73b413d8725b91f0f9e41d43a",
+  "testedDevelopmentArchive": {
+    "version": "0.10.0",
+    "sha256": "fa8813ecd0e12f6c5af7a26c449dc9f47f0a1be005d2b9fe3949da840652f61d",
+    "released": false
+  },
+  "browserVersion": "151.0.7922.34",
+  "nodeVersion": "v24.9.0",
+  "validation": [
+    "npm run check",
+    "npm test",
+    "Original trial-source replay",
+    "Native-scale report and screenshot inspection"
+  ],
+  "parcelDesk": {
+    "contractHash": "13f4a1d2cdebe6f2e6f371b71e2416c8781b50eb3406acdddbdd23271d702451",
+    "first": {
+      "errors": 0,
+      "warnings": 0
+    },
+    "final": {
+      "errors": 0,
+      "warnings": 0
+    },
+    "toolbarHeightCSSpx": {
+      "first": 136,
+      "final": 161
+    }
+  },
+  "archive": {
+    "file": "evidence.tar.gz",
+    "sha256": "0fb42dee07e16b3250ef15b2a98a61621f57ba3464ff5e82842883772978a8c4",
+    "bytes": 4061358,
+    "files": 75
+  }
+}

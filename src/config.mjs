@@ -111,6 +111,18 @@ export const configSchema = object(
       },
       ["environmentKey", "maxAgeMs"],
     ),
+    runRetention: object(
+      {
+        maxRuns: { type: "integer", minimum: 1, maximum: 1000 },
+        maxAgeDays: { type: "integer", minimum: 1, maximum: 3650 },
+        maxBytes: {
+          type: "integer",
+          minimum: 1,
+          maximum: Number.MAX_SAFE_INTEGER,
+        },
+      },
+      [],
+    ),
     accessibility: { type: "boolean" },
     projectDocuments: documentScopeSchema,
     requiredDesignRules: designIds,
@@ -140,6 +152,11 @@ export const configSchema = object(
           ready: text,
           media: { enum: ["screen", "print"] },
           textScale: { type: "number", minimum: 1, maximum: 4 },
+          captureRegions: {
+            type: "array",
+            maxItems: 32,
+            items: object({ id: text, selector: text }, ["id", "selector"]),
+          },
           viewports: scopeSchema,
           checkpoints: { type: "array", minItems: 1, items: checkpointSchema },
         },
@@ -156,15 +173,7 @@ export const configSchema = object(
       ]),
     },
   },
-  [
-    "version",
-    "baseURL",
-    "pages",
-    "viewports",
-    "sourcePaths",
-    "enforceOnStop",
-    "accessibility",
-  ],
+  ["version", "pages", "viewports", "sourcePaths", "accessibility"],
 );
 const common = {
   id: text,
@@ -212,8 +221,41 @@ const types = {
     edge: { enum: ["left", "right", "top", "bottom"] },
     tolerance: { type: "number", minimum: 0 },
   },
+  "alignment-residual": {
+    items: text,
+    edge: { enum: ["left", "right", "top", "bottom", "center-x", "center-y"] },
+    maxResidual: { type: "number", minimum: 0 },
+  },
+  "gap-variance": {
+    items: text,
+    axis: { enum: ["x", "y"] },
+    maxCoefficientOfVariation: { type: "number", minimum: 0 },
+  },
+  "peer-footprint": {
+    items: text,
+    measure: { enum: ["area", "font-size"] },
+    maxCoefficientOfVariation: { type: "number", minimum: 0 },
+  },
+  "chrome-allocation": {
+    items: text,
+    maxRatio: { type: "number", minimum: 0, maximum: 1 },
+  },
+  "viewport-growth-yield": {
+    items: text,
+    keyAttribute: text,
+    referenceViewport: text,
+    minYield: { type: "number", minimum: 0 },
+    minFontSize: { type: "number", exclusiveMinimum: 0 },
+  },
   "no-overlap": {},
   "no-clip": {},
+  "no-text-overlap": {
+    items: text,
+    tolerance: { type: "number", minimum: 0, maximum: 4 },
+  },
+  "select-label-space": {
+    tolerance: { type: "number", minimum: 0, maximum: 4 },
+  },
   "visible-count": { min: positive },
   "max-height": { max: { type: "number", exclusiveMinimum: 0 } },
   "min-size": {
@@ -264,6 +306,9 @@ const types = {
   },
 };
 const optionalFields = {
+  "viewport-growth-yield": {
+    finiteKeys: names,
+  },
   consistent: {
     acrossPages: { type: "boolean" },
     compareSVG: { type: "boolean" },
@@ -291,13 +336,18 @@ function unique(values, label) {
 export function validateConfig(config, project) {
   if (!checkConfig(config))
     throw new Error(`Invalid config: ${ajv.errorsText(checkConfig.errors)}`);
-  const url = new URL(config.baseURL);
-  if (
-    !["http:", "https:"].includes(url.protocol) ||
-    url.username ||
-    url.password
-  )
-    throw new Error("baseURL must be HTTP(S) without embedded credentials");
+  let url;
+  if (config.baseURL) {
+    url = new URL(config.baseURL);
+    if (
+      !["http:", "https:"].includes(url.protocol) ||
+      url.username ||
+      url.password
+    )
+      throw new Error("baseURL must be HTTP(S) without embedded credentials");
+  } else {
+    url = new URL("http://viewrule.invalid/");
+  }
   unique(
     config.pages.map((p) => p.name),
     "page name",
@@ -308,8 +358,16 @@ export function validateConfig(config, project) {
   );
   validateSourceChecks(config.sourceChecks ?? []);
   for (const p of config.pages) {
+    unique(
+      (p.captureRegions ?? []).map((region) => region.id),
+      `capture region on page ${p.name}`,
+    );
     if (new URL(p.path, url).origin !== url.origin)
-      throw new Error("Page paths must stay on baseURL origin");
+      throw new Error(
+        config.baseURL
+          ? "Page paths must stay on baseURL origin"
+          : "Page paths must be relative to the runtime application URL",
+      );
     validateNames(
       p.viewports,
       config.viewports.map((v) => v.name),
@@ -377,6 +435,13 @@ export function validateRules(rules) {
       );
     else if (rule.type === "relative-position" && rule.minGap > rule.maxGap)
       throw new Error(`Rule ${rule.id}: minGap must not exceed maxGap`);
+    else if (
+      rule.type === "viewport-growth-yield" &&
+      rule.finiteKeys?.some((key) => key.trim() !== key || !key.trim())
+    )
+      throw new Error(
+        `Rule ${rule.id}: finiteKeys must contain nonempty, trimmed identities`,
+      );
     else if (rule.type === "attribute" && !rule.designRules)
       throw new Error(
         `Rule ${rule.id}: attribute checks must cite designRules`,
@@ -427,8 +492,31 @@ export async function loadProject(project, globalDir) {
       ruleApplies(rule, page.name, viewport.name),
     ),
   );
+  // Inactive global rules remain portable between projects, but an active
+  // comparative measurement must have the same capture contract as a local one.
+  for (const rule of active)
+    if (rule.type === "viewport-growth-yield")
+      validateGrowthScopes(rule, config);
   validateDocumentSources(active, projectDocuments);
   return { config, rules, projectDocuments };
+}
+/** @param {import("./types.js").Rule} rule @param {import("./types.js").ProjectConfig} config */
+function validateGrowthScopes(rule, config) {
+  for (const page of config.pages.filter((p) => selected(p.name, rule.pages))) {
+    const active = config.viewports.filter(
+      (v) =>
+        selected(v.name, rule.viewports) && selected(v.name, page.viewports),
+    );
+    if (!active.length) continue;
+    if (!active.some((v) => v.name === rule.referenceViewport))
+      throw new Error(
+        `Rule ${rule.id}: referenceViewport must be captured for page ${page.name}`,
+      );
+    if (active.length < 2)
+      throw new Error(
+        `Rule ${rule.id}: viewport-growth-yield needs at least two captured viewports for page ${page.name}`,
+      );
+  }
 }
 /** @param {import("./types.js").Rule[]} rules @param {import("./types.js").ProjectConfig} config */
 export function validateRuleScopes(rules, config) {
@@ -460,5 +548,6 @@ export function validateRuleScopes(rules, config) {
         if (!r.minVisibleByViewport[v.name])
           throw new Error(`Rule ${r.id}: missing visible count for ${v.name}`);
     }
+    if (r.type === "viewport-growth-yield") validateGrowthScopes(r, config);
   }
 }

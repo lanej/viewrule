@@ -16,44 +16,51 @@ import {
 import { impeccableProvider } from "./impeccable.mjs";
 import { runSourceChecks, sourceSummary } from "./source-checks.mjs";
 import { readContract } from "./contract.mjs";
-import { readPlan } from "./plan.mjs";
 import { readProjectDocuments } from "./project-documents.mjs";
-import { runReview } from "./review.mjs";
 import { defaultPreferences, presetRules } from "./presets.mjs";
 import {
   feedbackEntries,
   recordFeedback,
   learnRule,
-  hookDecision,
+  verifyReview,
   addRule,
 } from "./state.mjs";
 
 const help = `viewrule — rendered UI checks and a versioned design feedback loop
 
   install-browser [--with-deps]       Install the pinned Chromium browser
-  init --url http://localhost:3000 [--preset baseline|analytical] [--documents]
+  init [--url URL] [--preset baseline|analytical] [--documents]
                                        Create config, starter rules, and a missing DESIGN.md scaffold; never overwrite
                                        New projects require an authored DESIGN.md; --documents also scaffolds STYLE.md
   preset --name baseline|analytical     Print starter rules for review or adaptation
-  plan [--incremental | --full]        Print resolved input and browser obligations; no checks or state writes
+  plan [--url URL] [--incremental | --full]
+                                       Print resolved input and browser obligations; no checks or state writes
   contract                             Validate required design prose; print constraints, documents, and changes
   schema [--type TYPE]                  Print the installed rule schema for authoring
   add-rule --rule FILE [--dry-run]      Validate and add a project rule; never replace an existing ID
   lint [--target PATH ...]             Run source diagnostics as JSON; no browser, project setup, or review state
                                        --target selects bundled Impeccable; otherwise use configured providers
-  check [--incremental | --full]       Validate the contract, capture pages, check rules, write HTML + JSON
+  check [--url URL] [--incremental | --full]
+                                       Validate the contract, capture pages, check rules, write HTML + JSON
+  prune [--dry-run]                    Remove old disposable runs under configured count, age, and byte limits
+  compare --before REPORT --after REPORT --output DIR [--annotations FILE] [--image]
+                                       Compare saved reviews; preserve originals and export annotated evidence
   feedback --report PATH --decision approve|adjust --note TEXT [--scope project|global]
                                        Save feedback; approval preserves screenshots
   learn --feedback ID --rule FILE [--scope project|global]
                                        Convert recorded feedback into a JSON rule
   guide [ID]                           Read the versioned guide index or one Markdown page
   guidance                             Read project documents (including unfinished prose), guidance, and feedback
-  hook                                 Claude Stop hook; opt-in per project
+  verify                               Verify existing rendered evidence without capturing
+  pre-commit [--project DIR ...]       Verify affected staged UI inputs against existing evidence
+  pre-push [--project DIR ...] REMOTE URL
+                                       Verify affected pushed UI inputs; reads Git ref updates on stdin
 
 Common: --project DIR (exact application root), --help, --version
 Default: nearest configured parent within this checkout; init and lint use cwd.
 Project files: DESIGN.md (required for new projects), STYLE.md (optional); .ui-review/config.json, rules.json, feedback.jsonl, approved/
 Global files: $XDG_CONFIG_HOME/viewrule (default ~/.config/viewrule)
+Runtime URL: --url URL, then VIEWRULE_BASE_URL, then legacy config baseURL.
 Override: VIEWRULE_CONFIG_DIR; UI_REVIEW_GLOBAL_DIR remains supported.
 Exit codes: 0 checks pass, 1 checks fail, 2 setup/configuration/usage error.
 See docs/ui-review.md for rule types and CI use; docs/project-documents.md for authoring and explicit migration.
@@ -63,8 +70,13 @@ try {
     allowPositionals: true,
     options: {
       url: { type: "string" },
-      project: { type: "string" },
+      project: { type: "string", multiple: true },
       report: { type: "string" },
+      before: { type: "string" },
+      after: { type: "string" },
+      output: { type: "string" },
+      annotations: { type: "string" },
+      image: { type: "boolean" },
       decision: { type: "string" },
       note: { type: "string" },
       scope: { type: "string" },
@@ -82,9 +94,19 @@ try {
     },
   });
   const command = positionals[0];
+  if (
+    [args.before, args.after, args.output, args.annotations, args.image].some(
+      (value) => value !== undefined,
+    ) &&
+    command !== "compare"
+  )
+    throw new Error(
+      "--before, --after, --output, --annotations, and --image are only supported by compare",
+    );
+  const gitEvent = ["pre-commit", "pre-push"].includes(command);
   const project =
     args.project !== undefined || ["init", "lint"].includes(command)
-      ? path.resolve(args.project ?? process.cwd())
+      ? path.resolve(args.project?.at(-1) ?? process.cwd())
       : await findProject(process.cwd());
   const globalDir = globalConfigDir();
   if ((args.incremental || args.full) && !["check", "plan"].includes(command))
@@ -95,6 +117,8 @@ try {
     throw new Error("Choose --incremental or --full, not both");
   if (args.target?.length && command !== "lint")
     throw new Error("--target is only supported by lint");
+  if (args.url !== undefined && !["init", "plan", "check"].includes(command))
+    throw new Error("--url is only supported by init, plan, and check");
   if (
     !args.help &&
     [
@@ -104,6 +128,7 @@ try {
       "add-rule",
       "lint",
       "check",
+      "prune",
       "feedback",
       "learn",
       "guidance",
@@ -111,9 +136,44 @@ try {
   )
     await assertLocalReviewDirectory(project);
   if (args.help || !command) console.log(help);
-  else if (positionals.length !== 1)
+  else if (gitEvent) {
+    if (positionals.length !== (command === "pre-push" ? 3 : 1))
+      throw new Error(
+        "Usage: pre-commit [--project DIR ...] | pre-push [--project DIR ...] REMOTE URL",
+      );
+    let input = "";
+    if (command === "pre-push")
+      for await (const chunk of process.stdin) input += chunk;
+    const { gitGate } = await import("./git-gate.mjs");
+    const result = await gitGate(
+      args.project?.map((directory) => path.resolve(directory)) ?? [project],
+      globalDir,
+      command,
+      input,
+      positionals[1],
+    );
+    console.log(JSON.stringify(result));
+    process.exitCode = result.status === "fail" ? 1 : 0;
+  } else if (positionals.length !== 1)
     throw new Error("Expected one command; use --help.");
-  else if (command === "init") {
+  else if (command === "compare") {
+    if (!args.before || !args.after || !args.output)
+      throw new Error(
+        "compare requires --before REPORT --after REPORT --output DIR",
+      );
+    const { compareReviews } = await import("./comparison.mjs");
+    console.log(
+      JSON.stringify(
+        await compareReviews(
+          args.before,
+          args.after,
+          args.output,
+          args.annotations,
+          args.image,
+        ),
+      ),
+    );
+  } else if (command === "init") {
     const starter = await presetRules(args.preset ?? "baseline");
     const dir = path.join(project, ".ui-review");
     await mkdir(dir, { recursive: true });
@@ -123,7 +183,7 @@ try {
       existingDocuments.some((document) => document.role === "style");
     const config = validateConfig({
       version: 1,
-      baseURL: args.url ?? "http://localhost:3000",
+      ...(args.url !== undefined ? { baseURL: args.url } : {}),
       enforceOnStop: false,
       sourcePaths: ["."],
       sourceChecks: [impeccableProvider()],
@@ -166,16 +226,17 @@ try {
     }
     const documents = await readProjectDocuments(project);
     console.log(
-      `Created ${dir}/config.json with editable ${args.preset ?? "baseline"} starter rules (existing rules and documents are preserved). Author DESIGN.md before contract/check; a scaffold is not a completed contract. Use /viewrule:design or docs/project-documents.md. Calibrate selectors, counts, and thresholds to the task. Stop enforcement is off until enforceOnStop is true. Project guidance: ${documents.map((document) => document.path).join(", ")}. Commit the setup files (.ui-review/config.json, rules.json, .gitignore, project documents, and any checkpoint scripts) to carry them into new Git worktrees. Runs, latest.json, and authentication state stay local; see docs/worktrees.md.`,
+      `Created ${dir}/config.json with editable ${args.preset ?? "baseline"} starter rules (existing rules and documents are preserved). Author DESIGN.md before contract/check; a scaffold is not a completed contract. Use /viewrule:design or docs/project-documents.md. Calibrate selectors, counts, and thresholds to the task. Reviews are explicit; optional Git gates and application CI control delivery. Project guidance: ${documents.map((document) => document.path).join(", ")}. Commit the setup files (.ui-review/config.json, rules.json, .gitignore, project documents, and any checkpoint scripts) to carry them into new Git worktrees. The application URL is runtime state unless you explicitly supplied --url; use check --url <actual-url> or VIEWRULE_BASE_URL for dynamically assigned development ports. Runs, latest.json, and authentication state stay local; see docs/worktrees.md.`,
     );
   } else if (command === "preset") {
     console.log(
       JSON.stringify(await presetRules(args.name ?? "baseline"), null, 2),
     );
   } else if (command === "plan") {
+    const { readPlan } = await import("./plan.mjs");
     console.log(
       JSON.stringify(
-        await readPlan(project, globalDir, Boolean(args.incremental)),
+        await readPlan(project, globalDir, Boolean(args.incremental), args.url),
         null,
         2,
       ),
@@ -241,15 +302,28 @@ try {
       }),
     );
     process.exitCode = summary.errors ? 1 : 0;
+  } else if (command === "prune") {
+    const { pruneRuns } = await import("./retention.mjs");
+    const config = validateConfig(
+      await readJSON(path.join(project, ".ui-review/config.json")),
+    );
+    console.log(
+      JSON.stringify(
+        await pruneRuns(project, config.runRetention, args["dry-run"]),
+      ),
+    );
   } else if (command === "check") {
+    const { runReview } = await import("./review.mjs");
     const result = await runReview(
       project,
       globalDir,
       Boolean(args.incremental),
+      args.url,
     );
     console.log(
       JSON.stringify({
         status: result.report.status,
+        targetBaseURL: result.report.targetBaseURL,
         ...result.report.summary,
         contract: {
           hash: result.report.contract.hash,
@@ -262,6 +336,9 @@ try {
           policyChanged: result.report.contract.policyChanged,
         },
         report: result.reportFile,
+        reusedReport: result.reusedReport,
+        execution: result.execution,
+        retention: result.retention,
         html: path.join(path.dirname(result.reportFile), "index.html"),
         designRules: path.join(
           path.dirname(result.reportFile),
@@ -340,12 +417,12 @@ try {
         2,
       ),
     );
+  } else if (command === "verify") {
+    const result = await verifyReview(project, globalDir);
+    console.log(JSON.stringify(result));
+    process.exitCode = result.status === "pass" ? 0 : 1;
   } else if (command === "hook") {
-    let input = "";
-    for await (const chunk of process.stdin) input += chunk;
-    console.log(
-      JSON.stringify(await hookDecision(JSON.parse(input), globalDir)),
-    );
+    console.log("{}");
   } else throw new Error(`Unknown command: ${command}`);
 } catch (err) {
   console.error(`viewrule: ${err.message}`);

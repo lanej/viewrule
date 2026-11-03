@@ -67,7 +67,7 @@ const sectionsFrom = (body) => {
   let current = null;
   for (const paragraph of body.split(/\n\n+/)) {
     const match = paragraph.match(
-      /^\*\*(Requirement|Default|Why|Application|Exception|Review):\*\*\s*([\s\S]*)$/,
+      /^\*\*(Requirement|Default|Why|Application|Exception|Review|Computationally falsifiable(?: — [^:]+)?|Human judgment|Finite evidence):\*\*\s*([\s\S]*)$/,
     );
     if (match) {
       current = { label: match[1], text: match[2].replaceAll("\n", " ") };
@@ -126,6 +126,9 @@ for (const file of [
   "behavior-catalog.json",
   "evidence.js",
   "evidence.css",
+  "composition.js",
+  "composition.css",
+  "composition-catalog.json",
 ])
   await cp(
     path.join(repository, "docs/examples", file),
@@ -137,6 +140,10 @@ const behaviorSource = await readFile(
 );
 const evidenceSource = await readFile(
   path.join(repository, "docs/examples/evidence.html"),
+  "utf8",
+);
+const compositionSource = await readFile(
+  path.join(repository, "docs/examples/composition.html"),
   "utf8",
 );
 const behaviorBody = behaviorSource.match(
@@ -167,19 +174,22 @@ for (const rule of policy.rules) {
         `<section><h2>${label}</h2><p>${markdownInline(text)}</p></section>`,
     )
     .join("\n");
-  const behavioral = Number(rule.id.slice(3)) >= 9;
-  const interactive = behavioral
-    ? `<div id="behavior-examples" data-fixed-rule="${rule.id}">${behaviorBody
-        .replace(
-          /<label\s*>Design rule[\s\S]*?<\/label>/,
-          '<select id="rule-picker" hidden aria-label="Design rule"></select>',
-        )
-        .replace(
-          /<p>\s*<a id="policy-link"[\s\S]*?<\/p>/,
-          "",
-        )}</div>${behaviorTemplates}
+  const compositional = Number(rule.id.slice(3)) >= 17;
+  const behavioral = Number(rule.id.slice(3)) >= 9 && !compositional;
+  const interactive = compositional
+    ? `<div id="composition-examples" data-fixed-rule="${rule.id}">${compositionSource.match(/<main id="composition-examples">([\s\S]*?)<\/main>/)[1]}</div>${compositionSource.match(/<template id="scene-DR-017">[\s\S]*?(?=\s*<\/body>)/)[0]}`
+    : behavioral
+      ? `<div id="behavior-examples" data-fixed-rule="${rule.id}">${behaviorBody
+          .replace(
+            /<label\s*>Design rule[\s\S]*?<\/label>/,
+            '<select id="rule-picker" hidden aria-label="Design rule"></select>',
+          )
+          .replace(
+            /<p>\s*<a id="policy-link"[\s\S]*?<\/p>/,
+            "",
+          )}</div>${behaviorTemplates}
         <p id="load-error" role="alert" hidden>Examples could not load. Reload to try again.</p>`
-    : `<div id="evidence-examples" data-rule="${rule.id}">
+      : `<div id="evidence-examples" data-rule="${rule.id}">
        <button type="button" id="evidence-toggle" aria-pressed="false">${["Change parcel volumes", "Change amounts", "Change period", "Change observation", "Reverse carrier order", "Switch selected carrier", "Show larger layout", "Expand shipment detail"][Number(rule.id.slice(3)) - 1]}</button>
        <div class="behavior-pair">${["good", "bad"].map((quality) => `<section id="${quality}"><h3>${quality === "good" ? "Good" : "Bad"} for this task</h3><p>${escapeHtml(example[quality])}</p><div class="sample">${evidenceSource.match(new RegExp('<template id="scene-' + rule.id + '">([\\s\\S]*?)</template>'))[1]}</div></section>`).join("")}</div>
        <p>These synthetic fixtures illustrate the stated comparison. Native checks can support review of declared scales, context, encodings, geometry, and legibility; they do not establish data truth or task relevance. Review the requirement and exceptions above.</p></div>`;
@@ -203,7 +213,8 @@ for (const rule of policy.rules) {
 <link rel="stylesheet" href="../rule.css" />
 <link rel="stylesheet" href="../../assets/examples/behavior.css" />
 <link rel="stylesheet" href="../../assets/examples/evidence.css" />
-<script type="module" src="../../assets/examples/${behavioral ? "behavior" : "evidence"}.js"></script>
+${compositional ? '<link rel="stylesheet" href="../../assets/examples/composition.css" />' : ""}
+<script type="module" src="../../assets/examples/${compositional ? "composition" : behavioral ? "behavior" : "evidence"}.js"></script>
 </head>
 <body>
 <main>
@@ -263,7 +274,7 @@ await writeFile(
   landing,
   (await readFile(landing, "utf8")).replace(
     "<h1>Design guidance and executable review.</h1>",
-    '<h1>Design guidance and executable review.</h1><p><a href="rules/">Browse all 16 design rules →</a></p>',
+    `<h1>Design guidance and executable review.</h1><p><a href="rules/">Browse all ${policy.rules.length} design rules →</a></p>`,
   ),
 );
 
@@ -289,7 +300,7 @@ if (process.argv.includes("--serve")) {
     ".woff": "font/woff",
     ".woff2": "font/woff2",
   };
-  createServer(async (request, response) => {
+  const server = createServer(async (request, response) => {
     try {
       if (!["GET", "HEAD"].includes(request.method)) {
         response.writeHead(405);
@@ -319,7 +330,11 @@ if (process.argv.includes("--serve")) {
       response.writeHead(404);
       response.end("Not found");
     }
-  }).listen(4173, "127.0.0.1", () =>
-    console.log("Preview: http://127.0.0.1:4173/rules/"),
-  );
+  });
+  server.listen(0, "127.0.0.1", () => {
+    const address = server.address();
+    if (!address || typeof address === "string")
+      throw new Error("Preview server did not bind a TCP port");
+    console.log(`Preview: http://127.0.0.1:${address.port}/rules/`);
+  });
 }

@@ -3,12 +3,13 @@
 `viewrule check` remains a full review. Opt into reuse with:
 
 ```sh
-viewrule plan --incremental --project .
 viewrule check --incremental --project .
 viewrule check --full --project .
 ```
 
-`plan` reads files and verifies existing evidence; it does not launch a browser,
+`check` plans its own work. Use `plan --incremental` to diagnose scope or
+invalidation decisions, not as a mandatory pre-check. `plan` reads files and
+verifies existing evidence; it does not launch a browser,
 run a source provider, change approval, or write review state. Without
 `reviewScopes`, `--incremental` conservatively runs the full existing workflow.
 This feature ships in engine 0.7.0. The 0.7.0 Claude plugin pins that release;
@@ -94,6 +95,9 @@ Configuration, scope definitions, executable rules, global documents, policy,
 preferences, engine/dependency files, platform, Node version, and browser identity
 are conservatively global. Scope document content and bundled-provider input,
 context, and binary identities participate in the relevant scope fingerprints.
+The resolved runtime URL is also global: changing `--url` or `VIEWRULE_BASE_URL`
+invalidates reuse, while leaving the committed contract unchanged. A server restart
+on the same URL still requires a new `environmentKey` when its relevant state changes.
 Checkpoint setup and storage-state files are included even outside source globs or
 Git's inventory, and must remain inside the project for scoped reviews. Storage
 state is always global, even when its path matches one application's source scope.
@@ -111,14 +115,14 @@ key. Missing reuse settings or an unavailable browser identity make the relevant
 scopes unknown and force execution, not optimistic skipping.
 
 `maxAgeMs` must be explicit, from 1,000 through 86,400,000 milliseconds. Expiry uses
-**original measurement time**, never the time a reused report was assembled. The
-Stop hook enforces this limit too. An age bound limits staleness; it does not replace
+**original measurement time**, never the time a reused report was assembled.
+`verify` and the optional Git gates enforce this limit too. An age bound limits staleness; it does not replace
 the environment identity contract.
 
 Scoped checks explicitly launch the same browser executable whose bytes are
 fingerprinted (`VIEWRULE_BROWSER_PATH`, the legacy alias, or Playwright's pinned
 Chromium executable). Legacy configurations retain their existing launch behavior.
-No browser or provider is downloaded by planning, checking, or hook enforcement.
+No browser or provider is downloaded by planning, checking, or Git verification.
 
 ## Evidence and pass semantics
 
@@ -127,7 +131,23 @@ failed, incompatible, interrupted, or checksum-invalid reports fall back to new
 execution. No cache daemon, database, older-run search, or automatic approval is
 introduced. A failed run is not a cache of successful sub-results.
 
-Each reused page/provider retains its original run ID and measurement timestamp,
+With engine 0.11.0+, when every obligation and report input is unchanged,
+`check --incremental` returns the existing report without creating a run, copying
+captures, rewriting reports/latest state, or pruning. It verifies complete coverage,
+source/contract fingerprints before and after verification, the runtime target,
+feedback/preferences, the approved reference, report outputs, and original evidence
+age. Missing or damaged HTML/reference/crop outputs rebuild the report; changed
+measurement dependencies still execute their affected scopes. Older reports without
+the report-reuse manifest are assembled once before they become eligible. `--full`
+always executes, and an unknown dependency never takes this shortcut.
+
+CLI JSON `reusedReport: true` identifies this path. Its top-level `execution` counts
+the work done by this invocation (zero executions, all obligations reused).
+`report.json` and its `execution`, contract-change comparison, and capture timestamps
+remain the original historical record; no new measurement or approval is implied.
+Use `prune` separately for backlog cleanup during an unchanged session.
+
+When a new report is needed, each reused page/provider retains its original run ID and measurement timestamp,
 plus the immediately preceding report it was reused from. Original provider timings
 remain original timings; the execution summary separately counts providers actually
 run this time. Screenshots and detail tiles are verified and copied into the new
@@ -136,12 +156,13 @@ owning scopes; an artifact changing during copying fails the run.
 
 Local findings are preserved separately from aggregate findings. Cross-page and
 cross-viewport rules and required design coverage are reevaluated over the entire
-fresh/reused observation set. A reused page can therefore receive a new aggregate
-failure when another page changes. Reuse never waives a rule or preserves an old
-aggregate pass without recomputation.
+fresh/reused observation set whenever any input changes. A reused page can therefore
+receive a new aggregate failure when another page changes. Only the verified
+identical complete report can retain its aggregate result without recomputation.
+Reuse never waives a rule.
 
 All required browser states and enabled source providers must be represented in a
-passing report. The Stop hook verifies the whole-source fingerprint, report and
+passing report. `verify` checks the whole-source fingerprint, report and
 artifact checksums, complete obligation membership, and original evidence age.
 An incomplete run cannot become a whole-project pass. Reused evidence older than
 an approved baseline is not described as a newly resolved finding or new visual
@@ -156,7 +177,10 @@ against someone able to rewrite both reports and their latest-state checksum.
 The existing installed-CLI workflow exercises two pages, a checkpoint, shared
 inputs, two real bundled source providers, required documents, and a cross-page
 encoding rule. It checks full, unchanged, local-change, cross-page-failure, recovery,
-corrupted-artifact, forced-full, and expired-evidence runs. Read-only plans also
+corrupted-artifact, forced-full, and expired-evidence runs. It asserts unchanged
+file identities, timestamps, latest state, and reports for whole-report reuse, and
+rebuilds after missing HTML, project/global feedback, approval, and missing reference
+images. Read-only plans also
 exercise scope removal, environment changes, unknown providers, cycles, new glob
 matches, and global fallback inputs.
 

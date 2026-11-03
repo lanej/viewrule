@@ -42,11 +42,42 @@
   {{/hasDesignCoverage}}
   <div class="compare">
     {{#screenshot}}
-    <figure>
-      <figcaption>{{captureLabel}}</figcaption>
-      <a href="{{screenshot}}"
-        ><img src="{{screenshot}}" alt="{{captureLabel}} {{stateName}}"
-      /></a>
+    <figure class="capture-figure">
+      <figcaption>
+        <span>{{captureLabel}}</span>
+        {{#hasPeerInference}}
+        <label class="peer-overlay-control"
+          ><input class="peer-overlay-toggle" type="checkbox" checked /> Show
+          inferred structure</label
+        >
+        {{/hasPeerInference}}
+      </figcaption>
+      <div class="capture-picture">
+        <a href="{{screenshot}}"
+          ><img src="{{screenshot}}" alt="{{captureLabel}} {{stateName}}"
+        /></a>
+        {{#hasPeerInference}}
+        <div class="peer-overlay-layer" aria-hidden="true">
+          {{#peerInference}}
+          <span class="peer-group-outline" style="{{groupStyle}}"
+            ><span class="peer-group-badge"
+              >Inferred {{number}} · DR-017</span
+            ></span
+          >
+          <span class="peer-anchor-guide" style="{{guideStyle}}"
+            ><span class="peer-anchor-label">median top anchor</span></span
+          >
+          {{#controls}}
+          <span
+            class="peer-member-outline"
+            style="{{style}}"
+            title="{{label}} · {{element}}"
+            ><span class="{{deltaClass}}">Δ {{deltaLabel}}</span></span
+          >
+          {{/controls}} {{/peerInference}}
+        </div>
+        {{/hasPeerInference}}
+      </div>
     </figure>
     {{/screenshot}} {{#approved}}
     <figure>
@@ -106,7 +137,142 @@
       {{/density}}
     </tbody>
   </table>
-  {{/hasDensity}} {{#hasFindings}}
+  {{/hasDensity}} {{#hasComposition}}
+  <details>
+    <summary>Composition measurements</summary>
+    <p>
+      These measurements compare declared relationships. Their thresholds and
+      task relevance require application judgment.
+    </p>
+    <table>
+      <thead>
+        <tr>
+          <th>Rule / group</th>
+          <th>Measurement status</th>
+          <th>Observed geometry or style</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#composition}}
+        <tr>
+          <td><code>{{rule}}</code><br />{{element}}</td>
+          <td>{{status}}</td>
+          <td><pre>{{evidence}}</pre></td>
+        </tr>
+        {{/composition}}
+      </tbody>
+    </table>
+  </details>
+  {{/hasComposition}} {{#hasGrowth}}
+  <table>
+    <caption>
+      Viewport-growth yield · relative evidence growth / relative usable-area
+      growth
+    </caption>
+    <thead>
+      <tr>
+        <th>Rule / state</th>
+        <th>Evidence / usable area</th>
+        <th>Yield</th>
+        <th>Comparison evidence</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#growth}}
+      <tr>
+        <td><code>{{rule}}</code><br />{{comparisonStatus}}</td>
+        <td>{{count}} distinct identities / {{areaLabel}} CSS px²</td>
+        <td>{{yieldLabel}}</td>
+        <td>
+          <details>
+            <summary>Reference, identities, and exclusions</summary>
+            <pre>{{evidence}}</pre>
+          </details>
+        </td>
+      </tr>
+      {{/growth}}
+    </tbody>
+  </table>
+  <p>
+    A saturated comparison already exposes the complete declared finite set at
+    both sizes; its minimum-yield threshold is exempt. Yield does not establish
+    evidence quality, task relevance, or visual quality.
+  </p>
+  {{/hasGrowth}} {{#hasPeerInference}}
+  <details open>
+    <summary>
+      Advisory inferred peer relationships · {{peerInferenceCount}} candidate(s)
+    </summary>
+    <p>
+      These are heuristic review candidates, not configured findings and not
+      pass/fail evidence. Viewrule inferred a likely horizontal form-control
+      relationship from rendered structure and geometry; confirm task intent
+      before turning one into a DR-017 contract.
+    </p>
+    <table>
+      <thead>
+        <tr>
+          <th>Candidate</th>
+          <th>Observed alignment</th>
+          <th>Interpretation and next action</th>
+          <th>Evidence</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#peerInference}}
+        <tr>
+          <td>
+            <strong>Inferred {{number}}</strong><br />
+            <code>{{kind}}</code><br />
+            <small>{{container}} · {{layout}}</small>
+          </td>
+          <td>
+            top-anchor residual {{residualLabel}}px<br />
+            <small>discovery trigger {{thresholdLabel}}px</small>
+          </td>
+          <td>
+            {{reason}}
+            <p>{{suggestion}}</p>
+          </td>
+          <td>
+            <details>
+              <summary>Controls, anchors, and inference signals</summary>
+              <pre>{{evidence}}</pre>
+            </details>
+          </td>
+        </tr>
+        {{/peerInference}}
+      </tbody>
+    </table>
+  </details>
+  {{/hasPeerInference}} {{#hasTextLegibility}}
+  <details>
+    <summary>Scoped text geometry</summary>
+    <p>
+      Fragment intersections and native selected-label width are layout proxies,
+      not glyph-paint or readability certification. Unassessed measurements do
+      not establish coverage. Dimensions are CSS pixels.
+    </p>
+    <table>
+      <thead>
+        <tr>
+          <th>Rule / element</th>
+          <th>Status</th>
+          <th>Evidence and limits</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#textLegibility}}
+        <tr>
+          <td><code>{{rule}}</code><br />{{element}}</td>
+          <td>{{status}}</td>
+          <td><pre>{{evidence}}</pre></td>
+        </tr>
+        {{/textLegibility}}
+      </tbody>
+    </table>
+  </details>
+  {{/hasTextLegibility}} {{#hasFindings}}
   <table>
     <thead>
       <tr>
@@ -132,9 +298,9 @@
           <p>{{suggestion}}</p>
         </td>
         <td>
-          <code>{{selector}}</code><br />{{evidence}}<br /><small
-            >{{evidenceKind}}</small
-          >
+          <code>{{selector}}</code>
+          <pre>{{evidence}}</pre>
+          <small>{{evidenceKind}}</small>
         </td>
       </tr>
       {{/findings}}

@@ -9,15 +9,23 @@ import {
   reviewStates,
   ruleApplies,
 } from "./scopes.mjs";
+import { runtimeConfig } from "./runtime-url.mjs";
 
 /** Read-only resolved obligations, not evidence, approval, or an incremental pass.
- * @param {string} project @param {string} globalDir @param {boolean} [incremental] */
-export async function readPlan(project, globalDir, incremental = false) {
+ * @param {string} project @param {string} globalDir @param {boolean} [incremental] @param {string} [explicitURL] */
+export async function readPlan(
+  project,
+  globalDir,
+  incremental = false,
+  explicitURL,
+) {
   project = await realpath(project);
-  const { config, rules, projectDocuments } = await loadProject(
-    project,
-    globalDir,
-  );
+  const {
+    config: contractConfig,
+    rules,
+    projectDocuments,
+  } = await loadProject(project, globalDir);
+  const { config, target } = runtimeConfig(contractConfig, explicitURL);
   const sources = await resolveSourceScope(project, config);
   const plan = config.reviewScopes?.length
     ? await executionPlan(
@@ -69,6 +77,7 @@ export async function readPlan(project, globalDir, incremental = false) {
   return {
     version: 1,
     project,
+    target,
     execution: plan?.mode ?? "full",
     ...(plan
       ? {

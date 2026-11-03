@@ -1,6 +1,7 @@
 import { chromium } from "playwright";
 import AxeBuilder from "@axe-core/playwright";
 import { mkdir, writeFile, realpath, copyFile } from "node:fs/promises";
+import { constants } from "node:fs";
 import { randomUUID } from "node:crypto";
 import path from "node:path";
 import { readJSON } from "./config.mjs";
@@ -12,7 +13,7 @@ import {
   renderDesignPolicy,
   renderProjectDocuments,
 } from "./report.mjs";
-import { captureDetails } from "./capture.mjs";
+import { captureDetails, captureRegions } from "./capture.mjs";
 import { readDesignPolicy, evaluateDesign } from "./design.mjs";
 import { defaultPreferences } from "./presets.mjs";
 import { runCheckpoint } from "./checkpoints.mjs";
@@ -29,22 +30,64 @@ import {
   captureManifest,
   evidenceAgeProblem,
 } from "./incremental.mjs";
-import { fileDigest } from "./fingerprints.mjs";
+import { engineVersion, fileDigest } from "./fingerprints.mjs";
+import { runtimeConfig } from "./runtime-url.mjs";
+import { pruneRuns } from "./retention.mjs";
+import {
+  reportInputFingerprint,
+  reportArtifacts,
+  reusableReport,
+  unchangedCache,
+} from "./report-reuse.mjs";
 
-/** @param {string} project @param {string} globalDir @param {boolean} [incremental] */
-export async function runReview(project, globalDir, incremental = false) {
+/** @param {string} project @param {string} globalDir @param {boolean} [incremental] @param {string} [explicitURL] */
+export async function runReview(
+  project,
+  globalDir,
+  incremental = false,
+  explicitURL,
+) {
   project = await realpath(project);
   const contract = await readContract(project, globalDir);
-  const { config, rules } = contract;
+  const { config: contractConfig, rules } = contract;
+  const { config, target } = runtimeConfig(contractConfig, explicitURL);
   const before = await fingerprint(
     project,
     config,
     globalDir,
     contract.projectDocuments,
   );
+  const currentEngineVersion = await engineVersion();
   const plan = config.reviewScopes?.length
-    ? await executionPlan(project, globalDir, contract, incremental)
+    ? await executionPlan(
+        project,
+        globalDir,
+        { ...contract, config },
+        incremental,
+      )
     : null;
+  const reportInputs = plan
+    ? await reportInputFingerprint(project, globalDir)
+    : null;
+  if (await reusableReport(plan, config, contract, before, reportInputs)) {
+    const after = await fingerprint(project, config, globalDir);
+    const afterContract = await readContract(project, globalDir);
+    if (before !== after || afterContract.hash !== contract.hash)
+      throw new Error(
+        "Source or contract changed during report verification. Rerun the review.",
+      );
+    if (
+      reportInputs === (await reportInputFingerprint(project, globalDir)) &&
+      !evidenceAgeProblem(plan.cache.report, config) &&
+      (await unchangedCache(project, plan.cache))
+    )
+      return {
+        report: plan.cache.report,
+        reportFile: plan.cache.reportFile,
+        execution: executionSummary(plan),
+        reusedReport: true,
+      };
+  }
   const id =
     new Date().toISOString().replace(/[:.]/g, "-") +
     "-" +
@@ -53,6 +96,7 @@ export async function runReview(project, globalDir, incremental = false) {
   await mkdir(dir, { recursive: true, mode: 0o700 });
   await writeJSON(path.join(project, ".ui-review/latest.json"), {
     status: "running",
+    engineVersion: currentEngineVersion,
     fingerprint: before,
     ...(contract.previousReportFile
       ? { reportFile: contract.previousReportFile }
@@ -64,6 +108,8 @@ export async function runReview(project, globalDir, incremental = false) {
     id,
     project,
     createdAt: new Date().toISOString(),
+    targetBaseURL: target.baseURL,
+    engineVersion: currentEngineVersion,
     fingerprint: before,
     contract,
     status: "fail",
@@ -98,6 +144,9 @@ export async function runReview(project, globalDir, incremental = false) {
       plan.units.some((unit) => unit.kind === "page" && unit.action === "run")
     )
       browser = await chromium.launch({
+        // Growth clipping uses the padding edge painted with native scrollbars
+        // hidden. Keep this Playwright default explicit for measurement parity.
+        args: ["--hide-scrollbars"],
         executablePath:
           plan?.executable ??
           (process.env.VIEWRULE_BROWSER_PATH ||
@@ -178,8 +227,13 @@ export async function runReview(project, globalDir, incremental = false) {
             "*,*::before,*::after{animation:none!important;transition:none!important;caret-color:transparent!important}",
         });
         await page.evaluate(() => window.scrollTo(0, 0));
+        if (pageConfig.captureRegions?.length)
+          result.captureRegions = await captureRegions(
+            page,
+            pageConfig.captureRegions,
+          );
         result.screenshot = `capture-${report.pages.length}.png`;
-        await page.screenshot({
+        const overview = await page.screenshot({
           path: path.join(dir, result.screenshot),
           fullPage: true,
           animations: "disabled",
@@ -189,6 +243,7 @@ export async function runReview(project, globalDir, incremental = false) {
           dir,
           `capture-${report.pages.length}`,
           config.detailCapture,
+          overview,
         );
         if (!result.details.complete)
           result.findings.push({
@@ -329,6 +384,7 @@ export async function runReview(project, globalDir, incremental = false) {
           await copyFile(
             path.join(refDir, p.screenshot),
             path.join(dir, "reference", p.screenshot),
+            constants.COPYFILE_FICLONE,
           );
         } catch (error) {
           if (error.code !== "ENOENT") throw error;
@@ -356,7 +412,6 @@ export async function runReview(project, globalDir, incremental = false) {
     ...feedback,
   ];
   const reportFile = path.join(dir, "report.json");
-  await writeJSON(reportFile, report);
   await writeFile(
     path.join(dir, "design-rules.html"),
     renderDesignPolicy(report.designPolicy),
@@ -369,8 +424,20 @@ export async function runReview(project, globalDir, incremental = false) {
     path.join(dir, "index.html"),
     renderReport(report, preferences, reference),
   );
+  if (
+    plan &&
+    reportInputs &&
+    reportInputs === (await reportInputFingerprint(project, globalDir))
+  ) {
+    // Whole-report caching is optional. An oversized or concurrently removed
+    // presentation artifact must not prevent publication of the measured result.
+    const artifacts = await reportArtifacts(dir).catch(() => null);
+    if (artifacts) report.reuse = { inputs: reportInputs, artifacts };
+  }
+  await writeJSON(reportFile, report);
   await writeJSON(path.join(project, ".ui-review/latest.json"), {
     status: report.status,
+    engineVersion: currentEngineVersion,
     fingerprint: before,
     reportFile,
     ...(plan ? { reportSHA256: await fileDigest(reportFile) } : {}),
@@ -394,5 +461,15 @@ export async function runReview(project, globalDir, incremental = false) {
       ),
     ].slice(0, 5),
   });
-  return { report, reportFile };
+  // Housekeeping cannot erase the published run or change its check result.
+  const retention = await pruneRuns(project, config.runRetention).catch(
+    (error) => ({ error: error.message }),
+  );
+  return {
+    report,
+    reportFile,
+    retention,
+    execution: report.execution,
+    reusedReport: false,
+  };
 }
