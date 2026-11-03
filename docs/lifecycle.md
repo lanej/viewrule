@@ -39,11 +39,13 @@ error when its expectation is justified for the task and viewport.
 
 ## Distribution and compatibility
 
+Codex and other Agent Skills hosts use the portable [skill bundle](agents.md).
 Claude users can install the plugin from this repository's marketplace; see the
 [plugin guide](https://github.com/lanej/viewrule/blob/main/plugins/claude-code/README.md).
 The plugin and engine have separate versions. A plugin release bumps
 `plugins/claude-code/.claude-plugin/plugin.json`; an engine update changes the archive
-URL and checksum in `engine.json` and bumps that plugin version too. Plugin-only
+URL and checksum in `skills/viewrule/engine.json`, regenerates the plugin with
+`npm run agents:build`, and bumps that plugin version too. Plugin-only
 changes do not require an engine release or a `[release]` commit. Setup never updates
 the pin or replaces a published engine. Dotfiles remains an optional installer and
 personal preference source; rerun plugin setup to migrate obsolete Viewrule Stop registrations.
@@ -77,12 +79,13 @@ wording is included in the policy hash and old reports retain their policy text.
 1. Update `package.json`, run `npm install --package-lock-only` to refresh the
    existing shrinkwrap, and write `CHANGELOG.md`. Include migration notes when needed.
 2. Review the change through a pull request. required CI (`npm run test:ci`, also available as `npm test`) packs the distribution,
-   installs it through an isolated copy of the Claude plugin, and runs the one
-   representative workflow through that adapter and installed executable. The copied
+   installs it through isolated copies of the portable skill and Claude plugin, and
+   runs the representative workflows through both adapters and installed executable. The copied
    pin uses the packed archive served by the fixture; production pins stay unchanged.
    It leaves the tested tarball in `dist/`.
-   If updating the plugin in the same release, set its `engine.json` URL/version and
-   SHA-256 from the final archive and bump its manifest version. The plugin manifest and engine pin are not
+   If updating the skill/plugin in the same release, set the canonical
+   `skills/viewrule/engine.json` URL/version and SHA-256 from the final archive, run
+   `npm run agents:build`, and bump the Claude manifest version. The plugin manifest and engine pin are not
    part of the npm archive, so updating them does not change the archive digest.
    The shared guide corpus and guide reader are included in the archive.
    `[release]` PRs and commits verify a matching-version pin against the packed archive;

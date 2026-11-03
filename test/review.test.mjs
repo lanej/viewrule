@@ -257,12 +257,19 @@ test(
     pin.url = `${baseURL}/engine.tgz`;
     pin.sha256 = createHash("sha256").update(archive).digest("hex");
     await writeFile(path.join(plugin, "engine.json"), JSON.stringify(pin));
+    // Codex receives this directory alone, without a marketplace cache or repository.
+    const portable = path.join(project, "agent skills/viewrule");
+    await cp(path.join(repository, "skills/viewrule"), portable, {
+      recursive: true,
+    });
+    await writeFile(path.join(portable, "engine.json"), JSON.stringify(pin));
     const runtime = path.join(project, "runtime data");
     /** @type {NodeJS.ProcessEnv} */
     const env = {
       ...process.env,
       VIEWRULE_CONFIG_DIR: globalDir,
       VIEWRULE_PLUGIN_DATA_DIR: runtime,
+      VIEWRULE_DATA_DIR: path.join(project, "agent runtime"),
       CLAUDE_PLUGIN_ROOT: plugin,
       CLAUDE_CONFIG_DIR: path.join(project, "claude user"),
       CLAUDE_PROJECT_DIR: project,
@@ -280,9 +287,11 @@ test(
         );
         child.stdin.end(input);
       });
-    const cli = (args) =>
+    let launcher = path.join(plugin, "scripts/viewrule.mjs");
+    const cli = (args) => run(process.execPath, [launcher, ...args]);
+    const portableCLI = (args) =>
       run(process.execPath, [
-        path.join(plugin, "scripts/viewrule.mjs"),
+        path.join(portable, "scripts/viewrule.mjs"),
         ...args,
       ]);
     await assert.rejects(readFile(path.join(plugin, "hooks/hooks.json")), {
@@ -350,6 +359,20 @@ test(
       "Legacy global options cannot delegate to an old blocking engine",
     );
     await rm(path.join(project, ".ui-review/config.json"));
+    const portableGuide = await portableCLI(["guide", "P-003"]);
+    assert.equal(portableGuide.code, 0, portableGuide.stderr);
+    assert.equal(portableGuide.stdout, selectedGuide.stdout);
+    const missingEngine = await portableCLI(["--version"]);
+    assert.equal(missingEngine.code, 2);
+    assert.match(missingEngine.stderr, /Run this launcher with setup/);
+    await assert.rejects(
+      readFile(path.join(env.VIEWRULE_DATA_DIR, "install.lock")),
+      { code: "ENOENT" },
+    );
+    const rejectedPortable = await portableCLI(["setup", "--skip-browser"]);
+    assert.equal(rejectedPortable.code, 2);
+    assert.match(rejectedPortable.stderr, /checksum mismatch/);
+    assert.deepEqual(await readdir(env.VIEWRULE_DATA_DIR), []);
     const rejected = await cli(["setup", "--skip-browser"]);
     assert.equal(rejected.code, 2);
     assert.match(rejected.stderr, /checksum mismatch/);
@@ -437,6 +460,28 @@ test(
       }),
     );
     await writeFile(malformedSettings, "{invalid JSON\n");
+    const settingsBeforePortable = await readFile(userSettings, "utf8");
+    const projectBeforePortable = await readFile(projectSettings, "utf8");
+    const portableSetup = await portableCLI([
+      "setup",
+      "--skip-browser",
+      "--project",
+      migrationApp,
+    ]);
+    assert.equal(portableSetup.code, 0, portableSetup.stderr);
+    assert.equal(JSON.parse(portableSetup.stdout).stopHookMigration, undefined);
+    assert.equal(
+      await readFile(userSettings, "utf8"),
+      settingsBeforePortable,
+      "Agent-neutral setup does not edit Claude settings",
+    );
+    assert.equal(
+      await readFile(projectSettings, "utf8"),
+      projectBeforePortable,
+    );
+    assert.ok(
+      JSON.parse(portableSetup.stdout).engine.startsWith(env.VIEWRULE_DATA_DIR),
+    );
     const setup = await cli([
       "setup",
       "--skip-browser",
@@ -493,6 +538,14 @@ test(
       selectedGuide.stdout,
       "Plugin and packed engine read identical canonical guidance",
     );
+    // Exercise the full installed review/feedback/verification workflow through the
+    // standalone skill with no Claude environment. The contract test retains the
+    // Claude adapter path, including worktree and Git gate compatibility.
+    launcher = path.join(portable, "scripts/viewrule.mjs");
+    for (const key of Object.keys(env))
+      if (key.startsWith("CLAUDE_")) delete env[key];
+    delete env.VIEWRULE_PLUGIN_DATA_DIR;
+    assert.equal((await cli(["--version"])).stdout.trim(), pin.version);
     const docs = await cli(["docs"]);
     assert.equal(docs.code, 0, docs.stderr);
     assert.match(
