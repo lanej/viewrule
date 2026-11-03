@@ -4,15 +4,17 @@ Viewrule is a local Node CLI orchestrating a Chromium browser process. The CLI i
 the supported integration boundary; `src/` modules are internal. There is no daemon,
 database service, model dependency, or general plugin framework in 0.3.
 Coding agents are the primary operators; humans supply intent and review judgments.
-The Claude Code plugin is a client of this boundary, using Claude's model to interpret
-rules and evidence while the engine performs deterministic checks.
+The portable Agent Skill and Claude Code plugin are clients of this boundary.
+The host agent interprets rules and evidence while the engine performs deterministic
+checks; no specific agent is required. See [agent integration](agents.md).
 
 ## Ownership
 
 | Location | Owns | Does not own |
 | --- | --- | --- |
 | Viewrule repository | Engine, rule schema, design policy, reports, distribution, regression detector | Personal taste or application code |
-| `plugins/claude-code/` | Setup/review/feedback skills, pinned engine installation, legacy Stop migration | Measurement logic, model self-approval, application source repair logic |
+| `skills/viewrule/` | Shared workflows, guide, pinned engine installation for Agent Skills hosts | Measurement logic, model self-approval, application source repair logic |
+| `plugins/claude-code/` | Generated shared resources, Claude command entrypoints, legacy Stop migration | Measurement logic, model self-approval, application source repair logic |
 | Dotfiles | Installation choices, development-checkout override, personal preferences, legacy Stop-hook migration | A second copy of the engine |
 | Application `.ui-review/` | Routes, selectors, viewports, thresholds, recorded feedback, approved references | Global defaults for unrelated applications |
 
@@ -73,12 +75,13 @@ Plugin cache files are immutable during setup; no parent-repository paths are ne
 | Module | Responsibility |
 | --- | --- |
 | `src/presets.mjs`, `presets/` | Built-in guidance and validated editable starter rules |
-| `plugins/claude-code/scripts/viewrule.mjs` | Pinned installation, CLI delegation, documentation paths, retired Stop compatibility |
+| `skills/viewrule/scripts/runtime.mjs` | Agent-neutral pinned installation, CLI delegation, documentation paths, retired Stop compatibility |
+| `plugins/claude-code/scripts/viewrule.mjs` | Claude adapter retaining its cache and setup-time Stop migration |
 | `plugins/claude-code/scripts/migrate-stop.mjs` | Setup-time migration of known Viewrule Stop handlers in user and project settings |
 | `bin/viewrule.mjs` | Executable, retired Stop compatibility, version, browser installation |
 | `src/cli.mjs` | Command parsing and presentation |
 | `src/git-gate.mjs` | Optional staged/pushed input selection and comparison with reviewed working files |
-| `src/paths.mjs`, `plugins/claude-code/scripts/project.mjs` | User-config location, compatibility environment variables, and dependency-free project discovery shared with the isolated plugin |
+| `src/paths.mjs`, `skills/viewrule/scripts/project.mjs` | User-config location, compatibility environment variables, and dependency-free project discovery shared with the isolated plugin |
 | `src/contract.mjs` | Effective pre-design boundaries, canonical hashes, snapshots, and report-to-report changes |
 | `src/changes.mjs` | Finding identities and approved-review deltas, including unassessed or incomparable evidence |
 | `src/scopes.mjs`, `src/source-scope.mjs`, `src/plan.mjs` | Shared selection, conservative input resolution, and read-only workload plans |
@@ -105,8 +108,8 @@ change. Do not add a generic extension API before a concrete integration needs o
 
 ## Versioned design guidance
 
-Canonical Markdown lives in `plugins/claude-code/guide/v1/` so Claude's isolated
-plugin cache has offline guidance before engine setup. The npm package includes
+Canonical Markdown lives in `skills/viewrule/guide/v1/`; generated physical copies
+let Claude's isolated plugin cache use the same offline guidance before engine setup. The npm package includes
 that same tree and its dependency-free reader. `guide [ID]` runs without a project,
 browser, or configured engine; existing `guidance` retains its preference behavior.
 The index reports stable IDs, summaries, applicability, related rules, and evidence.

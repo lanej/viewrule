@@ -7,7 +7,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = path.resolve(import.meta.dirname, "..");
-const manifestPath = "plugins/claude-code/guide/v1/examples.json";
+const manifestPath = "skills/viewrule/guide/v1/examples.json";
 const bundlePath = "docs/examples/easy-ui";
 const pages = {
   "pricing.html": { anchors: ["pricing"] },

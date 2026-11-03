@@ -22,7 +22,8 @@
     "plugins/**/*.mjs",
     "test/**/*.jsx",
     "docs/examples/*.js",
-    "docs/app/*.js"
+    "docs/app/*.js",
+    "skills/**/*.mjs"
   ],
   "exclude": ["node_modules", "dist"]
 }

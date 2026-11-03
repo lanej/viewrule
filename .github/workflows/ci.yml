@@ -56,7 +56,7 @@ jobs:
         run: npm run analyze
       - name: Check guide and example sources
         if: ${{ !cancelled() && steps.dependencies.outcome == 'success'  }}
-        run: npm run guide:check
+        run: npm run guide:check && npm run agents:check
       - name: Build public site
         if: ${{ !cancelled() && steps.dependencies.outcome == 'success'  }}
         run: npm run site:build
