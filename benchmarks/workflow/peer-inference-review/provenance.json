@@ -1,0 +1,77 @@
+{
+  "version": 1,
+  "scope": "Synthetic peer inference and report overlay geometry; no application or human design approval.",
+  "engineSourceCommit": "fea32e1b73cef5f2cb4c5b350e1ac81ccc6049ec",
+  "sourceTree": "0192b3b2bab19820c3d778172da71c6fbde7c449",
+  "browserVersion": "153.0.8010.0",
+  "capturedAt": "2026-10-02T02:11:36.781Z",
+  "validation": ["npm run check", "npm run check:composition", "npm test"],
+  "localBrowserSubstitution": "Pinned Chromium 151.0.7922.34 download was unavailable; local validation used Chromium 153.0.8010.0. Pinned CI validation is linked separately in the PR.",
+  "preRepairFailures": [
+    {
+      "case": "Member outline includes borders outside measured width",
+      "actualCSSpx": 364.21875,
+      "expectedCSSpx": 360.2326171875
+    },
+    {
+      "case": "Overflow PNG uses viewport-width overlay scale",
+      "actualCSSpx": 324.90625,
+      "expectedCSSpx": 216.60833333333332
+    }
+  ],
+  "observations": [
+    {
+      "page": "peer-inference-good",
+      "viewport": {
+        "name": "compact",
+        "width": 800,
+        "height": 900
+      },
+      "candidates": 0,
+      "findings": []
+    },
+    {
+      "page": "peer-inference-bad",
+      "viewport": {
+        "name": "compact",
+        "width": 800,
+        "height": 900
+      },
+      "candidates": 1,
+      "findings": []
+    },
+    {
+      "page": "peer-inference-overflow",
+      "viewport": {
+        "name": "compact",
+        "width": 800,
+        "height": 900
+      },
+      "candidates": 1,
+      "findings": ["page-overflow"]
+    }
+  ],
+  "archive": {
+    "file": "evidence.tar.gz",
+    "sha256": "d176ff88f27db6ab421284973688a8c2e3fc17a96f9053c02a6410c6f4f4201d",
+    "bytes": 773824
+  },
+  "images": [
+    {
+      "file": "peer-aligned.png",
+      "sha256": "cf9b016ce4ff37a857ee63602d1991d4a12940d6ad111bd783593101f8a8e99e"
+    },
+    {
+      "file": "peer-original.png",
+      "sha256": "f1d82b62abb81771c2cced4d9831bbdf21f27590e6b4d305cc721531eae94a3b"
+    },
+    {
+      "file": "peer-overlay.png",
+      "sha256": "a899bad181d76bd0bec7aed23df1e6c213aacf0b221b0da6c6f2d4c3abbeab68"
+    },
+    {
+      "file": "peer-overflow-overlay.png",
+      "sha256": "8ba98632a2463e0ceb556cb751f9f69e0f2cf3b6e76356a65b7e46abbf1612ca"
+    }
+  ]
+}

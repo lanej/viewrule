@@ -11,6 +11,7 @@ import {
   symlink,
   lstat,
   chmod,
+  rename,
 } from "node:fs/promises";
 import { createHash } from "node:crypto";
 import { tmpdir } from "node:os";
@@ -19,7 +20,10 @@ import { createServer } from "node:http";
 import { createRequire } from "node:module";
 import { execFile } from "node:child_process";
 import { chromium } from "playwright";
+import { PNG } from "pngjs";
 import { inspectPage } from "../src/checks.mjs";
+import { runCompositionScenario } from "./composition-scenario.mjs";
+import { runSavedComparisonScenario } from "./saved-comparison-scenario.mjs";
 import { config } from "./fixtures.mjs";
 import {
   analyticalHtml,
@@ -51,6 +55,27 @@ test(
     const server = createServer(async (req, res) => {
       const pathname = new URL(req.url, "http://localhost").pathname;
       // Exercise deployment below a project prefix, including relative assets.
+      if (pathname.startsWith("/saved-comparison/")) {
+        const file =
+          pathname === "/saved-comparison/"
+            ? "index.html"
+            : pathname.slice("/saved-comparison/".length);
+        if (!["index.html", "app.css", "app.js", "data.js"].includes(file)) {
+          res.writeHead(404);
+          return res.end();
+        }
+        res.setHeader(
+          "Content-Type",
+          file.endsWith(".js")
+            ? "text/javascript"
+            : file.endsWith(".css")
+              ? "text/css"
+              : "text/html",
+        );
+        return res.end(
+          await readFile(path.join(project, "saved-comparison-app/src", file)),
+        );
+      }
       if (pathname.startsWith("/incremental/")) {
         const relative = pathname.slice("/incremental/".length);
         if (
@@ -101,6 +126,12 @@ test(
             "decision.html",
             "decision.js",
             "decision.css",
+            "composition.html",
+            "composition.js",
+            "composition.css",
+            "peer-inference.html",
+            "peer-inference.js",
+            "peer-inference.css",
             "pattern-review.html",
             "pattern-review.js",
             "pattern-review.css",
@@ -979,6 +1010,26 @@ test(
       path.join(path.dirname(output.report), last.file),
     );
     assert.deepEqual([png.readUInt32BE(16), png.readUInt32BE(20)], [1024, 800]);
+    const overviewPage = report.pages.find(
+      (page) => page.viewport.name === "4k",
+    );
+    const overviewPixels = PNG.sync.read(
+      await readFile(
+        path.join(path.dirname(output.report), overviewPage.screenshot),
+      ),
+    );
+    const tilePixels = PNG.sync.read(png);
+    for (let row = 0; row < last.height; row++) {
+      const start = ((last.y + row) * overviewPixels.width + last.x) * 4;
+      assert.deepEqual(
+        tilePixels.data.subarray(
+          row * last.width * 4,
+          (row + 1) * last.width * 4,
+        ),
+        overviewPixels.data.subarray(start, start + last.width * 4),
+        "Detail tiles preserve exact native overview pixels",
+      );
+    }
     const reportHtml = await readFile(output.html, "utf8");
     assert.match(reportHtml, /capture-1-detail-/);
     assert.match(reportHtml, /&quot;max&quot;:160/);
@@ -1017,11 +1068,83 @@ test(
       await readFile(output.report, "utf8"),
     );
 
+    // Old disposable evidence must not grow without bound or take user data with it.
+    const runsRoot = path.join(project, ".ui-review/runs");
+    const oldRun = "2000-01-01T00-00-00-000Z-1234abcd";
+    const linkedOldRun = "2000-01-02T00-00-00-000Z-1234abcd";
+    await cp(path.dirname(output.report), path.join(runsRoot, oldRun), {
+      recursive: true,
+    });
+    const outsideEvidence = path.join(project, "outside-evidence");
+    await mkdir(outsideEvidence);
+    await writeFile(
+      path.join(outsideEvidence, "keep.txt"),
+      "Not disposable evidence",
+    );
+    await symlink(outsideEvidence, path.join(runsRoot, linkedOldRun));
+    await mkdir(path.join(runsRoot, "hand-saved"));
+    const beforePrune = await readdir(runsRoot);
+    const previewPrune = await cli(["prune", "--dry-run"]);
+    assert.equal(previewPrune.code, 0, previewPrune.stderr);
+    assert.ok(JSON.parse(previewPrune.stdout).removed.includes(oldRun));
+    assert.deepEqual(
+      await readdir(runsRoot),
+      beforePrune,
+      "Cleanup preview does not change evidence",
+    );
+    await writeFile(
+      latestPath,
+      JSON.stringify({ ...latestAfterGood, status: "running" }),
+    );
+    const busyPrune = await cli(["prune"]);
+    assert.equal(busyPrune.code, 2);
+    assert.match(busyPrune.stderr, /running or was interrupted/);
+    assert.deepEqual(await readdir(runsRoot), beforePrune);
+    await writeFile(latestPath, latestAfterGoodText);
+    const parkedRuns = path.join(project, ".ui-review/parked-runs");
+    await rename(runsRoot, parkedRuns);
+    await symlink(outsideEvidence, runsRoot);
+    const linkedStorePrune = await cli(["prune"]);
+    assert.equal(linkedStorePrune.code, 2);
+    assert.match(linkedStorePrune.stderr, /not a symlink/);
+    assert.equal(
+      await readFile(path.join(outsideEvidence, "keep.txt"), "utf8"),
+      "Not disposable evidence",
+    );
+    await rm(runsRoot);
+    await rename(parkedRuns, runsRoot);
+
     await writeFile(source, analyticalHtml("sidebar"));
     const alternate = await cli(["check"]);
     assert.equal(alternate.code, 0, alternate.stderr || alternate.stdout);
     const alternateReport = JSON.parse(
       await readFile(JSON.parse(alternate.stdout).report, "utf8"),
+    );
+    const cleanup = JSON.parse(alternate.stdout).retention;
+    assert.ok(
+      cleanup.removed.includes(oldRun),
+      "Completed checks prune aged backlog automatically",
+    );
+    assert.ok(cleanup.retained.length <= 3);
+    assert.ok(cleanup.retained.includes(alternateReport.id));
+    await assert.rejects(lstat(path.join(runsRoot, oldRun)), {
+      code: "ENOENT",
+    });
+    assert.ok(
+      (await lstat(path.join(runsRoot, linkedOldRun))).isSymbolicLink(),
+    );
+    assert.ok((await lstat(path.join(runsRoot, "hand-saved"))).isDirectory());
+    assert.equal(
+      await readFile(path.join(outsideEvidence, "keep.txt"), "utf8"),
+      "Not disposable evidence",
+    );
+    assert.equal(
+      await readFile(
+        path.join(project, ".ui-review", approved.reference, "report.json"),
+        "utf8",
+      ),
+      JSON.stringify(report, null, 2) + "\n",
+      "Approval remains exact after cleanup",
     );
     assert.deepEqual(alternateReport.summary, { errors: 0, warnings: 0 });
     assert.equal(alternateReport.changes.baselineId, report.id);
@@ -1221,6 +1344,13 @@ test(
         appFindings.some((f) => f.rule === id),
         `Mock app should expose ${id}`,
       );
+    await runSavedComparisonScenario({
+      cli,
+      baseURL,
+      project,
+      mockDirectory,
+      repository: path.resolve(import.meta.dirname, ".."),
+    });
     // New policy IDs are first-class without pretending all their semantics are
     // automatically assessed. Both sides use one scoped contract and real DOM.
     const exampleDirectory = path.join(
@@ -1486,6 +1616,267 @@ test(
       ),
     );
 
+    // Same installed workflow: retain both escaped assumptions, their repairs,
+    // legitimate wrapping, and explicit unsupported evidence in one capture.
+    await cp(
+      new URL("./templates/text-legibility.html", import.meta.url),
+      source,
+    );
+    const textRules = [
+      ...[
+        "crowded",
+        "repaired",
+        "wrapped",
+        "clipped",
+        "generated",
+        "visibility-crowded",
+        "generated-visibility",
+        "visibility-repaired",
+      ].map((id) => ({
+        id: `text-${id}`,
+        type: "no-text-overlap",
+        selector: `#${id}`,
+        items: ".label",
+      })),
+      ...["narrow", "wide", "custom"].map((id) => ({
+        id: `select-${id}`,
+        type: "select-label-space",
+        selector: `#${id}`,
+      })),
+    ].map((rule) => ({
+      ...rule,
+      tolerance: 1,
+      severity: "error",
+      reason: "Keep declared task labels readable.",
+    }));
+    const legacyTextRules = [
+      {
+        id: "legacy-label-boxes",
+        type: "no-overlap",
+        selector: "#crowded .label",
+        severity: "error",
+        reason: "Element boxes alone miss this text collision.",
+      },
+      {
+        id: "legacy-select-scroll",
+        type: "no-clip",
+        selector: "#narrow",
+        severity: "error",
+        reason: "Native scroll dimensions alone miss selected text loss.",
+      },
+    ];
+    await writeFile(
+      rulesPath,
+      JSON.stringify([...textRules, ...legacyTextRules]),
+    );
+    await writeFile(
+      path.join(project, ".ui-review/config.json"),
+      JSON.stringify({
+        version: 1,
+        baseURL,
+        sourcePaths: ["src"],
+        accessibility: false,
+        pages: [{ name: "Text legibility", path: "/", ready: "#wide" }],
+        viewports: [{ name: "mobile", width: 390, height: 844 }],
+      }),
+    );
+    const textCheck = await cli(["check"]);
+    assert.equal(textCheck.code, 1, textCheck.stderr || textCheck.stdout);
+    const textFile = JSON.parse(textCheck.stdout).report;
+    const textReport = JSON.parse(await readFile(textFile, "utf8"));
+    const textPage = textReport.pages[0];
+    assert.deepEqual(textPage.findings.map((f) => f.rule).sort(), [
+      "select-custom",
+      "select-narrow",
+      "text-clipped",
+      "text-crowded",
+      "text-generated",
+      "text-generated-visibility",
+      "text-visibility-crowded",
+    ]);
+    const textMeasurements = textPage.metrics.textLegibility;
+    const textMeasurement = (id) => textMeasurements.find((m) => m.rule === id);
+    assert.equal(textMeasurement("text-crowded").overlapCount, 1);
+    assert.ok(textMeasurement("text-crowded").overlaps[0].width > 15);
+    for (const id of [
+      "text-repaired",
+      "text-wrapped",
+      "text-visibility-repaired",
+    ]) {
+      assert.equal(textMeasurement(id).status, "measured");
+      assert.equal(textMeasurement(id).overlapCount, 0);
+    }
+    assert.ok(textMeasurement("text-wrapped").peers[0].fragments >= 2);
+    assert.equal(textMeasurement("text-visibility-crowded").overlapCount, 1);
+    assert.ok(
+      textMeasurement("text-visibility-crowded").overlaps[0].width > 15,
+    );
+    for (const id of ["text-visibility-crowded", "text-visibility-repaired"]) {
+      const measurement = textMeasurement(id);
+      assert.equal(measurement.status, "measured");
+      assert.equal(measurement.peers.length, 3);
+      assert.equal(measurement.peers[0].text, "Queued");
+      assert.equal(
+        textPage.metrics.evaluations.find((r) => r.rule === id).status,
+        "checked",
+      );
+    }
+    const generatedVisibility = textMeasurement("text-generated-visibility");
+    assert.equal(generatedVisibility.peers.length, 3);
+    assert.ok(
+      generatedVisibility.problems.some((problem) =>
+        problem.includes("Generated"),
+      ),
+    );
+    assert.equal(generatedVisibility.overlapCount, undefined);
+    assert.equal(textMeasurement("select-narrow").label, "Warehouse ID");
+    assert.equal(textMeasurement("select-wide").label, "Warehouse ID");
+    assert.equal(
+      textMeasurement("select-narrow").requiredWidth,
+      textMeasurement("select-wide").requiredWidth,
+    );
+    assert.ok(textMeasurement("select-narrow").deficit > 40);
+    assert.equal(textMeasurement("select-wide").deficit, 0);
+    for (const id of [
+      "text-clipped",
+      "text-generated",
+      "text-generated-visibility",
+      "select-custom",
+    ]) {
+      assert.equal(textMeasurement(id).status, "unassessed");
+      assert.ok(textMeasurement(id).problems.length);
+      assert.equal(
+        textPage.metrics.evaluations.find((r) => r.rule === id).status,
+        "unassessed",
+      );
+    }
+    assert.deepEqual(
+      textPage.findings.find((f) => f.rule === "text-crowded").designRules,
+      ["DR-006", "DR-015"],
+    );
+    assert.deepEqual(
+      textPage.findings.find((f) => f.rule === "select-narrow").designRules,
+      ["DR-015"],
+    );
+    await cp(
+      path.dirname(textFile),
+      path.join(repository, "dist/text-legibility-evidence/regression"),
+      { recursive: true },
+    );
+    assert.match(
+      await readFile(path.join(path.dirname(textFile), "index.html"), "utf8"),
+      /Scoped text geometry/,
+    );
+
+    const compositionEvidence = await runCompositionScenario({
+      cli,
+      baseURL,
+      project,
+      rulesPath,
+      exampleDirectory,
+      repository,
+      env,
+    });
+    // Existing captures without annotation regions retain growth states, rather
+    // than inventing boxes or converting saturated/reference yield to zero.
+    const growthReport = path.join(
+      compositionEvidence,
+      "regression-report/report.json",
+    );
+    const growthOutput = path.join(
+      repository,
+      "dist/saved-comparison-evidence/growth-reference",
+    );
+    const growthCompare = await cli([
+      "compare",
+      "--before",
+      growthReport,
+      "--after",
+      growthReport,
+      "--output",
+      growthOutput,
+    ]);
+    assert.equal(growthCompare.code, 0, growthCompare.stderr);
+    const growthComparison = JSON.parse(
+      await readFile(path.join(growthOutput, "comparison.json"), "utf8"),
+    );
+    assert.ok(growthComparison.states.every((s) => s.callouts.length === 0));
+    const growthRows = growthComparison.states
+      .flatMap((s) => s.measurements)
+      .filter((m) => m.label.endsWith("Viewport-growth yield"));
+    assert.ok(
+      growthRows.some(
+        (m) => m.before === "saturated" && m.values.delta === null,
+      ),
+    );
+    assert.ok(
+      growthRows.some(
+        (m) => m.before === "reference" && m.values.delta === null,
+      ),
+    );
+    assert.ok(
+      growthRows.some((m) => m.values.before > 0 && m.values.delta === 0),
+    );
+
+    assert.ok(
+      growthRows.some(
+        (m) => m.before === "unassessed" && m.values.delta === null,
+      ),
+    );
+    // A fresh target cannot establish a derived delta from stale reference evidence.
+    // Target-local geometry remains comparable; the valid pair above still yields 0.
+    const staleRun = path.join(project, "stale-growth-reference");
+    await cp(path.dirname(growthReport), staleRun, { recursive: true });
+    const staleReport = JSON.parse(await readFile(growthReport, "utf8"));
+    const reference = staleReport.pages.find(
+      (p) =>
+        p.name === "economy-good" &&
+        p.checkpoint === "intact" &&
+        p.viewport.name === "compact",
+    );
+    reference.evidence = {
+      kind: "reused",
+      createdAt: "2000-01-01T00:00:00.000Z",
+    };
+    await writeFile(
+      path.join(staleRun, "report.json"),
+      JSON.stringify(staleReport),
+    );
+    const staleOutput = path.join(
+      repository,
+      "dist/saved-comparison-evidence/stale-growth-reference",
+    );
+    const staleCompare = await cli([
+      "compare",
+      "--before",
+      growthReport,
+      "--after",
+      path.join(staleRun, "report.json"),
+      "--output",
+      staleOutput,
+    ]);
+    assert.equal(staleCompare.code, 0, staleCompare.stderr);
+    const staleComparison = JSON.parse(
+      await readFile(path.join(staleOutput, "comparison.json"), "utf8"),
+    );
+    const freshTarget = staleComparison.states.find(
+      (s) =>
+        s.page === "economy-good" &&
+        s.checkpoint === "intact" &&
+        s.viewport.name === "wide",
+    );
+    assert.equal(freshTarget.comparable, true);
+    const dependentYield = freshTarget.measurements.find((m) =>
+      m.label.endsWith("Viewport-growth yield"),
+    );
+    assert.ok(dependentYield.values.before > 0);
+    assert.equal(dependentYield.values.delta, null);
+    assert.match(dependentYield.reason, /Growth reference compact:.*predates/);
+    assert.match(
+      await readFile(path.join(staleOutput, "index.html"), "utf8"),
+      /Growth reference compact:.*predates/,
+    );
+
     const catalog = JSON.parse(
       await readFile(
         path.join(exampleDirectory, "behavior-catalog.json"),
@@ -1530,27 +1921,13 @@ test(
       ),
     );
     const registeredRules = contextSchema.properties.designRules.items.enum;
-    assert.deepEqual(registeredRules.slice(16), [
-      "DR-017",
-      "DR-018",
-      "DR-019",
-      "DR-020",
-    ]);
     for (const example of conformance.examples) {
       assert.equal(example.target, example.id);
       assert.deepEqual(Object.keys(example.rules), registeredRules);
       const failures = [];
       for (const [id, assessment] of Object.entries(example.rules)) {
-        assert.ok(
-          ["pass", "fail", "not-applicable", "unassessed"].includes(
-            assessment.good,
-          ),
-        );
-        assert.ok(
-          ["pass", "fail", "not-applicable", "unassessed"].includes(
-            assessment.bad,
-          ),
-        );
+        assert.ok(["pass", "fail", "not-applicable"].includes(assessment.good));
+        assert.ok(["pass", "fail", "not-applicable"].includes(assessment.bad));
         assert.ok(
           assessment.evidence?.trim(),
           `${example.id}/${id} needs evidence`,
@@ -1561,11 +1938,11 @@ test(
           ),
           `${example.id}/${id} needs a valid evidenceType`,
         );
-        if (["not-applicable", "unassessed"].includes(assessment.good))
+        if (assessment.good === "not-applicable")
           assert.equal(
             assessment.evidenceType,
             "rationale",
-            `${example.id}/${id} ${assessment.good} needs rationale evidence`,
+            `${example.id}/${id} not-applicable needs rationale evidence`,
           );
         assert.notEqual(
           assessment.good,
@@ -1662,7 +2039,7 @@ test(
     }
     await writeFile(
       proposal,
-      JSON.stringify({ ...behaviorRules[0], designRules: ["DR-999"] }),
+      JSON.stringify({ ...behaviorRules[0], designRules: ["DR-021"] }),
     );
     assert.equal(
       (await cli(["add-rule", "--rule", proposal, "--dry-run"])).code,
@@ -2322,8 +2699,45 @@ test(
         "12",
       );
 
+      await page.setViewportSize({ width: 1280, height: 900 });
+      for (const id of ["DR-017", "DR-018", "DR-019", "DR-020"]) {
+        const variants = {};
+        for (const quality of ["good", "bad"]) {
+          await page.goto(
+            `${baseURL}/examples/composition.html?rule=${id}&quality=${quality}`,
+          );
+          await page.waitForSelector(
+            `#composition-examples[data-ready][data-rule="${id}"]`,
+          );
+          variants[quality] = await page
+            .locator(`#${quality} .composition-surface`)
+            .evaluate((surface) => ({
+              text: surface.textContent.replace(/\s+/g, " ").trim(),
+              headings: [...surface.querySelectorAll("h3, h4")].map((el) => ({
+                text: el.textContent,
+                size: globalThis.getComputedStyle(el).fontSize,
+              })),
+              identities: [...surface.querySelectorAll("[data-shipment]")].map(
+                (el) => el.getAttribute("data-shipment"),
+              ),
+              colors: [...surface.querySelectorAll("h3, h4, strong")].map(
+                (el) => globalThis.getComputedStyle(el).color,
+              ),
+              width: surface.getBoundingClientRect().width,
+            }));
+          await page.locator(`#${quality} .composition-surface`).screenshot({
+            path: path.join(compositionEvidence, `${id}-${quality}.png`),
+          });
+        }
+        assert.deepEqual(
+          variants.good,
+          variants.bad,
+          `${id} must preserve task text, identities, heading type, semantic color, and total surface width`,
+        );
+      }
+
       // Every canonical rule owns its examples and resolves links under /viewrule/.
-      for (let number = 1; number <= 16; number++) {
+      for (let number = 1; number <= 20; number++) {
         const id = `DR-${String(number).padStart(3, "0")}`;
         const url = `${baseURL}/viewrule/rules/${id.toLowerCase()}/`;
         await page.goto(url);
@@ -3777,7 +4191,7 @@ test(
       );
     }
     const incrementalSetup =
-      'export default async ({page}) => { await page.locator("main").waitFor(); };\n';
+      'export default async ({page}) => { await page.locator("main").waitFor(); const capture = page.screenshot.bind(page); let calls = 0; page.screenshot = async (...args) => { if (++calls > 1) throw new Error("Redundant browser tile capture"); return capture(...args); }; };\n';
     const incrementalSetupFile = path.join(
       incrementalProject,
       "src/b/setup.mjs",
@@ -3872,15 +4286,17 @@ test(
       const result = await scopeCLI("check", mode);
       const elapsedMs = Math.round(performance.now() - started);
       assert.equal(result.code, expected, result.stderr || result.stdout);
-      const reportFile = JSON.parse(result.stdout).report;
+      const invocation = JSON.parse(result.stdout);
+      const reportFile = invocation.report;
       const report = JSON.parse(await readFile(reportFile, "utf8"));
       workloads.push({
         label,
         elapsedMs,
         status: report.status,
-        execution: report.execution,
+        execution: invocation.execution,
+        reusedReport: invocation.reusedReport,
       });
-      return { report, reportFile };
+      return { report, reportFile, invocation };
     };
     const fullScopeRun = await scopeCheck("full", "--full");
     assert.deepEqual(fullScopeRun.report.execution.browser, {
@@ -3909,13 +4325,41 @@ test(
       await readdir(path.join(incrementalProject, ".ui-review/runs")),
       runsBeforePlan,
     );
+    const evidenceSnapshot = async () => {
+      const root = path.join(incrementalProject, ".ui-review");
+      const snapshot = [];
+      for (const file of [
+        "",
+        ...(await readdir(root, { recursive: true })).sort(),
+      ]) {
+        const metadata = await lstat(path.join(root, file));
+        snapshot.push({
+          file,
+          size: metadata.size,
+          mtime: metadata.mtimeMs,
+          ctime: metadata.ctimeMs,
+          inode: metadata.ino,
+        });
+      }
+      return snapshot;
+    };
+    const beforeReuse = await evidenceSnapshot();
     const reusedScopeRun = await scopeCheck("unchanged");
-    assert.deepEqual(reusedScopeRun.report.execution.browser, {
+    assert.equal(reusedScopeRun.invocation.reusedReport, true);
+    assert.equal(reusedScopeRun.reportFile, fullScopeRun.reportFile);
+    assert.deepEqual(reusedScopeRun.report, fullScopeRun.report);
+    assert.equal(await readFile(scopeLatest, "utf8"), beforePlan);
+    assert.deepEqual(
+      await evidenceSnapshot(),
+      beforeReuse,
+      "Unchanged checks write no evidence or latest state",
+    );
+    assert.deepEqual(reusedScopeRun.invocation.execution.browser, {
       required: 2,
       executed: 0,
       reused: 2,
     });
-    assert.deepEqual(reusedScopeRun.report.execution.sourceChecks, {
+    assert.deepEqual(reusedScopeRun.invocation.execution.sourceChecks, {
       required: 2,
       executed: 0,
       reused: 2,
@@ -3933,13 +4377,13 @@ test(
     );
     assert.equal(
       unchangedScopePlan.browser.captureCount,
-      reusedScopeRun.report.execution.browser.executed,
+      reusedScopeRun.invocation.execution.browser.executed,
     );
     assert.equal(
       unchangedScopePlan.sourceChecks.filter(
         (provider) => provider.action === "run",
       ).length,
-      reusedScopeRun.report.execution.sourceChecks.executed,
+      reusedScopeRun.invocation.execution.sourceChecks.executed,
     );
     for (const page of reusedScopeRun.report.pages) {
       assert.equal(page.evidence.runId, fullScopeRun.report.id);
@@ -3950,12 +4394,6 @@ test(
       );
       assert.deepEqual(page.findings, []);
     }
-    const reusedHTML = await readFile(
-      path.join(path.dirname(reusedScopeRun.reportFile), "index.html"),
-      "utf8",
-    );
-    assert.match(reusedHTML, /Reused capture/);
-    assert.ok(reusedHTML.includes(fullScopeRun.report.id));
     // Runtime bindings outrank incidental source ownership: authentication is
     // global, and a checkpoint belongs to the states that actually execute it.
     await writeFile(incrementalStorageFile, `${incrementalStorage}\n`);
@@ -4119,6 +4557,105 @@ test(
     assert.deepEqual(await verify({ cwd: incrementalProject }), {
       status: "pass",
     });
+    const reusedHTML = await readFile(
+      path.join(path.dirname(localScopeRun.reportFile), "index.html"),
+      "utf8",
+    );
+    assert.match(reusedHTML, /Reused capture/);
+    assert.ok(reusedHTML.includes(fullScopeRun.report.id));
+    // Byte limits can remove every old run without breaking reused evidence or
+    // changing its original capture time. The current report may exceed a budget.
+    await writeIncrementalConfig({
+      ...incrementalConfig,
+      runRetention: { maxBytes: 1 },
+    });
+    const bounded = await scopeCLI("prune");
+    assert.equal(bounded.code, 0, bounded.stderr);
+    const boundedResult = JSON.parse(bounded.stdout);
+    assert.deepEqual(boundedResult.retained, [localScopeRun.report.id]);
+    assert.equal(boundedResult.overBudget, true);
+    await assert.rejects(readFile(fullScopeRun.reportFile), { code: "ENOENT" });
+    await writeIncrementalConfig();
+    assert.deepEqual(await verify({ cwd: incrementalProject }), {
+      status: "pass",
+    });
+    assert.equal(
+      (await scopePlan()).browser.captureCount,
+      0,
+      "Pruning the origin does not invalidate self-contained reused evidence",
+    );
+    // Presentation-only changes rebuild a complete report without recapturing.
+    await rm(path.join(path.dirname(localScopeRun.reportFile), "index.html"));
+    let presented = await scopeCheck("recover-missing-html");
+    assert.equal(presented.invocation.reusedReport, false);
+    assert.equal(presented.invocation.execution.browser.executed, 0);
+    assert.match(
+      await readFile(
+        path.join(path.dirname(presented.reportFile), "index.html"),
+        "utf8",
+      ),
+      /Reused capture/,
+    );
+    for (const scope of ["project", "global"]) {
+      const note = `Keep the ${scope} review context visible.`;
+      const feedback = await scopeCLI(
+        "feedback",
+        "--report",
+        presented.reportFile,
+        "--decision",
+        "adjust",
+        "--scope",
+        scope,
+        "--note",
+        note,
+      );
+      assert.equal(feedback.code, 0, feedback.stderr);
+      presented = await scopeCheck(`${scope}-feedback`);
+      assert.equal(presented.invocation.reusedReport, false);
+      assert.equal(presented.invocation.execution.browser.executed, 0);
+      assert.equal(presented.invocation.execution.sourceChecks.executed, 0);
+      assert.ok(
+        (
+          await readFile(
+            path.join(path.dirname(presented.reportFile), "index.html"),
+            "utf8",
+          )
+        ).includes(note),
+      );
+    }
+    const scopeApproval = await scopeCLI(
+      "feedback",
+      "--report",
+      presented.reportFile,
+      "--decision",
+      "approve",
+      "--note",
+      "Synthetic reference for reuse regression.",
+    );
+    assert.equal(scopeApproval.code, 0, scopeApproval.stderr);
+    const approvedRun = await scopeCheck("approved-reference");
+    assert.equal(approvedRun.invocation.reusedReport, false);
+    assert.equal(approvedRun.invocation.execution.browser.executed, 0);
+    const approvedReuse = await scopeCheck("unchanged-approved-reference");
+    assert.equal(approvedReuse.invocation.reusedReport, true);
+    assert.equal(approvedReuse.reportFile, approvedRun.reportFile);
+    const scopeReferenceFile = path.join(
+      incrementalProject,
+      ".ui-review",
+      JSON.parse(scopeApproval.stdout).reference,
+      presented.report.pages[0].screenshot,
+    );
+    const scopeReferenceBytes = await readFile(scopeReferenceFile);
+    await rm(scopeReferenceFile);
+    const missingReference = await scopeCheck("missing-reference-image");
+    assert.equal(missingReference.invocation.reusedReport, false);
+    assert.equal(missingReference.invocation.execution.browser.executed, 0);
+    assert.ok(
+      missingReference.report.changes.evidence.every(
+        (entry) => entry.status === "not-compared",
+      ),
+    );
+    await writeFile(scopeReferenceFile, scopeReferenceBytes);
     await writeFile(
       path.join(incrementalProject, "src/a/index.html"),
       incrementalHTML("a changed", "different"),

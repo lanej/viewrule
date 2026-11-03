@@ -14,6 +14,9 @@ implemented checks, configuration examples, and the limits of their evidence.
 
 ## Setup and first review
 
+For bounded run history, backlog cleanup, and capture costs, see
+[local evidence storage](evidence-storage.md) (unreleased).
+
 Requires Node 22.18+ and npm. Install the standalone package as described in [README](../README.md).
 The following commands require `Runtime URL:` in the installed `viewrule --help`;
 for older engine 0.7.1, use the [compatibility workflow](#runtime-url-compatibility).
@@ -69,6 +72,10 @@ command, format, and working directory alongside normalized findings. Version is
 configuration provenance; Viewrule does not install or update the provider.
 
 ### Changes since approval
+
+For an explicit pair of saved runs, use [`viewrule compare`](saved-comparisons.md).
+It preserves originals and can render numbered DOM-region annotations and measured
+deltas without recording feedback or changing the approved baseline below.
 
 HTML and JSON lead with new, persistent, and resolved findings relative to the
 last project-approved review, including source-check findings with their provider
@@ -178,6 +185,15 @@ directories are excluded. Without Git, the checker walks the project with those
 same exclusions. An external server's changing data cannot be detected by a source
 hash: rerun captures when data or application state changes.
 
+## Scoped text legibility
+
+`no-text-overlap` compares individual text fragments between authored neighboring
+labels, allowing wrapping. `select-label-space` compares a selected native label's
+intrinsic control width with its actual allocation. Both retain measured or
+unassessed observations in JSON and HTML; unsupported evidence cannot establish
+coverage. Read [semantics, examples, and limitations](text-legibility.md) before
+declaring either contract. Neither is enabled by default.
+
 ## Rules
 
 Put an array in `.ui-review/rules.json`. Project rules override global rules by
@@ -197,6 +213,8 @@ optional components, not required evidence.
 | `relative-position` | `from`, `to`, `relation`, `minGap`, `maxGap`, `tolerance` | Exactly one visible peer at each end, per component; `left-of` or `above` with a shared band and bounded border-box gap in CSS px |
 | `no-overlap` | — | Declared peers must not overlap; ancestor/descendant pairs are excluded. Findings include bounded text excerpts to distinguish anonymous SVG peers |
 | `no-clip` | — | Element's own hidden/clip overflow must not truncate content; does not inspect ancestor clipping |
+| `no-text-overlap` | `items`, `tolerance` | Compare rendered text fragments between declared descendant peers within each selected group; CSS px. Wrapping is allowed; see [scope and limits](#scoped-text-legibility). |
+| `select-label-space` | `tolerance` | Selected native dropdown label receives at least its single-option intrinsic control width in this browser, within CSS-pixel tolerance; see [scope and limits](#scoped-text-legibility). |
 | `visible-count` | `min` | At least this many complete element boxes fit in the initial viewport; does not detect occlusion |
 | `max-height` | `max` | Maximum element height in CSS pixels, useful for task-specific density warnings |
 | `min-font-size` | `min` | Minimum computed CSS font size of visible descendant DOM text; empty text scope fails |
@@ -210,6 +228,11 @@ optional components, not required evidence.
 | `evidence-proximity` | `evidence`, `decision`, `maxDistance` | Shortest Euclidean gap between two declared text bounds, in CSS px, per selected decision surface |
 | `mark-contrast` | `substrate`, `minRatio` | Computed opaque CSS background-color contrast between an HTML mark and its containing solid HTML substrate |
 | `region-density` | `region`, `measure`, `minCoverage`, `maxVerticalGap` | Union coverage of selected content within the visible part of one region, plus its largest empty vertical band |
+| `alignment-residual` | `items`, `edge`, `maxResidual` | Maximum absolute peer-edge/center deviation from the group's median anchor, in CSS px; at least two items per selected group |
+| `gap-variance` | `items`, `axis`, `maxCoefficientOfVariation` | Population standard deviation divided by mean adjacent border-box gap; at least three items per selected group |
+| `peer-footprint` | `items`, `measure`, `maxCoefficientOfVariation` | Population coefficient of variation of peer `area` or `font-size`; at least two items per selected equal-priority group |
+| `chrome-allocation` | `items`, `maxRatio` | Union area of declared chrome divided by the visible area of exactly one selected usable region |
+| `viewport-growth-yield` | `items`, `keyAttribute`, `referenceViewport`, `minYield`, `minFontSize`; optional `finiteKeys` | Fractional qualifying evidence growth divided by fractional usable region area growth, with reference identity preservation |
 
 Page-level horizontal overflow and axe WCAG A/AA checks run independently of
 selector rules. Intentional horizontal scrolling belongs inside a local container.
@@ -217,12 +240,33 @@ See [reading layouts](reading-layout.md) for complete rules, optional group sema
 print/enlarged-text capture, and the migration from a site-owned essay detector.
 See [component relationships](component-relationships.md) for per-item presence,
 positions and spacing, and list-to-detail SVG continuity with explicit limits.
-The checker cannot infer which elements should align, certify the meaning of metric
-context, or inspect canvas chart scales. Those need explicit configuration and
-visual/domain review. Attribute checks can inspect metadata generated by the
-renderer, but cannot prove it matches the image. Zero custom rules means only
-overflow, accessibility, and capture integrity are covered. Per-design-rule
-coverage is recorded in HTML and JSON; unassessed requirements are not passes.
+Configured checks do not infer which elements are contractual peers, certify the
+meaning of metric context, or inspect canvas chart scales. Those still need explicit
+configuration and visual/domain review. As advisory discovery, every rendered check
+also looks for visible text-entry controls that are side by side, similar in height,
+and connected by a nearby grid or flex layout. When an inferred row's top-anchor
+residual exceeds the larger of 4 CSS px or 10% of its median control height, the
+report records a `metrics.peerInference` candidate citing DR-017. This candidate
+does not become a finding, affect the exit code, establish semantic peer membership,
+or choose a project tolerance. It is evidence for review and possible rule authoring.
+The HTML report draws each candidate over the saved capture using only this recorded
+geometry: a dashed inferred-group boundary, member control boxes, the median top
+anchor, and each member's signed offset. The overlay can be toggled off, and the
+capture link still opens the original PNG bytes. No pixel analysis is used to create
+or move the overlay. The coordinate scale uses the recorded full-page capture
+extents, including horizontal overflow, rather than assuming viewport width.
+Member boxes retain negative origins and their measured sizes; the image frame
+clips offscreen portions instead of shifting their visible edges.
+This makes the inferred structure inspectable without turning the inference into
+a rule.
+
+Checkboxes, radios, range/color/file controls, buttons, custom widgets, transformed
+optical alignment, and relationships outside the local layout heuristic remain
+unassessed. Attribute checks can inspect metadata generated by the renderer, but
+cannot prove it matches the image. Zero custom rules therefore still means only
+overflow, accessibility, and capture integrity can fail the run; advisory peer
+candidates may additionally appear. Per-design-rule coverage is recorded in HTML
+and JSON; unassessed requirements are not passes.
 
 New `init` projects receive the [baseline preset](defaults.md); use `--preset analytical`
 for declared comparisons. Existing projects retain their rules. `viewrule preset
@@ -232,7 +276,7 @@ are specified; populate it for a named critical set. All active count targets st
 need configuration. Neither text size nor text distance proves visual readability
 or semantic relevance; see [measurement limits](defaults.md#measurement-limits-and-evidence).
 
-Checks cite `DR-001` through `DR-016` using their type's default mapping or an
+Checks cite `DR-001` through `DR-020` using their type's default mapping or an
 explicit `designRules` array. `attribute` requires an explicit citation. Optional
 `requiredDesignRules` in project config makes missing executed evidence for the
 listed IDs an error in each configured page/viewport. This is a coverage
@@ -442,10 +486,137 @@ supporting content instead of rewarding the large map's bounding box. Use existi
 would overstate what geometry can establish. Readable-type and map-size rules prevent
 compression from becoming smaller text or an unreadable geographic thumbnail.
 
-## Composition and viewport-growth yield
+## Composition contracts
 
-[Composition contracts](composition.md) document DR-017–DR-020 and the optional
-`comparison-set.growthYield` field (`min`, `availableKeys`). The finite inventory
-caps the required growth count; duplicated or stretched boxes do not earn yield.
-Existing configurations and presets remain unchanged. JSON reports expose
-`pages[].viewportGrowth`; missing prerequisites remain unassessed, not a pass.
+DR-017–DR-020 provide opt-in relational measurements. They have no default numeric
+thresholds and do not score a page's aesthetics. Declare the task, peers, intended
+relationships, and supported states first. The
+[paired examples](examples/composition.html) keep the task and content explicit.
+
+For `alignment-residual`, `gap-variance`, and `peer-footprint`, `selector` identifies
+groups and `items` identifies descendant peers within each group. Nested selected
+groups own their descendants; peers within a group cannot contain one another.
+Hidden responsive variants are excluded. These three checks use rendered geometry
+even outside the initial viewport; they do not establish simultaneous visibility.
+Missing required groups or too few peers produce findings at the configured
+severity and cannot establish measurement coverage. An absent optional group
+remains unassessed.
+
+- `alignment-residual`: Choose `edge` from `left`, `right`, `top`, `bottom`,
+  `center-x`, or `center-y`. For at least two peers, find the median selected
+  coordinate (the mean of the two middle coordinates for an even count), then
+  compare the largest absolute deviation with `maxResidual` (nonnegative CSS px).
+  This tests one intended anchor per group, not the number of anchors on a page.
+  Existing `align` measures full edge spread, so its tolerance has a different
+  meaning. Neither check measures text baselines or optical alignment.
+- `gap-variance`: Choose `axis: "x"` or `"y"`. At least three peers must share
+  a row or column band on the other axis. Sort by the selected axis's leading
+  coordinate and measure adjacent border-box gaps in CSS px. Negative gaps are
+  invalid overlapping sequences. Compare population standard deviation divided
+  by mean gap with `maxCoefficientOfVariation` (nonnegative, dimensionless).
+  All-zero gaps have zero variation. A uniform gap can still be inappropriate;
+  use separate `relative-position` or `max-text-gap` bounds when absolute distance
+  matters. Multiple rows or mixed relationship types need separate groups.
+- `peer-footprint`: Choose `measure: "area"` for border-box width × height in
+  CSS px² or `"font-size"` for the selected item's computed CSS size in CSS px.
+  Font-size comparisons include labels whose text renders through
+  `display: contents`, even though the selected label has no border box.
+  Hidden labels remain excluded; geometric measurements need box-generating items.
+  At least two peers must have positive finite measurements. Compare population
+  standard deviation divided by mean with `maxCoefficientOfVariation`. For
+  example, equal measurements have zero variation. Declare equal-priority peers;
+  size equality across unrelated roles is not required. Neither proxy measures
+  perceived prominence, contrast, optical size, or every descendant's type.
+
+`chrome-allocation` uses `selector` for exactly one visible usable region and
+`items` for its declared chrome descendants. At least one visible chrome item is
+required; an empty selector does not establish a zero-chrome result. Clip the region
+to the initial viewport, clip chrome rectangles to that intersection, then divide
+their union area by region area. `maxRatio` ranges from 0 to 1. Nested and overlapping
+chrome rectangles count once; offscreen portions do not count. A zero-area usable
+region is unassessed. The project decides whether labels, navigation, or controls
+are chrome and whether their allocation is warranted. Transparent parts of a box
+still count; this is geometry, not painted-pixel or information-density analysis.
+
+`viewport-growth-yield` also selects exactly one usable region, with descendant
+`items` identifying task evidence. `keyAttribute` must expose stable identities
+from the underlying task, not row position or the displayed number. Use an `items`
+selector that still matches when an identity attribute is removed. Missing keys,
+duplicates among visible selected items, and keys outside a declared `finiteKeys`
+universe invalidate the observation; they do not improve the count. Hidden
+responsive variants are excluded.
+
+An item qualifies only when its full border box and visible DOM text bounds fit
+inside the region/initial-viewport intersection, are not clipped by ancestor
+overflow, and its visible DOM text meets `minFontSize` (positive CSS px). A text-free
+item does not qualify. Reports retain excluded items and reasons. This model does
+not detect all occlusion, painted shape boundaries, pseudo-element or canvas text,
+optical text size, or relevance. Give each item a coherent evidence unit; splitting
+one fact into several annotated elements cannot establish more useful information.
+
+Overflow bounds use the padding edges painted by the capture browser, which hides
+native scrollbars. Reserved scrollbar gutters affect layout but do not, by
+themselves, exclude evidence painted into that space. Content beyond the captured
+overflow boundary still does not qualify.
+
+For each non-reference target, compare with the explicitly named `referenceViewport`
+of the **same page and checkpoint**. Both captures must exist within the rule's
+and page's viewport scope; configuration requires the reference and at least one
+other capture. With `A` the visible usable-region area in CSS px² and `N` the
+qualifying distinct identity count, calculate:
+
+```text
+areaGrowth     = (Atarget - Areference) / Areference
+evidenceGrowth = (Ntarget - Nreference) / Nreference
+yield          = evidenceGrowth / areaGrowth
+```
+
+Compare the unrounded, dimensionless yield with `minYield` (nonnegative). For
+example, doubling usable area while growing from 4 to 6 qualifying items gives
+`0.5 / 1 = 0.5`; stretching the same four items gives zero. Every qualifying
+reference identity must still qualify at the target even if the target count
+increases. Counts and reference area must be positive, target usable area must
+strictly grow, and neither target viewport dimension may shrink. Missing or invalid
+reference evidence, zero qualifying evidence, or a non-growing region is
+**unassessed**, with a finding at the configured severity; no numeric yield is
+claimed. The reference reports `reference` status and its observed identity,
+legibility, and area evidence, with no yield comparison against itself.
+
+Optional `finiteKeys` is a nonempty, unique list of trimmed identities declaring
+the exhaustive task universe. Only when every key qualifies at both reference and
+target is the `minYield` threshold exempt. Reports label that comparison `saturated`;
+its zero growth is not presented as a positive return. The area-growth and validity
+requirements still apply. Reaching the full set only at the target is not exempt.
+An incomplete reference therefore cannot waive growth by declaring the target's
+visible identities finite.
+
+Example project contract, assuming the page captures `desktop` and `large`:
+
+```json
+{
+  "id": "queue-growth",
+  "type": "viewport-growth-yield",
+  "selector": "[data-task-region=queue]",
+  "items": "[data-queue-evidence]",
+  "keyAttribute": "data-evidence-key",
+  "referenceViewport": "desktop",
+  "minYield": 0.5,
+  "minFontSize": 14,
+  "viewports": ["desktop", "large"],
+  "severity": "error",
+  "reason": "Use additional queue area to expose more relevant shipments while preserving the reference set."
+}
+```
+
+The numbers are illustrative project choices. A task whose main benefit is a larger
+map or richer detail within an existing identity needs a different evidence unit or
+a different contract. Apply separate context, required-evidence, and readable-type
+constraints as needed; yield alone cannot establish that the right facts are shown.
+There is no requirement to fill the viewport, eliminate useful whitespace, make
+all peers equal, or impose symmetry.
+
+JSON reports retain per-group anchors, gaps, footprints, chrome area/ratios, and
+invalidity reasons under `metrics.composition`. `metrics.growth` retains local
+areas, qualifying identities, exclusions, and comparative growth, yield,
+preservation, or saturation status. Findings and HTML reports cite the corresponding
+design rules. An executed partial check does not certify the whole rule.

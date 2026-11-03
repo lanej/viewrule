@@ -5,6 +5,12 @@ export function inspectPage(rules) {
   /** @type {import("./types.js").Finding[]} */
   const findings = [];
   const density = [];
+  /** @type {import("./types.js").CompositionMeasurement[]} */
+  const composition = [];
+  /** @type {import("./types.js").GrowthMeasurement[]} */
+  const growth = [];
+  /** @type {import("./types.js").TextLegibilityMeasurement[]} */
+  const textLegibility = [];
   const repeatedMetrics = [],
     evidenceDistances = [],
     markContrasts = [];
@@ -32,6 +38,29 @@ export function inspectPage(rules) {
     while ((node = walker.nextNode()))
       if (node.textContent.trim() && visible(node.parentElement))
         nodes.push(node);
+    return nodes;
+  };
+  const renderedTextNodes = (el) => {
+    const nodes = [],
+      walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+    let node;
+    while ((node = walker.nextNode())) {
+      if (
+        !node.textContent.trim() ||
+        getComputedStyle(node.parentElement).visibility !== "visible"
+      )
+        continue;
+      // A display:contents parent has no box, but its text still renders and
+      // inherits its type size. Test the text range and nearest generated box.
+      let box = node.parentElement;
+      while (box && getComputedStyle(box).display === "contents")
+        box = box.parentElement;
+      if (!box?.checkVisibility({ checkOpacity: true })) continue;
+      const range = document.createRange();
+      range.selectNodeContents(node);
+      if ([...range.getClientRects()].some((r) => r.width > 0 && r.height > 0))
+        nodes.push(node);
+    }
     return nodes;
   };
   const textBounds = (el) => {
@@ -99,6 +128,472 @@ export function inspectPage(rules) {
         : null,
     });
   const width = document.documentElement.clientWidth;
+  const viewportBounds = { left: 0, right: width, top: 0, bottom: innerHeight };
+  const clipBox = (box, bounds) => ({
+    left: Math.max(box.left, bounds.left),
+    right: Math.min(box.right, bounds.right),
+    top: Math.max(box.top, bounds.top),
+    bottom: Math.min(box.bottom, bounds.bottom),
+  });
+  const boxArea = (box) =>
+    Math.max(0, box.right - box.left) * Math.max(0, box.bottom - box.top);
+  const inside = (box, bounds) =>
+    box.left >= bounds.left &&
+    box.right <= bounds.right &&
+    box.top >= bounds.top &&
+    box.bottom <= bounds.bottom;
+  const hasBoxTransform = (el) => {
+    for (let current = el; current; current = current.parentElement) {
+      const style = getComputedStyle(current);
+      if (style.display === "contents") continue;
+      if (
+        Number(style.zoom) !== 1 ||
+        style.perspective !== "none" ||
+        (style.scale !== "none" &&
+          style.scale.split(" ").some((value) => Number(value) !== 1)) ||
+        (style.rotate !== "none" &&
+          !/(?:^| )0(?:deg|rad|grad|turn)$/.test(style.rotate))
+      )
+        return true;
+      if (style.transform !== "none") {
+        const matrix = new DOMMatrix(style.transform);
+        if (
+          [matrix.m11, matrix.m22, matrix.m33, matrix.m44].some(
+            (value) => value !== 1,
+          ) ||
+          [
+            matrix.m12,
+            matrix.m13,
+            matrix.m14,
+            matrix.m21,
+            matrix.m23,
+            matrix.m24,
+            matrix.m31,
+            matrix.m32,
+            matrix.m34,
+          ].some((value) => value !== 0)
+        )
+          return true;
+      }
+    }
+    return false;
+  };
+  const overflowBounds = (el, style) => {
+    const bounds = rect(el),
+      number = (value) => parseFloat(value) || 0,
+      borderLeft = number(style.borderLeftWidth),
+      borderRight = number(style.borderRightWidth),
+      borderTop = number(style.borderTopWidth),
+      borderBottom = number(style.borderBottomWidth);
+    // Recover fractional padding edges from the rendered box. The capture
+    // browser hides native scrollbars: reserved gutters change layout, but do
+    // not clip painted evidence inside the padding box.
+    let layoutWidth =
+      number(style.width) +
+      (style.boxSizing === "border-box"
+        ? 0
+        : borderLeft +
+          borderRight +
+          number(style.paddingLeft) +
+          number(style.paddingRight));
+    let layoutHeight =
+      number(style.height) +
+      (style.boxSizing === "border-box"
+        ? 0
+        : borderTop +
+          borderBottom +
+          number(style.paddingTop) +
+          number(style.paddingBottom));
+    // For content-box sizing, CSSOM's used size excludes reserved gutters.
+    // Restore their integer allocation only when deriving transformed scale.
+    if (style.boxSizing !== "border-box") {
+      layoutWidth += Math.max(0, el.offsetWidth - Math.round(layoutWidth));
+      layoutHeight += Math.max(0, el.offsetHeight - Math.round(layoutHeight));
+    }
+    // CSSOM rounds serialized sizes. Preserve scale 1 for ordinary boxes and
+    // pure translations instead of inferring a transform from that rounding.
+    const transformed = hasBoxTransform(el);
+    const scale = (rendered, layout) =>
+      transformed && layout > 0 ? rendered / layout : 1;
+    const scaleX = scale(bounds.width, layoutWidth),
+      scaleY = scale(bounds.height, layoutHeight);
+    return {
+      left: bounds.left + borderLeft * scaleX,
+      right: bounds.right - borderRight * scaleX,
+      top: bounds.top + borderTop * scaleY,
+      bottom: bounds.bottom - borderBottom * scaleY,
+    };
+  };
+  const positionedContainer = (el, fixed) => {
+    let candidate = el.offsetParent;
+    // offsetParent can stop at an effective-zoom boundary that does not
+    // establish a containing block. Continue past those plain static boxes.
+    while (candidate) {
+      const style = getComputedStyle(candidate);
+      if (
+        (!fixed && style.position !== "static") ||
+        [
+          "transform",
+          "translate",
+          "rotate",
+          "scale",
+          "perspective",
+          "filter",
+          "backdropFilter",
+        ].some((property) => style[property] !== "none") ||
+        /\b(layout|paint|strict|content)\b/.test(style.contain) ||
+        /\b(transform|translate|rotate|scale|perspective|filter|backdrop-filter|contain)\b/.test(
+          style.willChange,
+        ) ||
+        style.contentVisibility === "auto"
+      )
+        return candidate;
+      candidate = candidate.offsetParent;
+    }
+    return null;
+  };
+  const unclipped = (box, subject, includeSelf = false) => {
+    let containingBlock = null;
+    for (let el = subject; el; el = el.parentElement) {
+      // Out-of-flow content bypasses overflow ancestors between it and its
+      // containing block. offsetParent supplies Chromium's actual boundary,
+      // including transformed containing blocks for fixed-position content.
+      if (containingBlock && el !== containingBlock) continue;
+      containingBlock = null;
+      const style = getComputedStyle(el);
+      if (
+        (includeSelf || el !== subject) &&
+        style.display !== "contents" &&
+        (style.overflowX !== "visible" || style.overflowY !== "visible")
+      ) {
+        const bounds = overflowBounds(el, style);
+        if (
+          (style.overflowX !== "visible" &&
+            (box.left < bounds.left || box.right > bounds.right)) ||
+          (style.overflowY !== "visible" &&
+            (box.top < bounds.top || box.bottom > bounds.bottom))
+        )
+          return false;
+      }
+      if (
+        el instanceof HTMLElement &&
+        style.display !== "contents" &&
+        ["absolute", "fixed"].includes(style.position)
+      ) {
+        containingBlock = positionedContainer(el, style.position === "fixed");
+        // A null containing block is the viewport, checked by inside().
+        if (!containingBlock) return true;
+      }
+    }
+    return true;
+  };
+  const unionArea = (rectangles) => {
+    const boxes = rectangles.filter((box) => boxArea(box) > 0);
+    const xs = [...new Set(boxes.flatMap((box) => [box.left, box.right]))].sort(
+      (a, b) => a - b,
+    );
+    let area = 0;
+    for (let i = 1; i < xs.length; i++) {
+      let length = 0,
+        end = -Infinity;
+      const intervals = boxes
+        .filter((box) => box.left < xs[i] && box.right > xs[i - 1])
+        .map((box) => [box.top, box.bottom])
+        .sort((a, b) => a[0] - b[0]);
+      for (const [a, b] of intervals) {
+        length += Math.max(0, b - Math.max(a, end));
+        end = Math.max(end, b);
+      }
+      area += (xs[i] - xs[i - 1]) * length;
+    }
+    return area;
+  };
+  const variation = (values) => {
+    const mean = values.reduce((sum, value) => sum + value, 0) / values.length;
+    const variance =
+      values.reduce((sum, value) => sum + (value - mean) ** 2, 0) /
+      values.length;
+    return {
+      mean,
+      coefficientOfVariation: mean ? Math.sqrt(variance) / mean : 0,
+    };
+  };
+  const inferPeerGroups = () => {
+    const controlSelector = [
+      'input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="file"]):not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="image"])',
+      "select",
+      "textarea",
+    ].join(",");
+    const controls = [...document.querySelectorAll(controlSelector)]
+      .filter(
+        (element) =>
+          element instanceof HTMLInputElement ||
+          element instanceof HTMLSelectElement ||
+          element instanceof HTMLTextAreaElement,
+      )
+      .filter(visible)
+      .map((element) => ({ element, box: rect(element) }));
+    if (controls.length < 2) return [];
+
+    const layoutAncestor = (a, b) => {
+      let current = a.parentElement,
+        depth = 0;
+      while (current && current !== document.body && depth < 7) {
+        if (current.contains(b)) {
+          const display = getComputedStyle(current).display;
+          if (["grid", "inline-grid", "flex", "inline-flex"].includes(display))
+            return current;
+        }
+        current = current.parentElement;
+        depth++;
+      }
+      return null;
+    };
+    const label = (element) => {
+      const aria = element.getAttribute("aria-label")?.trim();
+      if (aria) return aria.slice(0, 80);
+      const associated = [...(element.labels ?? [])]
+        .map((item) => item.textContent.trim().replace(/\s+/g, " "))
+        .find(Boolean);
+      return (
+        associated?.slice(0, 80) ||
+        element.getAttribute("name") ||
+        element.id ||
+        describe(element)
+      );
+    };
+    const parent = controls.map((_, index) => index);
+    const find = (index) => {
+      while (parent[index] !== index) {
+        parent[index] = parent[parent[index]];
+        index = parent[index];
+      }
+      return index;
+    };
+    const unite = (a, b) => {
+      const left = find(a),
+        right = find(b);
+      if (left !== right) parent[right] = left;
+    };
+    for (let i = 0; i < controls.length; i++)
+      for (let j = i + 1; j < controls.length; j++) {
+        const a = controls[i],
+          b = controls[j];
+        const minHeight = Math.min(a.box.height, b.box.height),
+          maxHeight = Math.max(a.box.height, b.box.height);
+        if (!minHeight || minHeight / maxHeight < 0.75) continue;
+        const centerA = a.box.top + a.box.height / 2,
+          centerB = b.box.top + b.box.height / 2;
+        if (Math.abs(centerA - centerB) > Math.max(30, maxHeight * 0.8))
+          continue;
+        const overlap =
+          Math.min(a.box.right, b.box.right) - Math.max(a.box.left, b.box.left);
+        if (overlap > Math.min(a.box.width, b.box.width) * 0.25) continue;
+        const layout = layoutAncestor(a.element, b.element);
+        if (!layout) continue;
+        const layoutBox = rect(layout);
+        if (layoutBox.height > Math.max(240, maxHeight * 6)) continue;
+        unite(i, j);
+      }
+
+    const groups = new Map();
+    controls.forEach((control, index) => {
+      const root = find(index),
+        group = groups.get(root) ?? [];
+      group.push(control);
+      groups.set(root, group);
+    });
+    const candidates = [];
+    for (const group of groups.values()) {
+      if (group.length < 2 || group.length > 6) continue;
+      const centers = group.map(({ box }) => box.top + box.height / 2),
+        heights = group.map(({ box }) => box.height),
+        rowSpread = Math.max(...centers) - Math.min(...centers),
+        medianHeight = [...heights].sort((a, b) => a - b)[
+          Math.floor(heights.length / 2)
+        ];
+      if (rowSpread > Math.max(30, medianHeight * 0.8)) continue;
+      const anchors = group.map(({ box }) => box.top),
+        sorted = [...anchors].sort((a, b) => a - b),
+        middle = Math.floor(sorted.length / 2),
+        median =
+          sorted.length % 2
+            ? sorted[middle]
+            : (sorted[middle - 1] + sorted[middle]) / 2,
+        maxResidual = Math.max(
+          ...anchors.map((anchor) => Math.abs(anchor - median)),
+        ),
+        discoveryThreshold = Math.max(4, medianHeight * 0.1);
+      if (maxResidual <= discoveryThreshold) continue;
+      let container = group[0].element.parentElement;
+      while (
+        container &&
+        !group.every(({ element }) => container.contains(element))
+      )
+        container = container.parentElement;
+      const layout =
+        container &&
+        ["grid", "inline-grid", "flex", "inline-flex"].includes(
+          getComputedStyle(container).display,
+        )
+          ? getComputedStyle(container).display
+          : "nested";
+      candidates.push({
+        kind: "form-control-alignment",
+        status: "review",
+        container: container ? describe(container) : null,
+        layout,
+        edge: "top",
+        anchors,
+        median,
+        maxResidual,
+        discoveryThreshold,
+        controls: group.map(({ element, box }) => ({
+          element: describe(element),
+          label: label(element),
+          type:
+            element instanceof HTMLInputElement
+              ? element.type
+              : element.tagName.toLowerCase(),
+          box: {
+            x: box.x + scrollX,
+            y: box.y + scrollY,
+            width: box.width,
+            height: box.height,
+          },
+        })),
+        signals: [
+          "same class of visible form control",
+          "shared nearby grid or flex layout",
+          "side-by-side horizontal placement",
+          "similar rendered control heights",
+        ],
+        designRules: ["DR-017"],
+        reason:
+          "These visible form controls appear to be peers in one horizontal control row, but their top anchors diverge.",
+        suggestion:
+          "Review whether the controls are intended peers. If so, normalize label or sublabel slots so the controls share an anchor, then materialize a scoped DR-017 rule when the relationship is contractual.",
+      });
+    }
+    return candidates;
+  };
+  const peerInference = inferPeerGroups();
+  const compositionTypes = [
+    "alignment-residual",
+    "gap-variance",
+    "peer-footprint",
+    "chrome-allocation",
+  ];
+  const textTypes = ["no-text-overlap", "select-label-space"];
+  const generatedText = (el) => {
+    // A pseudo-element can restore visibility independently of its hidden host.
+    // Check whether its box tree renders without requiring host visibility.
+    let box = el;
+    while (box && getComputedStyle(box).display === "contents")
+      box = box.parentElement;
+    if (!box?.checkVisibility({ checkOpacity: true })) return false;
+    return ["::before", "::after"].some((pseudo) => {
+      const style = getComputedStyle(el, pseudo);
+      return (
+        style.display !== "none" &&
+        style.visibility === "visible" &&
+        !["none", "normal", '""'].includes(style.content)
+      );
+    });
+  };
+  const visibleTextPeer = (el) => {
+    // Descendants can restore visibility inside a hidden wrapper. Keep that
+    // rendered text in its declared peer instead of silently dropping it.
+    if (
+      visible(el) ||
+      renderedTextNodes(el).length ||
+      [el, ...el.querySelectorAll("*")].some(generatedText)
+    )
+      return true;
+    const style = getComputedStyle(el);
+    if (style.display !== "contents" || style.visibility !== "visible")
+      return false;
+    let parent = el.parentElement;
+    while (parent && getComputedStyle(parent).display === "contents")
+      parent = parent.parentElement;
+    // Include an empty/generated boxless peer so it cannot silently disappear
+    // from the contract. Hidden ancestors still exclude responsive alternatives.
+    return (
+      parent?.checkVisibility({
+        checkOpacity: true,
+        checkVisibilityCSS: true,
+      }) ?? false
+    );
+  };
+  // Range rectangles describe layout fragments, not painted glyphs. Reject
+  // geometry that would make those rectangles misleading before comparing them.
+  const textGeometryProblem = (el) => {
+    if (!(el instanceof HTMLElement)) return "Only HTML text is supported.";
+    if (hasBoxTransform(el)) return "Scaled or rotated text is unsupported.";
+    for (let current = el; current; current = current.parentElement) {
+      const style = getComputedStyle(current);
+      if (style.writingMode !== "horizontal-tb")
+        return "Vertical writing is unsupported.";
+      if (
+        style.clipPath !== "none" ||
+        style.maskImage !== "none" ||
+        style.clip !== "auto" ||
+        style.filter !== "none" ||
+        style.textShadow !== "none" ||
+        parseFloat(style.webkitTextStrokeWidth) > 0 ||
+        /\b(paint|strict|content)\b/.test(style.contain)
+      )
+        return "Clipping or paint effects require visual review.";
+    }
+    return null;
+  };
+  const selectedLabelWidth = (el, style, label) => {
+    // Ask this browser's native layout for a one-option select's intrinsic
+    // border-box width, including its theme allocation. Never guess an arrow
+    // inset or infer native clipping from scrollWidth. Shadow isolation avoids
+    // duplicate IDs and application selectors affecting the probe.
+    const values = [...style].map((key) => [key, style.getPropertyValue(key)]);
+    const host = document.createElement("div");
+    host.style.cssText =
+      "all:initial!important;position:fixed!important;inset:0 auto auto 0!important;width:0!important;height:0!important;visibility:hidden!important;contain:strict!important;";
+    const root = host.attachShadow({ mode: "closed" });
+    const probe = document.createElement("select");
+    probe.lang = el.closest("[lang]")?.getAttribute("lang") || "";
+    for (const [key, value] of values)
+      probe.style.setProperty(key, value, "important");
+    for (const [key, value] of Object.entries({
+      position: "fixed",
+      inset: "0 auto auto 0",
+      display: "inline-block",
+      width: "max-content",
+      height: "auto",
+      "min-width": "0",
+      "max-width": "none",
+      "min-height": "0",
+      "max-height": "none",
+      margin: "0",
+      "aspect-ratio": "auto",
+      contain: "none",
+      "content-visibility": "visible",
+      "field-sizing": "fixed",
+      visibility: "hidden",
+      animation: "none",
+      transition: "none",
+      transform: "none",
+      translate: "none",
+      rotate: "none",
+      scale: "none",
+    }))
+      probe.style.setProperty(key, value, "important");
+    probe.append(new Option(label));
+    root.append(probe);
+    try {
+      document.documentElement.append(host);
+      return rect(probe).width;
+    } finally {
+      host.remove();
+    }
+  };
   const overflow =
     Math.max(
       document.documentElement.scrollWidth,
@@ -128,6 +623,42 @@ export function inspectPage(rules) {
       status: els.length ? "checked" : rule.optional ? "skipped" : "missing",
     });
     if (!els.length) {
+      if (!rule.optional && textTypes.includes(rule.type)) {
+        evaluations.at(-1).status = "unassessed";
+        textLegibility.push({
+          rule: rule.id,
+          type: rule.type,
+          element: null,
+          status: "unassessed",
+          problems: ["Required selector has no visible matches."],
+        });
+      }
+      if (!rule.optional && compositionTypes.includes(rule.type)) {
+        evaluations.at(-1).status = "unassessed";
+        composition.push({
+          rule: rule.id,
+          type: rule.type,
+          element: null,
+          status: "unassessed",
+          valid: false,
+          problems: ["Required selector has no visible matches."],
+        });
+      }
+      if (!rule.optional && rule.type === "viewport-growth-yield") {
+        evaluations.at(-1).status = "unassessed";
+        growth.push({
+          rule: rule.id,
+          element: null,
+          status: "unassessed",
+          valid: false,
+          width: 0,
+          height: 0,
+          area: 0,
+          keys: [],
+          items: [],
+          problems: ["Required selector has no visible matches."],
+        });
+      }
       if (!rule.optional)
         add(
           rule,
@@ -138,7 +669,476 @@ export function inspectPage(rules) {
         );
       continue;
     }
-    if (rule.type === "within-bounds") {
+    if (textTypes.includes(rule.type)) {
+      for (const el of els) {
+        /** @type {import("./types.js").TextLegibilityMeasurement} */
+        const observation = {
+          rule: rule.id,
+          type: rule.type,
+          element: describe(el),
+          status: "measured",
+          problems: [],
+        };
+        const problems = new Set();
+        const problem = textGeometryProblem(el);
+        if (problem) problems.add(problem);
+        if (document.fonts.status !== "loaded")
+          problems.add("Fonts are still loading.");
+        if (rule.type === "no-text-overlap") {
+          const items = [...el.querySelectorAll(rule.items)].filter(
+            visibleTextPeer,
+          );
+          if (items.length < 2 || items.length > 64)
+            problems.add("A group needs 2–64 visible text peers.");
+          const fragments = [];
+          observation.peers = [];
+          for (const item of items.slice(0, 64)) {
+            const problem = textGeometryProblem(item);
+            if (problem) problems.add(problem);
+            if (items.some((other) => other !== item && item.contains(other)))
+              problems.add("Declared text peers must not contain one another.");
+            for (const descendant of [item, ...item.querySelectorAll("*")]) {
+              if (!visibleTextPeer(descendant)) continue;
+              if (
+                generatedText(descendant) ||
+                (getComputedStyle(descendant).display === "list-item" &&
+                  (getComputedStyle(descendant).listStyleType !== "none" ||
+                    getComputedStyle(descendant).listStyleImage !== "none")) ||
+                descendant.matches(
+                  "input, select, textarea, canvas, svg, img, iframe",
+                ) ||
+                descendant.shadowRoot
+              )
+                problems.add(
+                  "Generated, replaced, SVG, or shadow content is unsupported.",
+                );
+            }
+            const boxes = [];
+            const nodes = renderedTextNodes(item);
+            for (const node of nodes) {
+              const problem = textGeometryProblem(node.parentElement);
+              if (problem) problems.add(problem);
+              const range = document.createRange();
+              range.setStart(node, node.textContent.search(/\S/));
+              range.setEnd(node, node.textContent.trimEnd().length);
+              for (const box of range.getClientRects()) {
+                if (box.width <= 0 || box.height <= 0) continue;
+                if (!unclipped(box, node.parentElement, true))
+                  problems.add("Text fragments meet a clipping ancestor.");
+                boxes.push(box);
+              }
+            }
+            if (!boxes.length)
+              problems.add("A visible peer has no measurable text.");
+            fragments.push(boxes);
+            observation.peers.push({
+              element: describe(item),
+              text: nodes
+                .map((node) => node.textContent)
+                .join(" ")
+                .trim()
+                .slice(0, 120),
+              fragments: boxes.length,
+            });
+          }
+          if (fragments.reduce((sum, boxes) => sum + boxes.length, 0) > 256)
+            problems.add(
+              "A group exceeds the 256 text-fragment measurement limit.",
+            );
+          if (!problems.size) {
+            observation.overlaps = [];
+            observation.overlapCount = 0;
+            for (let first = 0; first < fragments.length; first++)
+              for (let second = first + 1; second < fragments.length; second++)
+                for (const a of fragments[first])
+                  for (const b of fragments[second]) {
+                    const width =
+                      Math.min(a.right, b.right) - Math.max(a.left, b.left);
+                    const height =
+                      Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top);
+                    if (width > rule.tolerance && height > rule.tolerance) {
+                      observation.overlapCount++;
+                      if (observation.overlaps.length < 64)
+                        observation.overlaps.push({
+                          first,
+                          second,
+                          width,
+                          height,
+                        });
+                    }
+                  }
+            if (observation.overlapCount)
+              add(
+                rule,
+                "Declared labels have overlapping text fragments.",
+                el,
+                observation,
+                { maxIntersectionPerAxis: rule.tolerance, units: "CSS px" },
+              );
+          }
+        } else {
+          const style = getComputedStyle(el);
+          if (
+            !(el instanceof HTMLSelectElement) ||
+            el.multiple ||
+            el.size > 1
+          ) {
+            problems.add("A single-selection dropdown is required.");
+          } else {
+            const option = el.selectedOptions[0];
+            if (!option?.label.trim())
+              problems.add("No nonempty selected label is available.");
+            if (option?.closest("optgroup") || option?.children.length)
+              problems.add("Grouped or rich option labels are unsupported.");
+            if (
+              !["auto", "menulist", "menulist-button"].includes(
+                style.appearance,
+              ) ||
+              style.backgroundImage !== "none" ||
+              parseFloat(style.textIndent) !== 0
+            )
+              problems.add(
+                "Custom select painting or text indentation is unsupported.",
+              );
+            if (!unclipped(rect(el), el))
+              problems.add("The control meets a clipping ancestor.");
+            if (!problems.size) {
+              const requiredWidth = selectedLabelWidth(el, style, option.label);
+              if (!Number.isFinite(requiredWidth) || requiredWidth <= 0) {
+                problems.add("Native intrinsic width is unavailable.");
+              } else {
+                observation.label = option.label.slice(0, 120);
+                observation.availableWidth = rect(el).width;
+                observation.requiredWidth = requiredWidth;
+                observation.deficit = Math.max(
+                  0,
+                  requiredWidth - observation.availableWidth,
+                );
+                if (observation.deficit > rule.tolerance)
+                  add(
+                    rule,
+                    "Selected label has less than its native intrinsic control width.",
+                    el,
+                    observation,
+                    { maxDeficit: rule.tolerance, units: "CSS px" },
+                  );
+              }
+            }
+          }
+        }
+        if (problems.size) {
+          observation.status = "unassessed";
+          observation.problems = [...problems];
+          evaluations.at(-1).status = "unassessed";
+          add(
+            rule,
+            `Text measurement is unassessed: ${observation.problems.join(" ")}`,
+            el,
+            observation,
+            "supported text geometry",
+          );
+        }
+        textLegibility.push(observation);
+      }
+    } else if (compositionTypes.includes(rule.type)) {
+      for (const el of els) {
+        const fontSizePeers =
+          rule.type === "peer-footprint" && rule.measure === "font-size";
+        const items = [...el.querySelectorAll(rule.items)].filter(
+          (item) =>
+            item.closest(rule.selector) === el &&
+            (visible(item) ||
+              (fontSizePeers &&
+                getComputedStyle(item).display === "contents" &&
+                renderedTextNodes(item).length > 0)),
+        );
+        const problems = [];
+        /** @type {import("./types.js").CompositionMeasurement} */
+        const observation = {
+          rule: rule.id,
+          type: rule.type,
+          element: describe(el),
+          status: "measured",
+          valid: true,
+          count: items.length,
+          problems,
+        };
+        composition.push(observation);
+        const minimum =
+          rule.type === "gap-variance"
+            ? 3
+            : rule.type === "chrome-allocation"
+              ? 1
+              : 2;
+        if (items.length < minimum)
+          problems.push(
+            `Measurement needs at least ${minimum} visible selected items.`,
+          );
+        if (
+          rule.type !== "chrome-allocation" &&
+          items.some((item, i) =>
+            items.some((other, j) => i !== j && item.contains(other)),
+          )
+        )
+          problems.push("Declared peers must not contain one another.");
+        if (rule.type === "chrome-allocation" && els.length !== 1)
+          problems.push(
+            "Chrome allocation needs exactly one visible usable region.",
+          );
+        if (!problems.length && rule.type === "alignment-residual") {
+          const anchors = items.map((item) => {
+            const box = rect(item);
+            return rule.edge === "center-x"
+              ? box.left + box.width / 2
+              : rule.edge === "center-y"
+                ? box.top + box.height / 2
+                : box[rule.edge];
+          });
+          const sorted = [...anchors].sort((a, b) => a - b),
+            middle = Math.floor(sorted.length / 2),
+            median =
+              sorted.length % 2
+                ? sorted[middle]
+                : (sorted[middle - 1] + sorted[middle]) / 2,
+            maxResidual = Math.max(
+              ...anchors.map((anchor) => Math.abs(anchor - median)),
+            );
+          Object.assign(observation, {
+            edge: rule.edge,
+            anchors,
+            median,
+            maxResidual,
+          });
+          if (maxResidual > rule.maxResidual)
+            add(
+              rule,
+              "Declared peer anchors exceed the configured residual from their median.",
+              el,
+              observation,
+              { maxResidual: rule.maxResidual, unit: "CSS px" },
+            );
+        } else if (!problems.length && rule.type === "gap-variance") {
+          const horizontal = rule.axis === "x";
+          const boxes = items
+            .map(rect)
+            .sort((a, b) => (horizontal ? a.left - b.left : a.top - b.top));
+          const gaps = boxes
+            .slice(1)
+            .map((box, i) =>
+              horizontal
+                ? box.left - boxes[i].right
+                : box.top - boxes[i].bottom,
+            );
+          Object.assign(observation, { axis: rule.axis, gaps });
+          if (gaps.some((gap) => gap < 0))
+            problems.push("Declared peers overlap on the measured axis.");
+          const crossStart = Math.max(
+            ...boxes.map((box) => (horizontal ? box.top : box.left)),
+          );
+          const crossEnd = Math.min(
+            ...boxes.map((box) => (horizontal ? box.bottom : box.right)),
+          );
+          if (crossEnd <= crossStart)
+            problems.push(
+              "Gap variance needs a single shared row or column band.",
+            );
+          if (!problems.length) {
+            Object.assign(observation, variation(gaps));
+            if (
+              observation.coefficientOfVariation >
+              rule.maxCoefficientOfVariation
+            )
+              add(
+                rule,
+                "Peer gaps exceed the configured population coefficient of variation.",
+                el,
+                observation,
+                { maxCoefficientOfVariation: rule.maxCoefficientOfVariation },
+              );
+          }
+        } else if (!problems.length && rule.type === "peer-footprint") {
+          const values = items.map((item) =>
+            rule.measure === "area"
+              ? boxArea(rect(item))
+              : parseFloat(getComputedStyle(item).fontSize),
+          );
+          Object.assign(observation, { measure: rule.measure, values });
+          if (values.some((value) => !Number.isFinite(value) || value <= 0))
+            problems.push(
+              "Peer footprint needs positive finite values for every peer.",
+            );
+          else {
+            Object.assign(observation, variation(values));
+            if (
+              observation.coefficientOfVariation >
+              rule.maxCoefficientOfVariation
+            )
+              add(
+                rule,
+                "Peer visual-footprint proxy exceeds the configured population coefficient of variation.",
+                el,
+                observation,
+                { maxCoefficientOfVariation: rule.maxCoefficientOfVariation },
+              );
+          }
+        } else if (!problems.length && rule.type === "chrome-allocation") {
+          const bounds = clipBox(rect(el), viewportBounds),
+            regionArea = boxArea(bounds),
+            chromeArea = unionArea(
+              items.map((item) => clipBox(rect(item), bounds)),
+            );
+          Object.assign(observation, { regionArea, chromeArea });
+          if (!regionArea)
+            problems.push("Usable region must intersect the initial viewport.");
+          else {
+            observation.ratio = chromeArea / regionArea;
+            if (observation.ratio > rule.maxRatio)
+              add(
+                rule,
+                "Declared chrome consumes more than its configured share of the usable region.",
+                el,
+                observation,
+                { maxRatio: rule.maxRatio },
+              );
+          }
+        }
+        if (problems.length) {
+          observation.valid = false;
+          observation.status = "unassessed";
+          evaluations.at(-1).status = "unassessed";
+          add(
+            rule,
+            `Composition measurement is unassessed: ${problems.join(" ")}`,
+            el,
+            observation,
+            "supported geometry and sufficient declared peers",
+          );
+        }
+      }
+    } else if (rule.type === "viewport-growth-yield") {
+      const el = els.length === 1 ? els[0] : null,
+        bounds = el ? clipBox(rect(el), viewportBounds) : viewportBounds;
+      /** @type {import("./types.js").GrowthMeasurement} */
+      const observation = {
+        rule: rule.id,
+        element: el ? describe(el) : null,
+        status: "measured",
+        valid: true,
+        width: el ? Math.max(0, bounds.right - bounds.left) : 0,
+        height: el ? Math.max(0, bounds.bottom - bounds.top) : 0,
+        area: el ? boxArea(bounds) : 0,
+        keys: [],
+        items: [],
+        problems: [],
+      };
+      growth.push(observation);
+      if (!el)
+        observation.problems.push(
+          "Viewport-growth yield needs exactly one visible usable region.",
+        );
+      else {
+        if (!observation.area)
+          observation.problems.push(
+            "Usable region must intersect the initial viewport.",
+          );
+        const items = [...el.querySelectorAll(rule.items)].filter(visible);
+        if (!items.length)
+          observation.problems.push(
+            "Evidence selector needs visible selected items.",
+          );
+        const counts = new Map();
+        for (const item of items) {
+          const key = item.getAttribute(rule.keyAttribute)?.trim() || null,
+            reasons = [],
+            nodes = renderedTextNodes(item),
+            sizes = nodes.map((node) =>
+              parseFloat(getComputedStyle(node.parentElement).fontSize),
+            ),
+            minFontSize = sizes.length ? Math.min(...sizes) : null;
+          if (!key)
+            observation.problems.push(
+              `Evidence ${describe(item)} has no stable identity in ${rule.keyAttribute}.`,
+            );
+          else {
+            counts.set(key, (counts.get(key) || 0) + 1);
+            if (rule.finiteKeys && !rule.finiteKeys.includes(key))
+              observation.problems.push(
+                `Evidence identity ${key} is outside finiteKeys.`,
+              );
+          }
+          if (!inside(rect(item), bounds))
+            reasons.push("outside usable region or viewport");
+          if (!unclipped(rect(item), item))
+            reasons.push("clipped by ancestor overflow");
+          if (!nodes.length) reasons.push("no visible text");
+          if (
+            nodes.length &&
+            (!Number.isFinite(minFontSize) || minFontSize < rule.minFontSize)
+          )
+            reasons.push("below readable type size");
+          for (const node of nodes) {
+            const range = document.createRange();
+            range.setStart(node, node.textContent.search(/\S/));
+            range.setEnd(node, node.textContent.trimEnd().length);
+            if (
+              [...range.getClientRects()].some(
+                (box) =>
+                  box.width > 0 &&
+                  box.height > 0 &&
+                  (!inside(box, bounds) ||
+                    !unclipped(box, node.parentElement, true)),
+              )
+            ) {
+              reasons.push(
+                "text outside usable region, viewport, or overflow clip",
+              );
+              break;
+            }
+          }
+          if (!key) reasons.push("missing identity");
+          if (key && rule.finiteKeys && !rule.finiteKeys.includes(key))
+            reasons.push("outside finiteKeys");
+          observation.items.push({
+            element: describe(item),
+            key,
+            eligible: !reasons.length,
+            reasons,
+            minFontSize,
+          });
+        }
+        for (const [key, count] of counts)
+          if (count > 1) {
+            observation.problems.push(
+              `Evidence identity ${key} appears ${count} times among visible selected items.`,
+            );
+            for (const item of observation.items.filter(
+              (item) => item.key === key,
+            )) {
+              item.eligible = false;
+              item.reasons.push("duplicate identity");
+            }
+          }
+        observation.keys = observation.items
+          .filter((item) => item.eligible)
+          .map((item) => item.key);
+        if (!observation.keys.length)
+          observation.problems.push(
+            "Growth measurement needs at least one fully visible, readable evidence identity.",
+          );
+      }
+      if (observation.problems.length) {
+        observation.valid = false;
+        observation.status = "unassessed";
+        evaluations.at(-1).status = "unassessed";
+        add(
+          rule,
+          `Viewport-growth observation is unassessed: ${observation.problems.join(" ")}`,
+          el,
+          observation,
+          "one usable region with uniquely identified evidence",
+        );
+      }
+    } else if (rule.type === "within-bounds") {
       for (const el of els) {
         const container = el.parentElement?.closest(rule.container);
         if (!container || !visible(container)) {
@@ -358,21 +1358,6 @@ export function inspectPage(rules) {
             el,
             null,
             "nonempty identity",
-          );
-          continue;
-        }
-        if (
-          rule.type === "comparison-set" &&
-          rule.growthYield &&
-          !textBounds(el)
-        ) {
-          evaluations.at(-1).status = "missing";
-          add(
-            rule,
-            "Yield evidence needs visible, nonempty text; empty keyed boxes do not count.",
-            el,
-            key,
-            "visible comparison evidence",
           );
           continue;
         }
@@ -1038,9 +2023,13 @@ export function inspectPage(rules) {
       pageHeight: document.documentElement.scrollHeight,
       evaluatedRules: evaluated,
       density,
+      composition,
+      growth,
+      textLegibility,
       repeatedMetrics,
       evidenceDistances,
       markContrasts,
+      peerInference,
       comparisons,
       consistency,
       evaluations,

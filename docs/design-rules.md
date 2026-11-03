@@ -2,7 +2,7 @@
 
 Viewrule's design policy is defined by the individual files in [`docs/design-rules/`](design-rules/). This page is the human-readable index; rule files are canonical and are loaded directly by the engine.
 
-DR-001–DR-008 apply ideas from Edward Tufte's *The Visual Display of Quantitative Information* and later writing. DR-009–DR-016 add task-scoped interaction and resilience requirements with their own cited sources. These are our interpretations, not quotations, endorsements, or universal prescriptions for every interface.
+DR-001–DR-008 apply ideas from Edward Tufte's *The Visual Display of Quantitative Information* and later writing. DR-009–DR-016 add task-scoped interaction and resilience requirements with their own cited sources. DR-017–DR-020 add Viewrule-authored composition contracts for alignment, rhythm, spatial economy, and balance. These are our interpretations and measurement conventions, not quotations, endorsements, or universal prescriptions for every interface.
 
 [Detection and enforcement](ui-review-enforcement.md) describes the implemented checks and their limits. [UI review](ui-review.md) covers setup. The [illustrated examples](design-examples.md) pair good and bad versions of common components, and the generated `/rules/` site provides one canonical page per design rule, with interactive good/bad examples embedded beside the requirement and verification guidance. The `/examples/` gallery is optional browsing; rule pages do not depend on it.
 
@@ -12,10 +12,6 @@ The [design guide](../plugins/claude-code/guide/v1/index.md) distinguishes patte
 evidence, and enforceable conditions. DR IDs provide policy rationale; only configured
 measurements are automated requirements. No DR citation alone establishes coverage
 of semantic claims such as decision sufficiency.
-
-DR-017–DR-020 add task-scoped composition contracts. Their formulas and thresholds
-are Viewrule conventions, not experimentally established measures of design quality.
-See [falsifiable composition](composition.md) for executable contracts and limits.
 
 ## How to apply the rules
 
@@ -153,29 +149,37 @@ Color scales match the structure of the data.
 
 [Canonical rule →](design-rules/DR-016-semantic-color.md)
 
+<a id="dr-017--related-peers-share-intentional-visual-anchors"></a>
+
 ## DR-017 — Rule of Alignment
 
-Related elements share intentional visual anchors.
+Related peers share intentional visual anchors.
 
-[Canonical rule →](design-rules/DR-017-intentional-alignment.md)
+[Canonical rule →](design-rules/DR-017-alignment.md)
+
+<a id="dr-018--equivalent-relationships-use-consistent-spacing"></a>
 
 ## DR-018 — Rule of Rhythm
 
 Equivalent relationships use consistent spacing.
 
-[Canonical rule →](design-rules/DR-018-spacing-rhythm.md)
+[Canonical rule →](design-rules/DR-018-rhythm.md)
+
+<a id="dr-019--space-allocated-to-a-task-supports-its-evidence-and-interaction"></a>
 
 ## DR-019 — Rule of Spatial Economy
 
-Visual space is allocated according to task value rather than container availability.
+Space allocated to a task supports its evidence and interaction.
 
 [Canonical rule →](design-rules/DR-019-spatial-economy.md)
 
+<a id="dr-020--equal-priority-peers-receive-comparable-visual-allocation"></a>
+
 ## DR-020 — Rule of Balance
 
-Visual weight reflects semantic priority, not accidental asymmetry.
+Equal-priority peers receive comparable visual allocation.
 
-[Canonical rule →](design-rules/DR-020-semantic-balance.md)
+[Canonical rule →](design-rules/DR-020-balance.md)
 
 ## Refining the rules
 

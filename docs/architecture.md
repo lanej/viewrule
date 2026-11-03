@@ -84,7 +84,9 @@ Plugin cache files are immutable during setup; no parent-repository paths are ne
 | `src/scopes.mjs`, `src/source-scope.mjs`, `src/plan.mjs` | Shared selection, conservative input resolution, and read-only workload plans |
 | `src/config.mjs` | Ajv validation, project loading, defaults, rule merging |
 | `src/review.mjs` | Browser lifecycle and review orchestration |
+| `src/report-reuse.mjs` | Verified unchanged-report reuse and presentation-input/output integrity |
 | `src/capture.mjs` | Native-scale tile planning, capture, and coverage accounting |
+| `src/comparison.mjs` | Explicit saved-run comparison, original artifact preservation, recorded-region callouts, and optional report image export |
 | `src/checks.mjs` | Browser-side DOM geometry and style observations |
 | `src/design.mjs` | Design policy loading, cross-viewport rules, citations, suggestions |
 | `src/report.mjs`, `src/templates/` | Report view models and escaped Mustache HTML reports/policy pages |
@@ -129,7 +131,7 @@ introduced. Advice cannot establish which decision factors the task requires.
 | `.ui-review/rules.json` | Scoped executable expectations |
 | `.ui-review/feedback.jsonl` | Append-only human feedback and provenance |
 | `.ui-review/approved/<id>/` | Exact report and screenshots approved by a human |
-| `.ui-review/runs/<id>/` | Disposable run: JSON, HTML, policy snapshot, overview, tiles |
+| `.ui-review/runs/<id>/` | Bounded disposable runs: JSON, HTML, policy snapshot, overview, tiles |
 | `.ui-review/latest.json` | Running/pass/fail state and source fingerprint for verification |
 | Global `rules.json`, `preferences.json`, `feedback.jsonl` | Deliberately reusable rules and notes |
 
@@ -138,6 +140,11 @@ information. Rules are updated using an exclusive lock and atomic rename. Runs
 have unique directories; concurrent checks of one project are not a supported
 workflow. A process interrupted after setting `running` leaves enforcement blocked
 until a successful rerun.
+
+`src/retention.mjs` prunes generated run directories after latest state is published.
+Count, age, and logical-byte limits preserve the current report and never touch
+approved copies. Reused evidence is self-contained before cleanup. See
+[storage lifecycle and capture optimizations](evidence-storage.md).
 
 Git worktrees carry committed setup independently and keep mutable evidence in each
 application directory. Project discovery stops at either form of `.git` marker;

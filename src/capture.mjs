@@ -1,9 +1,52 @@
+import { writeFile } from "node:fs/promises";
+import path from "node:path";
+import { PNG } from "pngjs";
+
 export const detailDefaults = {
   width: 1024,
   height: 800,
   overlap: 64,
   maxTiles: 64,
 };
+
+/** Optional annotation geometry; never establishes rule coverage or visibility.
+ * @param {import("playwright").Page} page
+ * @param {{id: string, selector: string}[]} regions */
+export async function captureRegions(page, regions) {
+  return page.evaluate(
+    (declarations) =>
+      declarations.map(({ id, selector }) => {
+        /** @type {{id: string, selector: string, reason?: string, box?: {x: number, y: number, width: number, height: number}}} */
+        const result = { id, selector };
+        try {
+          const matches = document.querySelectorAll(selector);
+          if (matches.length !== 1)
+            throw new Error("Region must match exactly one element.");
+          const element = matches[0];
+          const box = element.getBoundingClientRect();
+          if (
+            !element.checkVisibility({
+              checkOpacity: true,
+              checkVisibilityCSS: true,
+            }) ||
+            box.width <= 0 ||
+            box.height <= 0
+          )
+            throw new Error("Region has no visible positive bounding box.");
+          result.box = {
+            x: box.x + scrollX,
+            y: box.y + scrollY,
+            width: box.width,
+            height: box.height,
+          };
+        } catch (error) {
+          result.reason = error.message;
+        }
+        return result;
+      }),
+    regions,
+  );
+}
 
 /** @param {number} width
  * @param {number} height
@@ -33,14 +76,15 @@ export function tilePlan(width, height, options = detailDefaults) {
 /** @param {import("playwright").Page} page
  * @param {string} directory
  * @param {string} prefix
- * @param {import("./types.js").DetailOptions} [options] */
+ * @param {import("./types.js").DetailOptions} [options]
+ * @param {Buffer} [overview] */
 export async function captureDetails(
   page,
   directory,
   prefix,
   options = detailDefaults,
+  overview,
 ) {
-  const { default: path } = await import("node:path");
   const dimensions = await page.evaluate(() => ({
     width: Math.max(
       document.documentElement.clientWidth,
@@ -49,15 +93,33 @@ export async function captureDetails(
     height: Math.max(innerHeight, document.documentElement.scrollHeight),
   }));
   const planned = tilePlan(dimensions.width, dimensions.height, options);
+  // Crop the same native pixels, avoiding a browser round trip and repaint for
+  // every tile. Bound the decoded working set; unusually tall or changed pages
+  // keep the existing bounded, per-tile capture path.
+  const image =
+    overview &&
+    dimensions.width * dimensions.height <= 24000000 &&
+    overview.readUInt32BE(16) === dimensions.width &&
+    overview.readUInt32BE(20) === dimensions.height
+      ? PNG.sync.read(overview)
+      : null;
   const tiles = [];
   for (const clip of planned.slice(0, options.maxTiles)) {
     const file = `${prefix}-detail-${tiles.length + 1}.png`;
-    const png = await page.screenshot({
-      path: path.join(directory, file),
-      fullPage: true,
-      clip,
-      animations: "disabled",
-    });
+    let png;
+    if (image) {
+      const tile = new PNG({ width: clip.width, height: clip.height });
+      PNG.bitblt(image, tile, clip.x, clip.y, clip.width, clip.height, 0, 0);
+      png = PNG.sync.write(tile);
+      await writeFile(path.join(directory, file), png);
+    } else {
+      png = await page.screenshot({
+        path: path.join(directory, file),
+        fullPage: true,
+        clip,
+        animations: "disabled",
+      });
+    }
     // Device scale is one: CSS-pixel tiles must retain their exact pixel dimensions.
     if (
       png.readUInt32BE(16) !== clip.width ||

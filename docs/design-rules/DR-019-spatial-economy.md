@@ -1,47 +1,57 @@
 # DR-019 — Rule of Spatial Economy
 
-**Principle:** Additional visual space earns its cost by exposing useful evidence
-or improving the task, not merely inflating containers.
+**Principle:** Space allocated to a task supports its evidence and interaction.
 
-**Requirement:** For a task that benefits from additional simultaneous evidence,
-declare a stable finite inventory, a reference viewport, and the minimum relative
-viewport-growth yield. Preserve reference identities and readable type. Capture
-the same page, checkpoint, data state, and text scale at both sizes.
+**Requirement:** Declare the usable task region, the relevant evidence identities,
+and the role of surrounding chrome. Where growing the region should expose more
+evidence, compare it with a named reference viewport in the same page and
+checkpoint. Preserve reference evidence and readable type. State the expected
+return on additional area instead of treating larger containers as more useful.
 
-**Measurement:** For positive reference evidence count E0 and positive CSS viewport
-areas A0 and A1, with A1 > A0:
+**Why:** DR-007 requires useful adaptation and DR-008 asks decoration to earn its
+place. This rule adds comparative measurements of allocation. The formulas and
+thresholds are project-authored contracts, not universal economic or aesthetic
+laws; empty space may support reading, interaction, or a finite task.
 
-```text
-area growth     = (A1 - A0) / A0
-evidence growth = (E1 - E0) / E0
-viewport-growth yield = evidence growth / area growth
-required count = min(inventory size, ceil(E0 * (1 + minimum yield * area growth)))
-```
+**Computationally falsifiable — viewport-growth yield:** Let `A` be the CSS-pixel
+area of one declared region intersected with the initial viewport. Let `N` be the
+number of distinct declared evidence identities whose complete item bounds fit
+inside that intersection and whose visible DOM text meets `minFontSize`.
+For reference `r` and larger target `t`:
 
-E is the number of distinct declared comparison identities that fit in the initial
-viewport, not container area, duplicated summaries, or a subjective information
-score. The denominator in this implementation is the measured full CSS viewport
-area, not inferred usable content area; shrinking a panel does not shrink the
-budget. Both target dimensions must be at least as large as the reference.
+`yield = ((Nt - Nr) / Nr) / ((At - Ar) / Ar)`
 
-**Falsifier:** At constant height, doubling viewport width while retaining four
-of twelve available comparisons has yield 0. A scoped minimum yield of 1 requires
-eight. Four becoming eight passes; eight boxes repeating the original four do not.
+`viewport-growth-yield` compares this dimensionless yield with a project's
+`minYield`. For example, 50% more qualifying evidence in 100% more usable area
+gives a yield of 0.5. Container growth alone produces zero yield. Reference
+identities must remain qualifying at the target; replacing them with different
+items cannot compensate for their loss. Missing or duplicate identities do not
+count as useful growth. Both counts and the reference area must be positive,
+target area must strictly grow, and target viewport dimensions must not shrink.
+Missing references or invalid measurement evidence remain explicit findings at
+the configured severity, rather than passing or claiming a numeric yield.
 
-**Finite exception:** When only four declared comparisons exist, retaining all
-four passes at the larger size with status `saturated`. The measured yield remains
-0; saturation caps the required count, it does not fabricate a positive yield.
-Do not shrink the inventory after inspecting a failure merely to obtain a pass.
+**Finite evidence:** Optional `finiteKeys` declares the exhaustive evidence
+universe for the task. The yield threshold is exempt only when all those keys
+already qualify at the reference and still qualify at the target. The report
+identifies saturation; it does not claim a positive yield. Reaching the full set
+only at the target still requires the configured yield. Do not invent extra
+evidence, shrink text, or silently relabel the universe to obtain a pass.
 
-**Enforcement:** Opt in through `comparison-set.growthYield`; pair it with required
-context, non-clipping, and interaction-target checks. Missing reference evidence,
-undeclared visible identities, unreadable comparison text, and failed comparison
-prerequisites cannot certify yield. See the [measurement contract](../composition.md).
+**Computationally falsifiable — chrome allocation:** `chrome-allocation` limits
+the ratio of declared chrome's unioned border-box area to the visible area of
+one usable region. Chrome rectangles are clipped to that region and the initial
+viewport; overlapping or nested rectangles are counted once. `maxRatio` is a
+project-selected ceiling. This tests a declared allocation, not whether every
+toolbar or boundary deserves its space.
 
-**Limits:** Identity and task relevance are supplied by the application. This is a
-Viewrule convention, not an empirically established cognitive-efficiency score.
-It does not value map resolution, prose comprehension, navigation, or necessary
-whitespace; those tasks need different explicit evidence or human review. A
-universal minimum, occupancy target, or universal chrome tax would be unjustified.
-DR-007 remains the broader responsive principle; this rule supplies one falsifiable
-spatial-allocation contract where additional comparison evidence is meaningful.
+**Human judgment:** Choose relevant evidence units, usable regions, exhaustive
+finite sets, and warranted chrome. Counts do not measure information quality,
+importance, visual complexity, or the usefulness of a larger map. Geometry and
+computed text size do not establish occlusion-free visibility or readable paint.
+Unique identities do not establish independent facts: subdividing or duplicating
+one fact under new keys does not make it additional task evidence.
+Tasks needing richer detail in the same item may need a different contract.
+Inspect the examples and native-scale captures; there is no occupancy minimum.
+[Measurement reference](https://github.com/lanej/viewrule/blob/main/docs/ui-review.md#composition-contracts).
+[Good/bad example](../examples/composition.html?rule=DR-019).

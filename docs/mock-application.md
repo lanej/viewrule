@@ -16,6 +16,7 @@ shown by the `pages` job in [the existing workflow](https://github.com/lanej/vie
 2. Choose **Needs attention** in the sidebar. The queue, count, and selected parcel
    respond to the filter. Search an ID, destination, customer, or carrier; sort by
    shipment ID or destination. Clear restores the unfiltered queue.
+   Persistent captions identify the status and sort controls at narrow widths.
 3. Select **EP 1047**, expand its row, and inspect the journey, latest facility,
    and address issue. Switch to **Delivery events** or **Charges**; arrow keys,
    Home, and End work in the tab bar.
@@ -71,6 +72,13 @@ checking text and alignment; a scaled overview loses detail.
 ![The shipment workspace at 390 CSS px in dark mode.](examples/images/mock-application-mobile.png)
 
 ## Develop and assess it
+
+The application opts into `select-label-space` for its native filters and
+`no-text-overlap` for its queue heading/result count. These check scoped geometry,
+not the meaning of the selected options. The [text-legibility exercise](text-legibility.md)
+retains first/final source and native-scale before/afters for the visible-caption
+change. The prior controls already passed; that exercise does not claim a detected
+defect or a measured usability improvement.
 
 From a source checkout with Node 22.18+:
 

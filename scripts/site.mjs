@@ -1,7 +1,6 @@
 import { cp, mkdir, readFile, writeFile, rm } from "node:fs/promises";
 import path from "node:path";
 import { createServer } from "node:http";
-import { marked } from "marked";
 import { readDesignPolicy } from "../src/design.mjs";
 
 import { buildGuide } from "./guide.mjs";
@@ -68,7 +67,7 @@ const sectionsFrom = (body) => {
   let current = null;
   for (const paragraph of body.split(/\n\n+/)) {
     const match = paragraph.match(
-      /^\*\*(Requirement|Default|Why|Application|Exception|Review):\*\*\s*([\s\S]*)$/,
+      /^\*\*(Requirement|Default|Why|Application|Exception|Review|Computationally falsifiable(?: — [^:]+)?|Human judgment|Finite evidence):\*\*\s*([\s\S]*)$/,
     );
     if (match) {
       current = { label: match[1], text: match[2].replaceAll("\n", " ") };
@@ -126,6 +125,9 @@ for (const file of [
   "behavior-catalog.json",
   "evidence.js",
   "evidence.css",
+  "composition.js",
+  "composition.css",
+  "composition-catalog.json",
 ])
   await cp(
     path.join(repository, "docs/examples", file),
@@ -137,6 +139,10 @@ const behaviorSource = await readFile(
 );
 const evidenceSource = await readFile(
   path.join(repository, "docs/examples/evidence.html"),
+  "utf8",
+);
+const compositionSource = await readFile(
+  path.join(repository, "docs/examples/composition.html"),
   "utf8",
 );
 const behaviorBody = behaviorSource.match(
@@ -153,7 +159,6 @@ for (const rule of policy.rules) {
   const slug = rule.id.toLowerCase();
   const directory = path.join(rulesRoot, slug);
   await mkdir(directory, { recursive: true });
-  const composition = Number(rule.id.slice(3)) >= 17;
   const example = ruleExamples[rule.id];
   const principle = rule.body.match(/^\*\*Principle:\*\* (.+)$/m)?.[1] || "";
   const sections = sectionsFrom(
@@ -162,22 +167,16 @@ for (const rule of policy.rules) {
   ruleCards.push(
     `<a class="rule-card" href="${slug}/"><span>${rule.id}</span><strong>${escapeHtml(rule.title)}</strong><small>${rule.enforcement}</small></a>`,
   );
-  // Composition policies contain executable formulas and explicit falsifiers;
-  // preserve their Markdown structure instead of flattening code into paragraphs.
-  const sectionHtml = composition
-    ? (await marked.parse(rule.body)).replaceAll(
-        'href="../composition.md"',
-        'href="https://github.com/lanej/viewrule/blob/main/docs/composition.md"',
-      )
-    : sections
-        .map(
-          ({ label, text }) =>
-            `<section><h2>${label}</h2><p>${markdownInline(text)}</p></section>`,
-        )
-        .join("\n");
-  const behavioral = Number(rule.id.slice(3)) >= 9 && !composition;
-  const interactive = composition
-    ? `<p><a href="../../examples/composition.html">Open the rendered composition fixture</a> · <a href="https://github.com/lanej/viewrule/blob/main/docs/composition.md">Measurement contract and accepted/rejected cases</a></p><p>The native checkpoint changes actual geometry, spacing, type, and comparison layout against fixed contracts. It does not record human approval.</p>`
+  const sectionHtml = sections
+    .map(
+      ({ label, text }) =>
+        `<section><h2>${label}</h2><p>${markdownInline(text)}</p></section>`,
+    )
+    .join("\n");
+  const compositional = Number(rule.id.slice(3)) >= 17;
+  const behavioral = Number(rule.id.slice(3)) >= 9 && !compositional;
+  const interactive = compositional
+    ? `<div id="composition-examples" data-fixed-rule="${rule.id}">${compositionSource.match(/<main id="composition-examples">([\s\S]*?)<\/main>/)[1]}</div>${compositionSource.match(/<template id="scene-DR-017">[\s\S]*?(?=\s*<\/body>)/)[0]}`
     : behavioral
       ? `<div id="behavior-examples" data-fixed-rule="${rule.id}">${behaviorBody
           .replace(
@@ -213,7 +212,8 @@ for (const rule of policy.rules) {
 <link rel="stylesheet" href="../rule.css" />
 <link rel="stylesheet" href="../../assets/examples/behavior.css" />
 <link rel="stylesheet" href="../../assets/examples/evidence.css" />
-${composition ? "" : `<script type="module" src="../../assets/examples/${behavioral ? "behavior" : "evidence"}.js"></script>`}
+${compositional ? '<link rel="stylesheet" href="../../assets/examples/composition.css" />' : ""}
+<script type="module" src="../../assets/examples/${compositional ? "composition" : behavioral ? "behavior" : "evidence"}.js"></script>
 </head>
 <body>
 <main>
@@ -227,7 +227,7 @@ ${composition ? "" : `<script type="module" src="../../assets/examples/${behavio
 ${sectionHtml}
 <section class="examples" aria-labelledby="examples-title">
 <h2 id="examples-title">Examples</h2>
-<p class="lede">${composition ? "The executable fixture supplies scoped counterexamples, not an overall design score." : "The pair isolates this rule. A good example is not approval of the entire interface."}</p>
+<p class="lede">The pair isolates this rule. A good example is not approval of the entire interface.</p>
 ${interactive}
 </section>
 <section>
