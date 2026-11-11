@@ -1595,6 +1595,13 @@ test(
         "visibility-crowded",
         "generated-visibility",
         "visibility-repaired",
+        "svg-crowded",
+        "svg-repaired",
+        "svg-unsupported",
+        "svg-stroke-override",
+        "svg-projective",
+        "svg-absolute",
+        "svg-absolute-clipped",
       ].map((id) => ({
         id: `text-${id}`,
         type: "no-text-overlap",
@@ -1655,6 +1662,10 @@ test(
       "text-crowded",
       "text-generated",
       "text-generated-visibility",
+      "text-svg-absolute-clipped",
+      "text-svg-crowded",
+      "text-svg-projective",
+      "text-svg-unsupported",
       "text-visibility-crowded",
     ]);
     const textMeasurements = textPage.metrics.textLegibility;
@@ -1665,11 +1676,47 @@ test(
       "text-repaired",
       "text-wrapped",
       "text-visibility-repaired",
+      "text-svg-repaired",
+      "text-svg-stroke-override",
+      "text-svg-absolute",
     ]) {
       assert.equal(textMeasurement(id).status, "measured");
       assert.equal(textMeasurement(id).overlapCount, 0);
     }
     assert.ok(textMeasurement("text-wrapped").peers[0].fragments >= 2);
+    const svgCrowded = textMeasurement("text-svg-crowded");
+    assert.equal(svgCrowded.status, "measured");
+    assert.equal(svgCrowded.peers.length, 2);
+    assert.equal(svgCrowded.peers[0].text, "Room temperature");
+    assert.equal(svgCrowded.overlapCount, 1);
+    // rationale: The fixture has a 2x viewBox scale and six CSS px between
+    // baselines; a user-unit comparison would understate the intersection.
+    assert.ok(svgCrowded.overlaps[0].height > 8);
+    assert.equal(
+      textPage.metrics.evaluations.find((r) => r.rule === "text-svg-repaired")
+        .status,
+      "checked",
+    );
+    assert.ok(
+      textMeasurement("text-svg-unsupported").problems.some((problem) =>
+        problem.includes("SVG stroke paint"),
+      ),
+    );
+    for (const [id, reason] of [
+      ["text-svg-projective", "Projective or 3D"],
+      ["text-svg-absolute-clipped", "clipping ancestor"],
+    ]) {
+      assert.equal(textMeasurement(id).status, "unassessed");
+      assert.ok(
+        textMeasurement(id).problems.some((problem) =>
+          problem.includes(reason),
+        ),
+      );
+      assert.equal(
+        textPage.metrics.evaluations.find((r) => r.rule === id).status,
+        "unassessed",
+      );
+    }
     assert.equal(textMeasurement("text-visibility-crowded").overlapCount, 1);
     assert.ok(
       textMeasurement("text-visibility-crowded").overlaps[0].width > 15,
@@ -1705,6 +1752,7 @@ test(
       "text-generated",
       "text-generated-visibility",
       "select-custom",
+      "text-svg-unsupported",
     ]) {
       assert.equal(textMeasurement(id).status, "unassessed");
       assert.ok(textMeasurement(id).problems.length);

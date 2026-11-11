@@ -167,4 +167,89 @@
       ><span class="label">Projected</span>
     </div>
   </section>
+  <section>
+    <h2>SVG labels use the same scoped separation contract</h2>
+    <svg
+      viewBox="0 0 175 110"
+      width="350"
+      height="220"
+      aria-label="SVG text calibration"
+    >
+      <g id="svg-crowded" transform="translate(10 2)" font-size="8">
+        <text class="label" x="0" y="10">Room temperature</text>
+        <text class="label" x="0" y="13">Target temperature</text>
+        <text class="label" x="0" y="10" hidden>Hidden duplicate</text>
+      </g>
+      <g id="svg-repaired" transform="translate(10 36)" font-size="8">
+        <text class="label" x="0" y="10">Room temperature</text>
+        <text class="label" x="0" y="24">Target temperature</text>
+      </g>
+      <g
+        id="svg-unsupported"
+        transform="translate(10 70)"
+        font-size="8"
+        stroke="black"
+        stroke-width="4"
+      >
+        <text class="label" x="0" y="10"><tspan>Nested span</tspan></text>
+        <text class="label" x="0" y="24" rotate="10">Rotated label</text>
+      </g>
+    </svg>
+  </section>
+  <section>
+    <h2>SVG browser assumptions: paint, projection, and containing blocks</h2>
+    <svg
+      id="svg-stroke-override"
+      width="300"
+      height="100"
+      stroke="black"
+      stroke-width="4"
+    >
+      <text class="label" x="10" y="30" stroke="none">Alpha</text>
+      <text class="label" x="10" y="65" stroke="none">Beta</text>
+    </svg>
+    <svg
+      id="svg-projective"
+      width="300"
+      height="100"
+      viewBox="0 0 300 100"
+      style="
+        transform: matrix3d(1, 0, 0, 0.003, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+        transform-origin: 0 0;
+      "
+    >
+      <text class="label" x="180" y="120">Alpha</text>
+      <text class="label" x="240" y="145">Beta</text>
+    </svg>
+    <div style="position: relative; width: 350px; height: 180px">
+      <div style="overflow: hidden; width: 30px; height: 30px">
+        <span style="display: contents; will-change: transform">
+          <span style="transform: translate(0); contain: layout">
+            <svg
+              id="svg-absolute"
+              width="200"
+              height="100"
+              style="position: absolute; left: 50px; top: 50px"
+            >
+              <text class="label" x="10" y="30">Alpha</text>
+              <text class="label" x="10" y="65">Beta</text>
+            </svg>
+          </span>
+        </span>
+      </div>
+    </div>
+    <div
+      style="position: relative; overflow: hidden; width: 30px; height: 30px"
+    >
+      <svg
+        id="svg-absolute-clipped"
+        width="200"
+        height="100"
+        style="position: absolute; left: 50px; top: 50px"
+      >
+        <text class="label" x="10" y="30">Alpha</text>
+        <text class="label" x="10" y="65">Beta</text>
+      </svg>
+    </div>
+  </section>
 </html>
