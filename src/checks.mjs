@@ -528,18 +528,71 @@ export function inspectPage(rules) {
   };
   // Range rectangles describe layout fragments, not painted glyphs. Reject
   // geometry that would make those rectangles misleading before comparing them.
-  const textGeometryProblem = (el) => {
-    if (!(el instanceof HTMLElement)) return "Only HTML text is supported.";
-    if (hasBoxTransform(el)) return "Scaled or rotated text is unsupported.";
+  const textGeometryProblem = (el, allowSVG = false) => {
+    if (allowSVG && el instanceof SVGElement) {
+      if (
+        !(el instanceof SVGSVGElement) &&
+        !(el instanceof SVGGElement) &&
+        !(el instanceof SVGTextElement)
+      )
+        return "Only plain SVG text and svg/g groups are supported.";
+      const root = el instanceof SVGSVGElement ? el : el.ownerSVGElement;
+      if (!root || root.ownerSVGElement)
+        return "Nested SVG viewports are unsupported.";
+      const matrix = el.getScreenCTM();
+      if (
+        !matrix ||
+        ![matrix.a, matrix.b, matrix.c, matrix.d, matrix.e, matrix.f].every(
+          Number.isFinite,
+        ) ||
+        matrix.a <= 0 ||
+        matrix.d <= 0 ||
+        Math.abs(matrix.b) > 1e-7 ||
+        Math.abs(matrix.c) > 1e-7 ||
+        Math.abs(matrix.a - matrix.d) > 1e-7 ||
+        hasBoxTransform(root.parentElement)
+      )
+        return "SVG text requires translation and uniform positive scaling without rotation.";
+      const viewportStyle = getComputedStyle(root);
+      if (
+        ["Top", "Right", "Bottom", "Left"].some(
+          (side) =>
+            parseFloat(viewportStyle[`border${side}Width`]) > 0 ||
+            parseFloat(viewportStyle[`padding${side}`]) > 0,
+        )
+      )
+        return "SVG viewport borders and padding are unsupported.";
+      if (
+        el instanceof SVGTextElement &&
+        (el.children.length ||
+          el.hasAttribute("rotate") ||
+          el.hasAttribute("textLength") ||
+          [el.x, el.y, el.dx, el.dy].some(
+            (positions) => positions.baseVal.numberOfItems > 1,
+          ) ||
+          !["normal", "nowrap"].includes(getComputedStyle(el).whiteSpace))
+      )
+        return "SVG text spans, per-character positioning, and adjusted or wrapped text are unsupported.";
+    } else {
+      if (!(el instanceof HTMLElement)) return "Only HTML text is supported.";
+      if (hasBoxTransform(el)) return "Scaled or rotated text is unsupported.";
+    }
     for (let current = el; current; current = current.parentElement) {
       const style = getComputedStyle(current);
       if (style.writingMode !== "horizontal-tb")
         return "Vertical writing is unsupported.";
       if (
+        current instanceof SVGElement &&
+        style.stroke !== "none" &&
+        parseFloat(style.strokeWidth) > 0
+      )
+        return "SVG stroke paint requires visual review.";
+      if (
         style.clipPath !== "none" ||
         style.maskImage !== "none" ||
         style.clip !== "auto" ||
         style.filter !== "none" ||
+        style.perspective !== "none" ||
         style.textShadow !== "none" ||
         parseFloat(style.webkitTextStrokeWidth) > 0 ||
         /\b(paint|strict|content)\b/.test(style.contain)
@@ -547,6 +600,21 @@ export function inspectPage(rules) {
         return "Clipping or paint effects require visual review.";
     }
     return null;
+  };
+  const svgTextUnclipped = (box, text) => {
+    const root = text.ownerSVGElement;
+    if (!root) return false;
+    const style = getComputedStyle(root);
+    const bounds = rect(root);
+    // rationale: An SVG viewport clips against its CSS box, not the user-unit
+    // dimensions or its descendants' union. HTML ancestors keep their own clips.
+    return (
+      (style.overflowX === "visible" ||
+        (box.left >= bounds.left && box.right <= bounds.right)) &&
+      (style.overflowY === "visible" ||
+        (box.top >= bounds.top && box.bottom <= bounds.bottom)) &&
+      unclipped(box, root)
+    );
   };
   const selectedLabelWidth = (el, style, label) => {
     // Ask this browser's native layout for a one-option select's intrinsic
@@ -681,7 +749,10 @@ export function inspectPage(rules) {
           problems: [],
         };
         const problems = new Set();
-        const problem = textGeometryProblem(el);
+        const problem = textGeometryProblem(
+          el,
+          rule.type === "no-text-overlap",
+        );
         if (problem) problems.add(problem);
         if (document.fonts.status !== "loaded")
           problems.add("Fonts are still loading.");
@@ -694,7 +765,9 @@ export function inspectPage(rules) {
           const fragments = [];
           observation.peers = [];
           for (const item of items.slice(0, 64)) {
-            const problem = textGeometryProblem(item);
+            if (item instanceof SVGElement && !(item instanceof SVGTextElement))
+              problems.add("SVG peers must be plain text elements.");
+            const problem = textGeometryProblem(item, true);
             if (problem) problems.add(problem);
             if (items.some((other) => other !== item && item.contains(other)))
               problems.add("Declared text peers must not contain one another.");
@@ -717,14 +790,18 @@ export function inspectPage(rules) {
             const boxes = [];
             const nodes = renderedTextNodes(item);
             for (const node of nodes) {
-              const problem = textGeometryProblem(node.parentElement);
+              const problem = textGeometryProblem(node.parentElement, true);
               if (problem) problems.add(problem);
               const range = document.createRange();
               range.setStart(node, node.textContent.search(/\S/));
               range.setEnd(node, node.textContent.trimEnd().length);
               for (const box of range.getClientRects()) {
                 if (box.width <= 0 || box.height <= 0) continue;
-                if (!unclipped(box, node.parentElement, true))
+                if (
+                  !(node.parentElement instanceof SVGTextElement
+                    ? svgTextUnclipped(box, node.parentElement)
+                    : unclipped(box, node.parentElement, true))
+                )
                   problems.add("Text fragments meet a clipping ancestor.");
                 boxes.push(box);
               }

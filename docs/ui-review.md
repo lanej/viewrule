@@ -187,8 +187,7 @@ hash: rerun captures when data or application state changes.
 
 ## Scoped text legibility
 
-`no-text-overlap` compares individual text fragments between authored neighboring
-labels, allowing wrapping. `select-label-space` compares a selected native label's
+`no-text-overlap` compares individual text fragments between authored neighboring HTML labels, allowing wrapping, or plain horizontal SVG `<text>` peers with uniform `viewBox` scaling and translation. SVG spans and unsupported geometry remain unassessed. `select-label-space` compares a selected native label's
 intrinsic control width with its actual allocation. Both retain measured or
 unassessed observations in JSON and HTML; unsupported evidence cannot establish
 coverage. Read [semantics, examples, and limitations](text-legibility.md) before

@@ -38,12 +38,11 @@ excerpts, fragment counts, the total intersecting fragment-pair count, and up to
 64 intersections with zero-based peer indices and width/height. Repeated fragment
 intersections are not independent usability defects.
 
-Missing required groups, insufficient peers, empty text, nested peers, or more
-than 256 fragments in a group are unassessed. So are non-HTML content, native
-control internals, generated text, detected shadow content, scaled/rotated text,
-vertical writing, clipping fragments, and detected masks/paint effects. Scope
-such content separately and inspect its capture. Closed shadow trees cannot be
-enumerated; avoid mixing their hosts into a DOM-text contract.
+Plain inline SVG `<text>` peers are also supported inside an authored HTML, `<svg>`, or `<g>` group. Browser text ranges already include `viewBox` scaling and translation in their viewport CSS-pixel rectangles; the same tolerance and report fields apply. Only horizontal text with uniform positive scaling is assessed. Hidden responsive peers are excluded, and fragments meeting a clipping SVG viewport or HTML ancestor remain unassessed. This does not change minimum-font-size measurements.
+
+SVG `<tspan>` and other nested text content, native stroke paint, per-character position lists or rotation, adjusted text length, wrapped text, nested SVG viewports, viewport borders/padding, and nonuniform or rotated geometry remain unassessed. Selected SVG peers must be `<text>` elements, not groups or referenced content. Ordinary scale/rotation on HTML text remains unsupported. There is no automatic chart-wide peer discovery.
+
+Missing required groups, insufficient peers, empty text, nested peers, or more than 256 fragments in a group are unassessed. So are other non-HTML content, native control internals, generated text, detected shadow content, vertical writing, clipping fragments, and detected masks/paint effects. Scope such content separately and inspect its capture. Closed shadow trees cannot be enumerated; avoid mixing their hosts into a DOM-text contract.
 
 This falsifies a declared fragment-separation boundary (DR-006/DR-015). Range
 rectangles include typographic space and are not glyph outlines. Occlusion,
