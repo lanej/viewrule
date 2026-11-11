@@ -1,0 +1,421 @@
+{
+  "caseCommit": "10b034cea911ef39d59a324386abcca4f544fb15",
+  "engineArchiveSha256": "53b0d1b274f203c25a38259c7ae3b3eff85e626729cabfe5e9fa727bcdcce9b5",
+  "kind": "model-free fixture calibration, not agent outcomes",
+  "viewportCSSPixels": {
+    "phone": [
+      390,
+      844
+    ],
+    "desktop": [
+      1280,
+      900
+    ]
+  },
+  "fixtures": [
+    {
+      "name": "starting",
+      "execution": "completed",
+      "accepted": false,
+      "integrity": [],
+      "configuredCheckExitCode": 1,
+      "failedRequirements": [
+        {
+          "id": "initial-controls",
+          "state": "online",
+          "viewport": "phone",
+          "passed": false,
+          "error": "checked must fit initially"
+        },
+        {
+          "id": "initial-controls",
+          "state": "stale",
+          "viewport": "phone",
+          "passed": false,
+          "error": "checked must fit initially"
+        },
+        {
+          "id": "initial-controls",
+          "state": "empty",
+          "viewport": "phone",
+          "passed": false,
+          "error": "checked must fit initially"
+        },
+        {
+          "id": "initial-controls",
+          "state": "scheduler-off",
+          "viewport": "phone",
+          "passed": false,
+          "error": "checked must fit initially"
+        },
+        {
+          "id": "initial-controls",
+          "state": "online",
+          "viewport": "desktop",
+          "passed": false,
+          "error": "checked must fit initially"
+        },
+        {
+          "id": "initial-controls",
+          "state": "stale",
+          "viewport": "desktop",
+          "passed": false,
+          "error": "checked must fit initially"
+        },
+        {
+          "id": "initial-controls",
+          "state": "empty",
+          "viewport": "desktop",
+          "passed": false,
+          "error": "checked must fit initially"
+        },
+        {
+          "id": "initial-controls",
+          "state": "scheduler-off",
+          "viewport": "desktop",
+          "passed": false,
+          "error": "checked must fit initially"
+        }
+      ],
+      "configuredFindings": [
+        {
+          "page": "online",
+          "viewport": "phone",
+          "rule": "freshness-controls",
+          "severity": "error",
+          "selector": "#connection,#checked,#update-label,#refresh-now,#auto-updates",
+          "element": "#connection",
+          "message": "Only 1 complete items fit in the initial viewport.",
+          "reason": "Show connection, last check, update state and both controls without scrolling.",
+          "actual": 1,
+          "expected": 5,
+          "box": {
+            "x": 292.3125,
+            "y": 25.5,
+            "width": 79.6875,
+            "height": 24
+          },
+          "designRules": [
+            "DR-006"
+          ],
+          "suggestion": "Reduce excess spacing or reflow the comparison to reveal the required items.",
+          "evidenceKind": "DOM/capture",
+          "identity": "finding:27d52cc708ab07c0:1"
+        },
+        {
+          "page": "online",
+          "viewport": "desktop",
+          "rule": "freshness-controls",
+          "severity": "error",
+          "selector": "#connection,#checked,#update-label,#refresh-now,#auto-updates",
+          "element": "#connection",
+          "message": "Only 1 complete items fit in the initial viewport.",
+          "reason": "Show connection, last check, update state and both controls without scrolling.",
+          "actual": 1,
+          "expected": 5,
+          "box": {
+            "x": 1056.3125,
+            "y": 24,
+            "width": 79.6875,
+            "height": 45
+          },
+          "designRules": [
+            "DR-006"
+          ],
+          "suggestion": "Reduce excess spacing or reflow the comparison to reveal the required items.",
+          "evidenceKind": "DOM/capture",
+          "identity": "finding:6c4e05982ec4ab02:1"
+        },
+        {
+          "page": "stale",
+          "viewport": "phone",
+          "rule": "freshness-controls",
+          "severity": "error",
+          "selector": "#connection,#checked,#update-label,#refresh-now,#auto-updates",
+          "element": "#connection",
+          "message": "Only 1 complete items fit in the initial viewport.",
+          "reason": "Show connection, last check, update state and both controls without scrolling.",
+          "actual": 1,
+          "expected": 5,
+          "box": {
+            "x": 288.75,
+            "y": 25.5,
+            "width": 83.25,
+            "height": 24
+          },
+          "designRules": [
+            "DR-006"
+          ],
+          "suggestion": "Reduce excess spacing or reflow the comparison to reveal the required items.",
+          "evidenceKind": "DOM/capture",
+          "identity": "finding:298c9ff23fe20bc6:1"
+        },
+        {
+          "page": "stale",
+          "viewport": "desktop",
+          "rule": "freshness-controls",
+          "severity": "error",
+          "selector": "#connection,#checked,#update-label,#refresh-now,#auto-updates",
+          "element": "#connection",
+          "message": "Only 1 complete items fit in the initial viewport.",
+          "reason": "Show connection, last check, update state and both controls without scrolling.",
+          "actual": 1,
+          "expected": 5,
+          "box": {
+            "x": 1052.75,
+            "y": 24,
+            "width": 83.25,
+            "height": 45
+          },
+          "designRules": [
+            "DR-006"
+          ],
+          "suggestion": "Reduce excess spacing or reflow the comparison to reveal the required items.",
+          "evidenceKind": "DOM/capture",
+          "identity": "finding:e162b5ed4c834de9:1"
+        },
+        {
+          "page": "empty",
+          "viewport": "phone",
+          "rule": "freshness-controls",
+          "severity": "error",
+          "selector": "#connection,#checked,#update-label,#refresh-now,#auto-updates",
+          "element": "#connection",
+          "message": "Only 1 complete items fit in the initial viewport.",
+          "reason": "Show connection, last check, update state and both controls without scrolling.",
+          "actual": 1,
+          "expected": 5,
+          "box": {
+            "x": 288.75,
+            "y": 25.5,
+            "width": 83.25,
+            "height": 24
+          },
+          "designRules": [
+            "DR-006"
+          ],
+          "suggestion": "Reduce excess spacing or reflow the comparison to reveal the required items.",
+          "evidenceKind": "DOM/capture",
+          "identity": "finding:4ee46b5a92a48eb9:1"
+        },
+        {
+          "page": "empty",
+          "viewport": "desktop",
+          "rule": "freshness-controls",
+          "severity": "error",
+          "selector": "#connection,#checked,#update-label,#refresh-now,#auto-updates",
+          "element": "#connection",
+          "message": "Only 1 complete items fit in the initial viewport.",
+          "reason": "Show connection, last check, update state and both controls without scrolling.",
+          "actual": 1,
+          "expected": 5,
+          "box": {
+            "x": 1052.75,
+            "y": 24,
+            "width": 83.25,
+            "height": 45
+          },
+          "designRules": [
+            "DR-006"
+          ],
+          "suggestion": "Reduce excess spacing or reflow the comparison to reveal the required items.",
+          "evidenceKind": "DOM/capture",
+          "identity": "finding:405e25e14e40dfe6:1"
+        },
+        {
+          "page": "scheduler-off",
+          "viewport": "phone",
+          "rule": "freshness-controls",
+          "severity": "error",
+          "selector": "#connection,#checked,#update-label,#refresh-now,#auto-updates",
+          "element": "#connection",
+          "message": "Only 1 complete items fit in the initial viewport.",
+          "reason": "Show connection, last check, update state and both controls without scrolling.",
+          "actual": 1,
+          "expected": 5,
+          "box": {
+            "x": 292.3125,
+            "y": 25.5,
+            "width": 79.6875,
+            "height": 24
+          },
+          "designRules": [
+            "DR-006"
+          ],
+          "suggestion": "Reduce excess spacing or reflow the comparison to reveal the required items.",
+          "evidenceKind": "DOM/capture",
+          "identity": "finding:e0a1e972c2c28274:1"
+        },
+        {
+          "page": "scheduler-off",
+          "viewport": "desktop",
+          "rule": "freshness-controls",
+          "severity": "error",
+          "selector": "#connection,#checked,#update-label,#refresh-now,#auto-updates",
+          "element": "#connection",
+          "message": "Only 1 complete items fit in the initial viewport.",
+          "reason": "Show connection, last check, update state and both controls without scrolling.",
+          "actual": 1,
+          "expected": 5,
+          "box": {
+            "x": 1056.3125,
+            "y": 24,
+            "width": 79.6875,
+            "height": 45
+          },
+          "designRules": [
+            "DR-006"
+          ],
+          "suggestion": "Reduce excess spacing or reflow the comparison to reveal the required items.",
+          "evidenceKind": "DOM/capture",
+          "identity": "finding:ad39d87224c534ec:1"
+        }
+      ]
+    },
+    {
+      "name": "passing",
+      "execution": "completed",
+      "accepted": true,
+      "integrity": [],
+      "configuredCheckExitCode": 0,
+      "failedRequirements": [],
+      "configuredFindings": []
+    },
+    {
+      "name": "broken-repair",
+      "execution": "completed",
+      "accepted": false,
+      "integrity": [],
+      "configuredCheckExitCode": 0,
+      "failedRequirements": [
+        {
+          "id": "retained-content",
+          "state": "online",
+          "viewport": "phone",
+          "passed": false,
+          "error": "Expected values to be strictly deep-equal:\n+ actual - expected\n\n  [\n    'Off',\n+   'Off \u00b7 Next',\n-   'On \u00b7 Next',\n    'Off',\n    'On'\n  ]\n"
+        },
+        {
+          "id": "manual-refresh-stays-paused",
+          "state": "online",
+          "viewport": "phone",
+          "passed": false,
+          "error": "Expected values to be strictly equal:\n\n'false' !== 'true'\n"
+        },
+        {
+          "id": "resume-refreshes-once",
+          "state": "online",
+          "viewport": "phone",
+          "passed": false,
+          "error": "No automatic refresh before 30 seconds\n\n3 !== 2\n"
+        },
+        {
+          "id": "visible-warning",
+          "state": "stale",
+          "viewport": "phone",
+          "passed": false,
+          "error": "The expression evaluated to a falsy value:\n\n  assert.ok(await page.locator(\"#warning\").isVisible())\n"
+        },
+        {
+          "id": "retained-content",
+          "state": "stale",
+          "viewport": "phone",
+          "passed": false,
+          "error": "Expected values to be strictly deep-equal:\n+ actual - expected\n\n  [\n    'Off',\n+   'Off \u00b7 Next',\n-   'On \u00b7 Next',\n    'Off',\n    'On'\n  ]\n"
+        },
+        {
+          "id": "visible-warning",
+          "state": "empty",
+          "viewport": "phone",
+          "passed": false,
+          "error": "The expression evaluated to a falsy value:\n\n  assert.ok(await page.locator(\"#warning\").isVisible())\n"
+        },
+        {
+          "id": "retained-content",
+          "state": "empty",
+          "viewport": "phone",
+          "passed": false,
+          "error": "Expected values to be strictly deep-equal:\n+ actual - expected\n\n  [\n    'Off',\n+   'Off \u00b7 Next',\n-   'On \u00b7 Next',\n    'Off',\n    'On'\n  ]\n"
+        },
+        {
+          "id": "visible-warning",
+          "state": "scheduler-off",
+          "viewport": "phone",
+          "passed": false,
+          "error": "The expression evaluated to a falsy value:\n\n  assert.ok(await page.locator(\"#warning\").isVisible())\n"
+        },
+        {
+          "id": "retained-content",
+          "state": "scheduler-off",
+          "viewport": "phone",
+          "passed": false,
+          "error": "Expected values to be strictly deep-equal:\n+ actual - expected\n\n  [\n    'Off',\n+   'Off \u00b7 Next',\n-   'On \u00b7 Next',\n    'Off',\n    'On'\n  ]\n"
+        },
+        {
+          "id": "retained-content",
+          "state": "online",
+          "viewport": "desktop",
+          "passed": false,
+          "error": "Expected values to be strictly deep-equal:\n+ actual - expected\n\n  [\n    'Off',\n+   'Off \u00b7 Next',\n-   'On \u00b7 Next',\n    'Off',\n    'On'\n  ]\n"
+        },
+        {
+          "id": "manual-refresh-stays-paused",
+          "state": "online",
+          "viewport": "desktop",
+          "passed": false,
+          "error": "Expected values to be strictly equal:\n\n'false' !== 'true'\n"
+        },
+        {
+          "id": "resume-refreshes-once",
+          "state": "online",
+          "viewport": "desktop",
+          "passed": false,
+          "error": "No automatic refresh before 30 seconds\n\n3 !== 2\n"
+        },
+        {
+          "id": "visible-warning",
+          "state": "stale",
+          "viewport": "desktop",
+          "passed": false,
+          "error": "The expression evaluated to a falsy value:\n\n  assert.ok(await page.locator(\"#warning\").isVisible())\n"
+        },
+        {
+          "id": "retained-content",
+          "state": "stale",
+          "viewport": "desktop",
+          "passed": false,
+          "error": "Expected values to be strictly deep-equal:\n+ actual - expected\n\n  [\n    'Off',\n+   'Off \u00b7 Next',\n-   'On \u00b7 Next',\n    'Off',\n    'On'\n  ]\n"
+        },
+        {
+          "id": "visible-warning",
+          "state": "empty",
+          "viewport": "desktop",
+          "passed": false,
+          "error": "The expression evaluated to a falsy value:\n\n  assert.ok(await page.locator(\"#warning\").isVisible())\n"
+        },
+        {
+          "id": "retained-content",
+          "state": "empty",
+          "viewport": "desktop",
+          "passed": false,
+          "error": "Expected values to be strictly deep-equal:\n+ actual - expected\n\n  [\n    'Off',\n+   'Off \u00b7 Next',\n-   'On \u00b7 Next',\n    'Off',\n    'On'\n  ]\n"
+        },
+        {
+          "id": "visible-warning",
+          "state": "scheduler-off",
+          "viewport": "desktop",
+          "passed": false,
+          "error": "The expression evaluated to a falsy value:\n\n  assert.ok(await page.locator(\"#warning\").isVisible())\n"
+        },
+        {
+          "id": "retained-content",
+          "state": "scheduler-off",
+          "viewport": "desktop",
+          "passed": false,
+          "error": "Expected values to be strictly deep-equal:\n+ actual - expected\n\n  [\n    'Off',\n+   'Off \u00b7 Next',\n-   'On \u00b7 Next',\n    'Off',\n    'On'\n  ]\n"
+        }
+      ],
+      "configuredFindings": []
+    }
+  ]
+}
