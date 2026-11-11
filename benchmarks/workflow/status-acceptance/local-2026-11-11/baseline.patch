@@ -1,0 +1,229 @@
+--- a/index.html
++++ b/index.html
+@@ -13,6 +13,16 @@
+         <h1>Room controller</h1>
+         <span id="connection">Loading</span>
+       </header>
++      <section class="refresh" aria-label="Refresh controls">
++        <p>
++          <span>Last check: <time id="checked">—</time></span
++          ><span id="update-label">Loading</span>
++        </p>
++        <button id="refresh-now" type="button">Refresh now</button
++        ><button id="auto-updates" type="button" aria-pressed="false">
++          Pause updates
++        </button>
++      </section>
+       <p id="warning" role="status"></p>
+       <div class="overview">
+         <section aria-label="Current readings">
+@@ -99,16 +109,6 @@
+           </p>
+         </details>
+       </section>
+-      <section class="refresh" aria-label="Refresh controls">
+-        <p>
+-          <span>Last check: <time id="checked">—</time></span
+-          ><span id="update-label">Loading</span>
+-        </p>
+-        <button id="refresh-now" type="button">Refresh now</button
+-        ><button id="auto-updates" type="button" aria-pressed="false">
+-          Pause updates
+-        </button>
+-      </section>
+       <footer>
+         <p class="subtle">Read-only status · No device operations</p>
+       </footer>
+--- a/style.css
++++ b/style.css
+@@ -28,6 +28,14 @@
+   justify-content: space-between;
+   gap: 24px;
+ }
++header {
++  align-items: center;
++  margin-bottom: 16px;
++}
++#connection {
++  font-weight: 650;
++  text-align: right;
++}
+ h1 {
+   margin: 0;
+   font-size: 30px;
+@@ -56,14 +64,17 @@
+ }
+ .refresh {
+   padding: 14px 0;
++  margin-bottom: 14px;
+   border-block: 1px solid var(--line);
+ }
+ .refresh p {
++  justify-content: space-between;
+   display: flex;
+   flex-wrap: wrap;
+   gap: 4px 14px;
+ }
+ button {
++  min-height: 44px;
+   font: inherit;
+   padding: 7px 10px;
+   margin: 6px 8px 0 0;
+@@ -126,15 +137,32 @@
+     padding: 18px;
+   }
+   header {
+-    align-items: center;
++    flex-wrap: wrap;
+     gap: 10px;
+   }
+   h1 {
+-    font-size: 26px;
++    font-size: 25px;
+   }
+   .overview {
+     flex-direction: column;
+-    gap: 16px;
+-    margin: 18px 0;
++    gap: 12px;
++    margin: 14px 0;
++  }
++  .overview h2 {
++    margin-bottom: 4px;
++  }
++  .temperature {
++    font-size: 36px;
++    line-height: 1.2;
++  }
++  .schedule-times {
++    gap: 8px;
++    margin: 8px 0;
++  }
++  .schedule-event time {
++    font-size: 18px;
++  }
++  .schedule-event span {
++    font-size: 14px;
+   }
+ }
+--- a/app.js
++++ b/app.js
+@@ -1,7 +1,17 @@
+ let paused = false;
+-let busy = false;
++let timer;
++let pending = 0;
++let refreshQueue = Promise.resolve();
++const fields = [
++  "connection", "room", "target", "power", "checked", "warning", "service",
++];
++let observation = {
++  connection: "Loading", room: "—", target: "—", power: "—",
++  checked: "—", warning: "", service: "Loading",
++};
+ const pauseButton = document.getElementById("auto-updates");
+ const updateLabel = document.getElementById("update-label");
++
+ function showUpdateState() {
+   pauseButton.textContent = paused ? "Resume updates" : "Pause updates";
+   pauseButton.setAttribute("aria-pressed", String(paused));
+@@ -9,44 +19,76 @@
+     ? "Updates paused"
+     : "Updates every 30 seconds";
+ }
+-async function refreshStatus(manual = false) {
+-  if (busy || (!manual && (paused || document.hidden))) return;
+-  busy = true;
++
++function renderObservation(next) {
++  observation = next;
++  for (const field of fields) {
++    document.getElementById(field).textContent = next[field];
++  }
++  document.getElementById("status-page").dataset.ready = "true";
++}
++
++async function fetchObservation() {
+   try {
+     const response = await fetch(`/status.json${location.search}`, {
+       cache: "no-store",
++      signal: AbortSignal.timeout(10000),
+     });
+     if (!response.ok) throw new Error("Status unavailable");
+     const data = await response.json();
+-    for (const field of [
+-      "connection",
+-      "room",
+-      "target",
+-      "power",
+-      "checked",
+-      "warning",
+-      "service",
+-    ])
+-      document.getElementById(field).textContent = data[field];
+-    document.getElementById("status-page").dataset.ready = "true";
+-    showUpdateState();
++    if (!fields.every((field) => typeof data?.[field] === "string")) {
++      throw new Error("Incomplete status response");
++    }
++    renderObservation(data);
+   } catch {
+-    updateLabel.textContent = "Refresh failed; displayed readings may be stale";
+-  } finally {
+-    busy = false;
++    const retained = ["room", "target", "power"].some(
++      (field) => observation[field] !== "—",
++    );
++    const previousWarning = observation.warning;
++    const failure = retained
++      ? "Refresh failed. Last known readings; current connection and scheduler status could not be checked."
++      : "Refresh failed. No readings available; connection and scheduler status could not be checked.";
++    renderObservation({
++      ...observation,
++      connection: "Unavailable",
++      service: "Unknown (refresh failed)",
++      checked: new Date().toLocaleTimeString(),
++      warning: previousWarning.startsWith("Refresh failed.")
++        ? previousWarning
++        : [failure, previousWarning].filter(Boolean).join(" "),
++    });
+   }
+ }
++
++function refreshStatus(manual = false) {
++  if (!manual && (paused || document.hidden || pending)) return;
++  pending += 1;
++  refreshQueue = refreshQueue.then(fetchObservation).finally(() => {
++    pending -= 1;
++  });
++  return refreshQueue;
++}
++
++function startAutomaticUpdates() {
++  clearInterval(timer);
++  timer = setInterval(() => refreshStatus(), 30000);
++}
++
+ pauseButton.addEventListener("click", () => {
+   paused = !paused;
+   showUpdateState();
+-  if (!paused) refreshStatus();
++  clearInterval(timer);
++  if (!paused) {
++    refreshStatus(true);
++    startAutomaticUpdates();
++  }
+ });
+-document
+-  .getElementById("refresh-now")
+-  .addEventListener("click", () => refreshStatus(true));
+-setInterval(refreshStatus, 30000);
++document.getElementById("refresh-now").addEventListener("click", () => {
++  refreshStatus(true);
++});
+ document.addEventListener("visibilitychange", () => {
+   if (!document.hidden) refreshStatus();
+ });
+ showUpdateState();
+ refreshStatus();
++startAutomaticUpdates();

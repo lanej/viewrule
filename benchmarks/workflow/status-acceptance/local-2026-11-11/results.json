@@ -1,0 +1,72 @@
+{
+  "caseCommit": "10b034cea911ef39d59a324386abcca4f544fb15",
+  "requestedModel": "gpt-6.1-sol",
+  "reasoning": "medium",
+  "returnedModel": null,
+  "cli": "codex-cli 0.167.1",
+  "node": "v26.13.0",
+  "browser": "151.0.7922.34",
+  "playwright": "1.62.1",
+  "engineSha256": "53b0d1b274f203c25a38259c7ae3b3eff85e626729cabfe5e9fa727bcdcce9b5",
+  "budgetSeconds": 300,
+  "order": ["baseline", "viewrule"],
+  "attempts": [
+    {
+      "arm": "baseline",
+      "code": 0,
+      "signal": null,
+      "timedOut": false,
+      "elapsedSeconds": 170.32,
+      "usage": [
+        {
+          "input_tokens": 489234,
+          "cached_input_tokens": 430592,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 6623,
+          "reasoning_output_tokens": 1115
+        }
+      ],
+      "execution": "completed",
+      "accepted": true,
+      "failedRequirements": [],
+      "integrity": [],
+      "viewruleExitCode": 0
+    },
+    {
+      "arm": "viewrule",
+      "code": 0,
+      "signal": null,
+      "timedOut": false,
+      "elapsedSeconds": 147.56,
+      "usage": [
+        {
+          "input_tokens": 527218,
+          "cached_input_tokens": 482816,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 5349,
+          "reasoning_output_tokens": 571
+        }
+      ],
+      "execution": "completed",
+      "accepted": true,
+      "failedRequirements": [],
+      "integrity": [],
+      "viewruleExitCode": 0
+    }
+  ],
+  "limits": [
+    "One exploratory attempt per arm; no causal efficacy or speed estimate.",
+    "Write sandbox plus instructions; read isolation is not hermetic.",
+    "Model alias does not expose immutable backend identity; returned model unreported.",
+    "No blind human approval. Dollar cost and total authoring effort unmeasured."
+  ],
+  "evaluatorSha256": "4d087906a934b65236799b5608eb18fe6cded9626ee01e9eb9b201ed5d0e9a34",
+  "authoredContractEffort": null,
+  "providerDollarCost": null,
+  "assistedUsageError": "One guide command included unsupported --project arguments; the agent retried guide without them and completed.",
+  "rawTranscripts": "Retained locally; not included in this public summary.",
+  "patchSha256": {
+    "baseline": "dbc57bf0ca3800d1a75eef92a094b6fc213fe54169ab65cfde0bff7484b9b82e",
+    "viewrule": "63fc8c9fafd41aac9fbb52ffea25c610ad016d22b14628157e5d1e88a74463d3"
+  }
+}

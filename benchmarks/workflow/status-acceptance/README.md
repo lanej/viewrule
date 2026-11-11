@@ -42,3 +42,7 @@ No new agent runner is required. Use locally authenticated agent tooling, with o
 Retain actual prompts, transcripts, patches, elapsed time, token usage when reported, stopping reason, protected-input checks, and first/final evidence. Record model preflight failure separately; unavailable model access means agent execution is unrun, not passed. Stop each attempt at five minutes, preserve any partial work, and do not replace failed attempts. Evaluate outputs independently after each session. Record setup/authoring effort separately, including unavailable measurements. Results from a single exploratory pair cannot establish a causal speed or repair advantage, and a model alias does not identify an immutable provider backend.
 
 The fixture verifier runs in CI; these optional model sessions never do. Future agent-generated implementations can be evaluated without adopting their source as a new reference or changing the acceptance contract.
+
+## Recorded local attempts
+
+The [11 November 2026 pair](local-2026-11-11/README.md) completed with both outputs accepted under unchanged requirements. It retains patches, versions, hashes, usage, and important execution limits; it establishes neither a repair advantage nor a general speed advantage. These local model outcomes are separate from CI fixture calibration.
