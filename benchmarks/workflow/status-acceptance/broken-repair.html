@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Room controller status</title>
+    <link rel="stylesheet" href="/style.css" />
+    <script src="/app.js" defer></script>
+  </head>
+  <body>
+    <main id="status-page">
+      <header>
+        <h1>Room controller</h1>
+        <span id="connection">Loading</span>
+      </header>
+      <section class="refresh" aria-label="Refresh controls">
+        <p>
+          <span>Last check: <time id="checked">—</time></span
+          ><span id="update-label">Loading</span>
+        </p>
+        <button id="refresh-now" type="button">Refresh now</button
+        ><button id="auto-updates" type="button" aria-pressed="false">
+          Pause updates
+        </button>
+      </section>
+      <p id="warning" hidden role="status"></p>
+      <div class="overview">
+        <section aria-label="Current readings">
+          <h2>Room temperature</h2>
+          <strong class="temperature" id="room">—</strong>
+          <p>
+            AC <span id="power">—</span> · Target <span id="target">—</span>
+          </p>
+          <p class="subtle">Mode Cool · Display Off · Sound Muted</p>
+        </section>
+        <section>
+          <h2>Next action</h2>
+          <p id="next-action">11:30 On</p>
+          <p class="subtle">On-actions keep display and sound off.</p>
+        </section>
+      </div>
+      <section>
+        <h2>Daily schedule</h2>
+        <ol class="schedule-times">
+          <li class="schedule-event"><time>07:30</time><span>Off</span></li>
+          <li class="schedule-event">
+            <time>11:30</time><span>Off · Next</span>
+          </li>
+          <li class="schedule-event"><time>16:30</time><span>Off</span></li>
+          <li class="schedule-event"><time>18:00</time><span>On</span></li>
+        </ol>
+        <p class="subtle">Local time · Leave the outlet powered.</p>
+      </section>
+      <section class="history" hidden>
+        <h2>Recent observations</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Time</th>
+              <th>Room</th>
+              <th>AC power</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>09:55</td>
+              <td>70.7°F</td>
+              <td>On</td>
+            </tr>
+            <tr>
+              <td>09:50</td>
+              <td>999°F</td>
+              <td>On</td>
+            </tr>
+            <tr>
+              <td>09:45</td>
+              <td>69.8°F</td>
+              <td>On</td>
+            </tr>
+            <tr>
+              <td>09:40</td>
+              <td>69.4°F</td>
+              <td>On</td>
+            </tr>
+            <tr>
+              <td>09:35</td>
+              <td>69.1°F</td>
+              <td>On</td>
+            </tr>
+            <tr>
+              <td>09:30</td>
+              <td>68.9°F</td>
+              <td>Off</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+      <section class="system" aria-label="Diagnostics">
+        <details id="service-details">
+          <summary>Service details</summary>
+          <p>Schedule service: <span id="service">Loading</span></p>
+          <p>Collector: fixed synthetic observations</p>
+        </details>
+        <details id="log-details">
+          <summary>Recent scheduler log</summary>
+          <p>
+            09:30 Scheduled action completed. Historical entries do not
+            establish current connection health.
+          </p>
+        </details>
+      </section>
+
+      <footer>
+        <p class="subtle">Read-only status · No device operations</p>
+      </footer>
+    </main>
+  </body>
+</html>

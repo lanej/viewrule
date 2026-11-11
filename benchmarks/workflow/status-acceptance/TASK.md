@@ -1,0 +1,9 @@
+# Status-page freshness and refresh
+
+Improve this read-only room-controller status page. Put connection status, last-check time, automatic-update state, and refresh controls near the top, visible without scrolling at 390×844 and 1280×900. Preserve the readings, all four schedule events, history, and diagnostic disclosures. Keep all four schedule events initially visible, text at least 14 CSS pixels, and avoid overlap, clipping, or horizontal overflow. Do not remove information or hide it to make the page fit.
+
+Pause stops automatic refresh. Refresh now fetches once even while paused and leaves automatic updates paused. Resume fetches once and restores the 30-second interval. Refresh preserves keyboard focus and open disclosures. Readings, connection state, warning, and last-check time must update together. Retained readings must say last known; unavailable values must remain dashes. Scheduler failure remains distinct from connection failure.
+
+The fixture serves fixed observations from `/status.json`; `?state=online`, `stale`, `empty`, or `scheduler-off` selects an initial state. Read `data.json` for the public response format. Requests must remain local and read-only. Preserve element IDs used for readings, controls, schedule, and disclosures; markup and layout may otherwise change. Keep the existing history rows and diagnostic text. All other HTTP requests, including device operations, are forbidden.
+
+Edit only `index.html`, `style.css`, and `app.js`. Do not change this task, data, or supplied tool configuration. Normal disposable browser evidence and Viewrule run files may be written; they are not permission to change protected inputs. Use the available browser to verify desktop, phone, and refresh behavior. Explain your changes and remaining limits. A passing automated check is not human design approval.

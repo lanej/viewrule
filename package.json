@@ -44,6 +44,7 @@
     "lint": "eslint . --max-warnings 0",
     "analyze": "tsc --project tsconfig.json",
     "check": "npm run format:check && npm run lint && npm run analyze && npm run guide:check && npm run agents:check",
+    "acceptance:status": "node scripts/status-acceptance.mjs",
     "check:composition": "node scripts/check-review.mjs composition",
     "format": "prettier --write .",
     "format:check": "prettier --check .",

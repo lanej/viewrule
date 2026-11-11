@@ -22,6 +22,7 @@ import { execFile } from "node:child_process";
 import { chromium } from "playwright";
 import { PNG } from "pngjs";
 import { inspectPage } from "../src/checks.mjs";
+import { verifyFixtures as verifyStatusAcceptance } from "../benchmarks/workflow/status-acceptance/case.mjs";
 import { runPatternReviewScenario } from "./pattern-scenario.mjs";
 import { runCompositionScenario } from "./composition-scenario.mjs";
 import { runSavedComparisonScenario } from "./saved-comparison-scenario.mjs";
@@ -1777,6 +1778,11 @@ test(
     assert.match(
       await readFile(path.join(path.dirname(textFile), "index.html"), "utf8"),
       /Scoped text geometry/,
+    );
+
+    await verifyStatusAcceptance(
+      path.join(repository, "dist/status-acceptance-evidence"),
+      cli,
     );
 
     const compositionEvidence = await runCompositionScenario({

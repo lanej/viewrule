@@ -150,3 +150,7 @@ The evaluation record must distinguish:
 Report paired outcomes rather than a single density/quality score. Include cases
 with no benefit or regressions. No claim of better designs, reliability, speed, or
 cost follows from this protocol or from passing repository CI alone.
+
+## Repeatable status-page acceptance
+
+The [Midea-derived status task](status-acceptance/README.md) freezes synthetic inputs and independently checks freshness controls, retained status information, and refresh behavior. Installed CI validates starting, passing, and broken repairs without model access. Locally authenticated agents can attempt the same task and have their outputs evaluated by the same acceptance checks; those sessions are separate from the CI gate.
