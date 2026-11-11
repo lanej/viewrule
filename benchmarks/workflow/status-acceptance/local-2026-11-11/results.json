@@ -68,5 +68,15 @@
   "patchSha256": {
     "baseline": "dbc57bf0ca3800d1a75eef92a094b6fc213fe54169ab65cfde0bff7484b9b82e",
     "viewrule": "63fc8c9fafd41aac9fbb52ffea25c610ad016d22b14628157e5d1e88a74463d3"
+  },
+  "presentationReview": {
+    "status": "changes_requested",
+    "scope": "Reference presentation in PR77; not blind per-arm grading",
+    "feedback": [
+      "Explain the measured violation using desktop evidence",
+      "Distinguish data-feed refresh from appliance operation",
+      "Use concise contextual labels; consider accessible mobile icons"
+    ],
+    "automaticResultsChanged": false
   }
 }

@@ -31,3 +31,7 @@ Elapsed time covers the agent process, including its tool use, but excludes shar
 Full prompts, before/after apps and manifests, original event transcripts, stderr, original-size screenshots, and independent/engine reports remain in the task's local evidence directory. Public results omit account/transport metadata and do not substitute an agent's own completion message for acceptance. The current evaluator passes are scoped to the frozen assertions; browser captures and unblinded agent inspection do not certify overall usability or universal absence of clipping/occlusion.
 
 The reusable result is the task and acceptance machinery: new agent outputs can be evaluated against the same frozen requirements. This pair did not show an additional repair benefit because both arms satisfied those requirements.
+
+## Subsequent presentation review
+
+Human feedback on PR #77's reference screenshots requested clearer desktop evidence, explicit data-feed action scope, concise labels, and compact accessible icons on mobile. These judgments were not covered by the frozen oracle. They remain design changes requested for the demonstration, not retrospective automatic failures or blind per-arm grades. The original patches, timing, and acceptance results above are unchanged.

@@ -46,3 +46,9 @@ The fixture verifier runs in CI; these optional model sessions never do. Future 
 ## Recorded local attempts
 
 The [11 November 2026 pair](local-2026-11-11/README.md) completed with both outputs accepted under unchanged requirements. It retains patches, versions, hashes, usage, and important execution limits; it establishes neither a repair advantage nor a general speed advantage. These local model outcomes are separate from CI fixture calibration.
+
+## Design review remains open
+
+Review of the initial PR presentation requested desktop evidence that explains the measured failure, precise data-feed terminology, concise Refresh/Pause labels, and contextual mobile icons with accessible names. These actions update the displayed readings; they do not operate the appliance. The original screenshots did not establish why these actions deserved their proposed placement or whether the presentation was economical.
+
+[DR-011](../../../docs/design-rules/DR-011-action-scope.md) already permits familiar compact controls with accessible names and says that repeating an unambiguous scope in every button is unnecessary. The frozen acceptance case does not assess that judgment, responsive action presentation, or visual priority. Geometry and behavior passing here must not be presented as design approval. This human feedback concerns the reference presentation; it is not a blind grade of each agent output. The recorded automatic outcomes remain unchanged.
