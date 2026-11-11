@@ -1598,6 +1598,10 @@ test(
         "svg-crowded",
         "svg-repaired",
         "svg-unsupported",
+        "svg-stroke-override",
+        "svg-projective",
+        "svg-absolute",
+        "svg-absolute-clipped",
       ].map((id) => ({
         id: `text-${id}`,
         type: "no-text-overlap",
@@ -1658,7 +1662,9 @@ test(
       "text-crowded",
       "text-generated",
       "text-generated-visibility",
+      "text-svg-absolute-clipped",
       "text-svg-crowded",
+      "text-svg-projective",
       "text-svg-unsupported",
       "text-visibility-crowded",
     ]);
@@ -1671,6 +1677,8 @@ test(
       "text-wrapped",
       "text-visibility-repaired",
       "text-svg-repaired",
+      "text-svg-stroke-override",
+      "text-svg-absolute",
     ]) {
       assert.equal(textMeasurement(id).status, "measured");
       assert.equal(textMeasurement(id).overlapCount, 0);
@@ -1694,6 +1702,21 @@ test(
         problem.includes("SVG stroke paint"),
       ),
     );
+    for (const [id, reason] of [
+      ["text-svg-projective", "Projective or 3D"],
+      ["text-svg-absolute-clipped", "clipping ancestor"],
+    ]) {
+      assert.equal(textMeasurement(id).status, "unassessed");
+      assert.ok(
+        textMeasurement(id).problems.some((problem) =>
+          problem.includes(reason),
+        ),
+      );
+      assert.equal(
+        textPage.metrics.evaluations.find((r) => r.rule === id).status,
+        "unassessed",
+      );
+    }
     assert.equal(textMeasurement("text-visibility-crowded").overlapCount, 1);
     assert.ok(
       textMeasurement("text-visibility-crowded").overlaps[0].width > 15,

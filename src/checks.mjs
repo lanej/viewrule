@@ -225,30 +225,47 @@ export function inspectPage(rules) {
     };
   };
   const positionedContainer = (el, fixed) => {
-    let candidate = el.offsetParent;
-    // offsetParent can stop at an effective-zoom boundary that does not
-    // establish a containing block. Continue past those plain static boxes.
+    const svgRoot = el instanceof SVGSVGElement;
+    let candidate = svgRoot ? el.parentElement : el.offsetParent;
+    // rationale: Outer SVG has no offsetParent. Walk its CSS ancestors for the
+    // containing block; HTML offsetParent can stop at a plain zoom boundary.
     while (candidate) {
       const style = getComputedStyle(candidate);
+      if (svgRoot && style.display === "contents") {
+        candidate = candidate.parentElement;
+        continue;
+      }
+      // rationale: A nonreplaced inline box cannot establish a transform
+      // containing block, even when its computed transform is not none.
+      const transformable =
+        style.display !== "inline" ||
+        candidate.matches(
+          "img,video,canvas,iframe,object,embed,input,select,textarea",
+        );
       if (
-        (!fixed && style.position !== "static") ||
-        [
-          "transform",
-          "translate",
-          "rotate",
-          "scale",
-          "perspective",
-          "filter",
-          "backdropFilter",
-        ].some((property) => style[property] !== "none") ||
-        /\b(layout|paint|strict|content)\b/.test(style.contain) ||
-        /\b(transform|translate|rotate|scale|perspective|filter|backdrop-filter|contain)\b/.test(
-          style.willChange,
+        (!fixed &&
+          style.position !== "static" &&
+          style.display !== "contents") ||
+        (transformable &&
+          ["transform", "translate", "rotate", "scale", "perspective"].some(
+            (property) => style[property] !== "none",
+          )) ||
+        ["filter", "backdropFilter"].some(
+          (property) => style[property] !== "none",
         ) ||
-        style.contentVisibility === "auto"
+        (transformable &&
+          /\b(layout|paint|strict|content)\b/.test(style.contain)) ||
+        (transformable &&
+          /\b(transform|translate|rotate|scale|perspective)\b/.test(
+            style.willChange,
+          )) ||
+        /\b(filter|backdrop-filter)\b/.test(style.willChange) ||
+        (transformable &&
+          (/\bcontain\b/.test(style.willChange) ||
+            style.contentVisibility === "auto"))
       )
         return candidate;
-      candidate = candidate.offsetParent;
+      candidate = svgRoot ? candidate.parentElement : candidate.offsetParent;
     }
     return null;
   };
@@ -256,8 +273,7 @@ export function inspectPage(rules) {
     let containingBlock = null;
     for (let el = subject; el; el = el.parentElement) {
       // Out-of-flow content bypasses overflow ancestors between it and its
-      // containing block. offsetParent supplies Chromium's actual boundary,
-      // including transformed containing blocks for fixed-position content.
+      // containing block, including transforms that contain fixed content.
       if (containingBlock && el !== containingBlock) continue;
       containingBlock = null;
       const style = getComputedStyle(el);
@@ -276,7 +292,7 @@ export function inspectPage(rules) {
           return false;
       }
       if (
-        el instanceof HTMLElement &&
+        (el instanceof HTMLElement || el instanceof SVGSVGElement) &&
         style.display !== "contents" &&
         ["absolute", "fixed"].includes(style.position)
       ) {
@@ -539,6 +555,20 @@ export function inspectPage(rules) {
       const root = el instanceof SVGSVGElement ? el : el.ownerSVGElement;
       if (!root || root.ownerSVGElement)
         return "Nested SVG viewports are unsupported.";
+      for (
+        let current = /** @type {Element} */ (el);
+        current instanceof SVGElement;
+        current = current.parentElement
+      ) {
+        const transform = getComputedStyle(current).transform;
+        if (transform !== "none" && !new DOMMatrix(transform).is2D)
+          return "Projective or 3D SVG transforms are unsupported.";
+      }
+      if (el instanceof SVGTextElement) {
+        const style = getComputedStyle(el);
+        if (style.stroke !== "none" && parseFloat(style.strokeWidth) > 0)
+          return "SVG stroke paint requires visual review.";
+      }
       const matrix = el.getScreenCTM();
       if (
         !matrix ||
@@ -581,12 +611,6 @@ export function inspectPage(rules) {
       const style = getComputedStyle(current);
       if (style.writingMode !== "horizontal-tb")
         return "Vertical writing is unsupported.";
-      if (
-        current instanceof SVGElement &&
-        style.stroke !== "none" &&
-        parseFloat(style.strokeWidth) > 0
-      )
-        return "SVG stroke paint requires visual review.";
       if (
         style.clipPath !== "none" ||
         style.maskImage !== "none" ||
