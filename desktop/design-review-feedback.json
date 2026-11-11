@@ -1,0 +1,12 @@
+{
+  "scope": "PR77 reference presentation; not blind grading of the two agent arms",
+  "humanDesignApproval": false,
+  "reviewStatus": "changes requested",
+  "feedback": [
+    "Screenshots must explain the observed failure and its task consequence.",
+    "Use desktop as the primary representation here.",
+    "Refresh/pause actions affect the data feed, not appliance temperature or power.",
+    "Concise Refresh/Pause labels are sufficient in context; familiar accessible icons may be a better mobile presentation."
+  ],
+  "coverageGap": "The frozen case tests an authored visibility/behavior contract. It does not establish action priority, label economy, or appropriate responsive presentation. Existing DR-011 guidance already allows compact contextual controls. Automatic results remain unchanged."
+}
