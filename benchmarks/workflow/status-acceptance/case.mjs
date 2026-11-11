@@ -24,6 +24,8 @@ const viewports = [
   { name: "phone", width: 390, height: 844 },
   { name: "desktop", width: 1280, height: 900 },
 ];
+export const caseRevision = 2;
+const compact = (value) => value.replace(/\s+/g, "");
 const sourceFiles = ["index.html", "style.css", "app.js"];
 const protectedFiles = [
   "TASK.md",
@@ -84,7 +86,9 @@ export async function prepareCase(
   variant = "starting",
   assistance = true,
 ) {
-  assert.ok(["starting", "passing", "broken-repair"].includes(variant));
+  assert.ok(
+    ["starting", "passing", "broken-repair", "pointer-only"].includes(variant),
+  );
   validateRules(rules);
   const application = path.join(destination, "app");
   // rationale: Refuse reuse so a retry cannot overwrite an earlier agent attempt.
@@ -97,7 +101,9 @@ export async function prepareCase(
         ? "starting.html"
         : variant === "broken-repair"
           ? "broken-repair.html"
-          : "passing.html",
+          : variant === "pointer-only"
+            ? "pointer-only.html"
+            : "passing.html",
     ),
     path.join(application, "index.html"),
   );
@@ -126,7 +132,9 @@ export async function prepareCase(
     hashes[file] = digest(await readFile(path.join(application, file)));
   const manifest = {
     version: 1,
+    caseRevision,
     evaluatorSha256: digest(await readFile(import.meta.filename)),
+    caseDataSha256: digest(await readFile(path.join(root, "data.json"))),
     assistance,
     sourceHashes: Object.fromEntries(
       await Promise.all(
@@ -212,6 +220,7 @@ export async function evaluateCase(destination, output, check = sourceCheck) {
   );
   const manifest = await json(path.join(destination, "manifest.json"));
   const result = {
+    caseRevision,
     execution: "running",
     integrity: [],
     accepted: false,
@@ -232,10 +241,17 @@ export async function evaluateCase(destination, output, check = sourceCheck) {
   let forbiddenTraffic = false;
   try {
     result.integrity = await integrity(application, manifest);
+    if (manifest.caseRevision !== caseRevision)
+      result.integrity.push("Case revision changed since preparation");
     if (
       manifest.evaluatorSha256 !== digest(await readFile(import.meta.filename))
     )
       result.integrity.push("Evaluator changed since preparation");
+    if (
+      manifest.caseDataSha256 !==
+      digest(await readFile(path.join(root, "data.json")))
+    )
+      result.integrity.push("Case data changed since preparation");
     for (const file of sourceFiles)
       result.sourceHashes[file] = digest(
         await readFile(path.join(application, file)),
@@ -335,6 +351,31 @@ export async function evaluateCase(destination, output, check = sourceCheck) {
               );
           };
           await verify("state-values", () => snapshot(expectedData[state]));
+          await verify("retained-facts", async () => {
+            for (const [field, expected] of Object.entries(
+              expectedData.retainedFacts,
+            )) {
+              const element = page.locator(`#${field}`);
+              assert.equal(await element.count(), 1, `Retain ${field}`);
+              assert.equal((await element.innerText()).trim(), expected, field);
+              assert.ok(
+                await element.isVisible(),
+                `${field} must remain visible`,
+              );
+            }
+          });
+          await verify("action-semantics", async () => {
+            for (const id of ["refresh-now", "auto-updates"]) {
+              const namedButton = page
+                .getByRole("button", { name: /\S/ })
+                .and(page.locator(`#${id}`));
+              assert.equal(
+                await namedButton.count(),
+                1,
+                `${id} needs a button role and accessible name`,
+              );
+            }
+          });
           if (expectedData[state].warning)
             await verify("visible-warning", async () => {
               assert.ok(await page.locator("#warning").isVisible());
@@ -367,48 +408,104 @@ export async function evaluateCase(destination, output, check = sourceCheck) {
             }
           });
           await verify("retained-content", async () => {
-            assert.deepEqual(
-              await page.locator(".schedule-event time").allTextContents(),
-              ["07:30", "11:30", "16:30", "18:00"],
-            );
-            assert.equal(
-              await page.locator("#next-action").textContent(),
-              "11:30 On",
-            );
-            assert.deepEqual(
-              await page.locator(".schedule-event span").allTextContents(),
-              ["Off", "On · Next", "Off", "On"],
-            );
-            assert.deepEqual(
-              await page.locator(".history tbody td").allTextContents(),
-              [
-                "09:55",
-                "70.7°F",
-                "On",
-                "09:50",
-                "70.3°F",
-                "On",
-                "09:45",
-                "69.8°F",
-                "On",
-                "09:40",
-                "69.4°F",
-                "On",
-                "09:35",
-                "69.1°F",
-                "On",
-                "09:30",
-                "68.9°F",
-                "Off",
-              ],
-            );
+            const events = page.locator(".schedule-event");
+            const expectedEvents = [
+              ["07:30", "Off"],
+              ["11:30", "On"],
+              ["16:30", "Off"],
+              ["18:00", "On"],
+            ];
+            assert.equal(await events.count(), expectedEvents.length);
+            for (const [index, event] of expectedEvents.entries()) {
+              for (const [field, expected] of [
+                ["time", event[0]],
+                ["power", event[1]],
+              ]) {
+                const value = events
+                  .nth(index)
+                  .locator(`[data-event-field="${field}"]`);
+                assert.equal(
+                  await value.count(),
+                  1,
+                  `Schedule ${event[0]} needs one ${field} value`,
+                );
+                assert.ok(
+                  await value.isVisible(),
+                  `Schedule ${event[0]} ${field} must remain visible`,
+                );
+                assert.equal(
+                  compact(await value.innerText()),
+                  compact(expected),
+                  `Schedule ${event[0]} ${field}`,
+                );
+              }
+            }
+            for (const [field, expected] of [
+              ["time", "11:30"],
+              ["power", "On"],
+            ]) {
+              const element = page.locator(
+                `#next-action [data-next-action-field="${field}"]`,
+              );
+              assert.equal(
+                await element.count(),
+                1,
+                `Retain next-action ${field}`,
+              );
+              assert.equal((await element.innerText()).trim(), expected);
+              assert.ok(await element.isVisible());
+            }
+            const observations = page.locator(".history [data-observation]");
+            const expectedRows = [
+              ["09:55", "70.7°F", "On"],
+              ["09:50", "70.3°F", "On"],
+              ["09:45", "69.8°F", "On"],
+              ["09:40", "69.4°F", "On"],
+              ["09:35", "69.1°F", "On"],
+              ["09:30", "68.9°F", "Off"],
+            ];
+            assert.equal(await observations.count(), expectedRows.length);
+            for (const [index, row] of expectedRows.entries()) {
+              const element = observations.nth(index);
+              assert.equal(
+                await element.getAttribute("data-observation"),
+                row[0],
+              );
+              assert.ok(
+                await element.isVisible(),
+                `History ${row[0]} must remain visible`,
+              );
+              for (const [field, expected] of [
+                ["time", row[0]],
+                ["room", row[1]],
+                ["power", row[2]],
+              ]) {
+                const value = element.locator(
+                  `[data-observation-field="${field}"]`,
+                );
+                assert.equal(
+                  await value.count(),
+                  1,
+                  `History ${row[0]} needs one ${field} value`,
+                );
+                assert.ok(
+                  await value.isVisible(),
+                  `History ${row[0]} ${field} must remain visible`,
+                );
+                assert.equal(
+                  compact(await value.innerText()),
+                  compact(expected),
+                  `History ${row[0]} ${field}`,
+                );
+              }
+            }
             for (const selector of [
               "#room",
               "#target",
               "#power",
               "#next-action",
               ".history",
-              ".history tbody td",
+              ".history [data-observation]",
               ".schedule-event",
               "#service-details summary",
               "#log-details summary",
@@ -443,8 +540,19 @@ export async function evaluateCase(destination, output, check = sourceCheck) {
                 Reflect.get(window, "__statusAcceptanceRequests"),
               )) - initialRequests;
             let data = expectedData.stale;
+            let holdNextResponse = false;
+            let heldRelease;
+            let onHeld;
             await page.route("**/status.json*", async (route) => {
-              await route.fulfill({ json: data });
+              const responseData = data;
+              if (holdNextResponse) {
+                holdNextResponse = false;
+                await new Promise((resolve) => {
+                  heldRelease = resolve;
+                  onHeld();
+                });
+              }
+              await route.fulfill({ json: responseData });
             });
             await verify("pause-stops-automatic", async () => {
               await page.clock.fastForward(30000);
@@ -457,7 +565,14 @@ export async function evaluateCase(destination, output, check = sourceCheck) {
               );
             });
             await verify("manual-refresh-stays-paused", async () => {
-              await page.locator("#refresh-now").click();
+              await page.locator("#refresh-now").focus();
+              await page.locator("#refresh-now").press("Enter");
+              await page.clock.runFor(0);
+              assert.equal(
+                await requests(),
+                1,
+                "Enter must activate refresh once",
+              );
               await page
                 .locator("#checked")
                 .filter({ hasText: data.checked })
@@ -469,10 +584,6 @@ export async function evaluateCase(destination, output, check = sourceCheck) {
                   .locator("#auto-updates")
                   .getAttribute("aria-pressed"),
                 "true",
-              );
-              assert.equal(
-                await page.locator("#update-label").textContent(),
-                "Updates paused",
               );
               assert.equal(
                 await page
@@ -499,7 +610,14 @@ export async function evaluateCase(destination, output, check = sourceCheck) {
             await verify("resume-refreshes-once", async () => {
               const before = await requests();
               data = expectedData.empty;
-              await page.locator("#auto-updates").click();
+              await page.locator("#auto-updates").focus();
+              await page.locator("#auto-updates").press("Space");
+              await page.clock.runFor(0);
+              assert.equal(
+                await requests(),
+                before + 1,
+                "Space must activate resume once",
+              );
               await page
                 .locator("#checked")
                 .filter({ hasText: data.checked })
@@ -532,6 +650,99 @@ export async function evaluateCase(destination, output, check = sourceCheck) {
                 .waitFor({ timeout: 3000 });
               assert.equal(await requests(), before + 2);
               await snapshot(data);
+            });
+            await verify("pause-inflight-automatic", async () => {
+              // rationale: Reset this phase through pointer actions and distinct
+              // response values so an earlier keyboard failure cannot mask it.
+              if (
+                (await page
+                  .locator("#auto-updates")
+                  .getAttribute("aria-pressed")) !== "true"
+              )
+                await page.locator("#auto-updates").click();
+              const currentChecked = await page
+                .locator("#checked")
+                .textContent();
+              const resetData =
+                currentChecked === expectedData.online.checked
+                  ? expectedData.empty
+                  : expectedData.online;
+              const resumeData =
+                resetData === expectedData.online
+                  ? expectedData.empty
+                  : expectedData.online;
+              data = resetData;
+              const manualResponse = page.waitForResponse(
+                (response) => response.url().includes("/status.json"),
+                { timeout: 3000 },
+              );
+              await page.locator("#refresh-now").click();
+              await (await manualResponse).finished();
+              await page
+                .locator("#checked")
+                .filter({ hasText: resetData.checked })
+                .waitFor({ timeout: 3000 });
+              await snapshot(resetData);
+              if (
+                (await page
+                  .locator("#auto-updates")
+                  .getAttribute("aria-pressed")) !== "true"
+              )
+                await page.locator("#auto-updates").click();
+              data = resumeData;
+              const resumeResponse = page.waitForResponse(
+                (response) => response.url().includes("/status.json"),
+                { timeout: 3000 },
+              );
+              await page.locator("#auto-updates").click();
+              await (await resumeResponse).finished();
+              await page
+                .locator("#checked")
+                .filter({ hasText: resumeData.checked })
+                .waitFor({ timeout: 3000 });
+              await snapshot(resumeData);
+              await page.evaluate(() => Promise.resolve());
+              await page.clock.runFor(0);
+              data = expectedData.stale;
+              const held = new Promise((resolve) => {
+                onHeld = resolve;
+              });
+              holdNextResponse = true;
+              let timeout;
+              try {
+                await page.clock.runFor(30000);
+                await Promise.race([
+                  held,
+                  new Promise((_resolve, reject) => {
+                    timeout = setTimeout(
+                      () =>
+                        reject(new Error("Automatic refresh did not start")),
+                      3000,
+                    );
+                  }),
+                ]).finally(() => clearTimeout(timeout));
+                await page.locator("#auto-updates").click();
+                assert.equal(
+                  await page
+                    .locator("#auto-updates")
+                    .getAttribute("aria-pressed"),
+                  "true",
+                );
+                const responseFinished = page.waitForResponse(
+                  (response) => response.url().includes("/status.json"),
+                  { timeout: 3000 },
+                );
+                heldRelease();
+                const response = await responseFinished;
+                await response.finished();
+                await page.evaluate(() => Promise.resolve());
+                await page.clock.runFor(0);
+                await snapshot(resumeData);
+              } finally {
+                clearTimeout(timeout);
+                holdNextResponse = false;
+                heldRelease?.();
+              }
             });
             await page.screenshot({
               path: path.join(output, `${viewport.name}-after-refresh.png`),
@@ -665,7 +876,12 @@ function sourceCheck(args) {
 export async function verifyFixtures(output, check = sourceCheck) {
   await mkdir(output);
   const results = [];
-  for (const variant of ["starting", "passing", "broken-repair"]) {
+  for (const variant of [
+    "starting",
+    "passing",
+    "broken-repair",
+    "pointer-only",
+  ]) {
     const destination = path.join(output, variant);
     await prepareCase(destination, variant);
     const result = await evaluateCase(
@@ -708,7 +924,13 @@ export async function verifyFixtures(output, check = sourceCheck) {
     }
     if (variant === "broken-repair") {
       assert.equal(result.viewrule.exitCode, 0);
-      for (const id of ["visible-warning", "resume-refreshes-once"])
+      for (const id of [
+        "visible-warning",
+        "resume-refreshes-once",
+        "retained-facts",
+        "action-semantics",
+        "pause-inflight-automatic",
+      ])
         assert.ok(
           result.observations.some((entry) => entry.id === id && !entry.passed),
           `Broken repair must fail ${id}`,
@@ -725,7 +947,27 @@ export async function verifyFixtures(output, check = sourceCheck) {
         ),
       );
     }
+    if (variant === "pointer-only") {
+      assert.equal(result.viewrule.exitCode, 0);
+      assert.ok(
+        result.observations
+          .filter((entry) => entry.id === "action-semantics")
+          .every((entry) => entry.passed),
+      );
+      assert.ok(
+        result.observations
+          .filter((entry) => entry.id === "pause-inflight-automatic")
+          .every((entry) => entry.passed),
+        "Pointer-only controls must not fail the independent in-flight pause phase",
+      );
+      for (const id of ["manual-refresh-stays-paused", "resume-refreshes-once"])
+        assert.ok(
+          result.observations.some((entry) => entry.id === id && !entry.passed),
+          `Pointer-only actions must fail ${id}`,
+        );
+    }
     results.push({
+      caseRevision,
       variant,
       accepted: result.accepted,
       execution: result.execution,

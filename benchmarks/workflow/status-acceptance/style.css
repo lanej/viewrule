@@ -58,12 +58,20 @@ p {
   padding: 14px 0;
   border-block: 1px solid var(--line);
 }
+.feed-scope {
+  font-weight: 600;
+}
 .refresh p {
   display: flex;
   flex-wrap: wrap;
   gap: 4px 14px;
 }
-button {
+button,
+.feed-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   font: inherit;
   padding: 7px 10px;
   margin: 6px 8px 0 0;
@@ -74,6 +82,7 @@ button {
   cursor: pointer;
 }
 button:focus-visible,
+.feed-action:focus-visible,
 summary:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 3px;
@@ -90,7 +99,7 @@ summary:focus-visible {
   padding: 8px 0;
 }
 .schedule-event time,
-.schedule-event span {
+.schedule-event > :not(time) {
   display: block;
 }
 .schedule-event time {
@@ -136,5 +145,29 @@ summary {
     flex-direction: column;
     gap: 16px;
     margin: 18px 0;
+  }
+}
+
+.action-icon {
+  display: none;
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+@media (max-width: 620px) {
+  .feed-action {
+    min-width: 44px;
+    min-height: 44px;
+    padding: 10px;
+  }
+  .feed-action .action-icon {
+    display: block;
+  }
+  .feed-action .action-label {
+    display: none;
   }
 }

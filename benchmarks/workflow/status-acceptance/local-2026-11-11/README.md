@@ -1,5 +1,7 @@
 # Local status-task attempts — 11 November 2026
 
+**Historical revision 1 record.** These attempts were executed and evaluated with the frozen revision 1 case at `10b034cea911ef39d59a324386abcca4f544fb15`. They have not been rerun or rescored against revision 2's corrected oracle, retained-fact hooks, or keyboard/in-flight refresh coverage. All acceptance claims and patch replay instructions below refer to revision 1; prepare that original source revision when reproducing them, not the current revision 2 task. The original result JSON, patches, usage, and timing are unchanged.
+
 Both agents completed the same frozen task within five minutes and passed the unchanged independent acceptance checks and controller-run Viewrule checks. This is one exploratory attempt per arm, not evidence of a causal repair or speed advantage. No human design approval is recorded.
 
 | Arm | Completion | Independent acceptance | Protected inputs | Elapsed seconds |

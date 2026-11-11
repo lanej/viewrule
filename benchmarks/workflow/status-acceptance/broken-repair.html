@@ -13,12 +13,16 @@
         <h1>Room controller</h1>
         <span id="connection">Loading</span>
       </header>
-      <section class="refresh" aria-label="Refresh controls">
+      <section class="refresh" aria-label="Reading updates">
         <p>
+          <span class="feed-scope">Reading updates</span>
           <span>Last check: <time id="checked">—</time></span
           ><span id="update-label">Loading</span>
         </p>
-        <button id="refresh-now" type="button">Refresh now</button
+        <button id="refresh-now" type="button" class="feed-action">
+          <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24">
+            <path d="M20 7v5h-5M4 17v-5h5" stroke="currentColor" fill="none" />
+          </svg></button
         ><button id="auto-updates" type="button" aria-pressed="false">
           Pause updates
         </button>
@@ -31,23 +35,38 @@
           <p>
             AC <span id="power">—</span> · Target <span id="target">—</span>
           </p>
-          <p class="subtle">Mode Cool · Display Off · Sound Muted</p>
         </section>
         <section>
           <h2>Next action</h2>
-          <p id="next-action">11:30 On</p>
+          <p id="next-action">
+            <span data-next-action-field="time">11:30</span>
+            <span data-next-action-field="power">On</span>
+          </p>
           <p class="subtle">On-actions keep display and sound off.</p>
         </section>
       </div>
       <section>
         <h2>Daily schedule</h2>
         <ol class="schedule-times">
-          <li class="schedule-event"><time>07:30</time><span>Off</span></li>
           <li class="schedule-event">
-            <time>11:30</time><span>Off · Next</span>
+            <time data-event-field="time">07:30</time
+            ><span data-event-field="power">Off</span>
           </li>
-          <li class="schedule-event"><time>16:30</time><span>Off</span></li>
-          <li class="schedule-event"><time>18:00</time><span>On</span></li>
+          <li class="schedule-event">
+            <time data-event-field="time">11:30</time
+            ><span
+              ><span data-event-field="power">Off</span> ·
+              <span>Next</span></span
+            >
+          </li>
+          <li class="schedule-event">
+            <time data-event-field="time">16:30</time
+            ><span data-event-field="power">Off</span>
+          </li>
+          <li class="schedule-event">
+            <time data-event-field="time">18:00</time
+            ><span data-event-field="power">On</span>
+          </li>
         </ol>
         <p class="subtle">Local time · Leave the outlet powered.</p>
       </section>
@@ -62,35 +81,35 @@
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td>09:55</td>
-              <td>70.7°F</td>
-              <td>On</td>
+            <tr data-observation="09:55">
+              <td data-observation-field="time">09:55</td>
+              <td data-observation-field="room">70.7°F</td>
+              <td data-observation-field="power">On</td>
             </tr>
-            <tr>
-              <td>09:50</td>
-              <td>999°F</td>
-              <td>On</td>
+            <tr data-observation="09:50">
+              <td data-observation-field="time">09:50</td>
+              <td data-observation-field="room">999°F</td>
+              <td data-observation-field="power">On</td>
             </tr>
-            <tr>
-              <td>09:45</td>
-              <td>69.8°F</td>
-              <td>On</td>
+            <tr data-observation="09:45">
+              <td data-observation-field="time">09:45</td>
+              <td data-observation-field="room">69.8°F</td>
+              <td data-observation-field="power">On</td>
             </tr>
-            <tr>
-              <td>09:40</td>
-              <td>69.4°F</td>
-              <td>On</td>
+            <tr data-observation="09:40">
+              <td data-observation-field="time">09:40</td>
+              <td data-observation-field="room">69.4°F</td>
+              <td data-observation-field="power">On</td>
             </tr>
-            <tr>
-              <td>09:35</td>
-              <td>69.1°F</td>
-              <td>On</td>
+            <tr data-observation="09:35">
+              <td data-observation-field="time">09:35</td>
+              <td data-observation-field="room">69.1°F</td>
+              <td data-observation-field="power">On</td>
             </tr>
-            <tr>
-              <td>09:30</td>
-              <td>68.9°F</td>
-              <td>Off</td>
+            <tr data-observation="09:30">
+              <td data-observation-field="time">09:30</td>
+              <td data-observation-field="room">68.9°F</td>
+              <td data-observation-field="power">Off</td>
             </tr>
           </tbody>
         </table>

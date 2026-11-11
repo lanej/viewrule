@@ -1,23 +1,37 @@
 let paused = false;
-let busy = false;
+let pending = null;
+let interval;
 const pauseButton = document.getElementById("auto-updates");
+const refreshButton = document.getElementById("refresh-now");
 const updateLabel = document.getElementById("update-label");
+refreshButton.setAttribute("aria-label", "Refresh readings");
 function showUpdateState() {
-  pauseButton.textContent = paused ? "Resume updates" : "Pause updates";
+  const label = pauseButton.querySelector(".action-label") || pauseButton;
+  label.textContent = paused ? "Resume" : "Pause";
+  const accessibleLabel = paused
+    ? "Resume automatic refresh"
+    : "Pause automatic refresh";
+  pauseButton.setAttribute("aria-label", accessibleLabel);
+  pauseButton.setAttribute("title", accessibleLabel);
   pauseButton.setAttribute("aria-pressed", String(paused));
-  updateLabel.textContent = paused
-    ? "Updates paused"
-    : "Updates every 30 seconds";
+  const icon = pauseButton.querySelector(".action-icon path");
+  if (icon)
+    icon.setAttribute("d", paused ? "M8 5l11 7-11 7Z" : "M8 5v14M16 5v14");
+  updateLabel.textContent = paused ? "Paused" : "Updates every 30 seconds";
 }
 async function refreshStatus(manual = false) {
-  if (busy || (!manual && (paused || document.hidden))) return;
-  busy = true;
+  if (!manual && (paused || document.hidden || pending)) return;
+  const request = { manual };
+  pending = request;
   try {
     const response = await fetch(`/status.json${location.search}`, {
       cache: "no-store",
     });
     if (!response.ok) throw new Error("Status unavailable");
     const data = await response.json();
+    // rationale: Pause or a newer explicit refresh invalidates an automatic
+    // response's authority to update the page, even if its request completes.
+    if (pending !== request || (!manual && paused)) return;
     for (const field of [
       "connection",
       "room",
@@ -31,22 +45,33 @@ async function refreshStatus(manual = false) {
     document.getElementById("status-page").dataset.ready = "true";
     showUpdateState();
   } catch {
-    updateLabel.textContent = "Refresh failed; displayed readings may be stale";
+    if (pending === request)
+      updateLabel.textContent =
+        "Refresh failed; displayed readings may be stale";
   } finally {
-    busy = false;
+    if (pending === request) pending = null;
   }
+}
+function scheduleAutomaticRefresh() {
+  clearInterval(interval);
+  interval = setInterval(refreshStatus, 30000);
 }
 pauseButton.addEventListener("click", () => {
   paused = !paused;
+  clearInterval(interval);
+  if (paused) {
+    if (pending && !pending.manual) pending = null;
+  } else {
+    pending = null;
+    scheduleAutomaticRefresh();
+    refreshStatus();
+  }
   showUpdateState();
-  if (!paused) refreshStatus();
 });
-document
-  .getElementById("refresh-now")
-  .addEventListener("click", () => refreshStatus(true));
-setInterval(refreshStatus, 30000);
+refreshButton.addEventListener("click", () => refreshStatus(true));
 document.addEventListener("visibilitychange", () => {
   if (!document.hidden) refreshStatus();
 });
+scheduleAutomaticRefresh();
 showUpdateState();
 refreshStatus();

@@ -153,4 +153,4 @@ cost follows from this protocol or from passing repository CI alone.
 
 ## Repeatable status-page acceptance
 
-The [Midea-derived status task](status-acceptance/README.md) freezes synthetic inputs and independently checks freshness controls, retained status information, and refresh behavior. Installed CI validates starting, passing, and broken repairs without model access. Locally authenticated agents can attempt the same task and have their outputs evaluated by the same acceptance checks; those sessions are separate from the CI gate.
+The [Midea-derived status task](status-acceptance/README.md) freezes synthetic inputs and independently checks data-feed refresh actions, retained status information, keyboard semantics, and refresh behavior. Revision 2's installed CI story retains starting, passing, broken, and pointer-only repairs without model access. Locally authenticated agents can attempt the current task and have their outputs evaluated by the same acceptance checks; those sessions are separate from the CI gate. The retained November local pair was evaluated under revision 1 and has not been rerun or rescored against the corrected oracle.
