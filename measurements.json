@@ -1,0 +1,389 @@
+{
+  "engineCommit": "e6ee7002115928b24d2ae21821c6b660ac76e375",
+  "source": "test/templates/text-legibility.html",
+  "viewport": {
+    "name": "mobile",
+    "width": 390,
+    "height": 844
+  },
+  "toleranceCSSPixels": 1,
+  "measurements": [
+    {
+      "rule": "text-svg-absolute",
+      "type": "no-text-overlap",
+      "element": "#svg-absolute",
+      "status": "measured",
+      "problems": [],
+      "peers": [
+        {
+          "element": "text.label",
+          "text": "Alpha",
+          "fragments": 1
+        },
+        {
+          "element": "text.label",
+          "text": "Beta",
+          "fragments": 1
+        }
+      ],
+      "overlaps": [],
+      "overlapCount": 0
+    },
+    {
+      "rule": "text-svg-absolute-clipped",
+      "type": "no-text-overlap",
+      "element": "#svg-absolute-clipped",
+      "status": "unassessed",
+      "problems": [
+        "Text fragments meet a clipping ancestor."
+      ],
+      "peers": [
+        {
+          "element": "text.label",
+          "text": "Alpha",
+          "fragments": 1
+        },
+        {
+          "element": "text.label",
+          "text": "Beta",
+          "fragments": 1
+        }
+      ]
+    },
+    {
+      "rule": "text-svg-crowded",
+      "type": "no-text-overlap",
+      "element": "#svg-crowded",
+      "status": "measured",
+      "problems": [],
+      "peers": [
+        {
+          "element": "text.label",
+          "text": "Room temperature",
+          "fragments": 1
+        },
+        {
+          "element": "text.label",
+          "text": "Target temperature",
+          "fragments": 1
+        }
+      ],
+      "overlaps": [
+        {
+          "first": 0,
+          "second": 1,
+          "width": 146.875,
+          "height": 12
+        }
+      ],
+      "overlapCount": 1
+    },
+    {
+      "rule": "text-svg-projective",
+      "type": "no-text-overlap",
+      "element": "#svg-projective",
+      "status": "unassessed",
+      "problems": [
+        "Projective or 3D SVG transforms are unsupported."
+      ],
+      "peers": [
+        {
+          "element": "text.label",
+          "text": "Alpha",
+          "fragments": 1
+        },
+        {
+          "element": "text.label",
+          "text": "Beta",
+          "fragments": 1
+        }
+      ]
+    },
+    {
+      "rule": "text-svg-repaired",
+      "type": "no-text-overlap",
+      "element": "#svg-repaired",
+      "status": "measured",
+      "problems": [],
+      "peers": [
+        {
+          "element": "text.label",
+          "text": "Room temperature",
+          "fragments": 1
+        },
+        {
+          "element": "text.label",
+          "text": "Target temperature",
+          "fragments": 1
+        }
+      ],
+      "overlaps": [],
+      "overlapCount": 0
+    },
+    {
+      "rule": "text-svg-stroke-override",
+      "type": "no-text-overlap",
+      "element": "#svg-stroke-override",
+      "status": "measured",
+      "problems": [],
+      "peers": [
+        {
+          "element": "text.label",
+          "text": "Alpha",
+          "fragments": 1
+        },
+        {
+          "element": "text.label",
+          "text": "Beta",
+          "fragments": 1
+        }
+      ],
+      "overlaps": [],
+      "overlapCount": 0
+    },
+    {
+      "rule": "text-svg-unsupported",
+      "type": "no-text-overlap",
+      "element": "#svg-unsupported",
+      "status": "unassessed",
+      "problems": [
+        "SVG stroke paint requires visual review.",
+        "Only plain SVG text and svg/g groups are supported."
+      ],
+      "peers": [
+        {
+          "element": "text.label",
+          "text": "Nested span",
+          "fragments": 1
+        },
+        {
+          "element": "text.label",
+          "text": "Rotated label",
+          "fragments": 13
+        }
+      ]
+    }
+  ],
+  "evaluations": [
+    {
+      "rule": "text-svg-absolute",
+      "matched": 1,
+      "status": "checked"
+    },
+    {
+      "rule": "text-svg-absolute-clipped",
+      "matched": 1,
+      "status": "unassessed"
+    },
+    {
+      "rule": "text-svg-crowded",
+      "matched": 1,
+      "status": "checked"
+    },
+    {
+      "rule": "text-svg-projective",
+      "matched": 1,
+      "status": "unassessed"
+    },
+    {
+      "rule": "text-svg-repaired",
+      "matched": 1,
+      "status": "checked"
+    },
+    {
+      "rule": "text-svg-stroke-override",
+      "matched": 1,
+      "status": "checked"
+    },
+    {
+      "rule": "text-svg-unsupported",
+      "matched": 1,
+      "status": "unassessed"
+    }
+  ],
+  "findings": [
+    {
+      "rule": "text-svg-absolute-clipped",
+      "severity": "error",
+      "selector": "#svg-absolute-clipped",
+      "element": "#svg-absolute-clipped",
+      "message": "Text measurement is unassessed: Text fragments meet a clipping ancestor.",
+      "reason": "Keep declared task labels readable.",
+      "actual": {
+        "rule": "text-svg-absolute-clipped",
+        "type": "no-text-overlap",
+        "element": "#svg-absolute-clipped",
+        "status": "unassessed",
+        "problems": [
+          "Text fragments meet a clipping ancestor."
+        ],
+        "peers": [
+          {
+            "element": "text.label",
+            "text": "Alpha",
+            "fragments": 1
+          },
+          {
+            "element": "text.label",
+            "text": "Beta",
+            "fragments": 1
+          }
+        ]
+      },
+      "expected": "supported text geometry",
+      "box": {
+        "x": 70,
+        "y": 1719.859375,
+        "width": 200,
+        "height": 100
+      },
+      "designRules": [
+        "DR-006",
+        "DR-015"
+      ],
+      "suggestion": "Reflow the declared neighboring labels so their text fragments stay separate. Preserve readable type; wrapping is allowed. Unassessed geometry needs a supported scope or visual review.",
+      "evidenceKind": "DOM/capture",
+      "identity": "finding:a15d2d5c6b4d2990:1"
+    },
+    {
+      "rule": "text-svg-crowded",
+      "severity": "error",
+      "selector": "#svg-crowded",
+      "element": "#svg-crowded",
+      "message": "Declared labels have overlapping text fragments.",
+      "reason": "Keep declared task labels readable.",
+      "actual": {
+        "rule": "text-svg-crowded",
+        "type": "no-text-overlap",
+        "element": "#svg-crowded",
+        "status": "measured",
+        "problems": [],
+        "peers": [
+          {
+            "element": "text.label",
+            "text": "Room temperature",
+            "fragments": 1
+          },
+          {
+            "element": "text.label",
+            "text": "Target temperature",
+            "fragments": 1
+          }
+        ],
+        "overlaps": [
+          {
+            "first": 0,
+            "second": 1,
+            "width": 146.875,
+            "height": 12
+          }
+        ],
+        "overlapCount": 1
+      },
+      "expected": {
+        "maxIntersectionPerAxis": 1,
+        "units": "CSS px"
+      },
+      "box": {
+        "x": 40,
+        "y": 986.59375,
+        "width": 152.53125,
+        "height": 24
+      },
+      "designRules": [
+        "DR-006",
+        "DR-015"
+      ],
+      "suggestion": "Reflow the declared neighboring labels so their text fragments stay separate. Preserve readable type; wrapping is allowed. Unassessed geometry needs a supported scope or visual review.",
+      "evidenceKind": "DOM/capture",
+      "identity": "finding:39d53155a8796882:1"
+    },
+    {
+      "rule": "text-svg-projective",
+      "severity": "error",
+      "selector": "#svg-projective",
+      "element": "#svg-projective",
+      "message": "Text measurement is unassessed: Projective or 3D SVG transforms are unsupported.",
+      "reason": "Keep declared task labels readable.",
+      "actual": {
+        "rule": "text-svg-projective",
+        "type": "no-text-overlap",
+        "element": "#svg-projective",
+        "status": "unassessed",
+        "problems": [
+          "Projective or 3D SVG transforms are unsupported."
+        ],
+        "peers": [
+          {
+            "element": "text.label",
+            "text": "Alpha",
+            "fragments": 1
+          },
+          {
+            "element": "text.label",
+            "text": "Beta",
+            "fragments": 1
+          }
+        ]
+      },
+      "expected": "supported text geometry",
+      "box": {
+        "x": 20,
+        "y": 1384.859375,
+        "width": 157.8947296142578,
+        "height": 100
+      },
+      "designRules": [
+        "DR-006",
+        "DR-015"
+      ],
+      "suggestion": "Reflow the declared neighboring labels so their text fragments stay separate. Preserve readable type; wrapping is allowed. Unassessed geometry needs a supported scope or visual review.",
+      "evidenceKind": "DOM/capture",
+      "identity": "finding:7954e5dde4fefe49:1"
+    },
+    {
+      "rule": "text-svg-unsupported",
+      "severity": "error",
+      "selector": "#svg-unsupported",
+      "element": "#svg-unsupported",
+      "message": "Text measurement is unassessed: SVG stroke paint requires visual review. Only plain SVG text and svg/g groups are supported.",
+      "reason": "Keep declared task labels readable.",
+      "actual": {
+        "rule": "text-svg-unsupported",
+        "type": "no-text-overlap",
+        "element": "#svg-unsupported",
+        "status": "unassessed",
+        "problems": [
+          "SVG stroke paint requires visual review.",
+          "Only plain SVG text and svg/g groups are supported."
+        ],
+        "peers": [
+          {
+            "element": "text.label",
+            "text": "Nested span",
+            "fragments": 1
+          },
+          {
+            "element": "text.label",
+            "text": "Rotated label",
+            "fragments": 13
+          }
+        ]
+      },
+      "expected": "supported text geometry",
+      "box": {
+        "x": 39.47905731201172,
+        "y": 1122.59375,
+        "width": 107.90152740478516,
+        "height": 47.8021240234375
+      },
+      "designRules": [
+        "DR-006",
+        "DR-015"
+      ],
+      "suggestion": "Reflow the declared neighboring labels so their text fragments stay separate. Preserve readable type; wrapping is allowed. Unassessed geometry needs a supported scope or visual review.",
+      "evidenceKind": "DOM/capture",
+      "identity": "finding:371f717c4b186cad:1"
+    }
+  ]
+}
