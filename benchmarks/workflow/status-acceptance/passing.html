@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Room controller status</title>
+    <link rel="stylesheet" href="/style.css" />
+    <script src="/app.js" defer></script>
+  </head>
+  <body>
+    <main id="status-page">
+      <header>
+        <h1>Room controller</h1>
+        <span id="connection">Loading</span>
+      </header>
+      <section class="refresh" aria-label="Reading updates">
+        <p>
+          <span class="feed-scope">Reading updates</span>
+          <span>Last check: <time id="checked">—</time></span
+          ><span id="update-label">Loading</span>
+        </p>
+        <button
+          id="refresh-now"
+          type="button"
+          class="feed-action"
+          aria-label="Refresh readings"
+          title="Refresh readings"
+        >
+          <svg class="action-icon" aria-hidden="true" viewBox="0 0 24 24">
+            <path
+              d="M20 7v5h-5M4 17v-5h5M5 8a8 8 0 0 1 13-3l2 2M4 17l2 2a8 8 0 0 0 13-3"
+            /></svg
+          ><span class="action-label">Refresh</span></button
+        ><button
+          id="auto-updates"
+          type="button"
+          class="feed-action"
+          aria-label="Pause automatic refresh"
+          aria-pressed="false"
+          title="Pause automatic refresh"
+        >
+          <svg class="action-icon" aria-hidden="true" viewBox="0 0 24 24">
+            <path d="M8 5v14M16 5v14" /></svg
+          ><span class="action-label">Pause</span>
+        </button>
+      </section>
+      <p id="warning" role="status"></p>
+      <div class="overview">
+        <section aria-label="Current readings">
+          <h2>Room temperature</h2>
+          <strong class="temperature" id="room">—</strong>
+          <p>
+            AC <span id="power">—</span> · Target <span id="target">—</span>
+          </p>
+          <p class="subtle">
+            Mode <span id="mode">Cool</span> · Display
+            <span id="display">Off</span> · Sound <span id="sound">Muted</span>
+          </p>
+        </section>
+        <section>
+          <h2>Next action</h2>
+          <p id="next-action">
+            <span data-next-action-field="time">11:30</span>
+            <span data-next-action-field="power">On</span>
+          </p>
+          <p class="subtle">On-actions keep display and sound off.</p>
+        </section>
+      </div>
+      <section>
+        <h2>Daily schedule</h2>
+        <ol class="schedule-times">
+          <li class="schedule-event">
+            <time data-event-field="time">07:30</time>
+            <div data-event-field="power">Off</div>
+          </li>
+          <li class="schedule-event">
+            <time data-event-field="time">11:30</time>
+            <div>
+              <span data-event-field="power">On</span> · <span>Next</span>
+            </div>
+          </li>
+          <li class="schedule-event">
+            <time data-event-field="time">16:30</time>
+            <div data-event-field="power">Off</div>
+          </li>
+          <li class="schedule-event">
+            <time data-event-field="time">18:00</time>
+            <div data-event-field="power">On</div>
+          </li>
+        </ol>
+        <p class="subtle">Local time · Leave the outlet powered.</p>
+      </section>
+      <section class="history">
+        <h2>Recent observations</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Time</th>
+              <th>Room</th>
+              <th>AC power</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr data-observation="09:55">
+              <td data-observation-field="time">09:55</td>
+              <td data-observation-field="room">70.7°F</td>
+              <td data-observation-field="power">On</td>
+            </tr>
+            <tr data-observation="09:50">
+              <td data-observation-field="time">09:50</td>
+              <td data-observation-field="room">70.3°F</td>
+              <td data-observation-field="power">On</td>
+            </tr>
+            <tr data-observation="09:45">
+              <td data-observation-field="time">09:45</td>
+              <td data-observation-field="room">69.8°F</td>
+              <td data-observation-field="power">On</td>
+            </tr>
+            <tr data-observation="09:40">
+              <td data-observation-field="time">09:40</td>
+              <td data-observation-field="room">69.4°F</td>
+              <td data-observation-field="power">On</td>
+            </tr>
+            <tr data-observation="09:35">
+              <td data-observation-field="time">09:35</td>
+              <td data-observation-field="room">69.1°F</td>
+              <td data-observation-field="power">On</td>
+            </tr>
+            <tr data-observation="09:30">
+              <td data-observation-field="time">09:30</td>
+              <td data-observation-field="room">68.9°F</td>
+              <td data-observation-field="power">Off</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+      <section class="system" aria-label="Diagnostics">
+        <details id="service-details">
+          <summary>Service details</summary>
+          <p>Schedule service: <span id="service">Loading</span></p>
+          <p>Collector: fixed synthetic observations</p>
+        </details>
+        <details id="log-details">
+          <summary>Recent scheduler log</summary>
+          <p>
+            09:30 Scheduled action completed. Historical entries do not
+            establish current connection health.
+          </p>
+        </details>
+      </section>
+
+      <footer>
+        <p class="subtle">Read-only status · No device operations</p>
+      </footer>
+    </main>
+  </body>
+</html>

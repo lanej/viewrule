@@ -99,6 +99,10 @@ With the intended app state running, validate both levels:
    For each material finding, connect the rule ID and DR citation to the page,
    viewport, selector, observed value, expected value, and suggested correction.
    Distinguish measurements from visual judgment and unassessed requirements.
+   When the report includes `metrics.viewportDensity`, inspect its status and candidate alongside the original image. A sparsity candidate is provisional geometry, not a contract violation: the default heuristic combines low initial-viewport coverage with rendered text continuing below the fold. Media and controls count allocated space; their relevance and painted contents remain unknown. Older engines/reports without this field have no automatic sparsity assessment; do not install during review or infer a clean result from its absence.
+
+   For each sparsity candidate, return a compact structured record: **Observation** (report path, page/checkpoint/viewport, measured text and combined coverage, discovery threshold and below-fold evidence); **Task impact** (which facts could usefully appear together, separating established intent from assumptions); **Interpretation** (`actionable concern`, `intentional whitespace`, or `unresolved`, with rationale); **Proposed requirement** (expected visible information, page/state/viewport scope, rationale, and an existing check where suitable, or why qualitative review is needed). Cite DR-007 and the recorded evidence. Never equate a removed flag with improved information density. Keep this interpretation separate from engine findings and supplied human feedback. Show a requirement proposal for review before adding it unless an existing explicit brief already authorizes that boundary; leave unresolved choices unenforced.
+
 4. When repairs are within the user's task, change the application and rerun after
    the change. For a review-only request, report findings without editing source.
    Do not stop at a component pass. Complete both requested review scopes with fresh

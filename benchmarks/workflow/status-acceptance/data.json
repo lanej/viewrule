@@ -1,0 +1,43 @@
+{
+  "online": {
+    "connection": "Connected",
+    "room": "70.7°F",
+    "target": "71.6°F",
+    "power": "On",
+    "checked": "10:00:00",
+    "warning": "",
+    "service": "Running"
+  },
+  "stale": {
+    "connection": "Unavailable",
+    "room": "70.7°F",
+    "target": "71.6°F",
+    "power": "On",
+    "checked": "10:00:30",
+    "warning": "Last known readings; last successful contact at 10:00:00.",
+    "service": "Running"
+  },
+  "empty": {
+    "connection": "Unavailable",
+    "room": "—",
+    "target": "—",
+    "power": "—",
+    "checked": "10:01:00",
+    "warning": "No readings available.",
+    "service": "Running"
+  },
+  "scheduler-off": {
+    "connection": "Connected",
+    "room": "70.7°F",
+    "target": "71.6°F",
+    "power": "On",
+    "checked": "10:01:30",
+    "warning": "Scheduler unavailable; scheduled actions will not run.",
+    "service": "Not running"
+  },
+  "retainedFacts": {
+    "mode": "Cool",
+    "display": "Off",
+    "sound": "Muted"
+  }
+}

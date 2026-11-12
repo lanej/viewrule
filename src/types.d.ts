@@ -315,6 +315,28 @@ export interface GrowthMeasurement {
     reason?: string;
   };
 }
+export interface ViewportDensity {
+  heuristicVersion: 1;
+  status: "measured" | "unassessed";
+  discoveryThreshold: number;
+  viewport: { x: number; y: number; width: number; height: number };
+  textCoverage: number | null;
+  combinedCoverage: number | null;
+  belowFoldTextFragments: number;
+  firstBelowFold: {
+    element: string;
+    box: { x: number; y: number; width: number; height: number };
+  } | null;
+  candidate: {
+    id: string;
+    title: string;
+    designRules: string[];
+    reason: string;
+    suggestion: string;
+  } | null;
+  limitations: string;
+  problem: string | null;
+}
 export interface Finding {
   rule: string;
   severity: "error" | "warning";

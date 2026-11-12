@@ -150,3 +150,7 @@ The evaluation record must distinguish:
 Report paired outcomes rather than a single density/quality score. Include cases
 with no benefit or regressions. No claim of better designs, reliability, speed, or
 cost follows from this protocol or from passing repository CI alone.
+
+## Repeatable status-page acceptance
+
+The [Midea-derived status task](status-acceptance/README.md) freezes synthetic inputs and independently checks data-feed refresh actions, retained status information, keyboard semantics, and refresh behavior. Revision 3's installed CI story retains starting, sparse passing, compact passing, broken, and pointer-only repairs, plus finite/media-led sparsity calibration, without model access. Functional acceptance and advisory density remain separate. Locally authenticated agents can attempt the current task and have their outputs evaluated by the same acceptance checks; those sessions are separate from the CI gate. The retained November local pair was evaluated under revision 1 and has not been rerun or rescored against later revisions.

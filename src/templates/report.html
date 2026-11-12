@@ -86,6 +86,53 @@
         inset: 0;
         pointer-events: none;
       }
+      .density-advisory {
+        border-left: 4px solid #865600;
+        padding: 4px 16px;
+        margin: 16px 0;
+        background: #fff9ea;
+      }
+      .density-advisory h3 {
+        margin: 8px 0;
+      }
+      .density-overlay-layer {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+      }
+      .capture-figure:has(.density-overlay-toggle:not(:checked))
+        .density-overlay-layer {
+        display: none;
+      }
+      .density-viewport-outline,
+      .density-continuation {
+        position: absolute;
+        box-sizing: border-box;
+        border: 2px dashed #865600;
+      }
+      .density-badge,
+      .density-fold-label {
+        position: absolute;
+        left: 0;
+        padding: 2px 5px;
+        background: #fff9ea;
+        color: #603d00;
+        font-size: 12px;
+        line-height: 1.4;
+        white-space: nowrap;
+      }
+      .density-badge {
+        top: 0;
+      }
+      .density-fold-label {
+        bottom: 0;
+      }
+      .density-continuation {
+        border-style: solid;
+      }
+      .density-continuation .density-badge {
+        top: 100%;
+      }
       .capture-figure:has(.peer-overlay-toggle:not(:checked))
         .peer-overlay-layer {
         display: none;

@@ -40,6 +40,7 @@ export default [
       "src/comparison.mjs",
       "src/review.mjs",
       "benchmarks/analytical/repair-evaluator.mjs",
+      "benchmarks/workflow/status-acceptance/case.mjs",
     ],
     languageOptions: { globals: globals.browser },
   },

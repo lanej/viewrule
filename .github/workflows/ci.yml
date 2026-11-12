@@ -9,7 +9,8 @@ permissions:
 jobs:
   regression:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    # rationale: Cold browser provisioning shares this budget with the full regression and benchmark.
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -113,6 +114,15 @@ jobs:
         with:
           name: text-legibility-evidence
           path: dist/text-legibility-evidence/
+          if-no-files-found: warn
+          retention-days: 7
+      - name: Preserve status acceptance evidence
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: status-acceptance-evidence
+          include-hidden-files: true
+          path: dist/status-acceptance-evidence/
           if-no-files-found: warn
           retention-days: 7
       - name: Preserve benchmark evidence

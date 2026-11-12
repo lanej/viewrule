@@ -22,6 +22,7 @@ import { execFile } from "node:child_process";
 import { chromium } from "playwright";
 import { PNG } from "pngjs";
 import { inspectPage } from "../src/checks.mjs";
+import { verifyFixtures as verifyStatusAcceptance } from "../benchmarks/workflow/status-acceptance/case.mjs";
 import { runPatternReviewScenario } from "./pattern-scenario.mjs";
 import { runCompositionScenario } from "./composition-scenario.mjs";
 import { runSavedComparisonScenario } from "./saved-comparison-scenario.mjs";
@@ -35,7 +36,8 @@ import {
 // One user workflow through the installed entrypoint; no helper/edge-case matrix.
 test(
   "Installed presets reject broken and stretched comparisons, accept distinct React layouts under one contract, and preserve feedback",
-  { timeout: 360000 },
+  // rationale: Status behavior and density calibration share the installed acceptance path.
+  { timeout: 480000 },
   async (t) => {
     const project = await mkdtemp(path.join(tmpdir(), "ui-review-"));
     t.after(() => rm(project, { recursive: true, force: true }));
@@ -1777,6 +1779,11 @@ test(
     assert.match(
       await readFile(path.join(path.dirname(textFile), "index.html"), "utf8"),
       /Scoped text geometry/,
+    );
+
+    await verifyStatusAcceptance(
+      path.join(repository, "dist/status-acceptance-evidence"),
+      cli,
     );
 
     const compositionEvidence = await runCompositionScenario({
