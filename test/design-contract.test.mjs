@@ -19,6 +19,7 @@ import {
 import { createServer } from "node:http";
 import { tmpdir } from "node:os";
 import path from "node:path";
+import { chromium } from "playwright";
 
 // An installed-CLI authoring workflow, not helper tests or a viewport matrix.
 test(
@@ -94,6 +95,98 @@ test(
       const response = await fetch(preview.url);
       assert.equal(response.status, 200);
       assert.match(await response.text(), /Viewrule/);
+      if (preview === firstPreview) {
+        const browser = await chromium.launch({ headless: true });
+        try {
+          const page = await browser.newPage({ colorScheme: "dark" });
+          try {
+            for (const viewport of [
+              { width: 390, height: 844 },
+              { width: 1280, height: 900 },
+            ]) {
+              await page.setViewportSize(viewport);
+              await page.goto(new URL("dr-007/", preview.url).href);
+              await page
+                .locator('#evidence-examples[data-ready="true"]')
+                .waitFor();
+              const good = page.locator("#good .sample");
+              const bad = page.locator("#bad .sample");
+              const context = await page
+                .locator(".example-context")
+                .innerText();
+              assert.match(context, /USD.*2 lb.*Oakland to Seattle/);
+              assert.match(context, /970\/1,000 deliveries.*990\/1,000/);
+              assert.match(context, /September 1–14, 2026/);
+              assert.match(context, /dispatched on September 14, 2026/);
+              assert.ok(await bad.isVisible());
+              assert.equal(
+                await page
+                  .getByRole("button", { name: "Show compact baseline" })
+                  .getAttribute("aria-pressed"),
+                null,
+              );
+              for (const summary of [
+                "Aster: $8.20 · 2 days · 97% on time",
+                "Beacon: $9.40 · 1 day · 99% on time",
+              ]) {
+                assert.ok((await good.innerText()).includes(summary));
+                assert.ok((await bad.innerText()).includes(summary));
+              }
+              assert.match(await good.innerText(), /Ground · 240 parcels/);
+              assert.match(await good.innerText(), /Express · 360 parcels/);
+              assert.doesNotMatch(
+                await bad.innerText(),
+                /Ground|Express|240 parcels|360 parcels/,
+              );
+              assert.ok(
+                await page.evaluate(
+                  () => document.documentElement.scrollWidth <= innerWidth,
+                ),
+              );
+              assert.ok(
+                await page
+                  .locator(".layout-demo")
+                  .evaluateAll((elements) =>
+                    elements.every(
+                      (el) => parseFloat(getComputedStyle(el).fontSize) >= 14,
+                    ),
+                  ),
+              );
+              await page
+                .getByRole("button", { name: "Show compact baseline" })
+                .focus();
+              await page.keyboard.press("Enter");
+              assert.equal(await bad.isVisible(), false);
+              assert.ok(
+                await page
+                  .getByRole("heading", { name: "Shared compact baseline" })
+                  .isVisible(),
+              );
+              assert.doesNotMatch(await good.innerText(), /Ground|Express/);
+              const expand = page.getByRole("button", {
+                name: "Show expanded comparison",
+              });
+              assert.equal(await expand.getAttribute("aria-pressed"), null);
+              assert.ok(
+                await expand.evaluate((el) => el === document.activeElement),
+              );
+              await page.keyboard.press("Space");
+              assert.ok(await bad.isVisible());
+              assert.match(await good.innerText(), /Ground · 240 parcels/);
+              assert.equal(
+                await page
+                  .getByRole("button", { name: "Show compact baseline" })
+                  .getAttribute("aria-pressed"),
+                null,
+              );
+            }
+          } finally {
+            await page.close();
+          }
+        } finally {
+          await browser.close();
+        }
+      }
       await preview.stop();
     }
 
