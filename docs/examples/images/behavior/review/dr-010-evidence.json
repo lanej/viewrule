@@ -1,0 +1,322 @@
+{
+  "schemaVersion": 1,
+  "target": "DR-010",
+  "browser": "151.0.7922.34",
+  "previousRevision": "a07b82afeb1900ef8e8bd7dc7c2a2dce4b9c90c7",
+  "sources": {
+    "behavior.html": "1efeeebcbd17e3a25e5ecb78354065f7fb7e9d30bea89584df22b5b9931c5767",
+    "behavior.css": "b254a8c7824df7e9b113846af97f0bfe99285d68260b51281428f839a46f8eac",
+    "continuity-scene.js": "a0c652632fd215027a650d2d286a686cf7c2642b602c6282ece2fda125f168a3",
+    "continuity-rules.json": "07c2923987e4268c285b7236d60c9c9c34ddef8e4246cdb7f825188c8c31d520",
+    "continuity-before.json": "6fac7735962888314b5c2b8a454e67262ebb388e3f798e7b9b2534d23c797636",
+    "continuity-clarity-before.json": "acffa0b839fa450a4ce79a26f64fefe13947c6066048e9be3d200f11181c1c9d"
+  },
+  "scenarios": [
+    {
+      "name": "desktop",
+      "legacy": {
+        "good": {
+          "query": "Seattle",
+          "selected": "EP 1042",
+          "focus": "open"
+        },
+        "bad": {
+          "query": "",
+          "selected": "EP 1043",
+          "focus": "filter"
+        }
+      },
+      "current": {
+        "good": {
+          "query": "Seattle",
+          "selected": "EP 1042",
+          "focus": "open"
+        },
+        "bad": {
+          "query": "",
+          "selected": "EP 1042",
+          "focus": "open"
+        }
+      },
+      "native": {
+        "good": {
+          "findings": [],
+          "metrics": {
+            "viewportWidth": 1200,
+            "viewportHeight": 1000,
+            "pageHeight": 1000,
+            "evaluatedRules": 5,
+            "density": [],
+            "composition": [],
+            "growth": [],
+            "textLegibility": [],
+            "repeatedMetrics": [],
+            "evidenceDistances": [],
+            "markContrasts": [],
+            "peerInference": [],
+            "comparisons": [],
+            "consistency": [],
+            "evaluations": [
+              {
+                "rule": "continuity-context",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "continuity-readable-type",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "continuity-input-target",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "continuity-action-target",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "continuity-no-clipping",
+                "matched": 10,
+                "status": "checked"
+              }
+            ]
+          }
+        },
+        "bad": {
+          "findings": [],
+          "metrics": {
+            "viewportWidth": 1200,
+            "viewportHeight": 1000,
+            "pageHeight": 1000,
+            "evaluatedRules": 5,
+            "density": [],
+            "composition": [],
+            "growth": [],
+            "textLegibility": [],
+            "repeatedMetrics": [],
+            "evidenceDistances": [],
+            "markContrasts": [],
+            "peerInference": [],
+            "comparisons": [],
+            "consistency": [],
+            "evaluations": [
+              {
+                "rule": "continuity-context",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "continuity-readable-type",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "continuity-input-target",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "continuity-action-target",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "continuity-no-clipping",
+                "matched": 13,
+                "status": "checked"
+              }
+            ]
+          }
+        }
+      },
+      "passed": [
+        "real-filter",
+        "stable-selection",
+        "return-focus",
+        "keyboard-journey",
+        "native-baseline",
+        "query-isolation",
+        "truthful-results",
+        "explicit-destination-scope",
+        "shared-styles"
+      ]
+    },
+    {
+      "name": "mobile",
+      "legacy": {
+        "good": {
+          "query": "Seattle",
+          "selected": "EP 1042",
+          "focus": "open"
+        },
+        "bad": {
+          "query": "",
+          "selected": "EP 1043",
+          "focus": "filter"
+        }
+      },
+      "current": {
+        "good": {
+          "query": "Seattle",
+          "selected": "EP 1042",
+          "focus": "open"
+        },
+        "bad": {
+          "query": "",
+          "selected": "EP 1042",
+          "focus": "open"
+        }
+      },
+      "native": {
+        "good": {
+          "findings": [],
+          "metrics": {
+            "viewportWidth": 390,
+            "viewportHeight": 844,
+            "pageHeight": 1566,
+            "evaluatedRules": 5,
+            "density": [],
+            "composition": [],
+            "growth": [],
+            "textLegibility": [],
+            "repeatedMetrics": [],
+            "evidenceDistances": [],
+            "markContrasts": [],
+            "peerInference": [],
+            "comparisons": [],
+            "consistency": [],
+            "evaluations": [
+              {
+                "rule": "continuity-context",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "continuity-readable-type",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "continuity-input-target",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "continuity-action-target",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "continuity-no-clipping",
+                "matched": 10,
+                "status": "checked"
+              }
+            ]
+          }
+        },
+        "bad": {
+          "findings": [],
+          "metrics": {
+            "viewportWidth": 390,
+            "viewportHeight": 844,
+            "pageHeight": 1704,
+            "evaluatedRules": 5,
+            "density": [],
+            "composition": [],
+            "growth": [],
+            "textLegibility": [],
+            "repeatedMetrics": [],
+            "evidenceDistances": [],
+            "markContrasts": [],
+            "peerInference": [],
+            "comparisons": [],
+            "consistency": [],
+            "evaluations": [
+              {
+                "rule": "continuity-context",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "continuity-readable-type",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "continuity-input-target",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "continuity-action-target",
+                "matched": 1,
+                "status": "checked"
+              },
+              {
+                "rule": "continuity-no-clipping",
+                "matched": 13,
+                "status": "checked"
+              }
+            ]
+          }
+        }
+      },
+      "passed": [
+        "real-filter",
+        "stable-selection",
+        "return-focus",
+        "keyboard-journey",
+        "native-baseline",
+        "query-isolation",
+        "truthful-results",
+        "explicit-destination-scope",
+        "shared-styles"
+      ]
+    }
+  ],
+  "captures": [
+    {
+      "file": "dr-010-returned-good-desktop.png",
+      "quality": "good",
+      "viewport": {
+        "width": 1200,
+        "height": 1000
+      },
+      "fontScale": 1,
+      "state": "returned"
+    },
+    {
+      "file": "dr-010-returned-bad-desktop.png",
+      "quality": "bad",
+      "viewport": {
+        "width": 1200,
+        "height": 1000
+      },
+      "fontScale": 1,
+      "state": "returned"
+    },
+    {
+      "file": "dr-010-returned-good-mobile.png",
+      "quality": "good",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "fontScale": 1.25,
+      "state": "returned"
+    },
+    {
+      "file": "dr-010-returned-bad-mobile.png",
+      "quality": "bad",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "fontScale": 1.25,
+      "state": "returned"
+    }
+  ]
+}

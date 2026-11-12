@@ -30,9 +30,17 @@ expected failures restricted to the target. Do not weaken checks to get green.
 A check proves its measured scope, not a subjective review verdict.
 See [priority's red-to-green contract](priority-design.md).
 
+Canonical examples should name preserved context in task-specific language. Prefer a label such as `Destination scope` over generic implementation vocabulary such as `Working set` when the domain dimension is known.
+
 A target violation can be one semantic choice implemented through multiple CSS
 properties. For priority, swapping a shared color-and-type emphasis role is one
 mutation. Do not accidentally freeze the channels the target rule governs.
+
+A canonical pair must also make the affected working context directly judgeable.
+If a reviewer has to infer the target distinction from secondary row counts,
+incidental layout changes, or explanatory prose, add explicit contextual evidence
+before redesigning the example and replay the exact rejected pair. Derived UI
+consequences may differ when they truthfully expose the single underlying mutation.
 
 ## Isolate the rule under test
 
