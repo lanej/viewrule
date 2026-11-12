@@ -3,7 +3,7 @@
   "approval": "not supplied",
   "requirementStatus": "proposed, not enforced",
   "observation": {
-    "report": "focused/passing/evidence/review/report.json",
+    "report": "sparse-report.json",
     "reportSha256": "27c43e2757cbbe2d8572b4f9e181817155dd7f6b75d285d9fd70ad49af8ed5be",
     "page": "online",
     "viewport": {

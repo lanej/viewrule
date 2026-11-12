@@ -1,0 +1,2756 @@
+{
+  "version": 1,
+  "id": "2026-11-12T00-29-31-655Z-93d65410",
+  "project": "/private/var/folders/kb/g6h4msc148d9glj73j87w56w0000gn/T/viewrule-status-review-oQcJkX",
+  "createdAt": "2026-11-12T00:29:31.656Z",
+  "targetBaseURL": "http://127.0.0.1:64210/",
+  "engineVersion": "0.11.0",
+  "fingerprint": "204cf3c40c5e8d871986d4da9b9a8f407021f6aab3dadd05444ac003de997bcf",
+  "contract": {
+    "version": 1,
+    "hash": "fd1cbf7ec5aa9346c8561c6ef0f121537fc1de4f24abff3210052185020025ad",
+    "config": {
+      "version": 1,
+      "baseURL": "http://127.0.0.1:1",
+      "sourcePaths": [
+        "app"
+      ],
+      "accessibility": false,
+      "pages": [
+        {
+          "name": "online",
+          "path": "/?state=online",
+          "ready": "#status-page[data-ready]"
+        },
+        {
+          "name": "stale",
+          "path": "/?state=stale",
+          "ready": "#status-page[data-ready]"
+        },
+        {
+          "name": "empty",
+          "path": "/?state=empty",
+          "ready": "#status-page[data-ready]"
+        },
+        {
+          "name": "scheduler-off",
+          "path": "/?state=scheduler-off",
+          "ready": "#status-page[data-ready]"
+        }
+      ],
+      "viewports": [
+        {
+          "name": "phone",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "name": "desktop",
+          "width": 1280,
+          "height": 900
+        }
+      ]
+    },
+    "rules": [
+      {
+        "id": "control-separation",
+        "type": "no-overlap",
+        "selector": "#refresh-now,#auto-updates",
+        "reason": "Keep both refresh actions distinguishable.",
+        "severity": "error"
+      },
+      {
+        "id": "daily-schedule",
+        "type": "visible-count",
+        "selector": ".schedule-event",
+        "min": 4,
+        "reason": "Keep all four daily actions initially visible.",
+        "severity": "error"
+      },
+      {
+        "id": "freshness-controls",
+        "type": "visible-count",
+        "selector": "#connection,#checked,#update-label,#refresh-now,#auto-updates",
+        "min": 5,
+        "reason": "Show connection, last check, update state and both controls without scrolling.",
+        "severity": "error"
+      },
+      {
+        "id": "readable-status",
+        "type": "min-font-size",
+        "selector": "main",
+        "min": 14,
+        "reason": "Keep status information readable.",
+        "severity": "error"
+      }
+    ],
+    "policySHA256": "aa08d051e6943fdc24dfcc944286ced1c8eb28b6f1545092d1530bdf7072775a",
+    "projectDocuments": [],
+    "comparison": "initial",
+    "changes": [],
+    "documentComparison": "initial",
+    "documentChanges": [],
+    "configurationChange": null,
+    "policyChanged": false,
+    "previousReportId": null,
+    "previousReportFile": null
+  },
+  "status": "pass",
+  "summary": {
+    "errors": 0,
+    "warnings": 0
+  },
+  "pages": [
+    {
+      "name": "online",
+      "url": "http://127.0.0.1:64210/?state=online",
+      "viewport": {
+        "name": "phone",
+        "width": 390,
+        "height": 844
+      },
+      "findings": [],
+      "screenshot": "capture-1.png",
+      "details": {
+        "width": 390,
+        "height": 1220,
+        "scale": 1,
+        "expectedTiles": 2,
+        "capturedTiles": 2,
+        "complete": true,
+        "tiles": [
+          {
+            "file": "capture-1-detail-1.png",
+            "x": 0,
+            "y": 0,
+            "width": 390,
+            "height": 800
+          },
+          {
+            "file": "capture-1-detail-2.png",
+            "x": 0,
+            "y": 420,
+            "width": 390,
+            "height": 800
+          }
+        ]
+      },
+      "metrics": {
+        "viewportWidth": 390,
+        "viewportHeight": 844,
+        "pageHeight": 1220,
+        "evaluatedRules": 4,
+        "density": [],
+        "composition": [],
+        "growth": [],
+        "textLegibility": [],
+        "repeatedMetrics": [],
+        "evidenceDistances": [],
+        "markContrasts": [],
+        "peerInference": [],
+        "viewportDensity": {
+          "heuristicVersion": 1,
+          "status": "measured",
+          "discoveryThreshold": 0.08,
+          "viewport": {
+            "x": 0,
+            "y": 0,
+            "width": 390,
+            "height": 844
+          },
+          "textCoverage": 0.18938861419978126,
+          "combinedCoverage": 0.20115189041803377,
+          "belowFoldTextFragments": 18,
+          "firstBelowFold": {
+            "element": "td",
+            "box": {
+              "x": 22,
+              "y": 836.5,
+              "width": 43.5,
+              "height": 18
+            }
+          },
+          "candidate": null,
+          "limitations": "Geometry is advisory, not information relevance or design approval. Media/control bounds count allocated space, not painted content. CSS background images, pseudo-elements, shadow text and occlusion are not assessed.",
+          "problem": null
+        },
+        "comparisons": [],
+        "consistency": [],
+        "evaluations": [
+          {
+            "rule": "control-separation",
+            "matched": 2,
+            "status": "checked"
+          },
+          {
+            "rule": "daily-schedule",
+            "matched": 4,
+            "status": "checked"
+          },
+          {
+            "rule": "freshness-controls",
+            "matched": 5,
+            "status": "checked"
+          },
+          {
+            "rule": "readable-status",
+            "matched": 1,
+            "status": "checked"
+          }
+        ]
+      },
+      "coverage": {
+        "layoutRules": [
+          "control-separation",
+          "daily-schedule",
+          "freshness-controls",
+          "readable-status"
+        ],
+        "accessibility": false
+      },
+      "designCoverage": [
+        {
+          "id": "DR-001",
+          "title": "Rule of Shared Scales",
+          "href": "design-rules.html#DR-001",
+          "enforcement": "automated",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-002",
+          "title": "Rule of Proportion",
+          "href": "design-rules.html#DR-002",
+          "enforcement": "automated",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-003",
+          "title": "Rule of Context",
+          "href": "design-rules.html#DR-003",
+          "enforcement": "automated",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-004",
+          "title": "Rule of Uncertainty",
+          "href": "design-rules.html#DR-004",
+          "enforcement": "automated",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-005",
+          "title": "Rule of Consistency",
+          "href": "design-rules.html#DR-005",
+          "enforcement": "automated",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-006",
+          "title": "Rule of Proximity",
+          "href": "design-rules.html#DR-006",
+          "enforcement": "automated",
+          "status": "checks-passed",
+          "checks": [
+            "control-separation",
+            "daily-schedule",
+            "freshness-controls"
+          ]
+        },
+        {
+          "id": "DR-007",
+          "title": "Rule of Useful Space",
+          "href": "design-rules.html#DR-007",
+          "enforcement": "automated",
+          "status": "checks-passed",
+          "checks": [
+            "readable-status"
+          ]
+        },
+        {
+          "id": "DR-008",
+          "title": "Rule of Restraint",
+          "href": "design-rules.html#DR-008",
+          "enforcement": "review",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-009",
+          "title": "Rule of State Honesty",
+          "href": "design-rules.html#DR-009",
+          "enforcement": "behavioral",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-010",
+          "title": "Rule of Continuity",
+          "href": "design-rules.html#DR-010",
+          "enforcement": "behavioral",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-011",
+          "title": "Rule of Clear Action",
+          "href": "design-rules.html#DR-011",
+          "enforcement": "review",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-012",
+          "title": "Rule of Recovery",
+          "href": "design-rules.html#DR-012",
+          "enforcement": "behavioral",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-013",
+          "title": "Rule of Priority",
+          "href": "design-rules.html#DR-013",
+          "enforcement": "review",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-014",
+          "title": "Rule of Access",
+          "href": "design-rules.html#DR-014",
+          "enforcement": "behavioral",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-015",
+          "title": "Rule of Resilience",
+          "href": "design-rules.html#DR-015",
+          "enforcement": "automated",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-016",
+          "title": "Rule of Meaningful Color",
+          "href": "design-rules.html#DR-016",
+          "enforcement": "review",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-017",
+          "title": "Rule of Alignment",
+          "href": "design-rules.html#DR-017",
+          "enforcement": "automated",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-018",
+          "title": "Rule of Rhythm",
+          "href": "design-rules.html#DR-018",
+          "enforcement": "automated",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-019",
+          "title": "Rule of Spatial Economy",
+          "href": "design-rules.html#DR-019",
+          "enforcement": "automated",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-020",
+          "title": "Rule of Balance",
+          "href": "design-rules.html#DR-020",
+          "enforcement": "automated",
+          "status": "unassessed",
+          "checks": []
+        }
+      ]
+    },
+    {
+      "name": "online",
+      "url": "http://127.0.0.1:64210/?state=online",
+      "viewport": {
+        "name": "desktop",
+        "width": 1280,
+        "height": 900
+      },
+      "findings": [],
+      "screenshot": "capture-2.png",
+      "details": {
+        "width": 1280,
+        "height": 1108,
+        "scale": 1,
+        "expectedTiles": 4,
+        "capturedTiles": 4,
+        "complete": true,
+        "tiles": [
+          {
+            "file": "capture-2-detail-1.png",
+            "x": 0,
+            "y": 0,
+            "width": 1024,
+            "height": 800
+          },
+          {
+            "file": "capture-2-detail-2.png",
+            "x": 256,
+            "y": 0,
+            "width": 1024,
+            "height": 800
+          },
+          {
+            "file": "capture-2-detail-3.png",
+            "x": 0,
+            "y": 308,
+            "width": 1024,
+            "height": 800
+          },
+          {
+            "file": "capture-2-detail-4.png",
+            "x": 256,
+            "y": 308,
+            "width": 1024,
+            "height": 800
+          }
+        ]
+      },
+      "metrics": {
+        "viewportWidth": 1280,
+        "viewportHeight": 900,
+        "pageHeight": 1108,
+        "evaluatedRules": 4,
+        "density": [],
+        "composition": [],
+        "growth": [],
+        "textLegibility": [],
+        "repeatedMetrics": [],
+        "evidenceDistances": [],
+        "markContrasts": [],
+        "peerInference": [],
+        "viewportDensity": {
+          "heuristicVersion": 1,
+          "status": "measured",
+          "discoveryThreshold": 0.08,
+          "viewport": {
+            "x": 0,
+            "y": 0,
+            "width": 1280,
+            "height": 900
+          },
+          "textCoverage": 0.06477261691623264,
+          "combinedCoverage": 0.06820474582248263,
+          "belowFoldTextFragments": 6,
+          "firstBelowFold": {
+            "element": "td",
+            "box": {
+              "x": 148,
+              "y": 890.5,
+              "width": 43.5,
+              "height": 18
+            }
+          },
+          "candidate": {
+            "id": "viewport-sparsity",
+            "title": "Potential unused viewport capacity",
+            "designRules": [
+              "DR-007"
+            ],
+            "reason": "Measured text, control and media bounds occupy less than the discovery threshold while rendered text continues below the fold.",
+            "suggestion": "Review whether useful task information could be visible together. Explain intentional whitespace or propose a scoped requirement for review; do not fill space, shrink type or change rules merely to remove this flag."
+          },
+          "limitations": "Geometry is advisory, not information relevance or design approval. Media/control bounds count allocated space, not painted content. CSS background images, pseudo-elements, shadow text and occlusion are not assessed.",
+          "problem": null
+        },
+        "comparisons": [],
+        "consistency": [],
+        "evaluations": [
+          {
+            "rule": "control-separation",
+            "matched": 2,
+            "status": "checked"
+          },
+          {
+            "rule": "daily-schedule",
+            "matched": 4,
+            "status": "checked"
+          },
+          {
+            "rule": "freshness-controls",
+            "matched": 5,
+            "status": "checked"
+          },
+          {
+            "rule": "readable-status",
+            "matched": 1,
+            "status": "checked"
+          }
+        ]
+      },
+      "coverage": {
+        "layoutRules": [
+          "control-separation",
+          "daily-schedule",
+          "freshness-controls",
+          "readable-status"
+        ],
+        "accessibility": false
+      },
+      "designCoverage": [
+        {
+          "id": "DR-001",
+          "title": "Rule of Shared Scales",
+          "href": "design-rules.html#DR-001",
+          "enforcement": "automated",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-002",
+          "title": "Rule of Proportion",
+          "href": "design-rules.html#DR-002",
+          "enforcement": "automated",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-003",
+          "title": "Rule of Context",
+          "href": "design-rules.html#DR-003",
+          "enforcement": "automated",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-004",
+          "title": "Rule of Uncertainty",
+          "href": "design-rules.html#DR-004",
+          "enforcement": "automated",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-005",
+          "title": "Rule of Consistency",
+          "href": "design-rules.html#DR-005",
+          "enforcement": "automated",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-006",
+          "title": "Rule of Proximity",
+          "href": "design-rules.html#DR-006",
+          "enforcement": "automated",
+          "status": "checks-passed",
+          "checks": [
+            "control-separation",
+            "daily-schedule",
+            "freshness-controls"
+          ]
+        },
+        {
+          "id": "DR-007",
+          "title": "Rule of Useful Space",
+          "href": "design-rules.html#DR-007",
+          "enforcement": "automated",
+          "status": "checks-passed",
+          "checks": [
+            "readable-status"
+          ]
+        },
+        {
+          "id": "DR-008",
+          "title": "Rule of Restraint",
+          "href": "design-rules.html#DR-008",
+          "enforcement": "review",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-009",
+          "title": "Rule of State Honesty",
+          "href": "design-rules.html#DR-009",
+          "enforcement": "behavioral",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-010",
+          "title": "Rule of Continuity",
+          "href": "design-rules.html#DR-010",
+          "enforcement": "behavioral",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-011",
+          "title": "Rule of Clear Action",
+          "href": "design-rules.html#DR-011",
+          "enforcement": "review",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-012",
+          "title": "Rule of Recovery",
+          "href": "design-rules.html#DR-012",
+          "enforcement": "behavioral",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-013",
+          "title": "Rule of Priority",
+          "href": "design-rules.html#DR-013",
+          "enforcement": "review",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-014",
+          "title": "Rule of Access",
+          "href": "design-rules.html#DR-014",
+          "enforcement": "behavioral",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-015",
+          "title": "Rule of Resilience",
+          "href": "design-rules.html#DR-015",
+          "enforcement": "automated",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-016",
+          "title": "Rule of Meaningful Color",
+          "href": "design-rules.html#DR-016",
+          "enforcement": "review",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-017",
+          "title": "Rule of Alignment",
+          "href": "design-rules.html#DR-017",
+          "enforcement": "automated",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-018",
+          "title": "Rule of Rhythm",
+          "href": "design-rules.html#DR-018",
+          "enforcement": "automated",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-019",
+          "title": "Rule of Spatial Economy",
+          "href": "design-rules.html#DR-019",
+          "enforcement": "automated",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-020",
+          "title": "Rule of Balance",
+          "href": "design-rules.html#DR-020",
+          "enforcement": "automated",
+          "status": "unassessed",
+          "checks": []
+        }
+      ]
+    },
+    {
+      "name": "stale",
+      "url": "http://127.0.0.1:64210/?state=stale",
+      "viewport": {
+        "name": "phone",
+        "width": 390,
+        "height": 844
+      },
+      "findings": [],
+      "screenshot": "capture-3.png",
+      "details": {
+        "width": 390,
+        "height": 1294,
+        "scale": 1,
+        "expectedTiles": 2,
+        "capturedTiles": 2,
+        "complete": true,
+        "tiles": [
+          {
+            "file": "capture-3-detail-1.png",
+            "x": 0,
+            "y": 0,
+            "width": 390,
+            "height": 800
+          },
+          {
+            "file": "capture-3-detail-2.png",
+            "x": 0,
+            "y": 494,
+            "width": 390,
+            "height": 800
+          }
+        ]
+      },
+      "metrics": {
+        "viewportWidth": 390,
+        "viewportHeight": 844,
+        "pageHeight": 1294,
+        "evaluatedRules": 4,
+        "density": [],
+        "composition": [],
+        "growth": [],
+        "textLegibility": [],
+        "repeatedMetrics": [],
+        "evidenceDistances": [],
+        "markContrasts": [],
+        "peerInference": [],
+        "viewportDensity": {
+          "heuristicVersion": 1,
+          "status": "measured",
+          "discoveryThreshold": 0.08,
+          "viewport": {
+            "x": 0,
+            "y": 0,
+            "width": 390,
+            "height": 844
+          },
+          "textCoverage": 0.2031981976850164,
+          "combinedCoverage": 0.21496147390326892,
+          "belowFoldTextFragments": 21,
+          "firstBelowFold": {
+            "element": "td",
+            "box": {
+              "x": 22,
+              "y": 867.5,
+              "width": 43.5,
+              "height": 18
+            }
+          },
+          "candidate": null,
+          "limitations": "Geometry is advisory, not information relevance or design approval. Media/control bounds count allocated space, not painted content. CSS background images, pseudo-elements, shadow text and occlusion are not assessed.",
+          "problem": null
+        },
+        "comparisons": [],
+        "consistency": [],
+        "evaluations": [
+          {
+            "rule": "control-separation",
+            "matched": 2,
+            "status": "checked"
+          },
+          {
+            "rule": "daily-schedule",
+            "matched": 4,
+            "status": "checked"
+          },
+          {
+            "rule": "freshness-controls",
+            "matched": 5,
+            "status": "checked"
+          },
+          {
+            "rule": "readable-status",
+            "matched": 1,
+            "status": "checked"
+          }
+        ]
+      },
+      "coverage": {
+        "layoutRules": [
+          "control-separation",
+          "daily-schedule",
+          "freshness-controls",
+          "readable-status"
+        ],
+        "accessibility": false
+      },
+      "designCoverage": [
+        {
+          "id": "DR-001",
+          "title": "Rule of Shared Scales",
+          "href": "design-rules.html#DR-001",
+          "enforcement": "automated",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-002",
+          "title": "Rule of Proportion",
+          "href": "design-rules.html#DR-002",
+          "enforcement": "automated",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-003",
+          "title": "Rule of Context",
+          "href": "design-rules.html#DR-003",
+          "enforcement": "automated",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-004",
+          "title": "Rule of Uncertainty",
+          "href": "design-rules.html#DR-004",
+          "enforcement": "automated",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-005",
+          "title": "Rule of Consistency",
+          "href": "design-rules.html#DR-005",
+          "enforcement": "automated",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-006",
+          "title": "Rule of Proximity",
+          "href": "design-rules.html#DR-006",
+          "enforcement": "automated",
+          "status": "checks-passed",
+          "checks": [
+            "control-separation",
+            "daily-schedule",
+            "freshness-controls"
+          ]
+        },
+        {
+          "id": "DR-007",
+          "title": "Rule of Useful Space",
+          "href": "design-rules.html#DR-007",
+          "enforcement": "automated",
+          "status": "checks-passed",
+          "checks": [
+            "readable-status"
+          ]
+        },
+        {
+          "id": "DR-008",
+          "title": "Rule of Restraint",
+          "href": "design-rules.html#DR-008",
+          "enforcement": "review",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-009",
+          "title": "Rule of State Honesty",
+          "href": "design-rules.html#DR-009",
+          "enforcement": "behavioral",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-010",
+          "title": "Rule of Continuity",
+          "href": "design-rules.html#DR-010",
+          "enforcement": "behavioral",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-011",
+          "title": "Rule of Clear Action",
+          "href": "design-rules.html#DR-011",
+          "enforcement": "review",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-012",
+          "title": "Rule of Recovery",
+          "href": "design-rules.html#DR-012",
+          "enforcement": "behavioral",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-013",
+          "title": "Rule of Priority",
+          "href": "design-rules.html#DR-013",
+          "enforcement": "review",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-014",
+          "title": "Rule of Access",
+          "href": "design-rules.html#DR-014",
+          "enforcement": "behavioral",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-015",
+          "title": "Rule of Resilience",
+          "href": "design-rules.html#DR-015",
+          "enforcement": "automated",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-016",
+          "title": "Rule of Meaningful Color",
+          "href": "design-rules.html#DR-016",
+          "enforcement": "review",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-017",
+          "title": "Rule of Alignment",
+          "href": "design-rules.html#DR-017",
+          "enforcement": "automated",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-018",
+          "title": "Rule of Rhythm",
+          "href": "design-rules.html#DR-018",
+          "enforcement": "automated",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-019",
+          "title": "Rule of Spatial Economy",
+          "href": "design-rules.html#DR-019",
+          "enforcement": "automated",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-020",
+          "title": "Rule of Balance",
+          "href": "design-rules.html#DR-020",
+          "enforcement": "automated",
+          "status": "unassessed",
+          "checks": []
+        }
+      ]
+    },
+    {
+      "name": "stale",
+      "url": "http://127.0.0.1:64210/?state=stale",
+      "viewport": {
+        "name": "desktop",
+        "width": 1280,
+        "height": 900
+      },
+      "findings": [],
+      "screenshot": "capture-4.png",
+      "details": {
+        "width": 1280,
+        "height": 1158,
+        "scale": 1,
+        "expectedTiles": 4,
+        "capturedTiles": 4,
+        "complete": true,
+        "tiles": [
+          {
+            "file": "capture-4-detail-1.png",
+            "x": 0,
+            "y": 0,
+            "width": 1024,
+            "height": 800
+          },
+          {
+            "file": "capture-4-detail-2.png",
+            "x": 256,
+            "y": 0,
+            "width": 1024,
+            "height": 800
+          },
+          {
+            "file": "capture-4-detail-3.png",
+            "x": 0,
+            "y": 358,
+            "width": 1024,
+            "height": 800
+          },
+          {
+            "file": "capture-4-detail-4.png",
+            "x": 256,
+            "y": 358,
+            "width": 1024,
+            "height": 800
+          }
+        ]
+      },
+      "metrics": {
+        "viewportWidth": 1280,
+        "viewportHeight": 900,
+        "pageHeight": 1158,
+        "evaluatedRules": 4,
+        "density": [],
+        "composition": [],
+        "growth": [],
+        "textLegibility": [],
+        "repeatedMetrics": [],
+        "evidenceDistances": [],
+        "markContrasts": [],
+        "peerInference": [],
+        "viewportDensity": {
+          "heuristicVersion": 1,
+          "status": "measured",
+          "discoveryThreshold": 0.08,
+          "viewport": {
+            "x": 0,
+            "y": 0,
+            "width": 1280,
+            "height": 900
+          },
+          "textCoverage": 0.06881764051649306,
+          "combinedCoverage": 0.07224976942274305,
+          "belowFoldTextFragments": 9,
+          "firstBelowFold": {
+            "element": "td",
+            "box": {
+              "x": 148,
+              "y": 897.5,
+              "width": 43.5,
+              "height": 18
+            }
+          },
+          "candidate": {
+            "id": "viewport-sparsity",
+            "title": "Potential unused viewport capacity",
+            "designRules": [
+              "DR-007"
+            ],
+            "reason": "Measured text, control and media bounds occupy less than the discovery threshold while rendered text continues below the fold.",
+            "suggestion": "Review whether useful task information could be visible together. Explain intentional whitespace or propose a scoped requirement for review; do not fill space, shrink type or change rules merely to remove this flag."
+          },
+          "limitations": "Geometry is advisory, not information relevance or design approval. Media/control bounds count allocated space, not painted content. CSS background images, pseudo-elements, shadow text and occlusion are not assessed.",
+          "problem": null
+        },
+        "comparisons": [],
+        "consistency": [],
+        "evaluations": [
+          {
+            "rule": "control-separation",
+            "matched": 2,
+            "status": "checked"
+          },
+          {
+            "rule": "daily-schedule",
+            "matched": 4,
+            "status": "checked"
+          },
+          {
+            "rule": "freshness-controls",
+            "matched": 5,
+            "status": "checked"
+          },
+          {
+            "rule": "readable-status",
+            "matched": 1,
+            "status": "checked"
+          }
+        ]
+      },
+      "coverage": {
+        "layoutRules": [
+          "control-separation",
+          "daily-schedule",
+          "freshness-controls",
+          "readable-status"
+        ],
+        "accessibility": false
+      },
+      "designCoverage": [
+        {
+          "id": "DR-001",
+          "title": "Rule of Shared Scales",
+          "href": "design-rules.html#DR-001",
+          "enforcement": "automated",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-002",
+          "title": "Rule of Proportion",
+          "href": "design-rules.html#DR-002",
+          "enforcement": "automated",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-003",
+          "title": "Rule of Context",
+          "href": "design-rules.html#DR-003",
+          "enforcement": "automated",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-004",
+          "title": "Rule of Uncertainty",
+          "href": "design-rules.html#DR-004",
+          "enforcement": "automated",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-005",
+          "title": "Rule of Consistency",
+          "href": "design-rules.html#DR-005",
+          "enforcement": "automated",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-006",
+          "title": "Rule of Proximity",
+          "href": "design-rules.html#DR-006",
+          "enforcement": "automated",
+          "status": "checks-passed",
+          "checks": [
+            "control-separation",
+            "daily-schedule",
+            "freshness-controls"
+          ]
+        },
+        {
+          "id": "DR-007",
+          "title": "Rule of Useful Space",
+          "href": "design-rules.html#DR-007",
+          "enforcement": "automated",
+          "status": "checks-passed",
+          "checks": [
+            "readable-status"
+          ]
+        },
+        {
+          "id": "DR-008",
+          "title": "Rule of Restraint",
+          "href": "design-rules.html#DR-008",
+          "enforcement": "review",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-009",
+          "title": "Rule of State Honesty",
+          "href": "design-rules.html#DR-009",
+          "enforcement": "behavioral",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-010",
+          "title": "Rule of Continuity",
+          "href": "design-rules.html#DR-010",
+          "enforcement": "behavioral",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-011",
+          "title": "Rule of Clear Action",
+          "href": "design-rules.html#DR-011",
+          "enforcement": "review",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-012",
+          "title": "Rule of Recovery",
+          "href": "design-rules.html#DR-012",
+          "enforcement": "behavioral",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-013",
+          "title": "Rule of Priority",
+          "href": "design-rules.html#DR-013",
+          "enforcement": "review",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-014",
+          "title": "Rule of Access",
+          "href": "design-rules.html#DR-014",
+          "enforcement": "behavioral",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-015",
+          "title": "Rule of Resilience",
+          "href": "design-rules.html#DR-015",
+          "enforcement": "automated",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-016",
+          "title": "Rule of Meaningful Color",
+          "href": "design-rules.html#DR-016",
+          "enforcement": "review",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-017",
+          "title": "Rule of Alignment",
+          "href": "design-rules.html#DR-017",
+          "enforcement": "automated",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-018",
+          "title": "Rule of Rhythm",
+          "href": "design-rules.html#DR-018",
+          "enforcement": "automated",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-019",
+          "title": "Rule of Spatial Economy",
+          "href": "design-rules.html#DR-019",
+          "enforcement": "automated",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-020",
+          "title": "Rule of Balance",
+          "href": "design-rules.html#DR-020",
+          "enforcement": "automated",
+          "status": "unassessed",
+          "checks": []
+        }
+      ]
+    },
+    {
+      "name": "empty",
+      "url": "http://127.0.0.1:64210/?state=empty",
+      "viewport": {
+        "name": "phone",
+        "width": 390,
+        "height": 844
+      },
+      "findings": [],
+      "screenshot": "capture-5.png",
+      "details": {
+        "width": 390,
+        "height": 1270,
+        "scale": 1,
+        "expectedTiles": 2,
+        "capturedTiles": 2,
+        "complete": true,
+        "tiles": [
+          {
+            "file": "capture-5-detail-1.png",
+            "x": 0,
+            "y": 0,
+            "width": 390,
+            "height": 800
+          },
+          {
+            "file": "capture-5-detail-2.png",
+            "x": 0,
+            "y": 470,
+            "width": 390,
+            "height": 800
+          }
+        ]
+      },
+      "metrics": {
+        "viewportWidth": 390,
+        "viewportHeight": 844,
+        "pageHeight": 1270,
+        "evaluatedRules": 4,
+        "density": [],
+        "composition": [],
+        "growth": [],
+        "textLegibility": [],
+        "repeatedMetrics": [],
+        "evidenceDistances": [],
+        "markContrasts": [],
+        "peerInference": [],
+        "viewportDensity": {
+          "heuristicVersion": 1,
+          "status": "measured",
+          "discoveryThreshold": 0.08,
+          "viewport": {
+            "x": 0,
+            "y": 0,
+            "width": 390,
+            "height": 844
+          },
+          "textCoverage": 0.17345962070117876,
+          "combinedCoverage": 0.18522289691943128,
+          "belowFoldTextFragments": 21,
+          "firstBelowFold": {
+            "element": "td",
+            "box": {
+              "x": 22,
+              "y": 843.5,
+              "width": 43.5,
+              "height": 18
+            }
+          },
+          "candidate": null,
+          "limitations": "Geometry is advisory, not information relevance or design approval. Media/control bounds count allocated space, not painted content. CSS background images, pseudo-elements, shadow text and occlusion are not assessed.",
+          "problem": null
+        },
+        "comparisons": [],
+        "consistency": [],
+        "evaluations": [
+          {
+            "rule": "control-separation",
+            "matched": 2,
+            "status": "checked"
+          },
+          {
+            "rule": "daily-schedule",
+            "matched": 4,
+            "status": "checked"
+          },
+          {
+            "rule": "freshness-controls",
+            "matched": 5,
+            "status": "checked"
+          },
+          {
+            "rule": "readable-status",
+            "matched": 1,
+            "status": "checked"
+          }
+        ]
+      },
+      "coverage": {
+        "layoutRules": [
+          "control-separation",
+          "daily-schedule",
+          "freshness-controls",
+          "readable-status"
+        ],
+        "accessibility": false
+      },
+      "designCoverage": [
+        {
+          "id": "DR-001",
+          "title": "Rule of Shared Scales",
+          "href": "design-rules.html#DR-001",
+          "enforcement": "automated",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-002",
+          "title": "Rule of Proportion",
+          "href": "design-rules.html#DR-002",
+          "enforcement": "automated",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-003",
+          "title": "Rule of Context",
+          "href": "design-rules.html#DR-003",
+          "enforcement": "automated",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-004",
+          "title": "Rule of Uncertainty",
+          "href": "design-rules.html#DR-004",
+          "enforcement": "automated",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-005",
+          "title": "Rule of Consistency",
+          "href": "design-rules.html#DR-005",
+          "enforcement": "automated",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-006",
+          "title": "Rule of Proximity",
+          "href": "design-rules.html#DR-006",
+          "enforcement": "automated",
+          "status": "checks-passed",
+          "checks": [
+            "control-separation",
+            "daily-schedule",
+            "freshness-controls"
+          ]
+        },
+        {
+          "id": "DR-007",
+          "title": "Rule of Useful Space",
+          "href": "design-rules.html#DR-007",
+          "enforcement": "automated",
+          "status": "checks-passed",
+          "checks": [
+            "readable-status"
+          ]
+        },
+        {
+          "id": "DR-008",
+          "title": "Rule of Restraint",
+          "href": "design-rules.html#DR-008",
+          "enforcement": "review",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-009",
+          "title": "Rule of State Honesty",
+          "href": "design-rules.html#DR-009",
+          "enforcement": "behavioral",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-010",
+          "title": "Rule of Continuity",
+          "href": "design-rules.html#DR-010",
+          "enforcement": "behavioral",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-011",
+          "title": "Rule of Clear Action",
+          "href": "design-rules.html#DR-011",
+          "enforcement": "review",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-012",
+          "title": "Rule of Recovery",
+          "href": "design-rules.html#DR-012",
+          "enforcement": "behavioral",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-013",
+          "title": "Rule of Priority",
+          "href": "design-rules.html#DR-013",
+          "enforcement": "review",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-014",
+          "title": "Rule of Access",
+          "href": "design-rules.html#DR-014",
+          "enforcement": "behavioral",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-015",
+          "title": "Rule of Resilience",
+          "href": "design-rules.html#DR-015",
+          "enforcement": "automated",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-016",
+          "title": "Rule of Meaningful Color",
+          "href": "design-rules.html#DR-016",
+          "enforcement": "review",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-017",
+          "title": "Rule of Alignment",
+          "href": "design-rules.html#DR-017",
+          "enforcement": "automated",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-018",
+          "title": "Rule of Rhythm",
+          "href": "design-rules.html#DR-018",
+          "enforcement": "automated",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-019",
+          "title": "Rule of Spatial Economy",
+          "href": "design-rules.html#DR-019",
+          "enforcement": "automated",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-020",
+          "title": "Rule of Balance",
+          "href": "design-rules.html#DR-020",
+          "enforcement": "automated",
+          "status": "unassessed",
+          "checks": []
+        }
+      ]
+    },
+    {
+      "name": "empty",
+      "url": "http://127.0.0.1:64210/?state=empty",
+      "viewport": {
+        "name": "desktop",
+        "width": 1280,
+        "height": 900
+      },
+      "findings": [],
+      "screenshot": "capture-6.png",
+      "details": {
+        "width": 1280,
+        "height": 1158,
+        "scale": 1,
+        "expectedTiles": 4,
+        "capturedTiles": 4,
+        "complete": true,
+        "tiles": [
+          {
+            "file": "capture-6-detail-1.png",
+            "x": 0,
+            "y": 0,
+            "width": 1024,
+            "height": 800
+          },
+          {
+            "file": "capture-6-detail-2.png",
+            "x": 256,
+            "y": 0,
+            "width": 1024,
+            "height": 800
+          },
+          {
+            "file": "capture-6-detail-3.png",
+            "x": 0,
+            "y": 358,
+            "width": 1024,
+            "height": 800
+          },
+          {
+            "file": "capture-6-detail-4.png",
+            "x": 256,
+            "y": 358,
+            "width": 1024,
+            "height": 800
+          }
+        ]
+      },
+      "metrics": {
+        "viewportWidth": 1280,
+        "viewportHeight": 900,
+        "pageHeight": 1158,
+        "evaluatedRules": 4,
+        "density": [],
+        "composition": [],
+        "growth": [],
+        "textLegibility": [],
+        "repeatedMetrics": [],
+        "evidenceDistances": [],
+        "markContrasts": [],
+        "peerInference": [],
+        "viewportDensity": {
+          "heuristicVersion": 1,
+          "status": "measured",
+          "discoveryThreshold": 0.08,
+          "viewport": {
+            "x": 0,
+            "y": 0,
+            "width": 1280,
+            "height": 900
+          },
+          "textCoverage": 0.060205390082465275,
+          "combinedCoverage": 0.06363751898871528,
+          "belowFoldTextFragments": 9,
+          "firstBelowFold": {
+            "element": "td",
+            "box": {
+              "x": 148,
+              "y": 897.5,
+              "width": 43.5,
+              "height": 18
+            }
+          },
+          "candidate": {
+            "id": "viewport-sparsity",
+            "title": "Potential unused viewport capacity",
+            "designRules": [
+              "DR-007"
+            ],
+            "reason": "Measured text, control and media bounds occupy less than the discovery threshold while rendered text continues below the fold.",
+            "suggestion": "Review whether useful task information could be visible together. Explain intentional whitespace or propose a scoped requirement for review; do not fill space, shrink type or change rules merely to remove this flag."
+          },
+          "limitations": "Geometry is advisory, not information relevance or design approval. Media/control bounds count allocated space, not painted content. CSS background images, pseudo-elements, shadow text and occlusion are not assessed.",
+          "problem": null
+        },
+        "comparisons": [],
+        "consistency": [],
+        "evaluations": [
+          {
+            "rule": "control-separation",
+            "matched": 2,
+            "status": "checked"
+          },
+          {
+            "rule": "daily-schedule",
+            "matched": 4,
+            "status": "checked"
+          },
+          {
+            "rule": "freshness-controls",
+            "matched": 5,
+            "status": "checked"
+          },
+          {
+            "rule": "readable-status",
+            "matched": 1,
+            "status": "checked"
+          }
+        ]
+      },
+      "coverage": {
+        "layoutRules": [
+          "control-separation",
+          "daily-schedule",
+          "freshness-controls",
+          "readable-status"
+        ],
+        "accessibility": false
+      },
+      "designCoverage": [
+        {
+          "id": "DR-001",
+          "title": "Rule of Shared Scales",
+          "href": "design-rules.html#DR-001",
+          "enforcement": "automated",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-002",
+          "title": "Rule of Proportion",
+          "href": "design-rules.html#DR-002",
+          "enforcement": "automated",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-003",
+          "title": "Rule of Context",
+          "href": "design-rules.html#DR-003",
+          "enforcement": "automated",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-004",
+          "title": "Rule of Uncertainty",
+          "href": "design-rules.html#DR-004",
+          "enforcement": "automated",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-005",
+          "title": "Rule of Consistency",
+          "href": "design-rules.html#DR-005",
+          "enforcement": "automated",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-006",
+          "title": "Rule of Proximity",
+          "href": "design-rules.html#DR-006",
+          "enforcement": "automated",
+          "status": "checks-passed",
+          "checks": [
+            "control-separation",
+            "daily-schedule",
+            "freshness-controls"
+          ]
+        },
+        {
+          "id": "DR-007",
+          "title": "Rule of Useful Space",
+          "href": "design-rules.html#DR-007",
+          "enforcement": "automated",
+          "status": "checks-passed",
+          "checks": [
+            "readable-status"
+          ]
+        },
+        {
+          "id": "DR-008",
+          "title": "Rule of Restraint",
+          "href": "design-rules.html#DR-008",
+          "enforcement": "review",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-009",
+          "title": "Rule of State Honesty",
+          "href": "design-rules.html#DR-009",
+          "enforcement": "behavioral",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-010",
+          "title": "Rule of Continuity",
+          "href": "design-rules.html#DR-010",
+          "enforcement": "behavioral",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-011",
+          "title": "Rule of Clear Action",
+          "href": "design-rules.html#DR-011",
+          "enforcement": "review",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-012",
+          "title": "Rule of Recovery",
+          "href": "design-rules.html#DR-012",
+          "enforcement": "behavioral",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-013",
+          "title": "Rule of Priority",
+          "href": "design-rules.html#DR-013",
+          "enforcement": "review",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-014",
+          "title": "Rule of Access",
+          "href": "design-rules.html#DR-014",
+          "enforcement": "behavioral",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-015",
+          "title": "Rule of Resilience",
+          "href": "design-rules.html#DR-015",
+          "enforcement": "automated",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-016",
+          "title": "Rule of Meaningful Color",
+          "href": "design-rules.html#DR-016",
+          "enforcement": "review",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-017",
+          "title": "Rule of Alignment",
+          "href": "design-rules.html#DR-017",
+          "enforcement": "automated",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-018",
+          "title": "Rule of Rhythm",
+          "href": "design-rules.html#DR-018",
+          "enforcement": "automated",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-019",
+          "title": "Rule of Spatial Economy",
+          "href": "design-rules.html#DR-019",
+          "enforcement": "automated",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-020",
+          "title": "Rule of Balance",
+          "href": "design-rules.html#DR-020",
+          "enforcement": "automated",
+          "status": "unassessed",
+          "checks": []
+        }
+      ]
+    },
+    {
+      "name": "scheduler-off",
+      "url": "http://127.0.0.1:64210/?state=scheduler-off",
+      "viewport": {
+        "name": "phone",
+        "width": 390,
+        "height": 844
+      },
+      "findings": [],
+      "screenshot": "capture-7.png",
+      "details": {
+        "width": 390,
+        "height": 1294,
+        "scale": 1,
+        "expectedTiles": 2,
+        "capturedTiles": 2,
+        "complete": true,
+        "tiles": [
+          {
+            "file": "capture-7-detail-1.png",
+            "x": 0,
+            "y": 0,
+            "width": 390,
+            "height": 800
+          },
+          {
+            "file": "capture-7-detail-2.png",
+            "x": 0,
+            "y": 494,
+            "width": 390,
+            "height": 800
+          }
+        ]
+      },
+      "metrics": {
+        "viewportWidth": 390,
+        "viewportHeight": 844,
+        "pageHeight": 1294,
+        "evaluatedRules": 4,
+        "density": [],
+        "composition": [],
+        "growth": [],
+        "textLegibility": [],
+        "repeatedMetrics": [],
+        "evidenceDistances": [],
+        "markContrasts": [],
+        "peerInference": [],
+        "viewportDensity": {
+          "heuristicVersion": 1,
+          "status": "measured",
+          "discoveryThreshold": 0.08,
+          "viewport": {
+            "x": 0,
+            "y": 0,
+            "width": 390,
+            "height": 844
+          },
+          "textCoverage": 0.20129534269048488,
+          "combinedCoverage": 0.2130586189087374,
+          "belowFoldTextFragments": 21,
+          "firstBelowFold": {
+            "element": "td",
+            "box": {
+              "x": 22,
+              "y": 867.5,
+              "width": 43.5,
+              "height": 18
+            }
+          },
+          "candidate": null,
+          "limitations": "Geometry is advisory, not information relevance or design approval. Media/control bounds count allocated space, not painted content. CSS background images, pseudo-elements, shadow text and occlusion are not assessed.",
+          "problem": null
+        },
+        "comparisons": [],
+        "consistency": [],
+        "evaluations": [
+          {
+            "rule": "control-separation",
+            "matched": 2,
+            "status": "checked"
+          },
+          {
+            "rule": "daily-schedule",
+            "matched": 4,
+            "status": "checked"
+          },
+          {
+            "rule": "freshness-controls",
+            "matched": 5,
+            "status": "checked"
+          },
+          {
+            "rule": "readable-status",
+            "matched": 1,
+            "status": "checked"
+          }
+        ]
+      },
+      "coverage": {
+        "layoutRules": [
+          "control-separation",
+          "daily-schedule",
+          "freshness-controls",
+          "readable-status"
+        ],
+        "accessibility": false
+      },
+      "designCoverage": [
+        {
+          "id": "DR-001",
+          "title": "Rule of Shared Scales",
+          "href": "design-rules.html#DR-001",
+          "enforcement": "automated",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-002",
+          "title": "Rule of Proportion",
+          "href": "design-rules.html#DR-002",
+          "enforcement": "automated",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-003",
+          "title": "Rule of Context",
+          "href": "design-rules.html#DR-003",
+          "enforcement": "automated",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-004",
+          "title": "Rule of Uncertainty",
+          "href": "design-rules.html#DR-004",
+          "enforcement": "automated",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-005",
+          "title": "Rule of Consistency",
+          "href": "design-rules.html#DR-005",
+          "enforcement": "automated",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-006",
+          "title": "Rule of Proximity",
+          "href": "design-rules.html#DR-006",
+          "enforcement": "automated",
+          "status": "checks-passed",
+          "checks": [
+            "control-separation",
+            "daily-schedule",
+            "freshness-controls"
+          ]
+        },
+        {
+          "id": "DR-007",
+          "title": "Rule of Useful Space",
+          "href": "design-rules.html#DR-007",
+          "enforcement": "automated",
+          "status": "checks-passed",
+          "checks": [
+            "readable-status"
+          ]
+        },
+        {
+          "id": "DR-008",
+          "title": "Rule of Restraint",
+          "href": "design-rules.html#DR-008",
+          "enforcement": "review",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-009",
+          "title": "Rule of State Honesty",
+          "href": "design-rules.html#DR-009",
+          "enforcement": "behavioral",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-010",
+          "title": "Rule of Continuity",
+          "href": "design-rules.html#DR-010",
+          "enforcement": "behavioral",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-011",
+          "title": "Rule of Clear Action",
+          "href": "design-rules.html#DR-011",
+          "enforcement": "review",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-012",
+          "title": "Rule of Recovery",
+          "href": "design-rules.html#DR-012",
+          "enforcement": "behavioral",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-013",
+          "title": "Rule of Priority",
+          "href": "design-rules.html#DR-013",
+          "enforcement": "review",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-014",
+          "title": "Rule of Access",
+          "href": "design-rules.html#DR-014",
+          "enforcement": "behavioral",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-015",
+          "title": "Rule of Resilience",
+          "href": "design-rules.html#DR-015",
+          "enforcement": "automated",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-016",
+          "title": "Rule of Meaningful Color",
+          "href": "design-rules.html#DR-016",
+          "enforcement": "review",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-017",
+          "title": "Rule of Alignment",
+          "href": "design-rules.html#DR-017",
+          "enforcement": "automated",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-018",
+          "title": "Rule of Rhythm",
+          "href": "design-rules.html#DR-018",
+          "enforcement": "automated",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-019",
+          "title": "Rule of Spatial Economy",
+          "href": "design-rules.html#DR-019",
+          "enforcement": "automated",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-020",
+          "title": "Rule of Balance",
+          "href": "design-rules.html#DR-020",
+          "enforcement": "automated",
+          "status": "unassessed",
+          "checks": []
+        }
+      ]
+    },
+    {
+      "name": "scheduler-off",
+      "url": "http://127.0.0.1:64210/?state=scheduler-off",
+      "viewport": {
+        "name": "desktop",
+        "width": 1280,
+        "height": 900
+      },
+      "findings": [],
+      "screenshot": "capture-8.png",
+      "details": {
+        "width": 1280,
+        "height": 1158,
+        "scale": 1,
+        "expectedTiles": 4,
+        "capturedTiles": 4,
+        "complete": true,
+        "tiles": [
+          {
+            "file": "capture-8-detail-1.png",
+            "x": 0,
+            "y": 0,
+            "width": 1024,
+            "height": 800
+          },
+          {
+            "file": "capture-8-detail-2.png",
+            "x": 256,
+            "y": 0,
+            "width": 1024,
+            "height": 800
+          },
+          {
+            "file": "capture-8-detail-3.png",
+            "x": 0,
+            "y": 358,
+            "width": 1024,
+            "height": 800
+          },
+          {
+            "file": "capture-8-detail-4.png",
+            "x": 256,
+            "y": 358,
+            "width": 1024,
+            "height": 800
+          }
+        ]
+      },
+      "metrics": {
+        "viewportWidth": 1280,
+        "viewportHeight": 900,
+        "pageHeight": 1158,
+        "evaluatedRules": 4,
+        "density": [],
+        "composition": [],
+        "growth": [],
+        "textLegibility": [],
+        "repeatedMetrics": [],
+        "evidenceDistances": [],
+        "markContrasts": [],
+        "peerInference": [],
+        "viewportDensity": {
+          "heuristicVersion": 1,
+          "status": "measured",
+          "discoveryThreshold": 0.08,
+          "viewport": {
+            "x": 0,
+            "y": 0,
+            "width": 1280,
+            "height": 900
+          },
+          "textCoverage": 0.06827393934461806,
+          "combinedCoverage": 0.07170606825086806,
+          "belowFoldTextFragments": 9,
+          "firstBelowFold": {
+            "element": "td",
+            "box": {
+              "x": 148,
+              "y": 897.5,
+              "width": 43.5,
+              "height": 18
+            }
+          },
+          "candidate": {
+            "id": "viewport-sparsity",
+            "title": "Potential unused viewport capacity",
+            "designRules": [
+              "DR-007"
+            ],
+            "reason": "Measured text, control and media bounds occupy less than the discovery threshold while rendered text continues below the fold.",
+            "suggestion": "Review whether useful task information could be visible together. Explain intentional whitespace or propose a scoped requirement for review; do not fill space, shrink type or change rules merely to remove this flag."
+          },
+          "limitations": "Geometry is advisory, not information relevance or design approval. Media/control bounds count allocated space, not painted content. CSS background images, pseudo-elements, shadow text and occlusion are not assessed.",
+          "problem": null
+        },
+        "comparisons": [],
+        "consistency": [],
+        "evaluations": [
+          {
+            "rule": "control-separation",
+            "matched": 2,
+            "status": "checked"
+          },
+          {
+            "rule": "daily-schedule",
+            "matched": 4,
+            "status": "checked"
+          },
+          {
+            "rule": "freshness-controls",
+            "matched": 5,
+            "status": "checked"
+          },
+          {
+            "rule": "readable-status",
+            "matched": 1,
+            "status": "checked"
+          }
+        ]
+      },
+      "coverage": {
+        "layoutRules": [
+          "control-separation",
+          "daily-schedule",
+          "freshness-controls",
+          "readable-status"
+        ],
+        "accessibility": false
+      },
+      "designCoverage": [
+        {
+          "id": "DR-001",
+          "title": "Rule of Shared Scales",
+          "href": "design-rules.html#DR-001",
+          "enforcement": "automated",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-002",
+          "title": "Rule of Proportion",
+          "href": "design-rules.html#DR-002",
+          "enforcement": "automated",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-003",
+          "title": "Rule of Context",
+          "href": "design-rules.html#DR-003",
+          "enforcement": "automated",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-004",
+          "title": "Rule of Uncertainty",
+          "href": "design-rules.html#DR-004",
+          "enforcement": "automated",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-005",
+          "title": "Rule of Consistency",
+          "href": "design-rules.html#DR-005",
+          "enforcement": "automated",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-006",
+          "title": "Rule of Proximity",
+          "href": "design-rules.html#DR-006",
+          "enforcement": "automated",
+          "status": "checks-passed",
+          "checks": [
+            "control-separation",
+            "daily-schedule",
+            "freshness-controls"
+          ]
+        },
+        {
+          "id": "DR-007",
+          "title": "Rule of Useful Space",
+          "href": "design-rules.html#DR-007",
+          "enforcement": "automated",
+          "status": "checks-passed",
+          "checks": [
+            "readable-status"
+          ]
+        },
+        {
+          "id": "DR-008",
+          "title": "Rule of Restraint",
+          "href": "design-rules.html#DR-008",
+          "enforcement": "review",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-009",
+          "title": "Rule of State Honesty",
+          "href": "design-rules.html#DR-009",
+          "enforcement": "behavioral",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-010",
+          "title": "Rule of Continuity",
+          "href": "design-rules.html#DR-010",
+          "enforcement": "behavioral",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-011",
+          "title": "Rule of Clear Action",
+          "href": "design-rules.html#DR-011",
+          "enforcement": "review",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-012",
+          "title": "Rule of Recovery",
+          "href": "design-rules.html#DR-012",
+          "enforcement": "behavioral",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-013",
+          "title": "Rule of Priority",
+          "href": "design-rules.html#DR-013",
+          "enforcement": "review",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-014",
+          "title": "Rule of Access",
+          "href": "design-rules.html#DR-014",
+          "enforcement": "behavioral",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-015",
+          "title": "Rule of Resilience",
+          "href": "design-rules.html#DR-015",
+          "enforcement": "automated",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-016",
+          "title": "Rule of Meaningful Color",
+          "href": "design-rules.html#DR-016",
+          "enforcement": "review",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-017",
+          "title": "Rule of Alignment",
+          "href": "design-rules.html#DR-017",
+          "enforcement": "automated",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-018",
+          "title": "Rule of Rhythm",
+          "href": "design-rules.html#DR-018",
+          "enforcement": "automated",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-019",
+          "title": "Rule of Spatial Economy",
+          "href": "design-rules.html#DR-019",
+          "enforcement": "automated",
+          "status": "unassessed",
+          "checks": []
+        },
+        {
+          "id": "DR-020",
+          "title": "Rule of Balance",
+          "href": "design-rules.html#DR-020",
+          "enforcement": "automated",
+          "status": "unassessed",
+          "checks": []
+        }
+      ]
+    }
+  ],
+  "sourceChecks": [],
+  "designPolicy": {
+    "document": "docs/design-rules/",
+    "sha256": "aa08d051e6943fdc24dfcc944286ced1c8eb28b6f1545092d1530bdf7072775a",
+    "rules": [
+      {
+        "id": "DR-001",
+        "title": "Rule of Shared Scales",
+        "enforcement": "automated",
+        "source": "docs/design-rules/DR-001-comparable-scales.md",
+        "body": "**Principle:** Comparable charts use comparable scales.\n\n**Requirement:** Charts comparing absolute magnitudes of the same measure must\nuse the same units, axis domains, scale transformations, and plotting dimensions.\nTime comparisons must use matching windows or explicitly labeled corresponding\nperiods. Changes in layout must preserve the interpretation of the scale.\n\n**Why:** Visual differences should reflect differences in data. Independently\nrescaling each panel can make very different magnitudes appear equivalent.\n\n**Exception:** Separate scales may support comparison of patterns within each\nseries. Label those scales clearly and identify the comparison as one of shape\nor relative change. Logarithmic and indexed views must identify their transform\nand reference value.",
+        "href": "design-rules.html#DR-001"
+      },
+      {
+        "id": "DR-002",
+        "title": "Rule of Proportion",
+        "enforcement": "automated",
+        "source": "docs/design-rules/DR-002-proportional-magnitude.md",
+        "body": "**Principle:** Visual magnitude reflects numerical magnitude.\n\n**Requirement:** Ordinary bars representing amounts must start at zero. Filled\narea charts representing amounts must preserve a zero baseline. Bubble area\nmust be proportional to its encoded value. Decorative 3D projections must not\ndistort a two-dimensional quantitative comparison.\n\n**Why:** The size of the visual mark must represent the quantity faithfully.\n\n**Exception:** Range bars and timelines represent intervals; their endpoints must\nrepresent those intervals accurately. Unfilled line and scatter plots may use\nnonzero domains to reveal variation. Actual three-dimensional data may justify\na three-dimensional view. Axis labels must make the chosen mapping clear.",
+        "href": "design-rules.html#DR-002"
+      },
+      {
+        "id": "DR-003",
+        "title": "Rule of Context",
+        "enforcement": "automated",
+        "source": "docs/design-rules/DR-003-quantity-context.md",
+        "body": "**Principle:** Quantities carry the context needed to interpret them.\n\n**Requirement:** A quantitative claim must identify its measure, units, applicable\nperiod, and population or scope. Rates must identify their denominator;\nperformance comparisons must identify their baseline. Currency must be\nunambiguous. Source information must be accessible, with freshness stated when\nit affects the decision.\n\n**Why:** A precise-looking number can still be uninterpretable or incomparable.\n\n**Application:** Put essential context beside the value or in a clearly shared\nheading. Do not hide essential units or periods exclusively in hover content.\nShared context can cover a whole table or chart group; repeating it in every\ncell adds noise. Detailed source documentation may be expandable.",
+        "href": "design-rules.html#DR-003"
+      },
+      {
+        "id": "DR-004",
+        "title": "Rule of Uncertainty",
+        "enforcement": "automated",
+        "source": "docs/design-rules/DR-004-missing-estimated-values.md",
+        "body": "**Principle:** Missing and estimated values remain distinguishable.\n\n**Requirement:** Missing, unavailable, and suppressed values must remain distinct\nfrom observed zero. Forecasts, estimates, and measured values must be visibly\ndistinguishable. Disclose interpolation across missing observations and material\nomissions or truncation. Show supplied uncertainty when it affects interpretation.\n\n**Why:** A continuous line or an apparently complete table must not imply evidence\nthat does not exist.\n\n**Application:** A gap or labeled missing value is valid. Connecting observations\nacross a gap requires an explicit indication that intervening values are missing.\nDo not invent an uncertainty interval when the underlying data provides none.",
+        "href": "design-rules.html#DR-004"
+      },
+      {
+        "id": "DR-005",
+        "title": "Rule of Consistency",
+        "enforcement": "automated",
+        "source": "docs/design-rules/DR-005-consistent-meanings.md",
+        "body": "**Principle:** Visual meanings stay consistent.\n\n**Requirement:** Within a comparison workspace, the same entity or status must\nretain its color, symbol, and line-style meaning across charts, filters, sorting,\nand viewport changes. Different meanings must not silently reuse an established\nencoding. Essential distinctions must remain understandable without color alone.\n\n**Why:** Relearning a visual vocabulary consumes attention and invites incorrect\ncomparisons.\n\n**Exception:** Theme or accessibility changes may alter the palette while\npreserving the mapping and an identifiable label or other distinguishing mark.\nAn explicitly different encoding, such as coloring carriers by risk instead of\nidentity, must be explained where that encoding is used.\n\n**Discovery application:** When a subject mark identifies an entity in a list,\ncarry that meaning into its detail view. Require the mark in each relevant\ncomponent and compare actual visual evidence; matching identity labels alone\ncannot establish matching artwork. Scope intentional theme or encoding changes.",
+        "href": "design-rules.html#DR-005"
+      },
+      {
+        "id": "DR-006",
+        "title": "Rule of Proximity",
+        "enforcement": "automated",
+        "source": "docs/design-rules/DR-006-related-evidence.md",
+        "body": "**Principle:** Related evidence stays visible together.\n\n**Requirement:** For each task, identify the critical comparison set. At its\nsupported analytical desktop sizes, the screen must show that set together in\nthe declared comparison view. Align related values and use consistent numeric\nformatting so the reader can scan them. Keep labels close to their evidence.\n\n**Why:** Comparing alternatives should not depend on remembering a value from\nanother tab or a previous scroll position.\n\n**Application:** A carrier-selection view might require cost, delivery window,\nand reliability for the selected alternatives together. Secondary detail may be\nexpandable. Align numeric amounts and their headers consistently, with suitable\nprecision and tabular digits where supported; identifiers need not follow numeric\namount formatting. Small screens may use an explicit selection or comparison mode;\nthe reduced view must keep the identity and context of each alternative clear.\n\n**Meaning-changing context:** A qualifier that changes how a value should be used\nbelongs with that value, not in an explanation or collapsed disclosure elsewhere.\nKeep stale status and snapshot age visible with retained data. Source methodology\nand verification detail can be deferred; the facts needed to interpret the number\ncannot. Declare the required relationship before choosing a badge, sentence, or\nother presentation.\n\n**Decision surfaces:** Keep the supporting evidence, recommendation, and next action\nadjacent within an expanded analytical item. `evidence-proximity` can enforce a\nproject's declared text-distance limit; it cannot identify which evidence supports\nthe decision. Inspect simultaneous visibility and preserve map detail needed for\nfacility-level reading. [Expanded decision-surface reference](https://github.com/lanej/viewrule/blob/main/docs/design-examples.md#expanded-analytical-decision-surface).\n\n**Component application:** Keep identifying marks, titles, and descriptions\nvisually associated. For compact discovery items, a mark can share the title's\nrow while the description uses the full item width. Declare the intended relative\nplacement and spacing, rather than prescribing one CSS layout technique. An\nindividual missing graphic must not be concealed by other complete items.\n\n**Computationally falsifiable:** Declared neighboring labels can use `no-text-overlap` to detect\nintersecting rendered text fragments even when their element boxes are separate.\nWrapped text is measured per fragment. This falsifies an authored separation\nconstraint; selecting the neighbors and judging optical spacing still requires\nhuman review. See [supported geometry and unassessed cases](https://github.com/lanej/viewrule/blob/main/docs/text-legibility.md).\n\n**Declared groups:** `group-separation` can enforce that the smallest gap between\ngroup member envelopes exceeds within-group spacing by an authored ratio. Groups\nand their members must form complete, disjoint, nonoverlapping single-axis\nsequences. This supports proximity relationships, but cannot determine which\nitems belong together or establish simultaneous visibility. See\n[DR-018](https://github.com/lanej/viewrule/blob/main/docs/design-rules/DR-018-rhythm.md) and the\n[measurement contract](https://github.com/lanej/viewrule/blob/main/docs/ui-review.md#composition-contracts).",
+        "href": "design-rules.html#DR-006"
+      },
+      {
+        "id": "DR-007",
+        "title": "Rule of Useful Space",
+        "enforcement": "automated",
+        "source": "docs/design-rules/DR-007-responsive-detail.md",
+        "body": "**Principle:** Larger screens expose useful detail and preserve legibility.\n\n**Requirement:** For the same task and data state, moving to a larger supported\nviewport must preserve the critical comparison set. Where additional evidence\nhelps the task, define which extra rows, columns, time history, or comparison\npanels become visible at larger sizes. Preserve readable type and interaction\ntargets as density changes.\n\n**Why:** Additional screen area is an opportunity to improve comparison and\ninspection. Stretching containers alone does not demonstrate that improvement.\n\n**Application:** Judge density by useful, distinct observations and relationships.\nRepeated values, larger cards, and decorative marks do not count as additional\nevidence. A larger carrier table might expose volume and service breakdowns while\nkeeping cost and reliability visible. Do not increase density by shrinking text\nbelow the project's readable type scale. Preserve usable controls as density changes.\nFor prose, use bounded reading widths and natural word spacing; avoid fully justified\nparagraphs. The default control-size and prose checks are scoped review warnings.\n\n**Finite comparisons:** Align peer headings and sample surfaces through shared\nlayout relationships rather than fixed-height explanation slots or empty panel\nallowances. Let wrapped content determine the required height. A scoped ceiling\nmay catch a known regression at one declared viewport and state; pair it with\nlegibility and required-context checks, and do not apply it unchanged to enlarged\ntext, different content, or narrower layouts.\n\n**Exception:** A finite comparison or focused task may already show all useful\nevidence. Retain useful whitespace and bounded reading widths in that case;\ndo not manufacture content to meet an occupancy target.\n\n**Comparative allocation:** [DR-019](https://github.com/lanej/viewrule/blob/main/docs/design-rules/DR-019-spatial-economy.md) adds opt-in\nviewport-growth yield: fractional growth of qualifying evidence divided by\nfractional growth of usable region area, with reference identities preserved.\nIts explicit finite-set exception distinguishes an already complete task from\nempty container growth. The metric cannot decide which evidence is useful.\n\n**Review:** Assess both the whole layout and detail at its intended reading size\nfor every target viewport. A reduced overview alone cannot establish legibility\non a large screen. Viewport dimensions refer to CSS pixels; account for browser\nzoom and display scaling when choosing representative screen sizes.\n\n**Decision surfaces:** Retain enough map or chart area for the required labels and\nmarks. Compact the supporting context, not the type. Reuse `region-density` on scoped\ntext regions as a geometry proxy; a large map box is not evidence of semantic density.\nDeclared repeated metrics and scalar container heights can supply additional partial\nchecks. [Expanded decision-surface reference](https://github.com/lanej/viewrule/blob/main/docs/design-examples.md#expanded-analytical-decision-surface).\n\n**Discovery application:** Reduce redundant spacing before reducing readable\ntype. Bound the gap between a heading and its description without fixing the\nitem height; let wrapped titles and enlarged text use the space they need.\nExact type scales, icon sizes, gaps, and column choices remain project decisions.",
+        "href": "design-rules.html#DR-007"
+      },
+      {
+        "id": "DR-008",
+        "title": "Rule of Restraint",
+        "enforcement": "review",
+        "source": "docs/design-rules/DR-008-earned-decoration.md",
+        "body": "**Principle:** Decoration earns its space and visual weight.\n\n**Default:** Remove redundant frames, nested cards, repeated labels, ornamental\nicons, and effects that compete with the evidence. Gridlines and separators\nshould support reading without dominating the data. Headers and controls should\nleave room for the task's primary comparisons.\n\n**Why:** Prominent visual elements should communicate relevant information.\n\n**Exception:** Grouping, selection, warnings, and interaction affordances may\nneed visible boundaries or emphasis. Preserve these functions. Minimal decoration\nis not a reason to erase useful labels, context, or controls.\n\n**Review:** Treat excessive decoration as a design concern requiring judgment.\nAn empty screen is not automatically a successful reduction of non-data ink.\n\n**Decision surfaces:** Avoid repeating the expanded item's headline summary in another\nlarge card. A scalar position often needs only its value and range as compact context.\n`repeated-metric` can limit declared summary identities per surface; `max-height` can\nbound explicitly selected scalar containers. Neither decides whether repetition or\na richer visualization is justified. [Expanded decision-surface reference](https://github.com/lanej/viewrule/blob/main/docs/design-examples.md#expanded-analytical-decision-surface).",
+        "href": "design-rules.html#DR-008"
+      },
+      {
+        "id": "DR-009",
+        "title": "Rule of State Honesty",
+        "enforcement": "behavioral",
+        "source": "docs/design-rules/DR-009-state-honesty.md",
+        "body": "**Principle:** System status reflects the available evidence.\n\n**Requirement:** Loading, empty, filtered-out, unavailable, stale, pending, and\ncompleted states must remain distinguishable when they call for different user\nactions. Do not turn a failed request into an observed zero or a queued operation\ninto a completed one. If retained data affects a decision, distinguish its as-of\ntime from the latest refresh attempt.\n\n**Why:** A decision based on a false success or false absence can be wrong even\nwhen the layout is clear. This extends DR-004 from data representation to the\ninterface's operational state. [Visibility of system status](https://www.nngroup.com/articles/visibility-system-status/)\nis practitioner guidance; [WCAG 4.1.3](https://www.w3.org/WAI/WCAG22/Understanding/status-messages.html)\naddresses programmatic identification of qualifying status messages, not backend truth.\n\n**Application:** Keep useful retained data explicitly labeled stale after a failed\nrefresh; offer retry. Show submitting, queued, and completed according to actual\noperation evidence. Announce meaningful status changes without unnecessarily moving\nfocus or making every update an interrupting alert.\n\n**Snapshot application:** Present the value, its stale qualifier, and its as-of\ncontext as one reading unit. Keep the refresh attempt separate. A pending retry\nor another failure must not replace a known snapshot with zero, advance its as-of\ntime, or imply recovery. Only the returned successful snapshot updates its value\nand time. Initial loading has no retained snapshot to display. Keep recovery local\nand preserve focus on the invoking control while the request resolves.\n\n**Exception:** Omit distinctions that do not affect this task, but never claim a\nstronger state than the available evidence supports. Optimistic UI must expose\npending status or support truthful reconciliation and failure recovery.\n\n**Review:** Exercise delayed, empty, failed, and recovered responses with controlled\nfixtures. Visible labels and ARIA metadata do not establish freshness or completion.\n[Good/bad example](../examples/behavior.html?rule=DR-009).",
+        "href": "design-rules.html#DR-009"
+      },
+      {
+        "id": "DR-010",
+        "title": "Rule of Continuity",
+        "enforcement": "behavioral",
+        "source": "docs/design-rules/DR-010-context-continuity.md",
+        "body": "**Principle:** Interactions preserve the working context.\n\n**Requirement:** Opening detail, returning, refreshing, and adapting the layout\nmust preserve task-relevant filters, selection identity, entered work, and position\nunless the operation explicitly changes them. Selection follows a stable entity,\nnot its current row index. Returning focus must support the next step in the task.\n\n**Why:** The user should not have to reconstruct a comparison after inspecting it.\nThis broader continuity requirement is a project interpretation, supported in part\nby the [APG dialog focus guidance](https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/).\nThat pattern is not a universal mandate to return focus to the opener in every workflow.\n\n**Application:** Restore queue filters and the selected shipment on return. Keep\nselection attached to that shipment if rows reorder. Explain when the selected item\nleaves the result set instead of silently substituting the item now at its old index.\n\n**Exception:** An explicit reset, completed deletion, or next-step workflow may\nchange context. Explain the transition and choose a useful surviving focus target.\nDo not restore stale state that would misrepresent the current operation.\n\n**Review:** Compare actual identities, input values, focus, and relevant scroll\nposition before and after a journey. A static selected-state attribute is not proof\nof continuity. [Good/bad example](../examples/behavior.html?rule=DR-010).",
+        "href": "design-rules.html#DR-010"
+      },
+      {
+        "id": "DR-011",
+        "title": "Rule of Clear Action",
+        "enforcement": "review",
+        "source": "docs/design-rules/DR-011-action-scope.md",
+        "body": "**Principle:** Controls communicate their action and scope.\n\n**Requirement:** Essential controls must have discoverable interaction cues and\nnames that communicate what they do. Consequential actions must make their scope\nand relevant effect clear before commitment. Important unavailable actions should\nhave an accessible explanation of what prevents them.\n\n**Why:** Users need perceptible cues to discover possible actions; see Norman's\n[signifiers](https://jnd.org/signifiers-not-affordances/). Names must also be\nprogrammatically available where required by [WCAG 4.1.2](https://www.w3.org/WAI/WCAG22/Understanding/name-role-value.html).\nNeither source makes a pointer cursor or a particular button style sufficient proof.\n\n**Application:** Prefer “Publish rates for 12 selected lanes” over an unexplained\n“Apply” when scope could be confused. Distinguish static status from actionable\ncontrols. Keep an unavailable action's explanation accessible without depending on\nhover over a disabled element.\n\n**Exception:** Familiar compact controls can use icons with accessible names and\nappropriate contextual help. Repeating an already unambiguous scope in every button\nis not required. Do not replace standard semantics with decorative control imitation.\n\n**Review:** Check accessible names and the observed outcome, then assess whether\nthe wording and visual cues communicate that outcome to the intended audience.\n[Good/bad example](../examples/behavior.html?rule=DR-011).",
+        "href": "design-rules.html#DR-011"
+      },
+      {
+        "id": "DR-012",
+        "title": "Rule of Recovery",
+        "enforcement": "behavioral",
+        "source": "docs/design-rules/DR-012-recovery-safeguards.md",
+        "body": "**Principle:** Safeguards match consequences and preserve work.\n\n**Requirement:** Match prevention and recovery to the action's consequences.\nReversible low-risk operations should be easy to undo; consequential submissions\nneed an appropriate reversal, checking, or review mechanism. On failure, preserve\nrecoverable input and identify the problem and corrective action.\n\n**Why:** Re-entering valid work does not correct the original error. The applicable\nscope and alternatives of [WCAG 3.3.4](https://www.w3.org/WAI/WCAG22/Understanding/error-prevention-legal-financial-data.html)\nare specific; it does not require confirmation dialogs for every save.\n[WCAG 3.3.1](https://www.w3.org/WAI/WCAG22/Understanding/error-identification.html)\nrequires textual identification of automatically detected input errors.\n\n**Application:** Preserve the entered proposal after server rejection, associate\npersistent correction guidance with the field, and show affected records before a\nbulk publication. Undo must reverse the actual operation, not merely dismiss a toast.\n\n**Exception:** Security-sensitive values or expired authorization may require\nre-entry. Explain the reason and retain other safe work. An irreversible action\ncannot truthfully offer Undo; show its consequences before commitment instead.\n\n**Review:** Exercise rejection, correction, retry, cancellation, and actual reversal\nwhere supported. A review dialog or Undo label alone does not establish protection.\n[Good/bad example](../examples/behavior.html?rule=DR-012).",
+        "href": "design-rules.html#DR-012"
+      },
+      {
+        "id": "DR-013",
+        "title": "Rule of Priority",
+        "enforcement": "review",
+        "source": "docs/design-rules/DR-013-task-emphasis.md",
+        "body": "**Principle:** Visual emphasis follows the task's priority.\n\n**Default:** State the intended attention order for the current task, then use\ncontrast, size, grouping, position, and restraint to support it. The most visually\nprominent content should not routinely distract from the decision or action that\nmatters most in that state.\n\n**Why:** [Visual hierarchy](https://www.nngroup.com/articles/visual-hierarchy-ux-definition/)\nis practitioner guidance on directing attention. This positive hierarchy rule\ncomplements DR-008; removing decoration does not by itself establish useful emphasis.\n\n**Application:** An exception-review screen can lead with affected shipments and\ntheir required response while keeping summary totals available but subordinate.\nThe same dataset may need a different hierarchy in a planning or reporting task.\n\n**Teaching comparisons:** Lead with the distinction the reader must recognize and\nthe shared facts needed to judge it. Keep fixture navigation and verification notes\nsubordinate. Inspect the example without its explanatory paragraphs: those\nparagraphs must not compensate for an unclear value, state, or action in the\ninterface itself. Keep both alternatives comparably polished so unrelated styling\ndoes not reveal the intended answer. These are Viewrule authoring conventions,\nnot experimentally established thresholds.\n\n**Executable emphasis contracts:** Declare which subject is primary for the task,\nthen specify the observable relationships that support that decision: type scale,\ncontrast, grouping, placement, and any accent treatment. A correct DOM order alone\ndoes not establish visual priority. Conversely, a controlled priority counterexample\nmay swap a coordinated color-and-type role; it need not freeze typography or restrict\nthe mutation to order. Preserve facts, readable supporting evidence, action behavior,\nand consistent status meanings. An attention accent must not invent a warning or success.\n\nAuthor scoped checks before repairing the UI and exercise them against the rejected\nbaseline. Assert measured paint, text, geometry, and behavior rather than classes,\nexpected-pass annotations, or the mere presence of a rule. Preserve a representative\nrejected fixture so returning to the old design makes the check fail. Exact colors\nand sizes remain project choices: a native style check verifies those choices, not\na universal salience score. Human review still judges task suitability.\nSee the [red-to-green priority example](../examples/priority-design.md).\n\n**Exception:** Navigation, orientation, or a safety-critical alert may appropriately\noutrank the page's ordinary primary task. There is no universal KPI count, occupancy\nscore, or rule requiring exactly one primary button on every page.\n\n**Review:** Compare an explicit task and attention order with the rendered result.\nProject-specific token checks may detect known deviations; no generic hierarchy\nscore establishes that the emphasis is appropriate.\nFor declared equal-priority peers, [DR-020](https://github.com/lanej/viewrule/blob/main/docs/design-rules/DR-020-balance.md) adds opt-in\narea and font-size variation checks. These proxies do not determine the task's\npriority or measure perceived salience.\n[Good/bad example](../examples/behavior.html?rule=DR-013).",
+        "href": "design-rules.html#DR-013"
+      },
+      {
+        "id": "DR-014",
+        "title": "Rule of Access",
+        "enforcement": "behavioral",
+        "source": "docs/design-rules/DR-014-keyboard-access.md",
+        "body": "**Principle:** Essential interactions do not require a pointer.\n\n**Requirement:** Essential information and actions must be available through the\nsupported input methods, including keyboard operation where applicable. Preserve\npredictable focus, a visible focus indication, and a usable route into and out of\ninteractive disclosures. Do not make essential information hover-only.\n\n**Why:** [WCAG 2.1.1](https://www.w3.org/WAI/WCAG22/Understanding/keyboard.html)\naddresses keyboard operation, including its path-dependent-input exception.\n[WCAG 1.4.13](https://www.w3.org/WAI/WCAG22/Understanding/content-on-hover-or-focus.html)\nsets applicable dismissibility, hoverability, and persistence requirements;\n[WCAG 2.4.11](https://www.w3.org/WAI/WCAG22/Understanding/focus-not-obscured-minimum.html)\naddresses focused controls being entirely obscured by authored content.\n\n**Application:** Provide deliberate keyboard chart inspection or an equivalent\naccessible data view. Use native buttons for disclosures. Make opening, activation,\ndismissal, and the next focus destination work without a mouse.\n\n**Exception:** A genuinely path-dependent interaction may fall within the standard's\nexception; do not use that to exclude unrelated controls or essential data. A touch\ninterface may expose information differently while preserving access to the task.\n\n**Review:** Perform a real keyboard sequence; programmatically focusing a control\ndoes not demonstrate that Tab can reach it. Static axe results do not establish\ncomplete keyboard, touch, screen-reader, or focus-visibility behavior.\n[Good/bad example](../examples/behavior.html?rule=DR-014).",
+        "href": "design-rules.html#DR-014"
+      },
+      {
+        "id": "DR-015",
+        "title": "Rule of Resilience",
+        "enforcement": "automated",
+        "source": "docs/design-rules/DR-015-content-resilience.md",
+        "body": "**Principle:** Layout survives content variation and text adaptation.\n\n**Requirement:** Validate task-critical content with representative long labels, distinguishing suffixes, numeric extremes, and relevant empty or populated states. Supported text enlargement and spacing changes must not remove essential content or make controls unusable. Preserve meaning rather than merely fitting boxes.\n\n**Why:** Text resizing and spacing standards require interfaces to remain usable when text presentation changes. Our content-variation fixtures extend that reasoning to application-specific data; they are not additional universal thresholds.\n\n**Application:** Keep the distinguishing end of a service name available through wrapping, sizing, or an explicit accessible inspection mechanism. Allow longer error messages without displacing Save outside an unscrollable fixed-height panel.\n\n**Exception:** Truncation can be appropriate when it does not remove the information needed for the current task and full text is deliberately accessible. Large tables may use clearly scoped scrolling. Not every cell must expand indefinitely.\n\n**Review:** Reuse existing clipping, overlap, and legibility checks with difficult fixture content, then inspect the meaning retained. Root-font scaling is not browser zoom, and one passing fixture does not certify every locale or text preference. [Good/bad example](../examples/behavior.html?rule=DR-015).\n\n**Computationally falsifiable:** Opt-in `no-text-overlap` falsifies separation of declared neighboring HTML text fragments, including wrapped lines, or supported plain SVG text fragments in CSS pixels. `select-label-space` falsifies a selected native label's intrinsic-width allocation in the capture browser. Unsupported geometry is unassessed. Neither measures glyph paint or certifies readability, acceptable truncation, or retained meaning; see the [measurement contract and limits](../text-legibility.md).",
+        "href": "design-rules.html#DR-015"
+      },
+      {
+        "id": "DR-016",
+        "title": "Rule of Meaningful Color",
+        "enforcement": "review",
+        "source": "docs/design-rules/DR-016-semantic-color.md",
+        "body": "**Principle:** Color scales match the structure of the data.\n\n**Requirement:** Choose color encodings according to what they represent: unordered categories, ordered magnitude, or deviation around a meaningful reference. Identify the mapping and preserve essential distinctions without color alone.\n\n**Why:** ColorBrewer's scheme guidance distinguishes qualitative, sequential, and diverging encodings. This rule asks whether the mapping is appropriate; DR-005 asks whether an established meaning remains consistent. Those are separate questions.\n\n**Application:** Use qualitative colors for carrier identity, a sequential treatment for increasing dwell, and a diverging treatment for deviations around an actual service target. Provide readable labels and a legend or equivalent explanation.\n\n**Exception:** An explicitly ordered category set or a meaningful threshold may justify a different treatment. Explain it. A diverging midpoint must not imply an analytical reference merely because it is the mathematical midpoint of a palette.\n\n**Review:** Inspect the variable's semantics and the actual renderer mapping. Matching color attributes cannot establish either. A grayscale or accessible data view can be a valid alternative when color adds no necessary distinction. [Good/bad example](../examples/behavior.html?rule=DR-016).\n\n**Mark visibility:** Meaningful marks must also be distinguishable against their actual\nmap/chart substrate. A semantically appropriate palette can still have weak contrast.\n[W3C non-text contrast guidance](https://www.w3.org/WAI/WCAG22/Understanding/non-text-contrast.html)\ndescribes 3:1 against adjacent colors for relevant graphical objects. `mark-contrast`\nprovides a partial check for solid CSS backgrounds only; complex paint is unassessed.\nRetain redundant labels and review the full rendered substrate. This does not automate\nsemantic palette selection or certify accessibility. [Expanded decision-surface reference](https://github.com/lanej/viewrule/blob/main/docs/design-examples.md#expanded-analytical-decision-surface).",
+        "href": "design-rules.html#DR-016"
+      },
+      {
+        "id": "DR-017",
+        "title": "Rule of Alignment",
+        "enforcement": "automated",
+        "source": "docs/design-rules/DR-017-alignment.md",
+        "body": "**Principle:** Related peers share intentional visual anchors.\n\n**Requirement:** Declare the peers and the edge or center they should share for\nthe current task and layout. Keep their rendered anchors within the project's\ntolerance. Scope separate columns, rows, nested groups, and responsive states\nseparately; unrelated content does not need a common anchor.\n\n**Why:** A stable anchor makes a declared relationship visible and gives scanning\na predictable path. This extends DR-006's comparison guidance into an explicit\ncomposition contract. The measurement is a Viewrule convention, not an empirical\nthreshold for attractive or usable layouts.\n\n**Computationally falsifiable:** `alignment-residual` measures the configured\nleft, right, top, bottom, horizontal-center, or vertical-center coordinate of at\nleast two declared items per group. Its residual is the greatest absolute\ndistance from the group's median anchor, in CSS px. A residual greater than\n`maxResidual` fails. The reported anchors and residual expose how the contract\nwas violated; missing groups or insufficient peers cannot establish alignment.\nExisting `align` instead limits the full edge spread; its tolerance is not\ninterchangeable with this median residual.\n\n**Application:** Align the value edges in one comparison column, or the centers\nof equal-role controls in one toolbar. Author independent groups for distinct\ncolumns rather than counting every page anchor as accidental complexity.\n\n**Exception:** Indentation may encode a hierarchy, and offset placement may\ndistinguish roles. Declare those relationships rather than flattening them to\nobtain a pass. Symmetry is not required.\n\n**Human judgment:** Choose which peers belong together, which anchor supports\nreading, and what tolerance is appropriate. Border-box coordinates do not measure\ntext baselines, optical alignment, semantic relatedness, or overall composition\nquality. Inspect clipping, overlap, transformed shapes, and actual text separately.\n[Measurement reference](https://github.com/lanej/viewrule/blob/main/docs/ui-review.md#composition-contracts).\n[Good/bad example](../examples/composition.html?rule=DR-017).",
+        "href": "design-rules.html#DR-017"
+      },
+      {
+        "id": "DR-018",
+        "title": "Rule of Rhythm",
+        "enforcement": "automated",
+        "source": "docs/design-rules/DR-018-rhythm.md",
+        "body": "**Principle:** Equivalent relationships use consistent spacing.\n\n**Requirement:** Identify a repeated row or column whose adjacent items have the\nsame relationship, then declare an acceptable variation in their gaps. Scope\ndifferent relationships separately. Within-group spacing and between-group\nseparation need not match.\n\n**Why:** Consistent spacing can make repetition and grouping easier to follow.\nDR-006 establishes which evidence belongs together; this rule makes a declared\nspacing relationship testable. The metric is a Viewrule convention, not a\nresearch-backed universal spacing scale.\n\n**Computationally falsifiable — repeated gaps:** `gap-variance` orders at least three declared\nitems per group by their border-box coordinate on the configured `x` or `y`\naxis; the items must share a row or column band on the other axis. It measures\neach adjacent edge-to-edge gap in CSS px and compares the\npopulation standard deviation divided by the mean with\n`maxCoefficientOfVariation`. This coefficient is dimensionless. All-zero gaps\nhave a coefficient of zero; any negative gap is an invalid overlapping sequence\nand fails. Missing groups or insufficient peers cannot establish rhythm.\n\n**Computationally falsifiable — group separation:** `group-separation` measures\nwhether declared groups are more separated than their members. Select a region,\nindependent group containers, and a complete disjoint partition of visible peers.\nAt least two groups must each contain at least two independent members. Members\nand their group envelopes must form nonoverlapping single-axis sequences. Compare\nthe smallest between-group member-envelope gap with the largest within-group gap,\nin CSS px. The former must be positive and at least `minRatio` times the latter;\nthe project's dimensionless `minRatio` must exceed 1. Missing or invalid groups,\noverlap, and wrapping are unassessed, not evidence of a pass. With zero within-group\ngaps, positive separation passes and the reported ratio is null, with raw gaps\nretained. This is an authored geometric relationship, not inferred group meaning.\n\n**Application:** Measure the gaps between successive equal-role queue rows or\ntoolbar actions. Use separate contracts for section breaks or another layout\nat a narrower viewport. Existing `relative-position` can also bound a declared\ninter-group gap. Use `group-separation` when separation must stay stronger than\nwithin-group spacing as layouts change. The engine does not infer groups or a\npreferred separation.\n\n**Exception:** Deliberately larger gaps may distinguish sections, safety-critical\nactions, or a change in meaning. Content-driven wrapping can change the intended\nsequence; review and rescope it rather than compressing text to reduce variance.\n\n**Human judgment:** Select equivalent relationships and judge whether the absolute\nspacing is useful. Uniformly excessive or cramped gaps can pass a variance check.\nThe check does not establish optical rhythm, reading order, grouping semantics,\ntwo-dimensional grid quality, or an appropriate spacing-token system. Combine\nwith task-specific gap bounds, legibility, and overlap checks where needed.\n[Measurement reference](https://github.com/lanej/viewrule/blob/main/docs/ui-review.md#composition-contracts).\n[Good/bad example](../examples/composition.html?rule=DR-018).",
+        "href": "design-rules.html#DR-018"
+      },
+      {
+        "id": "DR-019",
+        "title": "Rule of Spatial Economy",
+        "enforcement": "automated",
+        "source": "docs/design-rules/DR-019-spatial-economy.md",
+        "body": "**Principle:** Space allocated to a task supports its evidence and interaction.\n\n**Requirement:** Declare the usable task region, the relevant evidence identities,\nand the role of surrounding chrome. Where growing the region should expose more\nevidence, compare it with a named reference viewport in the same page and\ncheckpoint. Preserve reference evidence and readable type. State the expected\nreturn on additional area instead of treating larger containers as more useful.\n\n**Why:** DR-007 requires useful adaptation and DR-008 asks decoration to earn its\nplace. This rule adds comparative measurements of allocation. The formulas and\nthresholds are project-authored contracts, not universal economic or aesthetic\nlaws; empty space may support reading, interaction, or a finite task.\n\n**Computationally falsifiable — viewport-growth yield:** Let `A` be the CSS-pixel\narea of one declared region intersected with the initial viewport. Let `N` be the\nnumber of distinct declared evidence identities whose complete item bounds fit\ninside that intersection and whose visible DOM text meets `minFontSize`.\nFor reference `r` and larger target `t`:\n\n`yield = ((Nt - Nr) / Nr) / ((At - Ar) / Ar)`\n\n`viewport-growth-yield` compares this dimensionless yield with a project's\n`minYield`. For example, 50% more qualifying evidence in 100% more usable area\ngives a yield of 0.5. Container growth alone produces zero yield. Reference\nidentities must remain qualifying at the target; replacing them with different\nitems cannot compensate for their loss. Missing or duplicate identities do not\ncount as useful growth. Both counts and the reference area must be positive,\ntarget area must strictly grow, and target viewport dimensions must not shrink.\nMissing references or invalid measurement evidence remain explicit findings at\nthe configured severity, rather than passing or claiming a numeric yield.\n\n**Finite evidence:** Optional `finiteKeys` declares the exhaustive evidence\nuniverse for the task. The yield threshold is exempt only when all those keys\nalready qualify at the reference and still qualify at the target. The report\nidentifies saturation; it does not claim a positive yield. Reaching the full set\nonly at the target still requires the configured yield. Do not invent extra\nevidence, shrink text, or silently relabel the universe to obtain a pass.\n\n**Computationally falsifiable — chrome allocation:** `chrome-allocation` limits\nthe ratio of declared chrome's unioned border-box area to the visible area of\none usable region. Chrome rectangles are clipped to that region and the initial\nviewport; overlapping or nested rectangles are counted once. `maxRatio` is a\nproject-selected ceiling. This tests a declared allocation, not whether every\ntoolbar or boundary deserves its space.\n\n**Human judgment:** Choose relevant evidence units, usable regions, exhaustive\nfinite sets, and warranted chrome. Counts do not measure information quality,\nimportance, visual complexity, or the usefulness of a larger map. Geometry and\ncomputed text size do not establish occlusion-free visibility or readable paint.\nUnique identities do not establish independent facts: subdividing or duplicating\none fact under new keys does not make it additional task evidence.\nTasks needing richer detail in the same item may need a different contract.\nInspect the examples and native-scale captures; there is no occupancy minimum.\n[Measurement reference](https://github.com/lanej/viewrule/blob/main/docs/ui-review.md#composition-contracts).\n[Good/bad example](../examples/composition.html?rule=DR-019).",
+        "href": "design-rules.html#DR-019"
+      },
+      {
+        "id": "DR-020",
+        "title": "Rule of Balance",
+        "enforcement": "automated",
+        "source": "docs/design-rules/DR-020-balance.md",
+        "body": "**Principle:** Equal-priority peers receive comparable visual allocation.\n\n**Requirement:** Declare which items have equal priority in the task and which\nmeasurable footprint should be comparable. Bound unexplained variation within\nthat group. Unequal priorities can warrant unequal allocation; use DR-013 to\nstate the intended hierarchy rather than forcing equality across the page.\n\n**Why:** An outsized peer can imply a distinction the task does not intend. A\ndeclared allocation relationship makes one source of that mismatch testable.\nThis is a Viewrule composition convention, not a formula for aesthetic balance.\n\n**Computationally falsifiable:** `peer-footprint` measures at least two declared\nitems per group using `area` (axis-aligned border-box width times height in CSS\npx²) or `font-size` (each item's computed CSS font size in CSS px). It compares\nthe population standard deviation divided by the mean with\n`maxCoefficientOfVariation`. The coefficient is dimensionless. Missing groups,\ninsufficient peers, or unusable measurements cannot establish comparable\nallocation. Choose the actual label elements for a font-size contract; a card's\ninherited size cannot establish the size of every descendant.\nRendered `display: contents` labels participate in font-size comparisons;\nhidden labels do not. Area measurements need box-generating items.\n\n**Application:** Compare the footprint of equal-role option cards, or the type\nsize of peer values whose importance is intended to be equal. These are separate\ncontracts; a similar card area does not prove similar typographic emphasis.\n\n**Exception:** Longer content, accessibility needs, selected states, or a\nhigher-priority action can justify a different footprint. Declare or scope that\ndifference explicitly; do not truncate essential evidence to equalize boxes.\nAn asymmetric layout can satisfy this rule. Symmetry itself is never required.\n\n**Human judgment:** Decide priority, useful exceptions, and acceptable variance.\nArea and computed font size are proxies, not measurements of perceived salience\nor visual weight. Contrast, position, imagery, whitespace, optical size, and\nthe task can outweigh these measurements. Passing cannot establish overall\nbalance, hierarchy, or design quality.\n[Measurement reference](https://github.com/lanej/viewrule/blob/main/docs/ui-review.md#composition-contracts).\n[Good/bad example](../examples/composition.html?rule=DR-020).",
+        "href": "design-rules.html#DR-020"
+      }
+    ]
+  },
+  "browserVersion": "151.0.7922.34",
+  "changes": {
+    "comparison": "unavailable",
+    "baselineId": null,
+    "contract": {
+      "comparison": "unavailable",
+      "changes": [],
+      "documentComparison": "initial",
+      "documentChanges": [],
+      "configurationChange": null,
+      "policyChanged": false
+    },
+    "newFindings": [],
+    "persistentFindings": [],
+    "resolvedFindings": [],
+    "notComparedFindings": [],
+    "newlyUnassessed": [],
+    "evidence": [
+      {
+        "page": "online",
+        "checkpoint": null,
+        "viewport": {
+          "name": "phone",
+          "width": 390,
+          "height": 844
+        },
+        "status": "not-compared",
+        "reason": "No approved review baseline.",
+        "regions": [],
+        "method": {
+          "version": 1,
+          "channelThreshold": 24,
+          "cellSize": 32,
+          "minimumCellPixels": 4,
+          "minimumRegionPixels": 64,
+          "maxRegions": 32,
+          "maxPixels": 24000000
+        }
+      },
+      {
+        "page": "online",
+        "checkpoint": null,
+        "viewport": {
+          "name": "desktop",
+          "width": 1280,
+          "height": 900
+        },
+        "status": "not-compared",
+        "reason": "No approved review baseline.",
+        "regions": [],
+        "method": {
+          "version": 1,
+          "channelThreshold": 24,
+          "cellSize": 32,
+          "minimumCellPixels": 4,
+          "minimumRegionPixels": 64,
+          "maxRegions": 32,
+          "maxPixels": 24000000
+        }
+      },
+      {
+        "page": "stale",
+        "checkpoint": null,
+        "viewport": {
+          "name": "phone",
+          "width": 390,
+          "height": 844
+        },
+        "status": "not-compared",
+        "reason": "No approved review baseline.",
+        "regions": [],
+        "method": {
+          "version": 1,
+          "channelThreshold": 24,
+          "cellSize": 32,
+          "minimumCellPixels": 4,
+          "minimumRegionPixels": 64,
+          "maxRegions": 32,
+          "maxPixels": 24000000
+        }
+      },
+      {
+        "page": "stale",
+        "checkpoint": null,
+        "viewport": {
+          "name": "desktop",
+          "width": 1280,
+          "height": 900
+        },
+        "status": "not-compared",
+        "reason": "No approved review baseline.",
+        "regions": [],
+        "method": {
+          "version": 1,
+          "channelThreshold": 24,
+          "cellSize": 32,
+          "minimumCellPixels": 4,
+          "minimumRegionPixels": 64,
+          "maxRegions": 32,
+          "maxPixels": 24000000
+        }
+      },
+      {
+        "page": "empty",
+        "checkpoint": null,
+        "viewport": {
+          "name": "phone",
+          "width": 390,
+          "height": 844
+        },
+        "status": "not-compared",
+        "reason": "No approved review baseline.",
+        "regions": [],
+        "method": {
+          "version": 1,
+          "channelThreshold": 24,
+          "cellSize": 32,
+          "minimumCellPixels": 4,
+          "minimumRegionPixels": 64,
+          "maxRegions": 32,
+          "maxPixels": 24000000
+        }
+      },
+      {
+        "page": "empty",
+        "checkpoint": null,
+        "viewport": {
+          "name": "desktop",
+          "width": 1280,
+          "height": 900
+        },
+        "status": "not-compared",
+        "reason": "No approved review baseline.",
+        "regions": [],
+        "method": {
+          "version": 1,
+          "channelThreshold": 24,
+          "cellSize": 32,
+          "minimumCellPixels": 4,
+          "minimumRegionPixels": 64,
+          "maxRegions": 32,
+          "maxPixels": 24000000
+        }
+      },
+      {
+        "page": "scheduler-off",
+        "checkpoint": null,
+        "viewport": {
+          "name": "phone",
+          "width": 390,
+          "height": 844
+        },
+        "status": "not-compared",
+        "reason": "No approved review baseline.",
+        "regions": [],
+        "method": {
+          "version": 1,
+          "channelThreshold": 24,
+          "cellSize": 32,
+          "minimumCellPixels": 4,
+          "minimumRegionPixels": 64,
+          "maxRegions": 32,
+          "maxPixels": 24000000
+        }
+      },
+      {
+        "page": "scheduler-off",
+        "checkpoint": null,
+        "viewport": {
+          "name": "desktop",
+          "width": 1280,
+          "height": 900
+        },
+        "status": "not-compared",
+        "reason": "No approved review baseline.",
+        "regions": [],
+        "method": {
+          "version": 1,
+          "channelThreshold": 24,
+          "cellSize": 32,
+          "minimumCellPixels": 4,
+          "minimumRegionPixels": 64,
+          "maxRegions": 32,
+          "maxPixels": 24000000
+        }
+      }
+    ]
+  }
+}
