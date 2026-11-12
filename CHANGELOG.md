@@ -1,6 +1,15 @@
 # Changelog
 
-## Unreleased
+## 0.12.0 — 2026-11-12
+
+- Add default viewport-density advisories with measured evidence and structured remediation guidance. Treat sparse occupancy as a task-dependent prompt for review; advisories do not alter findings, exit codes, or design approval.
+- Measure overlap for supported plain SVG text, with explicit unassessed results for unsupported geometry and effective stroke or clipping limits.
+- Provide a portable Agent Skills bundle alongside the generated Claude plugin, with shared workflows, guide, and engine pin.
+- Correct the DR-007 example so its initial render shows useful additional detail in Good and a sparse summary in Bad, with explicit synthetic context and a shared compact baseline.
+- Retain a synthetic data-feed acceptance workflow and a bounded local agent remediation trial. Models are not required in CI; these examples do not establish general agent efficacy.
+- Pin engine and Claude plugin 0.12.0. Rerun setup to adopt the release; existing installations keep their current engine until upgraded.
+
+Upgrade: rerun review after installing the new engine. Existing application rules, human approvals, schema v1, legacy aliases, and opt-in Git gates remain supported. The new group-separation check is opt-in; density advisories are available by default and remain separate from enforcement.
 
 - Add opt-in `group-separation` checks for authored between-group versus within-group
   spacing. Report invalid group geometry as unassessed and preserve existing
