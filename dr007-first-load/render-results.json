@@ -1,0 +1,34 @@
+[
+  {
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "good": "Carrier comparison\n\nExpanded comparison\n\nAster: $8.20 · 2 days · 97% on time · Ground · 240 parcels\n\nBeacon: $9.40 · 1 day · 99% on time · Express · 360 parcels",
+    "bad": "Carrier comparison\n\nExpanded comparison\n\nAster: $8.20 · 2 days · 97% on time\n\nBeacon: $9.40 · 1 day · 99% on time",
+    "context": "Synthetic USD quotes for one 2 lb parcel from Oakland to Seattle. On-time means delivered within the quoted window: Aster 970/1,000 deliveries, Beacon 990/1,000, September 1–14, 2026. Volume means parcels dispatched on September 14, 2026.",
+    "button": "Show compact baseline",
+    "overflow": false,
+    "compact": {
+      "heading": "Shared compact baseline",
+      "badVisible": false,
+      "button": "Show expanded comparison"
+    }
+  },
+  {
+    "viewport": {
+      "width": 1280,
+      "height": 900
+    },
+    "good": "Carrier comparison\n\nExpanded comparison\n\nAster: $8.20 · 2 days · 97% on time · Ground · 240 parcels\n\nBeacon: $9.40 · 1 day · 99% on time · Express · 360 parcels",
+    "bad": "Carrier comparison\n\nExpanded comparison\n\nAster: $8.20 · 2 days · 97% on time\n\nBeacon: $9.40 · 1 day · 99% on time",
+    "context": "Synthetic USD quotes for one 2 lb parcel from Oakland to Seattle. On-time means delivered within the quoted window: Aster 970/1,000 deliveries, Beacon 990/1,000, September 1–14, 2026. Volume means parcels dispatched on September 14, 2026.",
+    "button": "Show compact baseline",
+    "overflow": false,
+    "compact": {
+      "heading": "Shared compact baseline",
+      "badVisible": false,
+      "button": "Show expanded comparison"
+    }
+  }
+]

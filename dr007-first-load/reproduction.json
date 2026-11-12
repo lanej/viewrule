@@ -1,0 +1,10 @@
+{
+  "url": "https://lanej.io/viewrule/rules/dr-007/",
+  "viewport": {
+    "width": 390,
+    "height": 844
+  },
+  "good": "Carrier comparison\n\nCompact layout simulation\n\nAster: $8.20 · 2 days · 97% on time\n\nBeacon: $9.40 · 1 day · 99% on time",
+  "bad": "Carrier comparison\n\nCompact layout simulation\n\nAster: $8.20 · 2 days · 97% on time\n\nBeacon: $9.40 · 1 day · 99% on time",
+  "identical": true
+}
