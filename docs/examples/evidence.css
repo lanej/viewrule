@@ -23,6 +23,11 @@
 #evidence-examples .layout-demo {
   font-size: 1rem;
 }
+#evidence-examples[data-rule="DR-007"][data-layout-state="compact"]
+  .behavior-pair {
+  grid-template-columns: minmax(0, 1fr);
+  max-width: 34rem;
+}
 #evidence-examples #bad .layout-demo[data-large="true"] p {
   padding-block: 2rem;
 }

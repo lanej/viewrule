@@ -79,7 +79,7 @@ const sectionsFrom = (body) => {
   return sections;
 };
 
-/** @type {Record<string, { good: string; bad: string }>} */
+/** @type {Record<string, { good: string; bad: string; context?: string }>} */
 const ruleExamples = {
   "DR-001": {
     good: "Two carrier charts use the same 0–400 parcel scale, so 240 and 360 remain visibly different.",
@@ -106,8 +106,10 @@ const ruleExamples = {
     bad: "The reader must switch tabs or scroll away from one carrier to compare another.",
   },
   "DR-007": {
-    good: "A larger viewport reveals useful service and volume detail while keeping text readable.",
-    bad: "The same sparse cards merely stretch wider, or additional density is achieved by shrinking type.",
+    context:
+      "Synthetic USD quotes for one 2 lb parcel from Oakland to Seattle. On-time means delivered within the quoted window: Aster 970/1,000 deliveries, Beacon 990/1,000, September 1–14, 2026. Volume means parcels dispatched on September 14, 2026.",
+    good: "The expanded view adds service and parcel volume alongside the same readable carrier summaries.",
+    bad: "The expanded view still shows only the compact summaries, leaving service and parcel volume unavailable.",
   },
   "DR-008": {
     good: "Frames, headers, and separators support grouping without competing with the evidence.",
@@ -189,6 +191,7 @@ for (const rule of policy.rules) {
           )}</div>${behaviorTemplates}
         <p id="load-error" role="alert" hidden>Examples could not load. Reload to try again.</p>`
       : `<div id="evidence-examples" data-rule="${rule.id}">
+       ${example.context ? `<p class="example-context">${escapeHtml(example.context)}</p>` : ""}
        <button type="button" id="evidence-toggle" aria-pressed="false">${["Change parcel volumes", "Change amounts", "Change period", "Change observation", "Reverse carrier order", "Switch selected carrier", "Show larger layout", "Expand shipment detail"][Number(rule.id.slice(3)) - 1]}</button>
        <div class="behavior-pair">${["good", "bad"].map((quality) => `<section id="${quality}"><h3>${quality === "good" ? "Good" : "Bad"} for this task</h3><p>${escapeHtml(example[quality])}</p><div class="sample">${evidenceSource.match(new RegExp('<template id="scene-' + rule.id + '">([\\s\\S]*?)</template>'))[1]}</div></section>`).join("")}</div>
        <p>These synthetic fixtures illustrate the stated comparison. Native checks can support review of declared scales, context, encodings, geometry, and legibility; they do not establish data truth or task relevance. Review the requirement and exceptions above.</p></div>`;

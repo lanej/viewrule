@@ -23,9 +23,27 @@ const carriers = [
     volume: "360 parcels",
   },
 ];
-let alternate = false;
+const usefulSpace = root.dataset.rule === "DR-007";
+const expandedDescription = usefulSpace
+  ? root.querySelector("#good > p").textContent
+  : null;
+// rationale: The compact baseline intentionally matches; open on the state that demonstrates the rule.
+let alternate = usefulSpace;
 const find = (sample, role) => sample.querySelector(`[data-role="${role}"]`);
 function render() {
+  if (usefulSpace) {
+    root.dataset.layoutState = alternate ? "expanded" : "compact";
+    root.querySelector("#bad").toggleAttribute("hidden", !alternate);
+    root.querySelector("#good h3").textContent = alternate
+      ? "Good for this task"
+      : "Shared compact baseline";
+    root.querySelector("#good > p").textContent = alternate
+      ? expandedDescription
+      : "Both versions start with these same carriers and summary facts. Show the expanded comparison to see which version exposes useful additional detail.";
+    toggle.textContent = alternate
+      ? "Show compact baseline"
+      : "Show expanded comparison";
+  }
   for (const quality of ["good", "bad"]) {
     const good = quality === "good";
     const sample = root.querySelector(`#${quality} .sample`);
@@ -97,8 +115,8 @@ function render() {
           `Selected: ${carriers[selected].name}`;
       else {
         find(sample, "layout").textContent = alternate
-          ? "Larger layout simulation"
-          : "Compact layout simulation";
+          ? "Expanded comparison"
+          : "Compact baseline";
         list.dataset.large = String(alternate);
       }
       carriers.forEach((carrier, index) => {
@@ -112,7 +130,8 @@ function render() {
     }
     if (id === "DR-008") find(sample, "detail").hidden = !alternate;
   }
-  toggle.setAttribute("aria-pressed", String(alternate));
+  if (usefulSpace) toggle.removeAttribute("aria-pressed");
+  else toggle.setAttribute("aria-pressed", String(alternate));
   root.dataset.ready = "true";
 }
 toggle.addEventListener("click", () => {
