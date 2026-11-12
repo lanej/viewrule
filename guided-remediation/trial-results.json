@@ -1,0 +1,126 @@
+{
+  "kind": "single-guided-remediation-trial",
+  "sourceRevision": "a134ced2833e7db168071997c203753822864b16",
+  "caseRevision": 3,
+  "startVariant": "sparse passing reference",
+  "agent": {
+    "configuredModel": "gpt-6.1-sol",
+    "configuredReasoning": "medium",
+    "cliVersion": "codex-cli 0.167.1",
+    "code": 0,
+    "signal": null,
+    "timedOut": false,
+    "startedAt": "2026-11-12T01:36:09.354Z",
+    "finishedAt": "2026-11-12T01:38:57.957Z",
+    "elapsedSeconds": 168.603,
+    "usage": {
+      "input_tokens": 725061,
+      "cached_input_tokens": 661120,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 5677,
+      "reasoning_output_tokens": 748
+    }
+  },
+  "engine": {
+    "version": "0.11.0",
+    "archiveSha256": "39d496bdb877a8b0434913c2afdcdbadbe70aa98d817f85a4d133bb17e235259",
+    "browserVersion": "151.0.7922.34"
+  },
+  "changes": [
+    "One HTML class identifies the schedule region.",
+    "Desktop CSS places history beside readings, next action and schedule, and consolidates feed controls into one toolbar row.",
+    "Application JavaScript is unchanged."
+  ],
+  "independentEvaluation": {
+    "before": {
+      "accepted": true,
+      "failed": []
+    },
+    "after": {
+      "accepted": true,
+      "failed": []
+    },
+    "protectedInputs": [
+      {
+        "file": "TASK.md",
+        "unchanged": true,
+        "sha256": "df04124fa512d51308a3f8b2275f7b0c04ae01e98dd69561d1608dfd7b79d52f"
+      },
+      {
+        "file": "data.json",
+        "unchanged": true,
+        "sha256": "0baebbddd29181ae87147db129c88140e305058ce3316a1dc4875b81b60abafe"
+      },
+      {
+        "file": ".ui-review/config.json",
+        "unchanged": true,
+        "sha256": "d4ec27b09bfde7d4466a958904e22ac569b63e519a04fa75c88295df48fc20a2"
+      },
+      {
+        "file": ".ui-review/rules.json",
+        "unchanged": true,
+        "sha256": "52bd9d96d3c555fe429369e67a6efcb62e988cc69e9dc07b75ace74dadaf2413"
+      }
+    ],
+    "desktopAllStates": {
+      "historyRowsVisible": 6,
+      "scheduleEventsVisible": 4,
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "states": [
+        "online",
+        "stale",
+        "empty",
+        "scheduler-off"
+      ],
+      "measuredEvidence": "desktop-measurements.json"
+    }
+  },
+  "observations": [
+    {
+      "phase": "before",
+      "state": "online",
+      "viewport": "desktop",
+      "width": 1280,
+      "height": 900,
+      "coverage": 0.06820474582248263,
+      "textCoverage": 0.06477261691623264,
+      "belowFold": 6,
+      "advisory": true,
+      "screenshot": "capture-2.png"
+    },
+    {
+      "phase": "after",
+      "state": "online",
+      "viewport": "desktop",
+      "width": 1280,
+      "height": 900,
+      "coverage": 0.0787137451171875,
+      "textCoverage": 0.0747825927734375,
+      "belowFold": 0,
+      "advisory": false,
+      "screenshot": "capture-2.png"
+    }
+  ],
+  "proposedRequirement": {
+    "status": "proposed, not enforced",
+    "text": "Keep all six recent observations visible alongside current readings and schedule at 1280×900 across the supplied states."
+  },
+  "artifacts": {
+    "before": "before-desktop.png",
+    "after": "after-desktop.png",
+    "patch": "agent.patch",
+    "prompt": "prompt-normalized.txt",
+    "originalPromptSha256": "9e2b0474d2d753ea6115fc247596fd5520888807f23f15d97d5ea94b3e711c53"
+  },
+  "limits": [
+    "One exploratory attempt; no causal model-efficacy or speed claim.",
+    "Configured model alias does not identify an immutable provider backend.",
+    "The agent received the task, existing sparse reference source, generated report and skill. The supplied stylesheet included inactive compact-reference rules; this was not a blinded trial. The agent replaced that block with a different two-column arrangement.",
+    "No human design approval, enlarged-text or full accessibility certification.",
+    "Normalized public prompt replaces machine-local paths and the ephemeral loopback URL; raw prompt and JSONL events are retained locally.",
+    "Real Midea application and Viewrule reference fixtures remain unchanged."
+  ]
+}

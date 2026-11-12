@@ -1,0 +1,370 @@
+[
+  {
+    "state": "online",
+    "historyRows": [
+      {
+        "id": "09:55",
+        "visible": true,
+        "box": {
+          "x": 732.265625,
+          "y": 292.5,
+          "width": 403.734375,
+          "height": 49,
+          "top": 292.5,
+          "right": 1136,
+          "bottom": 341.5,
+          "left": 732.265625
+        }
+      },
+      {
+        "id": "09:50",
+        "visible": true,
+        "box": {
+          "x": 732.265625,
+          "y": 341.5,
+          "width": 403.734375,
+          "height": 49,
+          "top": 341.5,
+          "right": 1136,
+          "bottom": 390.5,
+          "left": 732.265625
+        }
+      },
+      {
+        "id": "09:45",
+        "visible": true,
+        "box": {
+          "x": 732.265625,
+          "y": 390.5,
+          "width": 403.734375,
+          "height": 49,
+          "top": 390.5,
+          "right": 1136,
+          "bottom": 439.5,
+          "left": 732.265625
+        }
+      },
+      {
+        "id": "09:40",
+        "visible": true,
+        "box": {
+          "x": 732.265625,
+          "y": 439.5,
+          "width": 403.734375,
+          "height": 49,
+          "top": 439.5,
+          "right": 1136,
+          "bottom": 488.5,
+          "left": 732.265625
+        }
+      },
+      {
+        "id": "09:35",
+        "visible": true,
+        "box": {
+          "x": 732.265625,
+          "y": 488.5,
+          "width": 403.734375,
+          "height": 49,
+          "top": 488.5,
+          "right": 1136,
+          "bottom": 537.5,
+          "left": 732.265625
+        }
+      },
+      {
+        "id": "09:30",
+        "visible": true,
+        "box": {
+          "x": 732.265625,
+          "y": 537.5,
+          "width": 403.734375,
+          "height": 49,
+          "top": 537.5,
+          "right": 1136,
+          "bottom": 586.5,
+          "left": 732.265625
+        }
+      }
+    ],
+    "scheduleVisible": 4,
+    "horizontalOverflow": false,
+    "pageHeight": 900
+  },
+  {
+    "state": "stale",
+    "historyRows": [
+      {
+        "id": "09:55",
+        "visible": true,
+        "box": {
+          "x": 732.265625,
+          "y": 336.5,
+          "width": 403.734375,
+          "height": 49,
+          "top": 336.5,
+          "right": 1136,
+          "bottom": 385.5,
+          "left": 732.265625
+        }
+      },
+      {
+        "id": "09:50",
+        "visible": true,
+        "box": {
+          "x": 732.265625,
+          "y": 385.5,
+          "width": 403.734375,
+          "height": 49,
+          "top": 385.5,
+          "right": 1136,
+          "bottom": 434.5,
+          "left": 732.265625
+        }
+      },
+      {
+        "id": "09:45",
+        "visible": true,
+        "box": {
+          "x": 732.265625,
+          "y": 434.5,
+          "width": 403.734375,
+          "height": 49,
+          "top": 434.5,
+          "right": 1136,
+          "bottom": 483.5,
+          "left": 732.265625
+        }
+      },
+      {
+        "id": "09:40",
+        "visible": true,
+        "box": {
+          "x": 732.265625,
+          "y": 483.5,
+          "width": 403.734375,
+          "height": 49,
+          "top": 483.5,
+          "right": 1136,
+          "bottom": 532.5,
+          "left": 732.265625
+        }
+      },
+      {
+        "id": "09:35",
+        "visible": true,
+        "box": {
+          "x": 732.265625,
+          "y": 532.5,
+          "width": 403.734375,
+          "height": 49,
+          "top": 532.5,
+          "right": 1136,
+          "bottom": 581.5,
+          "left": 732.265625
+        }
+      },
+      {
+        "id": "09:30",
+        "visible": true,
+        "box": {
+          "x": 732.265625,
+          "y": 581.5,
+          "width": 403.734375,
+          "height": 49,
+          "top": 581.5,
+          "right": 1136,
+          "bottom": 630.5,
+          "left": 732.265625
+        }
+      }
+    ],
+    "scheduleVisible": 4,
+    "horizontalOverflow": false,
+    "pageHeight": 900
+  },
+  {
+    "state": "empty",
+    "historyRows": [
+      {
+        "id": "09:55",
+        "visible": true,
+        "box": {
+          "x": 732.265625,
+          "y": 336.5,
+          "width": 403.734375,
+          "height": 49,
+          "top": 336.5,
+          "right": 1136,
+          "bottom": 385.5,
+          "left": 732.265625
+        }
+      },
+      {
+        "id": "09:50",
+        "visible": true,
+        "box": {
+          "x": 732.265625,
+          "y": 385.5,
+          "width": 403.734375,
+          "height": 49,
+          "top": 385.5,
+          "right": 1136,
+          "bottom": 434.5,
+          "left": 732.265625
+        }
+      },
+      {
+        "id": "09:45",
+        "visible": true,
+        "box": {
+          "x": 732.265625,
+          "y": 434.5,
+          "width": 403.734375,
+          "height": 49,
+          "top": 434.5,
+          "right": 1136,
+          "bottom": 483.5,
+          "left": 732.265625
+        }
+      },
+      {
+        "id": "09:40",
+        "visible": true,
+        "box": {
+          "x": 732.265625,
+          "y": 483.5,
+          "width": 403.734375,
+          "height": 49,
+          "top": 483.5,
+          "right": 1136,
+          "bottom": 532.5,
+          "left": 732.265625
+        }
+      },
+      {
+        "id": "09:35",
+        "visible": true,
+        "box": {
+          "x": 732.265625,
+          "y": 532.5,
+          "width": 403.734375,
+          "height": 49,
+          "top": 532.5,
+          "right": 1136,
+          "bottom": 581.5,
+          "left": 732.265625
+        }
+      },
+      {
+        "id": "09:30",
+        "visible": true,
+        "box": {
+          "x": 732.265625,
+          "y": 581.5,
+          "width": 403.734375,
+          "height": 49,
+          "top": 581.5,
+          "right": 1136,
+          "bottom": 630.5,
+          "left": 732.265625
+        }
+      }
+    ],
+    "scheduleVisible": 4,
+    "horizontalOverflow": false,
+    "pageHeight": 900
+  },
+  {
+    "state": "scheduler-off",
+    "historyRows": [
+      {
+        "id": "09:55",
+        "visible": true,
+        "box": {
+          "x": 732.265625,
+          "y": 336.5,
+          "width": 403.734375,
+          "height": 49,
+          "top": 336.5,
+          "right": 1136,
+          "bottom": 385.5,
+          "left": 732.265625
+        }
+      },
+      {
+        "id": "09:50",
+        "visible": true,
+        "box": {
+          "x": 732.265625,
+          "y": 385.5,
+          "width": 403.734375,
+          "height": 49,
+          "top": 385.5,
+          "right": 1136,
+          "bottom": 434.5,
+          "left": 732.265625
+        }
+      },
+      {
+        "id": "09:45",
+        "visible": true,
+        "box": {
+          "x": 732.265625,
+          "y": 434.5,
+          "width": 403.734375,
+          "height": 49,
+          "top": 434.5,
+          "right": 1136,
+          "bottom": 483.5,
+          "left": 732.265625
+        }
+      },
+      {
+        "id": "09:40",
+        "visible": true,
+        "box": {
+          "x": 732.265625,
+          "y": 483.5,
+          "width": 403.734375,
+          "height": 49,
+          "top": 483.5,
+          "right": 1136,
+          "bottom": 532.5,
+          "left": 732.265625
+        }
+      },
+      {
+        "id": "09:35",
+        "visible": true,
+        "box": {
+          "x": 732.265625,
+          "y": 532.5,
+          "width": 403.734375,
+          "height": 49,
+          "top": 532.5,
+          "right": 1136,
+          "bottom": 581.5,
+          "left": 732.265625
+        }
+      },
+      {
+        "id": "09:30",
+        "visible": true,
+        "box": {
+          "x": 732.265625,
+          "y": 581.5,
+          "width": 403.734375,
+          "height": 49,
+          "top": 581.5,
+          "right": 1136,
+          "bottom": 630.5,
+          "left": 732.265625
+        }
+      }
+    ],
+    "scheduleVisible": 4,
+    "horizontalOverflow": false,
+    "pageHeight": 900
+  }
+]

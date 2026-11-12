@@ -1,0 +1,114 @@
+diff --git index.html index.html
+index dc5951c..81d7287 100644
+--- index.html
++++ index.html
+@@ -66,7 +66,7 @@ <h2>Next action</h2>
+           <p class="subtle">On-actions keep display and sound off.</p>
+         </section>
+       </div>
+-      <section>
++      <section class="daily-schedule">
+         <h2>Daily schedule</h2>
+         <ol class="schedule-times">
+           <li class="schedule-event">
+diff --git style.css style.css
+index b1441bc..ad6e432 100644
+--- style.css
++++ style.css
+@@ -158,40 +158,63 @@ .action-icon {
+   stroke-linecap: round;
+   stroke-linejoin: round;
+ }
+-@media (min-width: 621px) {
+-  body[data-density-layout="compact"] main {
+-    padding: 12px 24px;
+-  }
+-  body[data-density-layout="compact"] .overview {
+-    margin: 8px 0;
+-  }
+-  body[data-density-layout="compact"] .refresh {
+-    padding: 8px 0;
+-  }
+-  body[data-density-layout="compact"] th,
+-  body[data-density-layout="compact"] td {
+-    padding: 3px 4px;
+-  }
+-  body[data-density-layout="compact"] .history,
+-  body[data-density-layout="compact"] .system {
+-    margin-top: 8px;
+-    padding-top: 10px;
+-  }
+-  body[data-density-layout="compact"] summary {
+-    padding: 5px 0;
+-  }
+-  body[data-density-layout="compact"] h2 {
+-    margin-bottom: 6px;
+-  }
+-  body[data-density-layout="compact"] .temperature {
+-    font-size: 34px;
+-  }
+-  body[data-density-layout="compact"] .schedule-times {
+-    margin: 8px 0;
+-  }
+-  body[data-density-layout="compact"] .schedule-event {
+-    padding: 4px 0;
++@media (min-width: 900px) {
++  main {
++    display: grid;
++    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
++    grid-template-areas:
++      "heading heading"
++      "refresh refresh"
++      "warning warning"
++      "overview history"
++      "schedule history"
++      "system system"
++      "footer footer";
++    gap: 20px 40px;
++    padding-top: 32px;
++  }
++  header { grid-area: heading; align-items: center; }
++  .refresh {
++    grid-area: refresh;
++    display: flex;
++    align-items: center;
++    gap: 8px;
++    padding: 12px 0;
+   }
++  .refresh p { flex: 1; }
++  .refresh button { margin: 0; min-height: 44px; }
++  #warning { grid-area: warning; margin: 0; }
++  #warning:empty { display: none; }
++  .overview {
++    grid-area: overview;
++    flex-direction: column;
++    gap: 20px;
++    margin: 0;
++  }
++  .overview > section + section {
++    border-top: 1px solid var(--line);
++    padding-top: 16px;
++  }
++  #next-action { font-size: 24px; font-weight: 600; }
++  .daily-schedule { grid-area: schedule; }
++  .schedule-times { margin: 10px 0; }
++  .history {
++    grid-area: history;
++    margin: 0;
++    padding: 0 0 0 28px;
++    border-top: 0;
++    border-left: 1px solid var(--line);
++  }
++  .history th, .history td { padding: 12px 4px; }
++  .system {
++    grid-area: system;
++    margin-top: 0;
++    padding-top: 8px;
++    display: grid;
++    grid-template-columns: 1fr 1fr;
++    gap: 32px;
++  }
++  footer { grid-area: footer; }
+ }
+ @media (max-width: 620px) {
+   .feed-action {
