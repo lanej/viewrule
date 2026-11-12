@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Finite and media-led density calibration</title>
+    <style>
+      body {
+        margin: 24px;
+        font: 16px/1.5 system-ui;
+      }
+      main {
+        max-width: 1000px;
+        margin: auto;
+      }
+      .media-case {
+        display: none;
+      }
+      body[data-view="media"] .media-case {
+        display: block;
+      }
+      body[data-view="clipped"] {
+        height: 900px;
+        overflow: clip;
+      }
+      body[data-view="clipped"] .media-case {
+        display: block;
+      }
+      body[data-view="clipped"] svg {
+        visibility: hidden;
+      }
+      svg {
+        display: block;
+        width: 100%;
+        height: 640px;
+      }
+      .continuation {
+        margin-top: 240px;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Room observations</h1>
+      <p>No additional observations are available.</p>
+      <section class="media-case">
+        <svg
+          viewBox="0 0 1000 640"
+          role="img"
+          aria-label="Allocated analytical view"
+        >
+          <rect width="1000" height="640" fill="#e8f0ef" />
+          <path
+            d="M40 500 L250 420 L480 460 L700 180 L960 120"
+            fill="none"
+            stroke="#285f4c"
+            stroke-width="4"
+          />
+        </svg>
+        <p class="continuation">
+          Supporting analytical notes continue below the view.
+        </p>
+      </section>
+    </main>
+    <script>
+      document.body.dataset.view =
+        new URLSearchParams(location.search).get("view") || "short";
+      document.body.dataset.ready = "true";
+    </script>
+  </body>
+</html>

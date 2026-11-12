@@ -158,6 +158,41 @@ summary {
   stroke-linecap: round;
   stroke-linejoin: round;
 }
+@media (min-width: 621px) {
+  body[data-density-layout="compact"] main {
+    padding: 12px 24px;
+  }
+  body[data-density-layout="compact"] .overview {
+    margin: 8px 0;
+  }
+  body[data-density-layout="compact"] .refresh {
+    padding: 8px 0;
+  }
+  body[data-density-layout="compact"] th,
+  body[data-density-layout="compact"] td {
+    padding: 3px 4px;
+  }
+  body[data-density-layout="compact"] .history,
+  body[data-density-layout="compact"] .system {
+    margin-top: 8px;
+    padding-top: 10px;
+  }
+  body[data-density-layout="compact"] summary {
+    padding: 5px 0;
+  }
+  body[data-density-layout="compact"] h2 {
+    margin-bottom: 6px;
+  }
+  body[data-density-layout="compact"] .temperature {
+    font-size: 34px;
+  }
+  body[data-density-layout="compact"] .schedule-times {
+    margin: 8px 0;
+  }
+  body[data-density-layout="compact"] .schedule-event {
+    padding: 4px 0;
+  }
+}
 @media (max-width: 620px) {
   .feed-action {
     min-width: 44px;

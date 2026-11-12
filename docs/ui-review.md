@@ -347,6 +347,18 @@ silently declares the page fully captured. Narrow a very long page's fixture sta
 or deliberately raise the limit. This captures the document surface, not hidden
 scroll-container content or interaction states. Keep those in separate app tests.
 
+### Advisory viewport sparsity
+
+Every rendered review records `metrics.viewportDensity`, independently of configured rules. Heuristic version 1 flags **potential unused viewport capacity** when the union of visible text-line rectangles, control bounds and media bounds covers less than 8% of the initial viewport and rendered text continues below its bottom edge. This discovery threshold is an engine heuristic, not an accepted project requirement or a universal density target. Short finite pages without below-fold text do not flag. Ordinary container backgrounds do not count; overlapping rectangles count once. Text coverage is retained separately so a large chart or image is not mistaken for blank space merely because it contains little DOM text.
+
+The record contains `status`, `heuristicVersion`, `discoveryThreshold`, `viewport` (document-relative CSS-pixel box), `textCoverage`, `combinedCoverage`, `belowFoldTextFragments`, `firstBelowFold` (element description and box), `candidate`, `limitations`, and `problem`. Coverage is an unrounded 0–1 ratio. A measured non-candidate retains its observations. Invalid viewport geometry, explicit root/body clipping, or more than 2,000 text fragments or allocated boxes is `unassessed`, with null coverage and an explicit problem; incomplete measurement never generates a sparsity candidate. A fragment count is not a fact or record count.
+
+Candidates cite DR-007 and appear in a separate advisory card. A toggleable overlay marks the measured initial viewport and the first text fragment continuing below it; screenshot links retain the unchanged original PNG. Overlay coordinates use the full capture extents, including horizontal overflow. The JSON is the evidence source; the HTML never reconstructs measurements from pixels. Reports without this additive field remain readable and have no sparsity assessment.
+
+Advisories do not change findings, error/warning totals, exit codes, configured coverage or approval. Media and control bounds represent allocated space, not useful content or painted ink. CSS background images, pseudo-elements, shadow text, occlusion and semantic relevance remain unassessed. A layout can avoid this heuristic while still using space poorly. The agent should connect the observations to the task, explain intentional whitespace or uncertainty, and propose scoped requirements for review before enforcement. Do not shrink text, manufacture information or silently change rules to remove a flag.
+
+### Configured density requirements
+
 For density, `region-density` clips to the intersection of the region and the
 initial viewport, and unions rectangles so nested/overlapping elements don't
 inflate coverage. `measure: "text"` uses rendered text line rectangles;

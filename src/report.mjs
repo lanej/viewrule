@@ -111,6 +111,26 @@ function pageView(page, reference, documents) {
       `width:${percent(box.width, imageWidth)}`,
       `height:${percent(box.height, imageHeight)}`,
     ].join(";");
+  const densityObservation = page.metrics?.viewportDensity;
+  const viewportDensity = densityObservation
+    ? {
+        ...densityObservation,
+        textLabel:
+          densityObservation.textCoverage == null
+            ? "unassessed"
+            : `${(densityObservation.textCoverage * 100).toFixed(1)}%`,
+        combinedLabel:
+          densityObservation.combinedCoverage == null
+            ? "unassessed"
+            : `${(densityObservation.combinedCoverage * 100).toFixed(1)}%`,
+        thresholdLabel: `${(densityObservation.discoveryThreshold * 100).toFixed(1)}%`,
+        viewportStyle: boxStyle(densityObservation.viewport),
+        belowFoldStyle: densityObservation.firstBelowFold
+          ? boxStyle(densityObservation.firstBelowFold.box)
+          : null,
+        evidence: JSON.stringify(densityObservation, null, 2),
+      }
+    : null;
   const peerInference = (page.metrics?.peerInference ?? []).map(
     (candidate, index) => {
       const padding = 8;
@@ -175,6 +195,8 @@ function pageView(page, reference, documents) {
   );
   return {
     ...page,
+    viewportDensity,
+    hasDensityAdvisory: Boolean(densityObservation?.candidate),
     captureLabel:
       page.evidence?.kind === "reused" ? "Reused capture" : "Current capture",
     stateName: page.checkpoint

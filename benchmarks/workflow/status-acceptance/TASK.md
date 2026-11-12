@@ -1,4 +1,4 @@
-# Status-page freshness and refresh — revision 2
+# Status-page freshness and refresh — revision 3
 
 Improve this read-only room-controller status page. Put connection status, last-check time, automatic-update state, and refresh controls near the top, visible without scrolling at 390×844 and 1280×900. Preserve state-specific readings, the mode/display/sound facts in `data.json`'s `retainedFacts`, all four schedule events, all six history observations, and diagnostic disclosures. Keep all four schedule events initially visible, text at least 14 CSS pixels, and avoid overlap, clipping, or horizontal overflow. Do not remove information or hide it to make the page fit.
 

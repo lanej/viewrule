@@ -1,5 +1,5 @@
-// Runs inside the page. Selectors and thresholds come from validated configuration.
-// Hidden responsive variants don't count. Group checks apply only to declared peers.
+// Runs inside the page. Contract checks use validated selectors and thresholds;
+// inferred geometry remains advisory. Hidden responsive variants don't count.
 /** @param {import("./types.js").Rule[]} rules */
 export function inspectPage(rules) {
   /** @type {import("./types.js").Finding[]} */
@@ -334,6 +334,184 @@ export function inspectPage(rules) {
       coefficientOfVariation: mean ? Math.sqrt(variance) / mean : 0,
     };
   };
+  const measureViewportDensity = () => {
+    /** @type {import("./types.js").ViewportDensity} */
+    const observation = {
+      heuristicVersion: 1,
+      status: "measured",
+      discoveryThreshold: 0.08,
+      viewport: { x: scrollX, y: scrollY, width, height: innerHeight },
+      textCoverage: null,
+      combinedCoverage: null,
+      belowFoldTextFragments: 0,
+      firstBelowFold: null,
+      candidate: null,
+      limitations:
+        "Geometry is advisory, not information relevance or design approval. Media/control bounds count allocated space, not painted content. CSS background images, pseudo-elements, shadow text and occlusion are not assessed.",
+      problem: null,
+    };
+    if (!document.body || width <= 0 || innerHeight <= 0) {
+      observation.status = "unassessed";
+      observation.problem =
+        "A positive viewport and document body are required.";
+      return observation;
+    }
+    if (
+      [document.documentElement, document.body].some((element) => {
+        const style = getComputedStyle(element);
+        return [style.overflowX, style.overflowY].some((value) =>
+          ["hidden", "clip"].includes(value),
+        );
+      })
+    ) {
+      observation.status = "unassessed";
+      observation.problem =
+        "Explicit root/body clipping prevents viewport-density discovery from establishing accessible below-fold content.";
+      return observation;
+    }
+    const viewport = { left: 0, top: 0, right: width, bottom: innerHeight };
+    const documentBox = (box) => ({
+      x: box.left + scrollX,
+      y: box.top + scrollY,
+      width: box.right - box.left,
+      height: box.bottom - box.top,
+    });
+    const clipAncestors = (box, subject, includeSelf) => {
+      const clipped = { ...box };
+      let containingBlock = null;
+      for (let el = subject; el; el = el.parentElement) {
+        if (containingBlock && el !== containingBlock) continue;
+        containingBlock = null;
+        const style = getComputedStyle(el);
+        // rationale: Root scrolling is the viewport boundary, not hidden content below the fold.
+        if (
+          el !== document.documentElement &&
+          el !== document.body &&
+          (includeSelf || el !== subject) &&
+          style.display !== "contents"
+        ) {
+          const bounds = overflowBounds(el, style);
+          if (style.overflowX !== "visible") {
+            clipped.left = Math.max(clipped.left, bounds.left);
+            clipped.right = Math.min(clipped.right, bounds.right);
+          }
+          if (style.overflowY !== "visible") {
+            clipped.top = Math.max(clipped.top, bounds.top);
+            clipped.bottom = Math.min(clipped.bottom, bounds.bottom);
+          }
+        }
+        if (
+          (el instanceof HTMLElement || el instanceof SVGSVGElement) &&
+          style.display !== "contents" &&
+          ["absolute", "fixed"].includes(style.position)
+        ) {
+          containingBlock = positionedContainer(el, style.position === "fixed");
+          if (!containingBlock) break;
+        }
+      }
+      return clipped;
+    };
+    const texts = [],
+      allocated = [],
+      walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+    let node,
+      fragments = 0;
+    while ((node = walker.nextNode())) {
+      const parent = node.parentElement;
+      if (
+        !node.textContent.trim() ||
+        parent.closest("script,style,template,noscript") ||
+        getComputedStyle(parent).visibility !== "visible" ||
+        !(() => {
+          let box = parent;
+          while (box && getComputedStyle(box).display === "contents")
+            box = box.parentElement;
+          return box?.checkVisibility({ checkOpacity: true });
+        })()
+      )
+        continue;
+      const range = document.createRange();
+      range.setStart(node, node.textContent.search(/\S/));
+      range.setEnd(node, node.textContent.trimEnd().length);
+      for (const raw of range.getClientRects()) {
+        const box = clipAncestors(
+          {
+            left: raw.left,
+            right: raw.right,
+            top: raw.top,
+            bottom: raw.bottom,
+          },
+          parent,
+          true,
+        );
+        if (!boxArea(box) || box.right <= 0 || box.left >= width) continue;
+        fragments++;
+        if (fragments > 2000) break;
+        const clipped = clipBox(box, viewport);
+        if (boxArea(clipped)) texts.push(clipped);
+        if (
+          box.bottom > innerHeight &&
+          box.top < document.documentElement.scrollHeight - scrollY
+        ) {
+          observation.belowFoldTextFragments++;
+          if (
+            !observation.firstBelowFold ||
+            box.top + scrollY < observation.firstBelowFold.box.y
+          )
+            observation.firstBelowFold = {
+              element: describe(parent),
+              box: documentBox(box),
+            };
+        }
+      }
+      if (fragments > 2000) break;
+    }
+    for (const element of document.querySelectorAll(
+      "img,svg,canvas,video,iframe,object,embed,button,input,select,textarea,a[href],[role=button],[role=slider],[role=checkbox],[role=switch]",
+    )) {
+      if (!visible(element)) continue;
+      const raw = rect(element);
+      const box = clipBox(
+        clipAncestors(
+          {
+            left: raw.left,
+            right: raw.right,
+            top: raw.top,
+            bottom: raw.bottom,
+          },
+          element,
+          false,
+        ),
+        viewport,
+      );
+      if (boxArea(box)) allocated.push(box);
+    }
+    // rationale: Default discovery must stay bounded on large documents; incomplete evidence cannot imply sparsity.
+    if (fragments > 2000 || allocated.length > 2000) {
+      observation.status = "unassessed";
+      observation.problem =
+        "Viewport-density discovery exceeded its 2000-fragment or allocated-box budget.";
+      return observation;
+    }
+    const area = width * innerHeight;
+    observation.textCoverage = unionArea(texts) / area;
+    observation.combinedCoverage = unionArea([...texts, ...allocated]) / area;
+    if (
+      observation.combinedCoverage < observation.discoveryThreshold &&
+      observation.firstBelowFold
+    )
+      observation.candidate = {
+        id: "viewport-sparsity",
+        title: "Potential unused viewport capacity",
+        designRules: ["DR-007"],
+        reason:
+          "Measured text, control and media bounds occupy less than the discovery threshold while rendered text continues below the fold.",
+        suggestion:
+          "Review whether useful task information could be visible together. Explain intentional whitespace or propose a scoped requirement for review; do not fill space, shrink type or change rules merely to remove this flag.",
+      };
+    return observation;
+  };
+  const viewportDensity = measureViewportDensity();
   const inferPeerGroups = () => {
     const controlSelector = [
       'input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="file"]):not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="image"])',
@@ -2218,6 +2396,7 @@ export function inspectPage(rules) {
       evidenceDistances,
       markContrasts,
       peerInference,
+      viewportDensity,
       comparisons,
       consistency,
       evaluations,

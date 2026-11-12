@@ -36,8 +36,8 @@ import {
 // One user workflow through the installed entrypoint; no helper/edge-case matrix.
 test(
   "Installed presets reject broken and stretched comparisons, accept distinct React layouts under one contract, and preserve feedback",
-  // rationale: Retained status-action failures add another installed acceptance path.
-  { timeout: 420000 },
+  // rationale: Status behavior and density calibration share the installed acceptance path.
+  { timeout: 480000 },
   async (t) => {
     const project = await mkdtemp(path.join(tmpdir(), "ui-review-"));
     t.after(() => rm(project, { recursive: true, force: true }));

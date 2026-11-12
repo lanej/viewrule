@@ -39,7 +39,23 @@
       </tbody>
     </table>
   </details>
-  {{/hasDesignCoverage}}
+  {{/hasDesignCoverage}} {{#hasDensityAdvisory}}{{#viewportDensity}}
+  <aside class="density-advisory">
+    <h3>Advisory 1 · {{candidate.title}}</h3>
+    <p>
+      <a href="design-rules.html#DR-007">DR-007</a> · needs task review · not a
+      contract violation
+    </p>
+    <p>
+      Text, control and media bounds occupy
+      <strong>{{combinedLabel}}</strong> of the initial viewport (text alone:
+      {{textLabel}}). Discovery threshold: {{thresholdLabel}}. Rendered text
+      continues below the marked fold.
+    </p>
+    <p>{{candidate.suggestion}}</p>
+    <p><small>{{limitations}}</small></p>
+  </aside>
+  {{/viewportDensity}}{{/hasDensityAdvisory}}
   <div class="compare">
     {{#screenshot}}
     <figure class="capture-figure">
@@ -50,7 +66,11 @@
           ><input class="peer-overlay-toggle" type="checkbox" checked /> Show
           inferred structure</label
         >
-        {{/hasPeerInference}}
+        {{/hasPeerInference}} {{#hasDensityAdvisory}}<label
+          class="peer-overlay-control"
+          ><input class="density-overlay-toggle" type="checkbox" checked /> Show
+          density advisory</label
+        >{{/hasDensityAdvisory}}
       </figcaption>
       <div class="capture-picture">
         <a href="{{screenshot}}"
@@ -76,7 +96,22 @@
           >
           {{/controls}} {{/peerInference}}
         </div>
-        {{/hasPeerInference}}
+        {{/hasPeerInference}} {{#hasDensityAdvisory}}{{#viewportDensity}}
+        <div class="density-overlay-layer" aria-hidden="true">
+          <span class="density-viewport-outline" style="{{viewportStyle}}"
+            ><span class="density-badge"
+              >Advisory 1 · {{combinedLabel}} allocated · initial viewport</span
+            ><span class="density-fold-label"
+              >Initial viewport ends here</span
+            ></span
+          >
+          <span class="density-continuation" style="{{belowFoldStyle}}"
+            ><span class="density-badge"
+              >Text continues below the fold</span
+            ></span
+          >
+        </div>
+        {{/viewportDensity}}{{/hasDensityAdvisory}}
       </div>
     </figure>
     {{/screenshot}} {{#approved}}
@@ -113,7 +148,22 @@
     </figure>
     {{/tiles}}
   </details>
-  {{/details}} {{#hasDensity}}
+  {{/details}} {{#viewportDensity}}
+  <details class="viewport-density-evidence">
+    <summary>
+      Viewport-density discovery · {{status}} · {{combinedLabel}} allocated
+    </summary>
+    <p>
+      Heuristic version {{heuristicVersion}}. Advisory evidence does not affect
+      findings, exit status or design-rule coverage.
+    </p>
+    {{#problem}}
+    <p>{{problem}}</p>
+    {{/problem}}
+    <p>{{limitations}}</p>
+    <pre>{{evidence}}</pre>
+  </details>
+  {{/viewportDensity}} {{#hasDensity}}
   <table>
     <caption>
       Region density · measured before any screenshot scaling

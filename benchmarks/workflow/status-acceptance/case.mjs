@@ -24,7 +24,7 @@ const viewports = [
   { name: "phone", width: 390, height: 844 },
   { name: "desktop", width: 1280, height: 900 },
 ];
-export const caseRevision = 2;
+export const caseRevision = 3;
 const compact = (value) => value.replace(/\s+/g, "");
 const sourceFiles = ["index.html", "style.css", "app.js"];
 const protectedFiles = [
@@ -87,7 +87,13 @@ export async function prepareCase(
   assistance = true,
 ) {
   assert.ok(
-    ["starting", "passing", "broken-repair", "pointer-only"].includes(variant),
+    [
+      "starting",
+      "passing",
+      "compact",
+      "broken-repair",
+      "pointer-only",
+    ].includes(variant),
   );
   validateRules(rules);
   const application = path.join(destination, "app");
@@ -107,6 +113,14 @@ export async function prepareCase(
     ),
     path.join(application, "index.html"),
   );
+  if (variant === "compact")
+    await writeFile(
+      path.join(application, "index.html"),
+      (await read(path.join(application, "index.html"))).replace(
+        "<body>",
+        '<body data-density-layout="compact">',
+      ),
+    );
   await copyFile(
     path.join(
       root,
@@ -879,6 +893,7 @@ export async function verifyFixtures(output, check = sourceCheck) {
   for (const variant of [
     "starting",
     "passing",
+    "compact",
     "broken-repair",
     "pointer-only",
   ]) {
@@ -893,7 +908,7 @@ export async function verifyFixtures(output, check = sourceCheck) {
     assert.deepEqual(result.integrity, []);
     assert.equal(
       result.accepted,
-      variant === "passing",
+      ["passing", "compact"].includes(variant),
       JSON.stringify(result),
     );
     if (variant === "starting") {
@@ -966,12 +981,101 @@ export async function verifyFixtures(output, check = sourceCheck) {
           `Pointer-only actions must fail ${id}`,
         );
     }
+    if (["passing", "compact"].includes(variant)) {
+      const report = await json(
+        path.join(destination, "evidence/review/report.json"),
+      );
+      const desktop = report.pages.find(
+        (page) => page.name === "online" && page.viewport.name === "desktop",
+      );
+      const phone = report.pages.find(
+        (page) => page.name === "online" && page.viewport.name === "phone",
+      );
+      assert.equal(
+        result.viewrule.exitCode,
+        0,
+        "Density advisories cannot change functional acceptance",
+      );
+      assert.equal(desktop.metrics.viewportDensity.status, "measured");
+      assert.equal(
+        Boolean(desktop.metrics.viewportDensity.candidate),
+        variant === "passing",
+      );
+      assert.equal(phone.metrics.viewportDensity.candidate, null);
+      assert.equal(desktop.findings.length, 0);
+      const html = await read(
+        path.join(destination, "evidence/review/index.html"),
+      );
+      assert.equal(
+        html.includes("Advisory 1 · Potential unused viewport capacity"),
+        variant === "passing",
+      );
+      assert.equal(
+        html.includes('class="density-overlay-layer"'),
+        variant === "passing",
+      );
+    }
     results.push({
       caseRevision,
       variant,
       accepted: result.accepted,
       execution: result.execution,
     });
+  }
+  const calibration = path.join(output, "density-calibration");
+  await prepareCase(calibration, "passing");
+  await copyFile(
+    path.join(root, "density-calibration.html"),
+    path.join(calibration, "app/index.html"),
+  );
+  await writeFile(path.join(calibration, "app/.ui-review/rules.json"), "[]\n");
+  await writeFile(
+    path.join(calibration, "app/.ui-review/config.json"),
+    JSON.stringify({
+      ...config(),
+      sourcePaths: ["."],
+      viewports: [viewports[1]],
+      pages: ["short", "media", "clipped"].map((name) => ({
+        name,
+        path: `/?view=${name}`,
+        ready: "body[data-ready]",
+      })),
+    }),
+  );
+  const server = await serveCase(path.join(calibration, "app"));
+  try {
+    const checked = await check([
+      "check",
+      "--project",
+      path.join(calibration, "app"),
+      "--url",
+      server.url,
+    ]);
+    assert.equal(checked.code, 0, checked.stderr);
+    const reportFile = JSON.parse(checked.stdout).report;
+    const report = await json(reportFile);
+    for (const page of report.pages) {
+      const density = page.metrics.viewportDensity;
+      if (page.name === "clipped") {
+        assert.equal(density.status, "unassessed");
+        assert.match(density.problem, /root\/body clipping/);
+        assert.equal(density.combinedCoverage, null);
+        assert.equal(density.candidate, null);
+        continue;
+      }
+      assert.equal(density.status, "measured");
+      assert.equal(density.candidate, null);
+      assert.equal(Boolean(density.firstBelowFold), page.name === "media");
+      assert.ok(density.textCoverage < density.discoveryThreshold);
+      if (page.name === "media")
+        assert.ok(density.combinedCoverage > density.discoveryThreshold);
+    }
+    const { cp } = await import("node:fs/promises");
+    await cp(path.dirname(reportFile), path.join(calibration, "review"), {
+      recursive: true,
+    });
+  } finally {
+    await server.close();
   }
   await writeFile(
     path.join(output, "fixtures.json"),
