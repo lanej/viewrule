@@ -1,0 +1,562 @@
+[
+  {
+    "variant": "passing",
+    "page": "online",
+    "viewport": {
+      "name": "phone",
+      "width": 390,
+      "height": 844
+    },
+    "density": {
+      "heuristicVersion": 1,
+      "status": "measured",
+      "discoveryThreshold": 0.08,
+      "viewport": {
+        "x": 0,
+        "y": 0,
+        "width": 390,
+        "height": 844
+      },
+      "textCoverage": 0.18938861419978126,
+      "combinedCoverage": 0.20115189041803377,
+      "belowFoldTextFragments": 18,
+      "firstBelowFold": {
+        "element": "td",
+        "box": {
+          "x": 22,
+          "y": 836.5,
+          "width": 43.5,
+          "height": 18
+        }
+      },
+      "candidate": null,
+      "limitations": "Geometry is advisory, not information relevance or design approval. Media/control bounds count allocated space, not painted content. CSS background images, pseudo-elements, shadow text and occlusion are not assessed.",
+      "problem": null
+    }
+  },
+  {
+    "variant": "passing",
+    "page": "online",
+    "viewport": {
+      "name": "desktop",
+      "width": 1280,
+      "height": 900
+    },
+    "density": {
+      "heuristicVersion": 1,
+      "status": "measured",
+      "discoveryThreshold": 0.08,
+      "viewport": {
+        "x": 0,
+        "y": 0,
+        "width": 1280,
+        "height": 900
+      },
+      "textCoverage": 0.06477261691623264,
+      "combinedCoverage": 0.06820474582248263,
+      "belowFoldTextFragments": 6,
+      "firstBelowFold": {
+        "element": "td",
+        "box": {
+          "x": 148,
+          "y": 890.5,
+          "width": 43.5,
+          "height": 18
+        }
+      },
+      "candidate": {
+        "id": "viewport-sparsity",
+        "title": "Potential unused viewport capacity",
+        "designRules": [
+          "DR-007"
+        ],
+        "reason": "Measured text, control and media bounds occupy less than the discovery threshold while rendered text continues below the fold.",
+        "suggestion": "Review whether useful task information could be visible together. Explain intentional whitespace or propose a scoped requirement for review; do not fill space, shrink type or change rules merely to remove this flag."
+      },
+      "limitations": "Geometry is advisory, not information relevance or design approval. Media/control bounds count allocated space, not painted content. CSS background images, pseudo-elements, shadow text and occlusion are not assessed.",
+      "problem": null
+    }
+  },
+  {
+    "variant": "passing",
+    "page": "stale",
+    "viewport": {
+      "name": "phone",
+      "width": 390,
+      "height": 844
+    },
+    "density": {
+      "heuristicVersion": 1,
+      "status": "measured",
+      "discoveryThreshold": 0.08,
+      "viewport": {
+        "x": 0,
+        "y": 0,
+        "width": 390,
+        "height": 844
+      },
+      "textCoverage": 0.2031981976850164,
+      "combinedCoverage": 0.21496147390326892,
+      "belowFoldTextFragments": 21,
+      "firstBelowFold": {
+        "element": "td",
+        "box": {
+          "x": 22,
+          "y": 867.5,
+          "width": 43.5,
+          "height": 18
+        }
+      },
+      "candidate": null,
+      "limitations": "Geometry is advisory, not information relevance or design approval. Media/control bounds count allocated space, not painted content. CSS background images, pseudo-elements, shadow text and occlusion are not assessed.",
+      "problem": null
+    }
+  },
+  {
+    "variant": "passing",
+    "page": "stale",
+    "viewport": {
+      "name": "desktop",
+      "width": 1280,
+      "height": 900
+    },
+    "density": {
+      "heuristicVersion": 1,
+      "status": "measured",
+      "discoveryThreshold": 0.08,
+      "viewport": {
+        "x": 0,
+        "y": 0,
+        "width": 1280,
+        "height": 900
+      },
+      "textCoverage": 0.06881764051649306,
+      "combinedCoverage": 0.07224976942274305,
+      "belowFoldTextFragments": 9,
+      "firstBelowFold": {
+        "element": "td",
+        "box": {
+          "x": 148,
+          "y": 897.5,
+          "width": 43.5,
+          "height": 18
+        }
+      },
+      "candidate": {
+        "id": "viewport-sparsity",
+        "title": "Potential unused viewport capacity",
+        "designRules": [
+          "DR-007"
+        ],
+        "reason": "Measured text, control and media bounds occupy less than the discovery threshold while rendered text continues below the fold.",
+        "suggestion": "Review whether useful task information could be visible together. Explain intentional whitespace or propose a scoped requirement for review; do not fill space, shrink type or change rules merely to remove this flag."
+      },
+      "limitations": "Geometry is advisory, not information relevance or design approval. Media/control bounds count allocated space, not painted content. CSS background images, pseudo-elements, shadow text and occlusion are not assessed.",
+      "problem": null
+    }
+  },
+  {
+    "variant": "passing",
+    "page": "empty",
+    "viewport": {
+      "name": "phone",
+      "width": 390,
+      "height": 844
+    },
+    "density": {
+      "heuristicVersion": 1,
+      "status": "measured",
+      "discoveryThreshold": 0.08,
+      "viewport": {
+        "x": 0,
+        "y": 0,
+        "width": 390,
+        "height": 844
+      },
+      "textCoverage": 0.17345962070117876,
+      "combinedCoverage": 0.18522289691943128,
+      "belowFoldTextFragments": 21,
+      "firstBelowFold": {
+        "element": "td",
+        "box": {
+          "x": 22,
+          "y": 843.5,
+          "width": 43.5,
+          "height": 18
+        }
+      },
+      "candidate": null,
+      "limitations": "Geometry is advisory, not information relevance or design approval. Media/control bounds count allocated space, not painted content. CSS background images, pseudo-elements, shadow text and occlusion are not assessed.",
+      "problem": null
+    }
+  },
+  {
+    "variant": "passing",
+    "page": "empty",
+    "viewport": {
+      "name": "desktop",
+      "width": 1280,
+      "height": 900
+    },
+    "density": {
+      "heuristicVersion": 1,
+      "status": "measured",
+      "discoveryThreshold": 0.08,
+      "viewport": {
+        "x": 0,
+        "y": 0,
+        "width": 1280,
+        "height": 900
+      },
+      "textCoverage": 0.060205390082465275,
+      "combinedCoverage": 0.06363751898871528,
+      "belowFoldTextFragments": 9,
+      "firstBelowFold": {
+        "element": "td",
+        "box": {
+          "x": 148,
+          "y": 897.5,
+          "width": 43.5,
+          "height": 18
+        }
+      },
+      "candidate": {
+        "id": "viewport-sparsity",
+        "title": "Potential unused viewport capacity",
+        "designRules": [
+          "DR-007"
+        ],
+        "reason": "Measured text, control and media bounds occupy less than the discovery threshold while rendered text continues below the fold.",
+        "suggestion": "Review whether useful task information could be visible together. Explain intentional whitespace or propose a scoped requirement for review; do not fill space, shrink type or change rules merely to remove this flag."
+      },
+      "limitations": "Geometry is advisory, not information relevance or design approval. Media/control bounds count allocated space, not painted content. CSS background images, pseudo-elements, shadow text and occlusion are not assessed.",
+      "problem": null
+    }
+  },
+  {
+    "variant": "passing",
+    "page": "scheduler-off",
+    "viewport": {
+      "name": "phone",
+      "width": 390,
+      "height": 844
+    },
+    "density": {
+      "heuristicVersion": 1,
+      "status": "measured",
+      "discoveryThreshold": 0.08,
+      "viewport": {
+        "x": 0,
+        "y": 0,
+        "width": 390,
+        "height": 844
+      },
+      "textCoverage": 0.20129534269048488,
+      "combinedCoverage": 0.2130586189087374,
+      "belowFoldTextFragments": 21,
+      "firstBelowFold": {
+        "element": "td",
+        "box": {
+          "x": 22,
+          "y": 867.5,
+          "width": 43.5,
+          "height": 18
+        }
+      },
+      "candidate": null,
+      "limitations": "Geometry is advisory, not information relevance or design approval. Media/control bounds count allocated space, not painted content. CSS background images, pseudo-elements, shadow text and occlusion are not assessed.",
+      "problem": null
+    }
+  },
+  {
+    "variant": "passing",
+    "page": "scheduler-off",
+    "viewport": {
+      "name": "desktop",
+      "width": 1280,
+      "height": 900
+    },
+    "density": {
+      "heuristicVersion": 1,
+      "status": "measured",
+      "discoveryThreshold": 0.08,
+      "viewport": {
+        "x": 0,
+        "y": 0,
+        "width": 1280,
+        "height": 900
+      },
+      "textCoverage": 0.06827393934461806,
+      "combinedCoverage": 0.07170606825086806,
+      "belowFoldTextFragments": 9,
+      "firstBelowFold": {
+        "element": "td",
+        "box": {
+          "x": 148,
+          "y": 897.5,
+          "width": 43.5,
+          "height": 18
+        }
+      },
+      "candidate": {
+        "id": "viewport-sparsity",
+        "title": "Potential unused viewport capacity",
+        "designRules": [
+          "DR-007"
+        ],
+        "reason": "Measured text, control and media bounds occupy less than the discovery threshold while rendered text continues below the fold.",
+        "suggestion": "Review whether useful task information could be visible together. Explain intentional whitespace or propose a scoped requirement for review; do not fill space, shrink type or change rules merely to remove this flag."
+      },
+      "limitations": "Geometry is advisory, not information relevance or design approval. Media/control bounds count allocated space, not painted content. CSS background images, pseudo-elements, shadow text and occlusion are not assessed.",
+      "problem": null
+    }
+  },
+  {
+    "variant": "compact",
+    "page": "online",
+    "viewport": {
+      "name": "phone",
+      "width": 390,
+      "height": 844
+    },
+    "density": {
+      "heuristicVersion": 1,
+      "status": "measured",
+      "discoveryThreshold": 0.08,
+      "viewport": {
+        "x": 0,
+        "y": 0,
+        "width": 390,
+        "height": 844
+      },
+      "textCoverage": 0.18938861419978126,
+      "combinedCoverage": 0.20115189041803377,
+      "belowFoldTextFragments": 18,
+      "firstBelowFold": {
+        "element": "td",
+        "box": {
+          "x": 22,
+          "y": 836.5,
+          "width": 43.5,
+          "height": 18
+        }
+      },
+      "candidate": null,
+      "limitations": "Geometry is advisory, not information relevance or design approval. Media/control bounds count allocated space, not painted content. CSS background images, pseudo-elements, shadow text and occlusion are not assessed.",
+      "problem": null
+    }
+  },
+  {
+    "variant": "compact",
+    "page": "online",
+    "viewport": {
+      "name": "desktop",
+      "width": 1280,
+      "height": 900
+    },
+    "density": {
+      "heuristicVersion": 1,
+      "status": "measured",
+      "discoveryThreshold": 0.08,
+      "viewport": {
+        "x": 0,
+        "y": 0,
+        "width": 1280,
+        "height": 900
+      },
+      "textCoverage": 0.07155494520399305,
+      "combinedCoverage": 0.07498707411024305,
+      "belowFoldTextFragments": 0,
+      "firstBelowFold": null,
+      "candidate": null,
+      "limitations": "Geometry is advisory, not information relevance or design approval. Media/control bounds count allocated space, not painted content. CSS background images, pseudo-elements, shadow text and occlusion are not assessed.",
+      "problem": null
+    }
+  },
+  {
+    "variant": "compact",
+    "page": "stale",
+    "viewport": {
+      "name": "phone",
+      "width": 390,
+      "height": 844
+    },
+    "density": {
+      "heuristicVersion": 1,
+      "status": "measured",
+      "discoveryThreshold": 0.08,
+      "viewport": {
+        "x": 0,
+        "y": 0,
+        "width": 390,
+        "height": 844
+      },
+      "textCoverage": 0.2031981976850164,
+      "combinedCoverage": 0.21496147390326892,
+      "belowFoldTextFragments": 21,
+      "firstBelowFold": {
+        "element": "td",
+        "box": {
+          "x": 22,
+          "y": 867.5,
+          "width": 43.5,
+          "height": 18
+        }
+      },
+      "candidate": null,
+      "limitations": "Geometry is advisory, not information relevance or design approval. Media/control bounds count allocated space, not painted content. CSS background images, pseudo-elements, shadow text and occlusion are not assessed.",
+      "problem": null
+    }
+  },
+  {
+    "variant": "compact",
+    "page": "stale",
+    "viewport": {
+      "name": "desktop",
+      "width": 1280,
+      "height": 900
+    },
+    "density": {
+      "heuristicVersion": 1,
+      "status": "measured",
+      "discoveryThreshold": 0.08,
+      "viewport": {
+        "x": 0,
+        "y": 0,
+        "width": 1280,
+        "height": 900
+      },
+      "textCoverage": 0.07809791395399306,
+      "combinedCoverage": 0.08153004286024305,
+      "belowFoldTextFragments": 0,
+      "firstBelowFold": null,
+      "candidate": null,
+      "limitations": "Geometry is advisory, not information relevance or design approval. Media/control bounds count allocated space, not painted content. CSS background images, pseudo-elements, shadow text and occlusion are not assessed.",
+      "problem": null
+    }
+  },
+  {
+    "variant": "compact",
+    "page": "empty",
+    "viewport": {
+      "name": "phone",
+      "width": 390,
+      "height": 844
+    },
+    "density": {
+      "heuristicVersion": 1,
+      "status": "measured",
+      "discoveryThreshold": 0.08,
+      "viewport": {
+        "x": 0,
+        "y": 0,
+        "width": 390,
+        "height": 844
+      },
+      "textCoverage": 0.17345962070117876,
+      "combinedCoverage": 0.18522289691943128,
+      "belowFoldTextFragments": 21,
+      "firstBelowFold": {
+        "element": "td",
+        "box": {
+          "x": 22,
+          "y": 843.5,
+          "width": 43.5,
+          "height": 18
+        }
+      },
+      "candidate": null,
+      "limitations": "Geometry is advisory, not information relevance or design approval. Media/control bounds count allocated space, not painted content. CSS background images, pseudo-elements, shadow text and occlusion are not assessed.",
+      "problem": null
+    }
+  },
+  {
+    "variant": "compact",
+    "page": "empty",
+    "viewport": {
+      "name": "desktop",
+      "width": 1280,
+      "height": 900
+    },
+    "density": {
+      "heuristicVersion": 1,
+      "status": "measured",
+      "discoveryThreshold": 0.08,
+      "viewport": {
+        "x": 0,
+        "y": 0,
+        "width": 1280,
+        "height": 900
+      },
+      "textCoverage": 0.07086383734809028,
+      "combinedCoverage": 0.07429596625434028,
+      "belowFoldTextFragments": 0,
+      "firstBelowFold": null,
+      "candidate": null,
+      "limitations": "Geometry is advisory, not information relevance or design approval. Media/control bounds count allocated space, not painted content. CSS background images, pseudo-elements, shadow text and occlusion are not assessed.",
+      "problem": null
+    }
+  },
+  {
+    "variant": "compact",
+    "page": "scheduler-off",
+    "viewport": {
+      "name": "phone",
+      "width": 390,
+      "height": 844
+    },
+    "density": {
+      "heuristicVersion": 1,
+      "status": "measured",
+      "discoveryThreshold": 0.08,
+      "viewport": {
+        "x": 0,
+        "y": 0,
+        "width": 390,
+        "height": 844
+      },
+      "textCoverage": 0.20129534269048488,
+      "combinedCoverage": 0.2130586189087374,
+      "belowFoldTextFragments": 21,
+      "firstBelowFold": {
+        "element": "td",
+        "box": {
+          "x": 22,
+          "y": 867.5,
+          "width": 43.5,
+          "height": 18
+        }
+      },
+      "candidate": null,
+      "limitations": "Geometry is advisory, not information relevance or design approval. Media/control bounds count allocated space, not painted content. CSS background images, pseudo-elements, shadow text and occlusion are not assessed.",
+      "problem": null
+    }
+  },
+  {
+    "variant": "compact",
+    "page": "scheduler-off",
+    "viewport": {
+      "name": "desktop",
+      "width": 1280,
+      "height": 900
+    },
+    "density": {
+      "heuristicVersion": 1,
+      "status": "measured",
+      "discoveryThreshold": 0.08,
+      "viewport": {
+        "x": 0,
+        "y": 0,
+        "width": 1280,
+        "height": 900
+      },
+      "textCoverage": 0.07755421278211806,
+      "combinedCoverage": 0.08098634168836806,
+      "belowFoldTextFragments": 0,
+      "firstBelowFold": null,
+      "candidate": null,
+      "limitations": "Geometry is advisory, not information relevance or design approval. Media/control bounds count allocated space, not painted content. CSS background images, pseudo-elements, shadow text and occlusion are not assessed.",
+      "problem": null
+    }
+  }
+]

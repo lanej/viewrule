@@ -1,0 +1,89 @@
+{
+  "kind": "agent-interpretation",
+  "approval": "not supplied",
+  "requirementStatus": "proposed, not enforced",
+  "observation": {
+    "report": "focused/passing/evidence/review/report.json",
+    "reportSha256": "27c43e2757cbbe2d8572b4f9e181817155dd7f6b75d285d9fd70ad49af8ed5be",
+    "page": "online",
+    "viewport": {
+      "name": "desktop",
+      "width": 1280,
+      "height": 900
+    },
+    "metrics": {
+      "heuristicVersion": 1,
+      "status": "measured",
+      "discoveryThreshold": 0.08,
+      "viewport": {
+        "x": 0,
+        "y": 0,
+        "width": 1280,
+        "height": 900
+      },
+      "textCoverage": 0.06477261691623264,
+      "combinedCoverage": 0.06820474582248263,
+      "belowFoldTextFragments": 6,
+      "firstBelowFold": {
+        "element": "td",
+        "box": {
+          "x": 148,
+          "y": 890.5,
+          "width": 43.5,
+          "height": 18
+        }
+      },
+      "candidate": {
+        "id": "viewport-sparsity",
+        "title": "Potential unused viewport capacity",
+        "designRules": [
+          "DR-007"
+        ],
+        "reason": "Measured text, control and media bounds occupy less than the discovery threshold while rendered text continues below the fold.",
+        "suggestion": "Review whether useful task information could be visible together. Explain intentional whitespace or propose a scoped requirement for review; do not fill space, shrink type or change rules merely to remove this flag."
+      },
+      "limitations": "Geometry is advisory, not information relevance or design approval. Media/control bounds count allocated space, not painted content. CSS background images, pseudo-elements, shadow text and occlusion are not assessed.",
+      "problem": null
+    },
+    "originalImage": "passing-desktop-original.png",
+    "renderedReport": "passing-report.png"
+  },
+  "taskImpact": {
+    "established": "The task preserves current readings, next action, four schedule events and six historical observations on a read-only status page.",
+    "assumption": "Recent history helps interpret the current reading; treating the complete six-observation window as initial desktop context is a proposed requirement, not an existing obligation.",
+    "observed": "The last history row crosses the 900 CSS-pixel initial viewport boundary while the overview and schedule distribute small amounts of text across a wide area."
+  },
+  "interpretation": {
+    "status": "actionable concern",
+    "rationale": "A compact counterpart exposes the entire finite observation set at the same viewport while retaining all facts and passing the existing keyboard/refresh/preservation checks. This supports reviewing the information grouping; it does not establish overall design approval."
+  },
+  "proposedRequirement": {
+    "scope": {
+      "page": "status",
+      "states": [
+        "online",
+        "stale",
+        "empty",
+        "scheduler-off"
+      ],
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      }
+    },
+    "expected": "Show current readings, next action, all four schedule events and all six recent observations in the initial desktop view. Diagnostic details may remain disclosed.",
+    "check": {
+      "type": "visible-count",
+      "selector": ".history [data-observation]",
+      "min": 6,
+      "designRules": [
+        "DR-007"
+      ],
+      "note": "Retain the existing exact-fact, readable-type and behavior checks. Author this boundary only after acceptance; it is not applied in this trial."
+    }
+  },
+  "limits": [
+    "One local host-agent interpretation; no blinded or general model-efficacy claim.",
+    "Removing the geometric flag alone does not prove useful density."
+  ]
+}
